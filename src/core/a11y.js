@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
   const CAA = root.CAA = root.CAA || {};
-  const DEFAULTS = Object.freeze({ fontSize: 0, colorMode: 'standard', reducedMotion: 'system', vibration: true, audio: true, highContrast: false });
+  const DEFAULTS = Object.freeze({ fontSize: 0, colorMode: 'standard', reducedMotion: 'system', vibration: true, audio: false, highContrast: false });
   function normalize(settings) {
     const s = Object.assign({}, DEFAULTS, settings || {});
     s.fontSize = [0, 1, 2].includes(+s.fontSize) ? +s.fontSize : 0;

@@ -8,7 +8,7 @@ Juego de carrera/gestión de baloncesto, offline-first, para móvil Android/WebV
 
 ## 2. Referencias estudiadas
 
-| Referencia | Fortalezas observadas | Adaptación a Camino al Aro | Exclusiones deliberadas |
+| Referencia | Fortalezas observadas | Adaptación a Baketball: Road to legend | Exclusiones deliberadas |
 |---|---|---|---|
 | NBA 2K MyCAREER / MyNBA | Identidad de jugador, construcción, franquicia y expresión. [1](https://2k.com/games/nba2k/) | Creación, roles, momentos clave, vitrina y gestión de franquicia en sesiones cortas. | Ciudad online obligatoria, compras de progreso, simulación de stick completa y licencias. |
 | Basketball GM | Simulación client-side, IndexedDB, worker, carreras largas y mercado. [README](https://github.com/zengm-games/zengm/blob/master/README.md) | Mundo persistente, stats, draft/contratos y simulación masiva local. | Copiar código: su README declara que no es open source; interfaz de PC sin jerarquía móvil. |

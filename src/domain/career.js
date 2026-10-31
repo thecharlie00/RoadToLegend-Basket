@@ -3,6 +3,7 @@
   const CAA = root.CAA = root.CAA || {};
   const RNG = CAA.RNG || (typeof require === 'function' ? require('../core/rng.js') : null);
   const Hash = CAA.Hash || (typeof require === 'function' ? require('../core/hash.js') : null);
+  const Match = CAA.Match || (typeof require === 'function' ? require('../match/engine.js') : null);
   const Player = CAA.Player || (typeof require === 'function' ? require('./player.js') : null);
   const Contracts = CAA.Contracts || (typeof require === 'function' ? require('./contracts.js') : null);
   const Season = CAA.Season || (typeof require === 'function' ? require('./season.js') : null);
@@ -16,6 +17,8 @@
   function createCareer(config = {}) {
     const mode = config.mode || 'player';
     if (!MODES.includes(mode)) throw new Error('unknown mode');
+    if (config.archetype && !Player.ARCHETYPES.includes(config.archetype)) throw new Error('unknown archetype');
+    if (config.handedness && !['left', 'right'].includes(config.handedness)) throw new Error('unknown handedness');
     const route = config.route || (mode === 'coach' ? 'eu-academy' : 'eu-academy');
     const seed = config.seed == null ? 'career' : config.seed;
     const rng = RNG.create(seed);
@@ -26,11 +29,11 @@
     if (!club) throw new Error('club not found');
     const state = {
       schemaVersion: 1, careerId: config.careerId || 'career-' + Hash.hex32(Hash.hashString(String(seed))),
-      mode, route, seed, rng: rng.serialize(), week: 0, year: 2026, season, topSeason, clubId: club.id,
+      mode, route, seed, rng: rng.serialize(), week: 0, year: 2026, season, topSeason, clubId: club.id, startingClubId: club.id,
       player: null, coach: null, inbox: [], market: [], draft: null, history: [], hash: '00000000'
     };
     if (mode === 'player') {
-      const p = Player.createPlayer({ seed: seed + ':myplayer', nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || 'shooter', age: config.age || 19, quality: config.quality || 52 });
+      const p = Player.createPlayer({ seed: seed + ':myplayer', nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || 'shooter', handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
       p.contract = Contracts.offerForPlayer(p, club, rng, Contracts.NA_ECONOMY_2026_27);
       club.roster.push(p);
       state.player = p;
@@ -70,7 +73,7 @@
     }
     Content.ensureLife(state);
     Content.press(state);
-    record(state, { type: 'create', mode, route, clubId: club.id });
+    record(state, { type: 'create', mode, route, clubId: state.clubId, startingClubId: club.id, archetype: state.player ? state.player.archetype : null, handedness: state.player ? state.player.handedness : null });
     return state;
   }
   function record(state, event) {
@@ -92,7 +95,9 @@
       else if (act.type === 'play') Player.maybeInjure(p, rng);
     }
     if (state.season.round < state.season.schedule.length) {
-      Season.playRound(state.season, state.seed + ':w' + state.week);
+      const played = Season.playRound(state.season, state.seed + ':w' + state.week);
+      const mine = played && played.find(m => m.teams.some(t => t.id === state.clubId));
+      if (mine) state.lastMatch = Match.replay(mine, { week: state.week + 1, year: state.year, clubId: state.clubId, source: 'career' });
       state.week++;
       for (const c of state.season.clubs) for (const p of c.roster) { p.load = Math.max(0, (p.load || 0) - 6); p.fatigue = Math.max(0, (p.fatigue || 0) - 0.08); }
       record(state, { type: 'week', round: state.season.round, clubWins: club.wins, clubLosses: club.losses });
@@ -246,7 +251,7 @@
     return {
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       leagueId: state.season.leagueId, round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
-      player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
+      player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
       coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
     };
   }
@@ -279,6 +284,18 @@
     if (object(state.season) && !Object.prototype.hasOwnProperty.call(state.season.clubsById || {}, state.clubId) && !Object.prototype.hasOwnProperty.call((state.topSeason || {}).clubsById || {}, state.clubId)) errors.push('career club missing');
     if (state.mode === 'player' && (!object(state.player) || !object(state.player.attrs) || !object(state.player.stats))) errors.push('player missing');
     if (state.mode === 'coach' && !object(state.coach)) errors.push('coach missing');
+    if (state.lastMatch != null) {
+      const r = state.lastMatch, m = r && r.state;
+      if (!object(r) || !object(m) || !Array.isArray(m.events) || m.events.length > 2000 || !Array.isArray(m.teams) || m.teams.length !== 2 || !Array.isArray(m.score) || m.score.length !== 2 || !m.score.every(finite) || !/^[0-9a-f]{8}$/.test(m.hash || '') || !object(r.context) || !object(r.validation) || !Array.isArray(r.box) || r.box.length !== 2) errors.push('invalid career replay');
+      else if (m.events.some(e => !object(e) || typeof e.type !== 'string' || !finite(e.period) || !finite(e.clock)) || m.teams.some(t => !object(t) || typeof t.id !== 'string' || typeof t.name !== 'string' || !Array.isArray(t.players) || t.players.length < 5 || t.players.some(p => !object(p) || typeof p.id !== 'string' || typeof p.name !== 'string'))) errors.push('invalid career replay events/teams');
+      if (m.lineups != null) {
+        if (!Array.isArray(m.lineups) || m.lineups.length !== m.events.length) errors.push('invalid career replay lineups');
+        else {
+          const ids = m.teams.map(t => new Set(t.players.map(p => p.id)));
+          if (m.lineups.some((l, i) => !object(l) || l.seq !== m.events[i].seq || !Array.isArray(l.teams) || l.teams.length !== 2 || l.teams.some((five, ti) => !Array.isArray(five) || five.length !== 5 || new Set(five).size !== 5 || five.some(id => typeof id !== 'string' || !ids[ti].has(id))))) errors.push('invalid career replay lineups');
+        }
+      }
+    }
     if (state.life != null) {
       if (!object(state.life) || !['achievements', 'owned', 'appliedBonuses', 'eventHistory', 'press'].every(k => Array.isArray(state.life[k])) || !object(state.life.counters) || !object(state.life.equipment) || !['cash', 'style', 'xp'].every(k => finite(state.life[k])) || !Number.isInteger(state.life.counters.practice) || state.life.counters.practice < 0) errors.push('invalid life state');
       else if (state.life.pendingPractice != null) {

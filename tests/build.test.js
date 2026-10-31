@@ -14,6 +14,8 @@ test('census importer validates seed', () => {
 test('builder produces single offline HTML', () => {
   execFileSync('python3', ['tools/build.py'], { cwd: ROOT, encoding: 'utf8' });
   const html = fs.readFileSync(path.join(ROOT, 'dist/index.html'), 'utf8');
+  assert.match(html, /<title>Baketball: Road to legend<\/title>/);
+  assert.match(html, /module: voxel/);
   assert.match(html, /Content-Security-Policy/);
   assert.match(html, /connect-src 'none'/);
   assert.match(html, /caa-payload/);

@@ -1,4 +1,4 @@
-# Camino al Aro — shell Android, fase 5
+# Baketball: Road to legend — shell Android
 
 **Estado: fuentes preparadas, no compiladas ni firmadas.** No se ha generado un APK/AAB ni se ha hecho push. Este directorio no contiene claves de publicación.
 
@@ -7,6 +7,8 @@
 - `MainActivity.java`: `ComponentActivity`, WebView local, `WebViewAssetLoader`, bloqueo de navegación/red externa, ciclo de vida, atrás y exportación/importación mediante Storage Access Framework.
 - Origen reservado: `https://appassets.androidplatform.net/assets/game/index.html`. No es un servidor: las respuestas proceden de assets locales. El permiso `INTERNET` no está declarado.
 - Mismo HTML/CSP/juego que web; no se bifurca el dominio. JavaScript/DOM storage habilitados solo para este contenido; acceso a archivos/contenido del WebView deshabilitado. El archivo de importación llega mediante el selector del sistema, no mediante `file://`.
+- El nombre visible cambia; `applicationId`, paquete Java, base IndexedDB y formato de guardado conservan sus IDs anteriores para no perder partidas.
+
 - `minSdk 24`, `targetSdk/compileSdk 36`, Java 17, AndroidX WebKit 1.14.0 y Activity 1.10.1; AGP 8.13.0 y Gradle 8.13. Versiones fijadas para una primera compilación reproducible, **no certificadas aquí por falta de JDK/SDK**.
 - Wrapper procedente de `gradle/gradle`, tag `v8.13.0`; la distribución descargada por un futuro build se verifica con el SHA-256 publicado en `gradle/gradle-distributions`, release `v8.13.0`.
 - Icono vectorial original provisional. No contiene logos de clubes/ligas ni assets de terceros.

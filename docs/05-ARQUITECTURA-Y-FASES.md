@@ -82,3 +82,26 @@ No hay fechas prometidas. Cada fase requiere informe: cambios, archivos, pruebas
 - Referencia: clon read-only limpio; no push, no AAB.
 - Incertidumbres: cupos ACB, CBA completo, rookie/max-min exactos, ventanas, calibración FIBA/ACB, dispositivo gama baja, disponibilidad legal de nombres.
 - Siguiente: con OK, fase 1; primero contrato de motor/save y arnés de pruebas, no Android.
+
+
+## 9. Estado de fase 6 — primera entrega jugable
+
+- Nombre visible: **Baketball: Road to legend**; IDs internos de guardado/Android conservados por compatibilidad.
+- Runtime voxel procedural propio sobre WebGL1, sin Three.js ni modelos externos. Cancha por dimensiones del rule set, aro 3,05 m, diez jugadores, balón y dos niveles de calidad.
+- Jugadas clave derivadas del log autorizado: tapones, triples, robos, adicionales, clutch y final. El render no vuelve a simular ni modifica marcador/hash.
+- La carrera guarda un replay ligero de la última semana del club; se puede abrir desde **Ver partido de la semana**. No se recalcula al cargar.
+- Fallback 2D ante WebGL ausente o contexto perdido; movimiento reducido desactiva reproducción automática y mantiene paso/selección manual.
+- Límites: animación ilustrativa de evento, no captura táctica completa de los diez desplazamientos; sin audio, skins 3D ni certificación Android. Ver `docs/12-INFORME-FASE-6.md`.
+
+
+## 10. Estado de fase 6b — identidad, quintetos y audio
+
+Entrega incremental sobre la primera entrega de fase 6. Mantiene el título exacto **Baketball: Road to legend**, los IDs internos (`camino-al-aro`, `com.caminoalaro.app`) y la compatibilidad de guardados.
+
+- Creación de carrera: selector de club inicial por ruta (`career.clubs`, catálogo ligero cacheado), arquetipo, mano dominante y nombre opcional. La ruta draft puede reasignar club; se conserva `startingClubId` y el evento `create` registra el club final.
+- Motor: `state.lineups` paralelo a `events`, con los cinco IDs en pista por evento. No entra en el hash autoritativo; `Match.replay` lo incluye y `Career.validate` lo valida si existe. Guardados antiguos sin `lineups` siguen funcionando con fallback.
+- Render: `Voxel.frameAt` usa el quinteto grabado, incluye suplantes que participaron en la jugada y conserva números/posiciones. `Voxel.avatarGeometry` refleja altura, arquetipo, mano y colores de equipo comprado; cámara `avatar` propia. Fallback 2D si no hay WebGL.
+- Audio: `src/platform/audio.js`, WebAudio procedural original (swish, aro, bote, silbato, bocina, UI). Desactivado por defecto, desbloqueo por gesto, suspend/resume en visibilidad y puente nativo. Sin samples ni red. La vibración sigue reservada.
+- QA: 80 tests Node, 11 escenarios Chromium, 13 auditorías axe, 0 errores/requests/violaciones/traducciones faltantes. Ver `docs/13-INFORME-FASE-6B.md`.
+
+Límites: la animación sigue siendo ilustrativa del evento registrado, no tracking táctico completo; no hay música ni vibración real; Android no compilado; nombres/título pendientes de revisión legal.

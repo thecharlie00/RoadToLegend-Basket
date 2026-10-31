@@ -1,6 +1,6 @@
 {
   "game": "camino-al-aro",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "schemaVersion": 1,
   "css": "src/ui/style.css",
   "out": "dist/index.html",
@@ -130,8 +130,18 @@
       "worker": false
     },
     {
+      "id": "audio",
+      "path": "src/platform/audio.js",
+      "worker": false
+    },
+    {
       "id": "court2d",
       "path": "src/render/court2d.js",
+      "worker": false
+    },
+    {
+      "id": "voxel",
+      "path": "src/render/voxel.js",
       "worker": false
     },
     {
@@ -139,5 +149,6 @@
       "path": "src/ui/app.js",
       "worker": false
     }
-  ]
+  ],
+  "displayName": "Baketball: Road to legend"
 }

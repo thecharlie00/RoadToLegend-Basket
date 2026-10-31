@@ -111,7 +111,7 @@ public final class MainActivity extends ComponentActivity {
             runOnUiThread(() -> {
                 pendingExport = text;
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
-                    .setType("application/json").putExtra(Intent.EXTRA_TITLE, "camino-al-aro.json");
+                    .setType("application/json").putExtra(Intent.EXTRA_TITLE, "baketball-road-to-legend.json");
                 try { startActivityForResult(intent, EXPORT_SAVE); }
                 catch (Exception e) { pendingExport = null; Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show(); }
             });
