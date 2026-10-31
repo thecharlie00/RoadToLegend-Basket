@@ -1,0 +1,782 @@
+{
+  "schemaVersion": 1,
+  "packId": "player-name-inspirations",
+  "version": "0.1.0",
+  "purpose": "internal-audit-only",
+  "notForDistribution": true,
+  "sourceStatus": "fictionalized",
+  "legalStatus": "pending-clearance",
+  "notes": "Nombres alterados por inspiración fonética; no son datos reales ni afiliación. No empaquetar referenceName.",
+  "entries": [
+    {
+      "id": "na-lebron-jamison",
+      "displayName": "LeBron Jamison",
+      "referenceName": "LeBron James",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "point-forward",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-stephen-curran",
+      "displayName": "Stephen Curran",
+      "referenceName": "Stephen Curry",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "shooter",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-kevin-durand",
+      "displayName": "Kevin Durand",
+      "referenceName": "Kevin Durant",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "shooter",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-yannis-andrikopoulos",
+      "displayName": "Yannis Andrikopoulos",
+      "referenceName": "Giannis Antetokounmpo",
+      "nationality": "GR",
+      "pos": "PF",
+      "archetype": "finisher",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-nikola-jokanovic",
+      "displayName": "Nikola Jokanovic",
+      "referenceName": "Nikola Jokic",
+      "nationality": "RS",
+      "pos": "C",
+      "archetype": "passing-big",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-luka-danilovic",
+      "displayName": "Luka Danilovic",
+      "referenceName": "Luka Doncic",
+      "nationality": "SI",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-joel-embery",
+      "displayName": "Joel Embery",
+      "referenceName": "Joel Embiid",
+      "nationality": "CM",
+      "pos": "C",
+      "archetype": "interior",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-jayson-tatham",
+      "displayName": "Jayson Tatham",
+      "referenceName": "Jayson Tatum",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "two-way",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-shai-gilmore",
+      "displayName": "Shai Gilmore-Alexander",
+      "referenceName": "Shai Gilgeous-Alexander",
+      "nationality": "CA",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-anthony-edmonds",
+      "displayName": "Anthony Edmonds",
+      "referenceName": "Anthony Edwards",
+      "nationality": "US",
+      "pos": "SG",
+      "archetype": "finisher",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-devin-buker",
+      "displayName": "Devin Buker",
+      "referenceName": "Devin Booker",
+      "nationality": "US",
+      "pos": "SG",
+      "archetype": "shooter",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-donovan-mitchel",
+      "displayName": "Donovan Mitchel",
+      "referenceName": "Donovan Mitchell",
+      "nationality": "US",
+      "pos": "SG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-jalen-brunsen",
+      "displayName": "Jalen Brunsen",
+      "referenceName": "Jalen Brunson",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-tyrese-halberton",
+      "displayName": "Tyrese Halberton",
+      "referenceName": "Tyrese Haliburton",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-damian-lillards",
+      "displayName": "Damian Lillards",
+      "referenceName": "Damian Lillard",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-jimmy-batler",
+      "displayName": "Jimmy Batler",
+      "referenceName": "Jimmy Butler",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-bam-adebayor",
+      "displayName": "Bam Adebayor",
+      "referenceName": "Bam Adebayo",
+      "nationality": "US",
+      "pos": "C",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-kawai-leonard",
+      "displayName": "Kawai Leonard",
+      "referenceName": "Kawhi Leonard",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-paul-georgeson",
+      "displayName": "Paul Georgeson",
+      "referenceName": "Paul George",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-kyrie-irvin",
+      "displayName": "Kyrie Irvin",
+      "referenceName": "Kyrie Irving",
+      "nationality": "AU",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-james-hardin",
+      "displayName": "James Hardin",
+      "referenceName": "James Harden",
+      "nationality": "US",
+      "pos": "SG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-russell-westbruke",
+      "displayName": "Russell Westbruke",
+      "referenceName": "Russell Westbrook",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-anthony-davison",
+      "displayName": "Anthony Davison",
+      "referenceName": "Anthony Davis",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "interior",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-karl-townes",
+      "displayName": "Karl-Anthony Townes",
+      "referenceName": "Karl-Anthony Towns",
+      "nationality": "DO",
+      "pos": "C",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-rudi-gobert",
+      "displayName": "Rudi Gobert",
+      "referenceName": "Rudy Gobert",
+      "nationality": "FR",
+      "pos": "C",
+      "archetype": "interior",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-victor-wembani",
+      "displayName": "Victor Wembani",
+      "referenceName": "Victor Wembanyama",
+      "nationality": "FR",
+      "pos": "C",
+      "archetype": "two-way",
+      "tier": 1,
+      "scope": "na"
+    },
+    {
+      "id": "na-chet-holmgrens",
+      "displayName": "Chet Holmgrens",
+      "referenceName": "Chet Holmgren",
+      "nationality": "US",
+      "pos": "C",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-paolo-bancheri",
+      "displayName": "Paolo Bancheri",
+      "referenceName": "Paolo Banchero",
+      "nationality": "IT",
+      "pos": "PF",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-scottie-barns",
+      "displayName": "Scottie Barns",
+      "referenceName": "Scottie Barnes",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "point-forward",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-cade-cunninghame",
+      "displayName": "Cade Cunninghame",
+      "referenceName": "Cade Cunningham",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-evan-moblee",
+      "displayName": "Evan Moblee",
+      "referenceName": "Evan Mobley",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-jaren-jacksons",
+      "displayName": "Jaren Jacksons",
+      "referenceName": "Jaren Jackson Jr.",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "two-way",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-deaaron-foxe",
+      "displayName": "De’Aaron Foxe",
+      "referenceName": "De’Aaron Fox",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-domantas-sabonisz",
+      "displayName": "Domantas Sabonisz",
+      "referenceName": "Domantas Sabonis",
+      "nationality": "LT",
+      "pos": "C",
+      "archetype": "passing-big",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-trae-youngs",
+      "displayName": "Trae Youngs",
+      "referenceName": "Trae Young",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-ja-morante",
+      "displayName": "Ja Morante",
+      "referenceName": "Ja Morant",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "finisher",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-zion-williams",
+      "displayName": "Zion Williams",
+      "referenceName": "Zion Williamson",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "finisher",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-lamelo-balle",
+      "displayName": "LaMelo Balle",
+      "referenceName": "LaMelo Ball",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-demar-derozane",
+      "displayName": "DeMar DeRozane",
+      "referenceName": "DeMar DeRozan",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "na"
+    },
+    {
+      "id": "na-julius-randles",
+      "displayName": "Julius Randles",
+      "referenceName": "Julius Randle",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "creator",
+      "tier": 3,
+      "scope": "na"
+    },
+    {
+      "id": "na-pascal-siakame",
+      "displayName": "Pascal Siakame",
+      "referenceName": "Pascal Siakam",
+      "nationality": "CM",
+      "pos": "PF",
+      "archetype": "two-way",
+      "tier": 3,
+      "scope": "na"
+    },
+    {
+      "id": "na-jamal-murrays",
+      "displayName": "Jamal Murrays",
+      "referenceName": "Jamal Murray",
+      "nationality": "CA",
+      "pos": "PG",
+      "archetype": "shooter",
+      "tier": 3,
+      "scope": "na"
+    },
+    {
+      "id": "na-michael-porters",
+      "displayName": "Michael Porters",
+      "referenceName": "Michael Porter Jr.",
+      "nationality": "US",
+      "pos": "SF",
+      "archetype": "shooter",
+      "tier": 3,
+      "scope": "na"
+    },
+    {
+      "id": "na-aaron-gordons",
+      "displayName": "Aaron Gordons",
+      "referenceName": "Aaron Gordon",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "finisher",
+      "tier": 3,
+      "scope": "na"
+    },
+    {
+      "id": "na-alperen-senguner",
+      "displayName": "Alperen Senguner",
+      "referenceName": "Alperen Sengun",
+      "nationality": "TR",
+      "pos": "C",
+      "archetype": "passing-big",
+      "tier": 3,
+      "scope": "na"
+    },
+    {
+      "id": "eu-sergio-lull",
+      "displayName": "Sergio Lull",
+      "referenceName": "Sergio Llull",
+      "nationality": "ES",
+      "pos": "SG",
+      "archetype": "creator",
+      "tier": 1,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-rudi-ferran",
+      "displayName": "Rudi Ferrán",
+      "referenceName": "Rudy Fernández",
+      "nationality": "ES",
+      "pos": "SF",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-facundo-campos",
+      "displayName": "Facundo Campos",
+      "referenceName": "Facundo Campazzo",
+      "nationality": "AR",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 1,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-nicolas-laprovita",
+      "displayName": "Nicolás Laprovita",
+      "referenceName": "Nicolás Laprovíttola",
+      "nationality": "AR",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-willy-hernan",
+      "displayName": "Willy Hernán",
+      "referenceName": "Willy Hernangómez",
+      "nationality": "ES",
+      "pos": "C",
+      "archetype": "interior",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-juancho-hernan",
+      "displayName": "Juancho Hernán",
+      "referenceName": "Juancho Hernangómez",
+      "nationality": "ES",
+      "pos": "PF",
+      "archetype": "two-way",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-alex-abrin",
+      "displayName": "Álex Abrín",
+      "referenceName": "Álex Abrines",
+      "nationality": "ES",
+      "pos": "SG",
+      "archetype": "shooter",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-tomas-satoran",
+      "displayName": "Tomas Satoran",
+      "referenceName": "Tomáš Satoranský",
+      "nationality": "CZ",
+      "pos": "PG",
+      "archetype": "point-forward",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-jan-vesely",
+      "displayName": "Jan Vessely",
+      "referenceName": "Jan Veselý",
+      "nationality": "CZ",
+      "pos": "PF",
+      "archetype": "finisher",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-vasilije-micin",
+      "displayName": "Vasilije Micin",
+      "referenceName": "Vasilije Micić",
+      "nationality": "RS",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 1,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-matthias-lessore",
+      "displayName": "Matthias Lessore",
+      "referenceName": "Mathias Lessort",
+      "nationality": "FR",
+      "pos": "C",
+      "archetype": "finisher",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-kendrick-nunez",
+      "displayName": "Kendrick Nunez",
+      "referenceName": "Kendrick Nunn",
+      "nationality": "US",
+      "pos": "SG",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-vince-poirier",
+      "displayName": "Vince Poirier",
+      "referenceName": "Vincent Poirier",
+      "nationality": "FR",
+      "pos": "C",
+      "archetype": "interior",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-theo-maledan",
+      "displayName": "Theo Maledan",
+      "referenceName": "Théo Maledon",
+      "nationality": "FR",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-evan-fournie",
+      "displayName": "Evan Fournié",
+      "referenceName": "Evan Fournier",
+      "nationality": "FR",
+      "pos": "SG",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-nico-batum",
+      "displayName": "Nico Batum",
+      "referenceName": "Nicolas Batum",
+      "nationality": "FR",
+      "pos": "SF",
+      "archetype": "point-forward",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-zachary-risacher",
+      "displayName": "Zachary Risacher",
+      "referenceName": "Zaccharie Risacher",
+      "nationality": "FR",
+      "pos": "SF",
+      "archetype": "shooter",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-alex-sarre",
+      "displayName": "Alex Sarré",
+      "referenceName": "Alexandre Sarr",
+      "nationality": "FR",
+      "pos": "C",
+      "archetype": "two-way",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-sergio-rodrigues",
+      "displayName": "Sergio Rodrígues",
+      "referenceName": "Sergio Rodríguez",
+      "nationality": "ES",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-marcelino-huertas",
+      "displayName": "Marcelino Huertas",
+      "referenceName": "Marcelinho Huertas",
+      "nationality": "BR",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-nando-de-colos",
+      "displayName": "Nando De Colos",
+      "referenceName": "Nando de Colo",
+      "nationality": "FR",
+      "pos": "SG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-mike-jamison",
+      "displayName": "Mike Jamison",
+      "referenceName": "Mike James",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-shane-larkins",
+      "displayName": "Shane Larkins",
+      "referenceName": "Shane Larkin",
+      "nationality": "US",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-eddie-tavares",
+      "displayName": "Eddie Tavares",
+      "referenceName": "Edy Tavares",
+      "nationality": "CV",
+      "pos": "C",
+      "archetype": "interior",
+      "tier": 1,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-dzanan-musan",
+      "displayName": "Dzanan Musan",
+      "referenceName": "Džanan Musa",
+      "nationality": "BA",
+      "pos": "SF",
+      "archetype": "creator",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-kevin-punters",
+      "displayName": "Kevin Punters",
+      "referenceName": "Kevin Punter",
+      "nationality": "US",
+      "pos": "SG",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-nikola-mirovic",
+      "displayName": "Nikola Mirovic",
+      "referenceName": "Nikola Mirotić",
+      "nationality": "ME",
+      "pos": "PF",
+      "archetype": "shooter",
+      "tier": 2,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-mario-hezonjas",
+      "displayName": "Mario Hezonjas",
+      "referenceName": "Mario Hezonja",
+      "nationality": "HR",
+      "pos": "SF",
+      "archetype": "creator",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-jabari-parkers",
+      "displayName": "Jabari Parkers",
+      "referenceName": "Jabari Parker",
+      "nationality": "US",
+      "pos": "PF",
+      "archetype": "finisher",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-lorenzo-browns",
+      "displayName": "Lorenzo Browns",
+      "referenceName": "Lorenzo Brown",
+      "nationality": "ES",
+      "pos": "PG",
+      "archetype": "creator",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-isaia-cordiniere",
+      "displayName": "Isaia Cordiniere",
+      "referenceName": "Isaia Cordinier",
+      "nationality": "FR",
+      "pos": "SG",
+      "archetype": "two-way",
+      "tier": 3,
+      "scope": "eu"
+    },
+    {
+      "id": "eu-toko-shenguelia",
+      "displayName": "Toko Shenguelia",
+      "referenceName": "Toko Shengelia",
+      "nationality": "GE",
+      "pos": "PF",
+      "archetype": "interior",
+      "tier": 3,
+      "scope": "eu"
+    }
+  ]
+}

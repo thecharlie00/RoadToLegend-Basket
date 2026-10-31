@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "packId": "mvp-guide",
+  "version": "0.1.0",
+  "steps": [
+    {
+      "id": "create",
+      "es": "Crea jugador o entrenador y elige ruta.",
+      "en": "Create a player or coach and choose a route."
+    },
+    {
+      "id": "week",
+      "es": "Juega una semana; el motor resuelve el partido sin red.",
+      "en": "Play a week; the engine resolves the match offline."
+    },
+    {
+      "id": "load",
+      "es": "Vigila carga y lesiones; descansar también progresa.",
+      "en": "Watch load and injuries; resting also progresses."
+    },
+    {
+      "id": "event",
+      "es": "Resuelve eventos breves con consecuencias visibles.",
+      "en": "Resolve short events with visible consequences."
+    },
+    {
+      "id": "market",
+      "es": "Firma ofertas y explora cruces entre Europa y NA.",
+      "en": "Sign offers and explore crossings between Europe and NA."
+    },
+    {
+      "id": "style",
+      "es": "Gana estilo con logros y equipa a tu Me 2D.",
+      "en": "Earn style from achievements and equip your 2D Me."
+    },
+    {
+      "id": "save",
+      "es": "Guarda en cualquier semana; exporta/importa JSON.",
+      "en": "Save any week; export/import JSON."
+    },
+    {
+      "id": "access",
+      "es": "Ajusta texto, color, movimiento y alternativa automática.",
+      "en": "Adjust text, color, motion and automatic alternative."
+    }
+  ]
+}

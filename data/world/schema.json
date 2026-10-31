@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Camino al Aro World Census Pack",
+  "type": "object",
+  "required": ["schemaVersion", "packId", "version", "validFrom", "coverage", "competitions"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "packId": { "type": "string" },
+    "version": { "type": "string" },
+    "validFrom": { "type": "string" },
+    "validTo": { "type": ["string", "null"] },
+    "coverage": {
+      "type": "object",
+      "required": ["target", "status"],
+      "properties": {
+        "target": { "const": "full_ecosystem" },
+        "status": { "enum": ["seed", "partial", "complete"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "competitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "displayName", "referenceName", "country", "confederation", "kind", "level", "gender", "ageGroup", "category", "season", "ruleSet", "sourceStatus", "sourceUrl"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "displayName": { "type": "string" },
+          "referenceName": { "type": "string" },
+          "country": { "type": "string" },
+          "confederation": { "enum": ["fiba-africa", "fiba-americas", "fiba-asia", "fiba-europe", "fiba-oceania", "continental", "national"] },
+          "kind": { "enum": ["league", "cup", "playoff", "tournament", "national-team"] },
+          "level": { "enum": ["international", "continental", "national", "regional", "local"] },
+          "gender": { "enum": ["men", "women", "mixed"] },
+          "ageGroup": { "enum": ["senior", "university", "u23", "u21", "u20", "u19", "u18", "u17", "u16", "u15", "youth"] },
+          "category": { "enum": ["pro", "semipro", "amateur", "regional", "youth", "academy", "university", "college"] },
+          "season": { "type": "string" },
+          "teams": { "type": ["integer", "null"], "minimum": 2 },
+          "ruleSet": { "type": "string" },
+          "sourceStatus": { "enum": ["verified", "pending", "fictionalized"] },
+          "sourceUrl": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

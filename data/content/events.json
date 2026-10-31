@@ -1,0 +1,5045 @@
+{
+  "schemaVersion": 1,
+  "packId": "mvp-events",
+  "version": "0.1.0",
+  "targetCount": 100,
+  "events": [
+    {
+      "id": "player-001",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Minutos extra · semana 1",
+        "en": "Extra minutes · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-002",
+      "category": "player",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Ritual de tiro · semana 2",
+        "en": "Shooting ritual · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-003",
+      "category": "player",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Video nocturno · semana 3",
+        "en": "Late film · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-004",
+      "category": "player",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Retiro del barrio · semana 4",
+        "en": "Neighborhood court · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-005",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Debut soñado · semana 5",
+        "en": "Dream debut · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-006",
+      "category": "player",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Minutos extra · semana 6",
+        "en": "Extra minutes · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-007",
+      "category": "player",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Ritual de tiro · semana 7",
+        "en": "Shooting ritual · week 7"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-008",
+      "category": "player",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Video nocturno · semana 8",
+        "en": "Late film · week 8"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-009",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Retiro del barrio · semana 9",
+        "en": "Neighborhood court · week 9"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-010",
+      "category": "player",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Debut soñado · semana 10",
+        "en": "Dream debut · week 10"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-011",
+      "category": "player",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Minutos extra · semana 11",
+        "en": "Extra minutes · week 11"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-012",
+      "category": "player",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Ritual de tiro · semana 12",
+        "en": "Shooting ritual · week 12"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-013",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Video nocturno · semana 13",
+        "en": "Late film · week 13"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-014",
+      "category": "player",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Retiro del barrio · semana 14",
+        "en": "Neighborhood court · week 14"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-015",
+      "category": "player",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Debut soñado · semana 15",
+        "en": "Dream debut · week 15"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-016",
+      "category": "player",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Minutos extra · semana 16",
+        "en": "Extra minutes · week 16"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-017",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Ritual de tiro · semana 17",
+        "en": "Shooting ritual · week 17"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-018",
+      "category": "player",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Video nocturno · semana 18",
+        "en": "Late film · week 18"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-019",
+      "category": "player",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Retiro del barrio · semana 19",
+        "en": "Neighborhood court · week 19"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-020",
+      "category": "player",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Debut soñado · semana 20",
+        "en": "Dream debut · week 20"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-021",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Minutos extra · semana 21",
+        "en": "Extra minutes · week 21"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-022",
+      "category": "player",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Ritual de tiro · semana 22",
+        "en": "Shooting ritual · week 22"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-023",
+      "category": "player",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Video nocturno · semana 23",
+        "en": "Late film · week 23"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-024",
+      "category": "player",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Retiro del barrio · semana 24",
+        "en": "Neighborhood court · week 24"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-025",
+      "category": "player",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Debut soñado · semana 25",
+        "en": "Dream debut · week 25"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-001",
+      "category": "coach",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Pizarra final · semana 1",
+        "en": "Final playboard · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-002",
+      "category": "coach",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rotación corta · semana 2",
+        "en": "Short rotation · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-003",
+      "category": "coach",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Charla de vestuario · semana 3",
+        "en": "Locker talk · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-004",
+      "category": "coach",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Presión de junta · semana 4",
+        "en": "Board pressure · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-005",
+      "category": "coach",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Scouting rival · semana 5",
+        "en": "Rival scouting · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-006",
+      "category": "coach",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Pizarra final · semana 6",
+        "en": "Final playboard · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-007",
+      "category": "coach",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rotación corta · semana 7",
+        "en": "Short rotation · week 7"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-008",
+      "category": "coach",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Charla de vestuario · semana 8",
+        "en": "Locker talk · week 8"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-009",
+      "category": "coach",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Presión de junta · semana 9",
+        "en": "Board pressure · week 9"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-010",
+      "category": "coach",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Scouting rival · semana 10",
+        "en": "Rival scouting · week 10"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-011",
+      "category": "coach",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Pizarra final · semana 11",
+        "en": "Final playboard · week 11"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-012",
+      "category": "coach",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rotación corta · semana 12",
+        "en": "Short rotation · week 12"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-013",
+      "category": "coach",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Charla de vestuario · semana 13",
+        "en": "Locker talk · week 13"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-014",
+      "category": "coach",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Presión de junta · semana 14",
+        "en": "Board pressure · week 14"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-015",
+      "category": "coach",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Scouting rival · semana 15",
+        "en": "Rival scouting · week 15"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-016",
+      "category": "coach",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Pizarra final · semana 16",
+        "en": "Final playboard · week 16"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-017",
+      "category": "coach",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rotación corta · semana 17",
+        "en": "Short rotation · week 17"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-018",
+      "category": "coach",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Charla de vestuario · semana 18",
+        "en": "Locker talk · week 18"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-019",
+      "category": "coach",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Presión de junta · semana 19",
+        "en": "Board pressure · week 19"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "coach-020",
+      "category": "coach",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Scouting rival · semana 20",
+        "en": "Rival scouting · week 20"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-001",
+      "category": "agency",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Oferta de zapatillas · semana 1",
+        "en": "Shoe offer · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-002",
+      "category": "agency",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Cláusula de salida · semana 2",
+        "en": "Exit clause · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-003",
+      "category": "agency",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Agente insistente · semana 3",
+        "en": "Pushy agent · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-004",
+      "category": "agency",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Draft-and-stash · semana 4",
+        "en": "Draft-and-stash · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-005",
+      "category": "agency",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Ventana de mercado · semana 5",
+        "en": "Market window · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-006",
+      "category": "agency",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Oferta de zapatillas · semana 6",
+        "en": "Shoe offer · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-007",
+      "category": "agency",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Cláusula de salida · semana 7",
+        "en": "Exit clause · week 7"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-008",
+      "category": "agency",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Agente insistente · semana 8",
+        "en": "Pushy agent · week 8"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-009",
+      "category": "agency",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Draft-and-stash · semana 9",
+        "en": "Draft-and-stash · week 9"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-010",
+      "category": "agency",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Ventana de mercado · semana 10",
+        "en": "Market window · week 10"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-011",
+      "category": "agency",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Oferta de zapatillas · semana 11",
+        "en": "Shoe offer · week 11"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-012",
+      "category": "agency",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Cláusula de salida · semana 12",
+        "en": "Exit clause · week 12"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-013",
+      "category": "agency",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Agente insistente · semana 13",
+        "en": "Pushy agent · week 13"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-014",
+      "category": "agency",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Draft-and-stash · semana 14",
+        "en": "Draft-and-stash · week 14"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agency-015",
+      "category": "agency",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Ventana de mercado · semana 15",
+        "en": "Market window · week 15"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 3,
+            "cash": 5000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-001",
+      "category": "locker",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Mentoría joven · semana 1",
+        "en": "Young mentor · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-002",
+      "category": "locker",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Conflicto de roles · semana 2",
+        "en": "Role conflict · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-003",
+      "category": "locker",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Viaje largo · semana 3",
+        "en": "Long trip · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-004",
+      "category": "locker",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Química de pista · semana 4",
+        "en": "On-court chemistry · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-005",
+      "category": "locker",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Capitán vocal · semana 5",
+        "en": "Vocal captain · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-006",
+      "category": "locker",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Mentoría joven · semana 6",
+        "en": "Young mentor · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-007",
+      "category": "locker",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Conflicto de roles · semana 7",
+        "en": "Role conflict · week 7"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-008",
+      "category": "locker",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Viaje largo · semana 8",
+        "en": "Long trip · week 8"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-009",
+      "category": "locker",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Química de pista · semana 9",
+        "en": "On-court chemistry · week 9"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "locker-010",
+      "category": "locker",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Capitán vocal · semana 10",
+        "en": "Vocal captain · week 10"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-001",
+      "category": "press",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rueda de prensa · semana 1",
+        "en": "Press conference · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-002",
+      "category": "press",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Redes sociales · semana 2",
+        "en": "Social media · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-003",
+      "category": "press",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Crítica pública · semana 3",
+        "en": "Public criticism · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-004",
+      "category": "press",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rumor de trade · semana 4",
+        "en": "Trade rumor · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-005",
+      "category": "press",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Entrevista exclusiva · semana 5",
+        "en": "Exclusive interview · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-006",
+      "category": "press",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rueda de prensa · semana 6",
+        "en": "Press conference · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-007",
+      "category": "press",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Redes sociales · semana 7",
+        "en": "Social media · week 7"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-008",
+      "category": "press",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Crítica pública · semana 8",
+        "en": "Public criticism · week 8"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-009",
+      "category": "press",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Rumor de trade · semana 9",
+        "en": "Trade rumor · week 9"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "press-010",
+      "category": "press",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Entrevista exclusiva · semana 10",
+        "en": "Exclusive interview · week 10"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 2,
+            "chemistry": -2
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 3,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-001",
+      "category": "health",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Carga alta · semana 1",
+        "en": "High load · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-002",
+      "category": "health",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Molestia muscular · semana 2",
+        "en": "Muscle soreness · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-003",
+      "category": "health",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Sueño irregular · semana 3",
+        "en": "Poor sleep · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-004",
+      "category": "health",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Recuperación activa · semana 4",
+        "en": "Active recovery · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-005",
+      "category": "health",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Nutrición · semana 5",
+        "en": "Nutrition · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-006",
+      "category": "health",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Carga alta · semana 6",
+        "en": "High load · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-007",
+      "category": "health",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Molestia muscular · semana 7",
+        "en": "Muscle soreness · week 7"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "health-008",
+      "category": "health",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Sueño irregular · semana 8",
+        "en": "Poor sleep · week 8"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance-001",
+      "category": "finance",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Inversión local · semana 1",
+        "en": "Local investment · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 2,
+            "load": 6,
+            "xp": 4,
+            "style": 1,
+            "cash": -2000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2,
+            "cash": 3000
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance-002",
+      "category": "finance",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Ahorro familiar · semana 2",
+        "en": "Family savings · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 2,
+            "load": 6,
+            "xp": 4,
+            "style": 1,
+            "cash": -2000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2,
+            "cash": 3000
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance-003",
+      "category": "finance",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Impuestos · semana 3",
+        "en": "Taxes · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 2,
+            "load": 6,
+            "xp": 4,
+            "style": 1,
+            "cash": -2000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2,
+            "cash": 3000
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance-004",
+      "category": "finance",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Donación comunitaria · semana 4",
+        "en": "Community donation · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 2,
+            "load": 6,
+            "xp": 4,
+            "style": 1,
+            "cash": -2000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2,
+            "cash": 3000
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance-005",
+      "category": "finance",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Gasto impulsivo · semana 5",
+        "en": "Impulse spend · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 2,
+            "load": 6,
+            "xp": 4,
+            "style": 1,
+            "cash": -2000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2,
+            "cash": 3000
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance-006",
+      "category": "finance",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Inversión local · semana 6",
+        "en": "Local investment · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 2,
+            "load": 6,
+            "xp": 4,
+            "style": 1,
+            "cash": -2000
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2,
+            "cash": 3000
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "milestone-001",
+      "category": "milestone",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Primer titular · semana 1",
+        "en": "First start · week 1"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "milestone-002",
+      "category": "milestone",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Récord personal · semana 2",
+        "en": "Personal best · week 2"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "milestone-003",
+      "category": "milestone",
+      "weight": 8,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Camiseta local · semana 3",
+        "en": "Local jersey · week 3"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "milestone-004",
+      "category": "milestone",
+      "weight": 7,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Homenaje barrio · semana 4",
+        "en": "Neighborhood tribute · week 4"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "milestone-005",
+      "category": "milestone",
+      "weight": 10,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Meta de carrera · semana 5",
+        "en": "Career goal · week 5"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "milestone-006",
+      "category": "milestone",
+      "weight": 9,
+      "cooldownWeeks": 6,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Primer titular · semana 6",
+        "en": "First start · week 6"
+      },
+      "body": {
+        "es": "Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.",
+        "en": "A short decision can change career morale, load or resources."
+      },
+      "options": [
+        {
+          "id": "a",
+          "es": "Aceptar el reto",
+          "en": "Take the challenge",
+          "effects": {
+            "morale": 3,
+            "load": 6,
+            "xp": 4,
+            "style": 1
+          }
+        },
+        {
+          "id": "b",
+          "es": "Priorizar el equipo",
+          "en": "Put the team first",
+          "effects": {
+            "chemistry": 5,
+            "morale": 1,
+            "xp": 2
+          }
+        },
+        {
+          "id": "c",
+          "es": "Descansar y preparar",
+          "en": "Rest and prepare",
+          "effects": {
+            "load": -8,
+            "fatigue": -0.1,
+            "morale": 2
+          }
+        }
+      ]
+    }
+  ]
+}
