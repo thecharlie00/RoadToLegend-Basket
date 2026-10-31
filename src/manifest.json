@@ -1,0 +1,143 @@
+{
+  "game": "camino-al-aro",
+  "version": "0.1.0",
+  "schemaVersion": 1,
+  "css": "src/ui/style.css",
+  "out": "dist/index.html",
+  "locales": [
+    "es",
+    "en"
+  ],
+  "data": [
+    "data/world/seed.json",
+    "data/players/inspired-names.json",
+    "data/content/events.json",
+    "data/content/achievements.json",
+    "data/content/shop.json",
+    "data/content/press.json",
+    "data/content/guide.json"
+  ],
+  "workerBootstrap": "src/worker/sim-worker.js",
+  "modules": [
+    {
+      "id": "hash",
+      "path": "src/core/hash.js",
+      "worker": true
+    },
+    {
+      "id": "rng",
+      "path": "src/core/rng.js",
+      "worker": true
+    },
+    {
+      "id": "clock",
+      "path": "src/core/clock.js",
+      "worker": true
+    },
+    {
+      "id": "world",
+      "path": "src/data/world.js",
+      "worker": true
+    },
+    {
+      "id": "names",
+      "path": "src/domain/names.js",
+      "worker": true
+    },
+    {
+      "id": "rules",
+      "path": "src/match/rules.js",
+      "worker": true
+    },
+    {
+      "id": "engine",
+      "path": "src/match/engine.js",
+      "worker": true
+    },
+    {
+      "id": "calibration",
+      "path": "src/match/calibration.js",
+      "worker": true
+    },
+    {
+      "id": "player",
+      "path": "src/domain/player.js",
+      "worker": true
+    },
+    {
+      "id": "contracts",
+      "path": "src/domain/contracts.js",
+      "worker": true
+    },
+    {
+      "id": "season",
+      "path": "src/domain/season.js",
+      "worker": true
+    },
+    {
+      "id": "draft",
+      "path": "src/domain/draft.js",
+      "worker": true
+    },
+    {
+      "id": "content",
+      "path": "src/domain/content.js",
+      "worker": true
+    },
+    {
+      "id": "minigames",
+      "path": "src/match/minigames.js",
+      "worker": true
+    },
+    {
+      "id": "career",
+      "path": "src/domain/career.js",
+      "worker": true
+    },
+    {
+      "id": "worker-handler",
+      "path": "src/worker/handler.js",
+      "worker": true
+    },
+    {
+      "id": "save",
+      "path": "src/core/save.js",
+      "worker": false
+    },
+    {
+      "id": "i18n",
+      "path": "src/core/i18n.js",
+      "worker": false
+    },
+    {
+      "id": "a11y",
+      "path": "src/core/a11y.js",
+      "worker": false
+    },
+    {
+      "id": "storage",
+      "path": "src/platform/storage.js",
+      "worker": false
+    },
+    {
+      "id": "worker-client",
+      "path": "src/platform/worker-client.js",
+      "worker": false
+    },
+    {
+      "id": "diagnostics",
+      "path": "src/platform/diagnostics.js",
+      "worker": false
+    },
+    {
+      "id": "court2d",
+      "path": "src/render/court2d.js",
+      "worker": false
+    },
+    {
+      "id": "app",
+      "path": "src/ui/app.js",
+      "worker": false
+    }
+  ]
+}

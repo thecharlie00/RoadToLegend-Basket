@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "packId": "mvp-press",
+  "version": "0.1.0",
+  "templates": [
+    {
+      "id": "win-streak",
+      "condition": "wins>=3",
+      "es": "{club} encadena {wins} victorias y mira hacia arriba.",
+      "en": "{club} strings together {wins} wins and looks up."
+    },
+    {
+      "id": "loss-streak",
+      "condition": "losses>=3",
+      "es": "Preguntas en {club} tras {losses} derrotas seguidas.",
+      "en": "Questions at {club} after {losses} straight losses."
+    },
+    {
+      "id": "star-game",
+      "condition": "points>=20",
+      "es": "{player} firma {points} puntos y gana focos.",
+      "en": "{player} posts {points} points and earns the spotlight."
+    },
+    {
+      "id": "injury",
+      "condition": "injury",
+      "es": "{player} gestiona una lesión y el cuerpo técnico pide paciencia.",
+      "en": "{player} manages an injury and the staff asks for patience."
+    },
+    {
+      "id": "draft",
+      "condition": "drafted",
+      "es": "{player} empieza una nueva etapa tras el draft.",
+      "en": "{player} begins a new chapter after the draft."
+    },
+    {
+      "id": "default",
+      "condition": "always",
+      "es": "Semana de trabajo en {club}: rol, carga y próximo rival.",
+      "en": "Work week at {club}: role, load and next opponent."
+    }
+  ]
+}

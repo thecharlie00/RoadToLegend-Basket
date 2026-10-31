@@ -1,0 +1,24 @@
+{
+  "name": "camino-al-aro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline-first basketball career game foundation for web and Android WebView.",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "test": "node --test tests/*.test.js",
+    "validate:world": "python3 tools/census_import.py --check data/world/seed.json",
+    "calibrate": "node tools/calibrate.js",
+    "check": "npm run validate:world && npm run build && npm test",
+    "test:browser": "node tools/browser_smoke.mjs",
+    "check:browser": "npm run check && npm run test:browser",
+    "android:sync": "npm run build && python3 tools/sync_android.py"
+  },
+  "engines": {
+    "node": ">=22.17.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@sparticuz/chromium": "153.0.0",
+    "playwright-core": "1.64.1"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-31T22:39:51.408Z",
+  "browser": "153.0.8010.0",
+  "scenarios": [
+    {
+      "name": "desktop career / autosave / reload / import / event / committed practice",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "mobile 360px / keyboard / Spanish a11y",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "English / large text / high contrast / reduced motion",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "IndexedDB backup recovery / file picker / native pause-resume",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Android bridge contract / lifecycle / native export handoff",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Worker unavailable: deterministic main-thread fallback",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Storage denied: explicit memory-only warning",
+      "ok": true,
+      "missingTranslations": []
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "externalRequests": [],
+  "accessibility": [
+    {
+      "locale": "es",
+      "tab": "world",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "match",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "career",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "life",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "save",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "lab",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "settings",
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "tab": "world",
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "tab": "career",
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "tab": "save",
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "tab": "settings",
+      "violations": []
+    }
+  ],
+  "performance": {
+    "schemaVersion": 1,
+    "kind": "frame-sample",
+    "measuredAt": "2026-10-31T22:39:59.711Z",
+    "frames": 180,
+    "meanFrameMs": 16.666,
+    "medianFrameMs": 16.7,
+    "p95FrameMs": 16.7,
+    "maxFrameMs": 16.8,
+    "meanFps": 60,
+    "framesOver16_67Ms": 111,
+    "framesOver33_34Ms": 0,
+    "deviceCertified": false,
+    "note": "Browser sample only; not a low-end Android certification.",
+    "context": {
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "viewport": "1280x900",
+      "pixelRatio": 1,
+      "visibility": "visible",
+      "worker": "worker",
+      "storage": "indexedDB",
+      "workload": "court2d"
+    },
+    "longTasks": [],
+    "stopped": false,
+    "jsHeapUsedBytes": 39600000
+  },
+  "locales": {
+    "es": 179,
+    "en": 179
+  }
+}

@@ -1,0 +1,558 @@
+{
+  "schemaVersion": 1,
+  "packId": "mvp-achievements",
+  "version": "0.1.0",
+  "targetCount": 50,
+  "achievements": [
+    {
+      "id": "games-1",
+      "metric": "games",
+      "threshold": 1,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · games",
+        "en": "First step · games"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "games-2",
+      "metric": "games",
+      "threshold": 10,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · games",
+        "en": "Consistency · games"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "games-3",
+      "metric": "games",
+      "threshold": 25,
+      "tier": 3,
+      "title": {
+        "es": "Referente · games",
+        "en": "Benchmark · games"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "games-4",
+      "metric": "games",
+      "threshold": 50,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · games",
+        "en": "Local legend · games"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "games-5",
+      "metric": "games",
+      "threshold": 100,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · games",
+        "en": "Road to the rim · games"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "points-1",
+      "metric": "points",
+      "threshold": 100,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · points",
+        "en": "First step · points"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "points-2",
+      "metric": "points",
+      "threshold": 500,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · points",
+        "en": "Consistency · points"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "points-3",
+      "metric": "points",
+      "threshold": 1000,
+      "tier": 3,
+      "title": {
+        "es": "Referente · points",
+        "en": "Benchmark · points"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "points-4",
+      "metric": "points",
+      "threshold": 2500,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · points",
+        "en": "Local legend · points"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "points-5",
+      "metric": "points",
+      "threshold": 5000,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · points",
+        "en": "Road to the rim · points"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "wins-1",
+      "metric": "wins",
+      "threshold": 1,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · wins",
+        "en": "First step · wins"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "wins-2",
+      "metric": "wins",
+      "threshold": 5,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · wins",
+        "en": "Consistency · wins"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "wins-3",
+      "metric": "wins",
+      "threshold": 15,
+      "tier": 3,
+      "title": {
+        "es": "Referente · wins",
+        "en": "Benchmark · wins"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "wins-4",
+      "metric": "wins",
+      "threshold": 30,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · wins",
+        "en": "Local legend · wins"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "wins-5",
+      "metric": "wins",
+      "threshold": 50,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · wins",
+        "en": "Road to the rim · wins"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "seasons-1",
+      "metric": "seasons",
+      "threshold": 1,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · seasons",
+        "en": "First step · seasons"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "seasons-2",
+      "metric": "seasons",
+      "threshold": 2,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · seasons",
+        "en": "Consistency · seasons"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "seasons-3",
+      "metric": "seasons",
+      "threshold": 3,
+      "tier": 3,
+      "title": {
+        "es": "Referente · seasons",
+        "en": "Benchmark · seasons"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "seasons-4",
+      "metric": "seasons",
+      "threshold": 5,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · seasons",
+        "en": "Local legend · seasons"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "seasons-5",
+      "metric": "seasons",
+      "threshold": 10,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · seasons",
+        "en": "Road to the rim · seasons"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "ovr-1",
+      "metric": "ovr",
+      "threshold": 55,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · ovr",
+        "en": "First step · ovr"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "ovr-2",
+      "metric": "ovr",
+      "threshold": 60,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · ovr",
+        "en": "Consistency · ovr"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "ovr-3",
+      "metric": "ovr",
+      "threshold": 65,
+      "tier": 3,
+      "title": {
+        "es": "Referente · ovr",
+        "en": "Benchmark · ovr"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "ovr-4",
+      "metric": "ovr",
+      "threshold": 70,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · ovr",
+        "en": "Local legend · ovr"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "ovr-5",
+      "metric": "ovr",
+      "threshold": 80,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · ovr",
+        "en": "Road to the rim · ovr"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "cash-1",
+      "metric": "cash",
+      "threshold": 10000,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · cash",
+        "en": "First step · cash"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "cash-2",
+      "metric": "cash",
+      "threshold": 50000,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · cash",
+        "en": "Consistency · cash"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "cash-3",
+      "metric": "cash",
+      "threshold": 100000,
+      "tier": 3,
+      "title": {
+        "es": "Referente · cash",
+        "en": "Benchmark · cash"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "cash-4",
+      "metric": "cash",
+      "threshold": 250000,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · cash",
+        "en": "Local legend · cash"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "cash-5",
+      "metric": "cash",
+      "threshold": 500000,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · cash",
+        "en": "Road to the rim · cash"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "style-1",
+      "metric": "style",
+      "threshold": 10,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · style",
+        "en": "First step · style"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "style-2",
+      "metric": "style",
+      "threshold": 25,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · style",
+        "en": "Consistency · style"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "style-3",
+      "metric": "style",
+      "threshold": 50,
+      "tier": 3,
+      "title": {
+        "es": "Referente · style",
+        "en": "Benchmark · style"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "style-4",
+      "metric": "style",
+      "threshold": 100,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · style",
+        "en": "Local legend · style"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "style-5",
+      "metric": "style",
+      "threshold": 200,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · style",
+        "en": "Road to the rim · style"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "events-1",
+      "metric": "events",
+      "threshold": 1,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · events",
+        "en": "First step · events"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "events-2",
+      "metric": "events",
+      "threshold": 5,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · events",
+        "en": "Consistency · events"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "events-3",
+      "metric": "events",
+      "threshold": 10,
+      "tier": 3,
+      "title": {
+        "es": "Referente · events",
+        "en": "Benchmark · events"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "events-4",
+      "metric": "events",
+      "threshold": 25,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · events",
+        "en": "Local legend · events"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "events-5",
+      "metric": "events",
+      "threshold": 50,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · events",
+        "en": "Road to the rim · events"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "train-1",
+      "metric": "train",
+      "threshold": 1,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · train",
+        "en": "First step · train"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "train-2",
+      "metric": "train",
+      "threshold": 5,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · train",
+        "en": "Consistency · train"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "train-3",
+      "metric": "train",
+      "threshold": 10,
+      "tier": 3,
+      "title": {
+        "es": "Referente · train",
+        "en": "Benchmark · train"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "train-4",
+      "metric": "train",
+      "threshold": 25,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · train",
+        "en": "Local legend · train"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "train-5",
+      "metric": "train",
+      "threshold": 50,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · train",
+        "en": "Road to the rim · train"
+      },
+      "rewardStyle": 25
+    },
+    {
+      "id": "signs-1",
+      "metric": "signs",
+      "threshold": 1,
+      "tier": 1,
+      "title": {
+        "es": "Primer paso · signs",
+        "en": "First step · signs"
+      },
+      "rewardStyle": 5
+    },
+    {
+      "id": "signs-2",
+      "metric": "signs",
+      "threshold": 2,
+      "tier": 2,
+      "title": {
+        "es": "Constancia · signs",
+        "en": "Consistency · signs"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "signs-3",
+      "metric": "signs",
+      "threshold": 3,
+      "tier": 3,
+      "title": {
+        "es": "Referente · signs",
+        "en": "Benchmark · signs"
+      },
+      "rewardStyle": 15
+    },
+    {
+      "id": "signs-4",
+      "metric": "signs",
+      "threshold": 5,
+      "tier": 4,
+      "title": {
+        "es": "Leyenda local · signs",
+        "en": "Local legend · signs"
+      },
+      "rewardStyle": 20
+    },
+    {
+      "id": "signs-5",
+      "metric": "signs",
+      "threshold": 10,
+      "tier": 5,
+      "title": {
+        "es": "Camino al aro · signs",
+        "en": "Road to the rim · signs"
+      },
+      "rewardStyle": 25
+    }
+  ]
+}

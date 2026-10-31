@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+out/
+.cache/
+__pycache__/
+*.py[cod]
+*.log
+data/calibration/
+.DS_Store
+android/.gradle/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/game/
+data/qa/*-screen.png

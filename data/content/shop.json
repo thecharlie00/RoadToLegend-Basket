@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "packId": "mvp-shop",
+  "version": "0.1.0",
+  "items": [
+    {
+      "id": "item-1",
+      "slot": "shoes",
+      "name": {
+        "es": "AroWear Uno",
+        "en": "AroWear One"
+      },
+      "cost": 20,
+      "color": "#ffb547",
+      "bonus": {
+        "morale": 1
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-2",
+      "slot": "shoes",
+      "name": {
+        "es": "Parquet Lab Air",
+        "en": "Parquet Lab Air"
+      },
+      "cost": 45,
+      "color": "#59d18c",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-3",
+      "slot": "shoes",
+      "name": {
+        "es": "Skyline Hoops Pro",
+        "en": "Skyline Hoops Pro"
+      },
+      "cost": 80,
+      "color": "#5aa9ff",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-4",
+      "slot": "jersey",
+      "name": {
+        "es": "Local Clásica",
+        "en": "Local Classic"
+      },
+      "cost": 15,
+      "color": "#eef6f4",
+      "bonus": {
+        "morale": 1
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-5",
+      "slot": "jersey",
+      "name": {
+        "es": "Local Noche",
+        "en": "Local Night"
+      },
+      "cost": 35,
+      "color": "#122126",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-6",
+      "slot": "jersey",
+      "name": {
+        "es": "Local Retro",
+        "en": "Local Retro"
+      },
+      "cost": 60,
+      "color": "#ff7a6b",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-7",
+      "slot": "accessory",
+      "name": {
+        "es": "Muñeca Barrio",
+        "en": "Neighborhood Wristband"
+      },
+      "cost": 10,
+      "color": "#ffb547",
+      "bonus": {
+        "morale": 1
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-8",
+      "slot": "accessory",
+      "name": {
+        "es": "Cinta Capitán",
+        "en": "Captain Headband"
+      },
+      "cost": 30,
+      "color": "#59d18c",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-9",
+      "slot": "accessory",
+      "name": {
+        "es": "Manga Tiro",
+        "en": "Shooting Sleeve"
+      },
+      "cost": 50,
+      "color": "#5aa9ff",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-10",
+      "slot": "background",
+      "name": {
+        "es": "Cancha Barrio",
+        "en": "Neighborhood Court"
+      },
+      "cost": 25,
+      "color": "#24424a",
+      "bonus": {
+        "morale": 1
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-11",
+      "slot": "background",
+      "name": {
+        "es": "Pabellón Local",
+        "en": "Local Arena"
+      },
+      "cost": 55,
+      "color": "#0b1417",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    },
+    {
+      "id": "item-12",
+      "slot": "background",
+      "name": {
+        "es": "Atardecer Urbano",
+        "en": "Urban Sunset"
+      },
+      "cost": 90,
+      "color": "#ff9f43",
+      "bonus": {
+        "morale": 0
+      },
+      "source": "offline"
+    }
+  ]
+}
