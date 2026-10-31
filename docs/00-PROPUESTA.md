@@ -1,6 +1,6 @@
-# Camino al Aro — Propuesta de preproducción
+# Baketball: Road to legend — Propuesta de preproducción
 
-**Estado:** fase 5 de endurecimiento implementada para revisión; Android fuente sin compilar y beta real pendiente. **Fecha:** 31-10-2026. **Alcance actual:** fundaciones offline, guardado, i18n/a11y, worker, censo mundial parcial, motor determinista, carreras MVP jugador/entrenador, España 1+2, NA 30/draft, contratos, lesiones, carga, mercado, cruces, presentación 2D, minijuegos TL/bocina, vida/eventos/logros/tienda/Me/prensa/guía y nombres de jugador inspirados `pending-clearance`.
+**Estado:** fase 6 en desarrollo: jugadas clave voxel y replay de carrera, con fallback 2D. Android fuente sin compilar y beta real pendiente. **Fecha:** 31-10-2026. **Alcance actual:** fundaciones offline, guardado, i18n/a11y, worker, censo mundial parcial, motor determinista, carreras MVP jugador/entrenador, España 1+2, NA 30/draft, contratos, lesiones, carga, mercado, cruces, presentación 2D, minijuegos TL/bocina, vida/eventos/logros/tienda/Me/prensa/guía y nombres de jugador inspirados `pending-clearance`.
 
 ## Decisión recomendada
 
@@ -67,6 +67,11 @@ El usuario exige **todas las ligas de baloncesto existentes** como objetivo de m
 
 ## Aprobación solicitada
 
-Aprobar o ajustar: **(a)** repositorio separado con copia selectiva; **(b)** MVP con España de dos niveles + liga norteamericana/draft; **(c)** 3D, NCAA, selecciones, Crea tu club, mascota y GOAT después del MVP; **(d)** título provisional “Camino al Aro”, con alternativas ya cribadas pero sin autorización legal definitiva.
+Aprobar o ajustar: **(a)** repositorio separado con copia selectiva; **(b)** MVP con España de dos niveles + liga norteamericana/draft; **(c)** 3D, NCAA, selecciones, Crea tu club, mascota y GOAT después del MVP; **(d)** título provisional histórico “Camino al Aro”, sustituido después por **Baketball: Road to legend**; sin autorización legal definitiva.
 
 Tras el OK se empezará por la fase 1 —fundaciones, reglas y motor verificable—, no por empaquetar Android. No se hará push ni se generará/lanzará un AAB sin instrucción explícita.
+
+
+## Actualización de nombre y fase 6
+
+El usuario fijó el nombre visible exacto **Baketball: Road to legend** (31-10-2026). Los documentos históricos conservan sus resultados de fase; las referencias antiguas al título no son nombres de producto vigentes. El nuevo título no tiene cribado legal definitivo. IDs internos de guardado/Android se conservan por compatibilidad. Desarrollo actual: jugadas clave voxel con fallback 2D.

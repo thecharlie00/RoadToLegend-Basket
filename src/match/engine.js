@@ -71,7 +71,7 @@
       score: [0, 0], offense: 0, phase: 'live', teams, events: [], possessions: [1, 0],
       tuning: Object.assign({}, TUNING, config.tuning || {}),
       rng: rng.serialize(), hash: '00000000', final: false, winner: null, overtimeCount: 0,
-      arrow: 1, log: []
+      arrow: 1, log: [], lineups: []
     };
     record(state, { type: 'start', ruleSetId, period: 1 });
     return state;
@@ -82,6 +82,8 @@
     event.clock = state.gameClock;
     event.seq = state.events.length;
     state.events.push(event);
+    // Parallel presentation metadata: exact on-court five at record time, excluded from the authoritative hash.
+    state.lineups.push({ seq: event.seq, teams: state.teams.map(t => t.onCourt.slice()) });
     state.hash = Hash.hex32(Hash.hashObject({ prev: state.hash, event, score: state.score, clock: state.gameClock }));
     return event;
   }
@@ -371,8 +373,16 @@
   function resumeMatch(snapshot) {
     const state = JSON.parse(JSON.stringify(snapshot));
     state.tuning = Object.assign({}, TUNING, state.tuning || {});
+    state.lineups = Array.isArray(state.lineups) ? state.lineups : [];
     state._rng = RNG.create(0); state._rng.restore(state.rng);
     return state;
+  }
+  function replay(state, context = {}) {
+    // Presentation-only snapshot: never rerun or alter the authoritative possession log.
+    return { schemaVersion: 1, context,
+      state: { matchId: state.matchId, ruleSetId: state.ruleSetId, hash: state.hash, score: state.score.slice(), period: state.period, overtimeCount: state.overtimeCount, final: state.final, winner: state.winner,
+        events: JSON.parse(JSON.stringify(state.events)), lineups: JSON.parse(JSON.stringify(state.lineups || [])), teams: state.teams.map(t => ({ id: t.id, name: t.name, players: t.players.map(p => ({ id: p.id, name: p.name, pos: p.pos })) })) },
+      box: boxScore(state), validation: validateBox(state) };
   }
   function boxScore(state) {
     return state.teams.map(t => ({
@@ -407,6 +417,6 @@
     return { ok: errors.length === 0, errors };
   }
 
-  CAA.Match = { ATTRS, ZONES, BASE, TUNING, createMatch, simulatePossession, simulateMatch, serializeMatch, resumeMatch, boxScore, validateBox, neutralTeams, demoTeam, makePlayer, DEFAULT_TACTIC };
+  CAA.Match = { ATTRS, ZONES, BASE, TUNING, createMatch, simulatePossession, simulateMatch, serializeMatch, resumeMatch, replay, boxScore, validateBox, neutralTeams, demoTeam, makePlayer, DEFAULT_TACTIC };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Match;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

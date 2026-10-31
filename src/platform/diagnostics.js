@@ -38,7 +38,9 @@
       if (root.document && root.document.addEventListener) root.document.addEventListener('visibilitychange', visibility);
       function frame(ts) {
         if (stopped) return;
-        if (previous != null) intervals.push(ts - previous);
+        // Headless/WebView clocks can occasionally emit duplicate rAF timestamps.
+        // Count only positive intervals so a requested 180-frame sample stays 180.
+        if (previous != null && ts > previous) intervals.push(ts - previous);
         previous = ts;
         try { if (options.onFrame) options.onFrame(intervals.length); } catch (_) {}
         if (intervals.length >= count) finish(false);

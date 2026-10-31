@@ -28,12 +28,23 @@
     }
     return { id: leagueId + '-' + (index + 1), name, league: leagueId, region: league.region, budget: league.region === 'EU' ? (league.level === 1 ? 18000000 : 3500000) : 0, roster: players, tactic: Object.assign({}, Match.DEFAULT_TACTIC), wins: 0, losses: 0, pf: 0, pa: 0, streak: 0 };
   }
+  function clubNames(leagueId) {
+    const league = LEAGUES[leagueId];
+    if (!league) throw new Error('unknown league ' + leagueId);
+    return league.region === 'EU'
+      ? (league.level === 1 ? ['Madrid Alcores','Barcelona Dracs','Valencia Horts','Sevilla Torres','Bilbao Forja','Málaga Faro','Zaragoza Viento','A Coruña Marea','Granada Alhambra','Murcia Huerta','Córdoba Mezquita','Valladolid Pinar','Santiago Bruma','Alicante Palmeral','Girona Onyar','Las Palmas Dunas','Pamplona Muralla','Santander Bahía'] : ['Madrid Cantera','Barcelona Litoral','Valencia Delta','Sevilla Compás','Bilbao Acero','Málaga Costa','Zaragoza Cierzo','A Coruña Faro','Granada Vega','Murcia Segura','Córdoba Patio','Valladolid Duero','Santiago Niebla','Alicante Sal','Girona Ter','Las Palmas Volcán','Pamplona Arga','Santander Ola'])
+      : ['New York Bridges','Boston Beacons','Chicago Forge','Los Angeles Reels','Seattle Pines','Austin Comets','Miami Tides','Denver Peaks','Phoenix Sunsands','Portland Timberside','Sacramento Rivers','Salt Lake Summits','Oklahoma City Prairies','Dallas Lone Stars','Houston Bayous','San Antonio Alamos','Minneapolis Lakes','Milwaukee Brews','Detroit Motors','Cleveland Rocks','Indiana Pacerset','Atlanta Peaches','Charlotte Hornetside','Orlando Orbits','Washington Monuments','Philadelphia Keys','Brooklyn Docks','Toronto Towers','Memphis Blues','New Orleans Crescents'];
+  }
+  function clubCatalog(leagueId) {
+    const league = LEAGUES[leagueId];
+    if (!league) throw new Error('unknown league ' + leagueId);
+    const names = clubNames(leagueId);
+    return Array.from({ length: league.teams }, (_, i) => ({ id: leagueId + '-' + (i + 1), name: names[i] || league.name + ' ' + (i + 1) }));
+  }
   function defaultClubs(leagueId) {
     const league = LEAGUES[leagueId];
     if (!league) throw new Error('unknown league ' + leagueId);
-    const names = league.region === 'EU'
-      ? (league.level === 1 ? ['Madrid Alcores','Barcelona Dracs','Valencia Horts','Sevilla Torres','Bilbao Forja','Málaga Faro','Zaragoza Viento','A Coruña Marea','Granada Alhambra','Murcia Huerta','Córdoba Mezquita','Valladolid Pinar','Santiago Bruma','Alicante Palmeral','Girona Onyar','Las Palmas Dunas','Pamplona Muralla','Santander Bahía'] : ['Madrid Cantera','Barcelona Litoral','Valencia Delta','Sevilla Compás','Bilbao Acero','Málaga Costa','Zaragoza Cierzo','A Coruña Faro','Granada Vega','Murcia Segura','Córdoba Patio','Valladolid Duero','Santiago Niebla','Alicante Sal','Girona Ter','Las Palmas Volcán','Pamplona Arga','Santander Ola'])
-      : ['New York Bridges','Boston Beacons','Chicago Forge','Los Angeles Reels','Seattle Pines','Austin Comets','Miami Tides','Denver Peaks','Phoenix Sunsands','Portland Timberside','Sacramento Rivers','Salt Lake Summits','Oklahoma City Prairies','Dallas Lone Stars','Houston Bayous','San Antonio Alamos','Minneapolis Lakes','Milwaukee Brews','Detroit Motors','Cleveland Rocks','Indiana Pacerset','Atlanta Peaches','Charlotte Hornetside','Orlando Orbits','Washington Monuments','Philadelphia Keys','Brooklyn Docks','Toronto Towers','Memphis Blues','New Orleans Crescents'];
+    const names = clubNames(leagueId);
     const out = [];
     for (let i = 0; i < league.teams; i++) out.push(createClub(leagueId, i, names[i] || league.name + ' ' + (i + 1), league.region === 'EU' ? (league.level === 1 ? 62 : 52) : 55));
     Names.assignInspiredToClubs(out, leagueId + ':inspired', league.region === 'EU' ? 'eu' : 'na', league.region === 'EU' && league.level === 2 ? 18 : 0);
@@ -153,6 +164,6 @@
     return Hash.hex32(Hash.hashObject({ leagueId: season.leagueId, round: season.round, results: season.results, clubs: season.clubs.map(c => ({ id: c.id, wins: c.wins, losses: c.losses, pf: c.pf, pa: c.pa })) }));
   }
 
-  CAA.Season = { LEAGUES, createClub, defaultClubs, createSchedule, createSeason, playRound, playRegularSeason, standings, euPromotionRelegation, naPlayoffSeeds, clubToMatchTeam, simulateGame, hashSeason };
+  CAA.Season = { LEAGUES, createClub, clubCatalog, defaultClubs, createSchedule, createSeason, playRound, playRegularSeason, standings, euPromotionRelegation, naPlayoffSeeds, clubToMatchTeam, simulateGame, hashSeason };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Season;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

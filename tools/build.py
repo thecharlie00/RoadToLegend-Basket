@@ -91,12 +91,12 @@ def main() -> int:
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1417">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; worker-src blob:; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
-<title>Camino al Aro</title>
+<title>Baketball: Road to legend</title>
 {font_licenses()}<style>{css}</style>
 </head>
 <body>
 <div id="app"></div>
-<noscript>Camino al Aro necesita JavaScript.</noscript>
+<noscript>Baketball: Road to legend necesita JavaScript / requires JavaScript.</noscript>
 <script id="caa-payload" type="application/json">{esc_script(payload_json)}</script>
 <script id="caa-worker-code" type="application/json">{esc_script(worker_json)}</script>
 <script>{esc_script(''.join(main_js))}</script>

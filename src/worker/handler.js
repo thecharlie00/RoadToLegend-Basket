@@ -71,6 +71,12 @@
         case 'calibration.batch':
           result = CAA.Calibration.runBatch(msg.payload || {});
           break;
+        case 'career.clubs': {
+          const route = msg.payload && msg.payload.route || 'eu-academy';
+          const leagueId = route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
+          result = { route, leagueId, clubs: CAA.Season.clubCatalog(leagueId) };
+          break;
+        }
         case 'career.create':
           result = CAA.Career.serialize(CAA.Career.createCareer(msg.payload || {}));
           break;

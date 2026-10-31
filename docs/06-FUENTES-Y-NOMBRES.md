@@ -47,7 +47,7 @@ No bloquean aprobar el diseño; bloquean afirmar “regla real completa” o act
 
 | Nombre | Caracteres | Cribado 31-10-2026 | Nota |
 |---|---:|---|---|
-| **Camino al Aro** (provisional) | 13 | [Google Play](https://play.google.com/store/search?q=%22Camino%20al%20Aro%22&c=apps&hl=es) devolvió RoboBall, no coincidencia exacta. | Conserva familia con el juego de fútbol. |
+| **Camino al Aro** (nombre histórico, ya sustituido) | 13 | [Google Play](https://play.google.com/store/search?q=%22Camino%20al%20Aro%22&c=apps&hl=es) devolvió RoboBall, no coincidencia exacta. | Conserva familia con el juego de fútbol. |
 | **Leyenda del Parqué** | 18 | [Google Play](https://play.google.com/store/search?q=%22Leyenda%20del%20Parqu%C3%A9%22&c=apps&hl=es): sin resultados exactos. | Más descriptivo y diferenciador. |
 | **Rumbo al Aro** | 12 | [Google Play](https://play.google.com/store/search?q=%22Rumbo%20al%20Aro%22&c=apps&hl=es): sin resultados exactos. | Corto, móvil, misma metáfora de carrera. |
 | **Aro Eterno** | 10 | [Google Play](https://play.google.com/store/search?q=%22Aro%20Eterno%22&c=apps&hl=es): sin resultados exactos. | Más abstracto/legado. |
@@ -96,3 +96,8 @@ La auditoría y el diseño están listos para revisión. No se ha creado código
 - Guardado endurecido, práctica precomprometida, import/export, fallbacks, teclado/contraste/texto grande y shell Android fuente sin compilar.
 - Los nombres de equipos se conservan; el paquete de nombres de jugador inspirados sigue pendiente de cribado legal. No se ha distribuido el archivo de investigación.
 - Resultados y límites de dispositivo: [informe fase 5](11-INFORME-FASE-5.md).
+
+
+## 9. Nombre vigente
+
+Nombre visible elegido por el usuario: **Baketball: Road to legend**. La grafía `Baketball` se conserva exactamente. El cribado de la tabla anterior correspondía al nombre histórico y no autoriza el nuevo título. Antes de publicar hay que repetir búsqueda de marca/tiendas para el nuevo nombre. No se han cambiado nombres de clubes/competiciones ni el paquete de nombres de jugador.

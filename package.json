@@ -1,8 +1,8 @@
 {
-  "name": "camino-al-aro",
-  "version": "0.1.0",
+  "name": "baketball-road-to-legend",
+  "version": "0.2.0",
   "private": true,
-  "description": "Offline-first basketball career game foundation for web and Android WebView.",
+  "description": "Baketball: Road to legend — offline-first basketball careers for web and Android WebView.",
   "scripts": {
     "build": "python3 tools/build.py",
     "test": "node --test tests/*.test.js",
