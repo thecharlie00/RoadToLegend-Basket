@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-10-31T23:22:17.000Z",
+  "date": "2026-10-31T23:40:42.251Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -25,6 +25,11 @@
     },
     {
       "name": "Phase 6b club/archetype choice, voxel identity, lineups and optional audio",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Phase 7 live match: key moments, decisions, official result and a11y",
       "ok": true,
       "missingTranslations": []
     },
@@ -127,19 +132,23 @@
       "locale": "es",
       "tab": "life-avatar",
       "violations": []
+    },
+    {
+      "name": "phase7-live-moment",
+      "violations": []
     }
   ],
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-10-31T23:22:27.198Z",
+    "measuredAt": "2026-10-31T23:40:54.558Z",
     "frames": 180,
     "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.7,
+    "p95FrameMs": 16.8,
     "maxFrameMs": 16.8,
     "meanFps": 60,
-    "framesOver16_67Ms": 112,
+    "framesOver16_67Ms": 113,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -168,15 +177,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-10-31T23:22:39.632Z",
+    "measuredAt": "2026-10-31T23:41:09.176Z",
     "frames": 180,
-    "meanFrameMs": 16.759,
+    "meanFrameMs": 16.665,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.8,
-    "maxFrameMs": 33.4,
-    "meanFps": 59.67,
-    "framesOver16_67Ms": 108,
-    "framesOver33_34Ms": 1,
+    "p95FrameMs": 16.7,
+    "maxFrameMs": 16.8,
+    "meanFps": 60.01,
+    "framesOver16_67Ms": 111,
+    "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -190,7 +199,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 56800000
+    "jsHeapUsedBytes": 35100000
   },
   "avatar": {
     "version": "voxel-1",
@@ -217,8 +226,15 @@
     "lineups": 333,
     "ok": true
   },
+  "live": {
+    "moments": 3,
+    "score": [
+      85,
+      108
+    ]
+  },
   "locales": {
-    "es": 251,
-    "en": 251
+    "es": 309,
+    "en": 309
   }
 }

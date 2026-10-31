@@ -173,6 +173,38 @@
       avatarRenderer.draw(CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast }), 'avatar');
     } catch (_) { fallback(); }
   }
+  function clockText(tenths) { const sec = Math.ceil(Math.max(0, tenths) / 10); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
+  function feedText(e) {
+    const v = { player: e.player || '', team: e.teamName, pts: e.points, shooter: e.shooter || '', defender: e.defender || '' };
+    if (e.type === 'shot') return t(e.made ? 'live.feed.made' : 'live.feed.miss', v);
+    if (e.type === 'ft') return t(e.made ? 'live.feed.ftMade' : 'live.feed.ftMiss', v);
+    if (e.type === 'foul') return t(e.intentional ? 'live.feed.foulIntentional' : e.foulOut ? 'live.feed.foulOut' : 'live.feed.foul', v);
+    if (e.type === 'turnover') return t(e.steal ? 'live.feed.steal' : 'live.feed.turnover', v);
+    return t('live.feed.' + e.type, v);
+  }
+  function renderLive(c) {
+    const raw = c.state && c.state.live;
+    if (!raw || raw.week !== c.state.week) return '';
+    const v = CAA.Live.view(raw);
+    const me = v.userTeam, opp = 1 - me;
+    const m = v.moment;
+    const vars = m ? { player: m.playerName || '', pts: m.pts || 0, fouls: m.fouls || 0, diff: Math.abs(m.diff || 0) } : {};
+    const momentHtml = m ? `<div class="moment" role="group" aria-labelledby="moment-title"><h4 id="moment-title">${t('live.moment.' + m.type)}</h4><p>${esc(t('live.momentText.' + m.type + (m.type === 'lastShot' && !m.diff ? 'Tie' : ''), vars))}</p>
+      <div class="row">${m.options.map(o => `<button data-action="live-choice" data-choice="${esc(o)}" class="${o === CAA.Live.MOMENTS[m.type].fallback ? '' : 'primary'}">${t('live.opt.' + m.type + '.' + o + (m.type === 'lastShot' && v.mode === 'coach' && o !== 'auto' ? 'Coach' : ''))}</button>`).join('')}</div></div>` : '';
+    const o = v.outcome;
+    const outcomeHtml = v.finished && o ? `<div class="moment"><h4 class="${o.won ? 'ok' : 'bad'}">${t(o.won ? 'live.won' : 'live.lost')}</h4>
+      <p>${t('live.consequences', { morale: (o.morale > 0 ? '+' : '') + o.morale, trust: (o.trust > 0 ? '+' : '') + o.trust, confidence: (o.confidence > 0 ? '+' : '') + o.confidence })}</p>
+      <div class="row"><button data-action="career-play" class="primary">${t('live.closeWeek')}</button></div></div>` : '';
+    const controls = v.finished ? '' : `<div class="row">${m ? '' : `<button data-action="live-next" class="primary">${t('live.next')}</button>`}<button data-action="live-end">${t('live.toEnd')}</button></div>`;
+    const feed = v.feed.map(e => `<li><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`).join('');
+    const top = v.top.map(p => `<tr${p.me ? ' class="me"' : ''}><td>${esc(p.name)}${p.onCourt ? ' •' : ''}</td><td>${p.pts}</td><td>${p.reb}</td><td>${p.ast}</td><td>${p.pf}</td></tr>`).join('');
+    return `<section class="panel live" aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
+      <div class="scoreboard" role="status" aria-live="polite" aria-atomic="true"><span>${esc(v.teams[me])}</span><strong>${v.score[me]} – ${v.score[opp]}</strong><span>${esc(v.teams[opp])}</span>
+      <span class="muted">${esc(v.periodLabel)} · ${clockText(v.clock)} · ${t('live.timeouts')}: ${v.timeouts}</span></div>
+      ${momentHtml}${outcomeHtml}${controls}
+      <div class="grid"><div><h4 id="live-feed-title">${t('live.feed.title')}</h4><ol class="feed" reversed tabindex="0" aria-labelledby="live-feed-title">${feed}</ol></div>
+      <div class="table-scroll" tabindex="0"><table><caption class="muted">${t('live.top')}</caption><thead><tr><th>${t('live.col.player')}</th><th>PTS</th><th>REB</th><th>AST</th><th>PF</th></tr></thead><tbody>${top}</tbody></table></div></div></section>`;
+  }
   function renderCareer() {
     const c = state.career;
     const s = c.summary;
@@ -190,7 +222,8 @@
         <div>${t('career.loadStat')}: <strong>${Math.round(p.load)}</strong> · ${p.injury ? t('career.injured') + ' ' + p.injury.weeksRemaining : t('career.healthy')}</div>
         <div>${t('career.stats')}: ${p.stats.gp} PJ · ${p.stats.min.toFixed(1)} MIN · ${(p.stats.pts / Math.max(1, p.stats.gp)).toFixed(1)} PTS · ${(p.stats.reb / Math.max(1, p.stats.gp)).toFixed(1)} REB · ${(p.stats.ast / Math.max(1, p.stats.gp)).toFixed(1)} AST</div>` : `<div>${t('career.coach')}: <strong>${esc(s.coach.name)}</strong> · ${esc(s.coach.authority)}</div>`}
       </div>
-      <div class="row"><button data-action="career-play">${t('career.play')}</button><button data-action="career-train">${t('career.train')}</button><button data-action="career-rest">${t('career.rest')}</button><button data-action="career-save">${t('career.save')}</button><button data-action="career-load">${t('career.load')}</button><button data-action="career-crossing">${t('career.crossing')}</button><button data-action="career-watch" ${!c.state.lastMatch ? 'disabled' : ''}>${t('career.watch')}</button></div>
+      ${renderLive(c)}
+      <div class="row">${c.state.live && c.state.live.week === c.state.week ? '' : `<button data-action="live-start" class="primary">${t('live.start')}</button>`}<button data-action="career-play">${t('career.play')}</button><button data-action="career-train">${t('career.train')}</button><button data-action="career-rest">${t('career.rest')}</button><button data-action="career-save">${t('career.save')}</button><button data-action="career-load">${t('career.load')}</button><button data-action="career-crossing">${t('career.crossing')}</button><button data-action="career-watch" ${!c.state.lastMatch ? 'disabled' : ''}>${t('career.watch')}</button></div>
       <details><summary>${t('career.inbox')}</summary><ul>${inbox}</ul></details>
       ${market ? `<details open><summary>${t('career.market')}</summary><ul>${market}</ul></details>` : ''}
       <details><summary>${t('career.history')}</summary><pre>${esc(JSON.stringify(s.history, null, 2))}</pre></details>`;
@@ -427,6 +460,13 @@
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };
         const res = await worker.send('career.advance', { state: state.career.state, action });
         await acceptCareer(res);
+      } else if (name === 'live-start' || name === 'live-next' || name === 'live-end' || name === 'live-choice') {
+        if (!state.career.state) throw new Error(t('career.empty'));
+        const payloadLive = { state: state.career.state, start: name === 'live-start', toEnd: name === 'live-end', choice: name === 'live-choice' ? el.dataset.choice : undefined };
+        const res = await worker.send('career.live', payloadLive);
+        await acceptCareer(res);
+        if (audio) audio.play(res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : res.live.moment ? 'whistle' : 'click');
+        notify(res.live.finished ? t(res.live.outcome.won ? 'live.won' : 'live.lost') : res.live.moment ? t('live.moment.' + res.live.moment.type) : t('live.started'));
       } else if (name === 'career-sign') {
         const index = state.career.signIndex || 0;
         const res = await worker.send('career.sign', { state: state.career.state, index });

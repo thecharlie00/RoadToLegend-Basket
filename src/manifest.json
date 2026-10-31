@@ -55,6 +55,11 @@
       "worker": true
     },
     {
+      "id": "live",
+      "path": "src/match/live.js",
+      "worker": true
+    },
+    {
       "id": "calibration",
       "path": "src/match/calibration.js",
       "worker": true

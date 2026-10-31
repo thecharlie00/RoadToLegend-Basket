@@ -8,6 +8,7 @@
     if (!CAA.World) require('../data/world.js');
     if (!CAA.Rules) require('../match/rules.js');
     if (!CAA.Match) require('../match/engine.js');
+    if (!CAA.Live) require('../match/live.js');
     if (!CAA.Calibration) require('../match/calibration.js');
     if (!CAA.Names) require('../domain/names.js');
     if (!CAA.Player) require('../domain/player.js');
@@ -90,6 +91,13 @@
           const state = CAA.Career.resume(msg.payload.state);
           CAA.Career.signOffer(state, msg.payload.index);
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
+          break;
+        }
+        case 'career.live': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const p = msg.payload || {};
+          const live = p.start ? CAA.Career.liveStart(state) : CAA.Career.liveAdvance(state, { choice: p.choice, toEnd: !!p.toEnd });
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), live: CAA.Live.view(live) };
           break;
         }
         case 'career.summary':

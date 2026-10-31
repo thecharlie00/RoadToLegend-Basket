@@ -2,7 +2,7 @@
 
 Carrera de baloncesto offline-first para web y Android WebView. Hermano de `camino-a-la-leyenda`, con repositorio y dominio propios.
 
-**Estado:** fase 6 en desarrollo: creación con club/arquetipo/mano, avatar voxel en Carrera/Vida, replays 3D con los cinco reales en pista y audio procedural opcional, con fallback 2D. Nombre visible actualizado; IDs internos y partidas anteriores conservados. Android sigue pendiente de compilación y prueba real. Hay fundaciones offline, guardado, i18n/a11y, worker, censo mundial parcial, motor determinista, carreras MVP jugador/entrenador, España 1+2, NA 30/draft, contratos, lesiones, carga, mercado, cruces, vista 2D, minijuegos TL/bocina, 100 eventos/50 logros, tienda, prensa, guía y fuentes offline. Solo se modifican nombres de jugadores; los equipos no se renombran desde el motor. Los nombres inspirados están `pending-clearance`.
+**Estado:** fase 7 (partido en directo con decisiones clave: tiempo muerto, banquillo por faltas, plan de cierre, última posesión, falta táctica; resultado oficial y consecuencias en carrera). Base de fase 6: creación con club/arquetipo/mano, avatar voxel en Carrera/Vida, replays 3D con los cinco reales en pista y audio procedural opcional, con fallback 2D. Nombre visible actualizado; IDs internos y partidas anteriores conservados. Android sigue pendiente de compilación y prueba real. Hay fundaciones offline, guardado, i18n/a11y, worker, censo mundial parcial, motor determinista, carreras MVP jugador/entrenador, España 1+2, NA 30/draft, contratos, lesiones, carga, mercado, cruces, vista 2D, minijuegos TL/bocina, 100 eventos/50 logros, tienda, prensa, guía y fuentes offline. Solo se modifican nombres de jugadores; los equipos no se renombran desde el motor. Los nombres inspirados están `pending-clearance`.
 
 Objetivo de mundo confirmado: **todas las ligas existentes, ecosistema completo** (senior/pro/semipro, amateur/regional, juveniles/canteras y universitario). La cobertura se ampliará por paquetes verificables.
 
@@ -21,6 +21,7 @@ Objetivo de mundo confirmado: **todas las ligas existentes, ecosistema completo*
 - [Shell Android y checklist real](android/README.md)
 - [Fase 6: voxel y jugadas clave](docs/12-INFORME-FASE-6.md)
 - [Fase 6b: club, avatar, quintetos y audio](docs/13-INFORME-FASE-6B.md)
+- [Fase 7: partido en directo y tabla de paridad](docs/14-INFORME-FASE-7.md)
 
 ## Desarrollo
 

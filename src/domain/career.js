@@ -10,6 +10,7 @@
   const Draft = CAA.Draft || (typeof require === 'function' ? require('./draft.js') : null);
   const Content = CAA.Content || (typeof require === 'function' ? require('./content.js') : null);
   const Minigames = CAA.Minigames || (typeof require === 'function' ? require('../match/minigames.js') : null);
+  const Live = CAA.Live || (typeof require === 'function' ? require('../match/live.js') : null);
 
   const MODES = ['player', 'coach'];
   const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted'];
@@ -95,7 +96,11 @@
       else if (act.type === 'play') Player.maybeInjure(p, rng);
     }
     if (state.season.round < state.season.schedule.length) {
-      const played = Season.playRound(state.season, state.seed + ':w' + state.week);
+      const live = currentLive(state);
+      if (live && !live.finished) Live.advance(live, { toEnd: true });
+      const overrides = live ? { [live.gameId]: Match.resumeMatch(live.match) } : null;
+      const played = Season.playRound(state.season, state.seed + ':w' + state.week, overrides);
+      if (live) { applyLiveOutcome(state, live); state.live = null; }
       const mine = played && played.find(m => m.teams.some(t => t.id === state.clubId));
       if (mine) state.lastMatch = Match.replay(mine, { week: state.week + 1, year: state.year, clubId: state.clubId, source: 'career' });
       state.week++;
@@ -110,6 +115,51 @@
     }
     state.rng = rng.serialize();
     return state;
+  }
+  // Partido en directo de la semana: misma semilla y mismo emparejamiento que la simulación del round.
+  function currentLive(state) {
+    const l = state.live;
+    return l && l.week === state.week && l.round === state.season.round && l.year === state.year ? l : null;
+  }
+  function liveStart(state) {
+    const existing = currentLive(state);
+    if (existing) return existing;
+    const season = state.season;
+    if (season.round >= season.schedule.length) throw new Error('no match this week');
+    const round = season.schedule[season.round];
+    const index = round.games.findIndex(g => g.home === state.clubId || g.away === state.clubId);
+    if (index < 0) throw new Error('no match this week');
+    const g = round.games[index];
+    const teams = [Season.clubToMatchTeam(season.clubsById[g.home]), Season.clubToMatchTeam(season.clubsById[g.away])];
+    const myId = state.player ? state.player.id : null;
+    const live = Live.create({ seed: Season.gameSeed(season, state.seed + ':w' + state.week, index), ruleSetId: season.ruleSet, teams, matchId: g.id, userTeam: g.home === state.clubId ? 0 : 1, mode: state.mode, myPlayerId: myId && teams.some(t => t.players.some(p => p.id === myId)) ? myId : null });
+    Object.assign(live, { week: state.week, year: state.year, round: season.round, gameId: g.id });
+    state.live = live;
+    return live;
+  }
+  function liveAdvance(state, opts = {}) {
+    const live = currentLive(state) || liveStart(state);
+    Live.advance(live, opts);
+    return live;
+  }
+  function applyLiveOutcome(state, live) {
+    const o = live.outcome;
+    if (!o) return;
+    if (state.player) {
+      const p = state.player;
+      p.morale = Math.max(0, Math.min(100, (p.morale || 70) + o.morale));
+      p.confidence = Math.max(-8, Math.min(8, (p.confidence || 0) + o.confidence));
+      p.coachTrust = Math.max(0, Math.min(100, (p.coachTrust == null ? 60 : p.coachTrust) + o.trust));
+    } else if (state.coach) {
+      state.coach.morale = Math.max(0, Math.min(100, state.coach.morale + o.morale));
+      state.coach.trust = Math.max(0, Math.min(100, state.coach.trust + o.trust));
+    }
+    const life = Content.ensureLife(state);
+    life.counters.live = (life.counters.live || 0) + 1;
+    const hero = live.decisions.find(d => !d.auto && d.type === 'lastShot' && d.result === 'made');
+    if (hero) life.counters.clutchMakes = (life.counters.clutchMakes || 0) + 1;
+    state.inbox.push({ type: 'live', week: state.week, won: o.won, score: o.score, decisions: o.decisions });
+    record(state, { type: 'live', hash: o.hash, decisions: live.decisions.filter(d => !d.auto).map(d => d.type + ':' + d.choice) });
   }
   function endSeason(state, rng) {
     const season = state.season;
@@ -296,6 +346,10 @@
         }
       }
     }
+    if (state.live != null) {
+      const lv = Live.validate(state.live);
+      if (!lv.ok || !Number.isInteger(state.live.week) || !Number.isInteger(state.live.round) || typeof state.live.gameId !== 'string') errors.push('invalid live match');
+    }
     if (state.life != null) {
       if (!object(state.life) || !['achievements', 'owned', 'appliedBonuses', 'eventHistory', 'press'].every(k => Array.isArray(state.life[k])) || !object(state.life.counters) || !object(state.life.equipment) || !['cash', 'style', 'xp'].every(k => finite(state.life[k])) || !Number.isInteger(state.life.counters.practice) || state.life.counters.practice < 0) errors.push('invalid life state');
       else if (state.life.pendingPractice != null) {
@@ -321,6 +375,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

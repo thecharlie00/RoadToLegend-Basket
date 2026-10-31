@@ -86,6 +86,8 @@
       roster = roster.concat(extra).slice(0, Math.max(5, roster.length));
     }
     const starters = starterIds || roster.slice(0, 5).map(p => p.id);
+    // Con la confianza plena del entrenador, el jugador entra en el quinteto inicial.
+    if (!starterIds) { const trusted = roster.find(p => (p.coachTrust || 0) >= 75 && !starters.includes(p.id)); if (trusted) starters[4] = trusted.id; }
     return {
       id: club.id, name: club.name,
       players: roster.map(p => Player.toMatchPlayer(p, starters.includes(p.id))),
@@ -97,6 +99,14 @@
     if (!home || !away) throw new Error('missing club');
     const teams = [clubToMatchTeam(home), clubToMatchTeam(away)];
     const state = Match.simulateMatch({ seed, ruleSetId: ruleSet, teams, matchId: game.id });
+    return applyGameResult(game, clubsById, state);
+  }
+  function gameSeed(season, seed, gameIndex) { return (seed || season.leagueId) + ':r' + season.schedule[season.round].round + ':g' + gameIndex; }
+  // Applies an already finished match (simulated or played live) to the table and player stats.
+  function applyGameResult(game, clubsById, state) {
+    const home = clubsById[game.home], away = clubsById[game.away];
+    if (!home || !away) throw new Error('missing club');
+    if (!state.final || state.teams[0].id !== home.id || state.teams[1].id !== away.id) throw new Error('match result does not fit game ' + game.id);
     const valid = Match.validateBox(state);
     if (!valid.ok) throw new Error('invalid box ' + valid.errors.join('; '));
     game.played = true;
@@ -133,13 +143,14 @@
     for (const c of list) byId[c.id] = c;
     return { leagueId, season: '2026-27', ruleSet: league.ruleSet, round: 0, clubs: list, clubsById: byId, schedule: createSchedule(leagueId, list.map(c => c.id), seed), results: [], champion: null, playoffs: null };
   }
-  function playRound(season, seed) {
+  function playRound(season, seed, overrides) {
     if (season.round >= season.schedule.length) return null;
     const round = season.schedule[season.round];
     const states = [];
     for (let i = 0; i < round.games.length; i++) {
       const g = round.games[i];
-      states.push(simulateGame(g, season.clubsById, (seed || season.leagueId) + ':r' + round.round + ':g' + i, season.ruleSet));
+      const pre = overrides && overrides[g.id];
+      states.push(pre ? applyGameResult(g, season.clubsById, pre) : simulateGame(g, season.clubsById, (seed || season.leagueId) + ':r' + round.round + ':g' + i, season.ruleSet));
       season.results.push({ round: round.round, id: g.id, home: g.home, away: g.away, score: g.score, hash: g.hash });
     }
     season.round++;
@@ -164,6 +175,6 @@
     return Hash.hex32(Hash.hashObject({ leagueId: season.leagueId, round: season.round, results: season.results, clubs: season.clubs.map(c => ({ id: c.id, wins: c.wins, losses: c.losses, pf: c.pf, pa: c.pa })) }));
   }
 
-  CAA.Season = { LEAGUES, createClub, clubCatalog, defaultClubs, createSchedule, createSeason, playRound, playRegularSeason, standings, euPromotionRelegation, naPlayoffSeeds, clubToMatchTeam, simulateGame, hashSeason };
+  CAA.Season = { LEAGUES, createClub, clubCatalog, defaultClubs, createSchedule, createSeason, playRound, playRegularSeason, standings, euPromotionRelegation, naPlayoffSeeds, clubToMatchTeam, simulateGame, hashSeason, applyGameResult, gameSeed };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Season;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

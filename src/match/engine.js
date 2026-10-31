@@ -105,7 +105,8 @@
   }
   function rotate(state, team) {
     const available = team.players.filter(p => !Rules.foulOut(Rules.getProfile(state.ruleSetId), p.fouls));
-    const scored = available.map(p => ({ p, w: (p.starter ? 1.55 : 0.85) * (1 - p.fatigue * 0.55) * (1 + attr(p, 'resistencia') / 250) }));
+    const benched = team.live && team.live.benched;
+    const scored = available.map(p => ({ p, w: (p.starter ? 1.55 : 0.85) * (1 - p.fatigue * 0.55) * (1 + attr(p, 'resistencia') / 250) * (benched && benched[p.id] > state.period ? 0.03 : 1) }));
     const five = [];
     const pool = scored.slice();
     for (let i = 0; i < 5 && pool.length; i++) {
@@ -211,8 +212,18 @@
     const profile = Rules.getProfile(state.ruleSetId);
     const off = state.offense, def = 1 - off;
     const offense = state.teams[off], defense = state.teams[def];
+    // Live-match hooks (absent in normal simulation, so the default RNG stream is unchanged).
+    const intent = offense.live && offense.live.intent ? offense.live.intent : null;
+    if (intent) offense.live.intent = null;
+    const foulNow = !!(defense.live && defense.live.foulNow);
+    if (foulNow) defense.live.foulNow = false;
     rotate(state, offense); rotate(state, defense);
+    if (intent && intent.shooter && !offense.onCourt.includes(intent.shooter)) {
+      const wanted = offense.players.find(p => p.id === intent.shooter);
+      if (wanted && !Rules.foulOut(profile, wanted.fouls)) offense.onCourt[4] = wanted.id; // el elegido sale a pista para esa jugada
+    }
     const offPlayers = onCourtPlayers(offense), defPlayers = onCourtPlayers(defense);
+    if (foulNow) { intentionalFoul(state, offense, defense, offPlayers, defPlayers, profile); state.rng = state._rng.serialize(); return state; }
     const pace = offense.tactic.pace;
     const setup = Math.round(T.setupBase + (1 - pace) * T.setupPace + state._rng.float() * T.setupRandom);
     consume(state, setup);
@@ -264,11 +275,13 @@
       state.rng = state._rng.serialize();
       return state;
     }
-    const zone = pickZone(state, offense);
-    const shooter = chooseWeighted(state._rng, offPlayers, p => {
+    let zone = pickZone(state, offense);
+    if (intent && ZONES.includes(intent.zone)) zone = intent.zone;
+    let shooter = chooseWeighted(state._rng, offPlayers, p => {
       const a = attr(p, ZONE_ATTR[zone]);
       return 0.5 + a / 50 + (p.starter ? 0.25 : 0);
     });
+    if (intent && intent.shooter) { const forced = offPlayers.find(p => p.id === intent.shooter); if (forced) shooter = forced; }
     const primary = chooseWeighted(state._rng, defPlayers, p => 1 + attr(p, zone === 'restricted' || zone === 'paint' ? 'defInterior' : 'defExterior') / 60);
     const contest = clamp(T.contestBase + (attr(primary, 'defExterior') + attr(primary, 'defInterior')) / 2 * T.contestDef + defense.tactic.help * T.contestHelp + state._rng.float() * T.contestRandom - (attr(shooter, 'manejo') - 50) * T.contestManejo, 0, 0.10);
     const blockChance = zone === 'restricted' ? clamp(T.blockRestricted + (attr(primary, 'tapon') - 50) * 0.0015, 0.02, 0.22) : zone === 'paint' ? clamp(T.blockPaint + (attr(primary, 'tapon') - 50) * 0.0012, 0.01, 0.18) : T.blockOther;
@@ -340,6 +353,23 @@
     state.rng = state._rng.serialize();
     return state;
   }
+  // Deliberate foul away from the shot: weakest free-throw shooter on court is targeted; the clock stops at once.
+  function intentionalFoul(state, offense, defense, offPlayers, defPlayers, profile) {
+    const off = state.offense, def = 1 - off;
+    consume(state, Math.min(state.gameClock, 15));
+    const target = offPlayers.slice().sort((a, b) => attr(a, 'tiroLibre') - attr(b, 'tiroLibre') || a.id.localeCompare(b.id))[0];
+    const fouler = defPlayers.slice().sort((a, b) => a.fouls - b.fouls || a.id.localeCompare(b.id))[0];
+    fouler.fouls++; fouler.stats.pf++; defense.stats.pf++;
+    const bucket = Rules.foulBucketKey(profile, state.period);
+    defense.foulsByPeriod[bucket] = (defense.foulsByPeriod[bucket] || 0) + 1;
+    if (state.period <= profile.periods && state.gameClock <= 1200) defense.lateFouls++;
+    const teamFouls = Rules.teamFoulBucket(profile, state.period, defense.foulsByPeriod);
+    record(state, { type: 'foul', team: def, player: fouler.id, shooting: false, intentional: true, fouled: target.id, teamFouls, foulOut: Rules.foulOut(profile, fouler.fouls) });
+    if (state.gameClock === 0) { endPeriodIfNeeded(state); return; }
+    const bonus = Rules.bonusState(profile, teamFouls, state.period, state.gameClock, defense.lateFouls);
+    if (bonus.freeThrows > 0) shootFreeThrows(state, offense, target, bonus.freeThrows, bonus.oneAndOne, 'intentional');
+    else { state.shotClock = Rules.frontcourtResetClock(profile, state.shotClock); consume(state, state.tuning.foulDead); endPeriodIfNeeded(state); }
+  }
   function pickZone(state, offense) {
     const t = offense.tactic;
     const three = clamp(t.threeRate, 0.15, 0.65);
@@ -374,6 +404,7 @@
     const state = JSON.parse(JSON.stringify(snapshot));
     state.tuning = Object.assign({}, TUNING, state.tuning || {});
     state.lineups = Array.isArray(state.lineups) ? state.lineups : [];
+    state.final = !!state.final;
     state._rng = RNG.create(0); state._rng.restore(state.rng);
     return state;
   }
@@ -417,6 +448,6 @@
     return { ok: errors.length === 0, errors };
   }
 
-  CAA.Match = { ATTRS, ZONES, BASE, TUNING, createMatch, simulatePossession, simulateMatch, serializeMatch, resumeMatch, replay, boxScore, validateBox, neutralTeams, demoTeam, makePlayer, DEFAULT_TACTIC };
+  CAA.Match = { ATTRS, ZONES, BASE, TUNING, createMatch, simulatePossession, simulateMatch, serializeMatch, resumeMatch, replay, boxScore, validateBox, recordEvent: record, consume, neutralTeams, demoTeam, makePlayer, DEFAULT_TACTIC };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Match;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

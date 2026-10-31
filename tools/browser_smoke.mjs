@@ -165,6 +165,37 @@ try {
     assert.equal(lineupCheck.events, lineupCheck.lineups); assert.equal(lineupCheck.ok, true);
     report.lineups = lineupCheck;
   });
+  await scenario('Phase 7 live match: key moments, decisions, official result and a11y', { viewport: { width: 390, height: 844 } }, async page => {
+    await tab(page, 'career');
+    await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
+    await page.locator('#career-mode').selectOption('coach');
+    await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
+    await page.locator('#career-seed').fill('phase7-browser');
+    await click(page, 'career-create');
+    await page.waitForFunction(() => CAA_APP.state.career.state && CAA_APP.state.saveState === 'saved');
+    await click(page, 'live-start');
+    assert.equal(await page.locator('.scoreboard strong').textContent(), '0 – 0');
+    let moments = 0, guard = 0;
+    while (guard++ < 40 && !(await page.evaluate(() => CAA_APP.state.career.state.live.finished))) {
+      if (await page.locator('[data-action="live-choice"]').count()) {
+        moments++;
+        if (moments === 1) {
+          const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+          report.accessibility.push({ name: 'phase7-live-moment', violations: result.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })) });
+          await page.locator('.live').screenshot({ path: 'data/qa/phase7-live-screen.png' });
+        }
+        await page.locator('[data-action="live-choice"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+      } else await click(page, 'live-next');
+    }
+    assert.ok(moments > 0, 'no key moments shown');
+    const live = await page.evaluate(() => ({ score: CAA_APP.state.career.state.live.match.score, gameId: CAA_APP.state.career.state.live.gameId }));
+    await page.locator('.live [data-action="career-play"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    const official = await page.evaluate(id => CAA_APP.state.career.state.season.results.find(r => r.id === id).score, live.gameId);
+    assert.deepEqual(official, live.score);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.live), null);
+    report.live = { moments, score: live.score };
+  });
+
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');
     await page.evaluate(() => { const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function(type, ...args) { return type === 'webgl' ? null : original.call(this, type, ...args); }; });
