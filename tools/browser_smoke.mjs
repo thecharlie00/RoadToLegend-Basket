@@ -113,7 +113,7 @@ try {
     await page.locator('#tab-career').focus(); await page.keyboard.press('ArrowRight');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-life');
     await page.keyboard.press('End'); assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-more');
-    for (const name of ['career', 'life', 'league', 'more', 'world', 'match', 'save', 'lab', 'settings']) {
+    for (const name of ['career', 'life', 'league', 'more', 'world', 'match', 'save', 'lab', 'settings', 'guide', 'history']) {
       await tab(page, name);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'horizontal overflow: ' + name);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();

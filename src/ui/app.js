@@ -192,7 +192,7 @@
   }
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
-  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade'];
+  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history'];
   const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA'];
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
   const TALENT = { promise: 50, gem: 55, chosen: 60 };
@@ -474,9 +474,26 @@
       ${done ? '' : `<button class="cta shoot" data-action="arcade-release" ${a.phase !== 'aim' ? 'disabled' : ''}>${t(a.type === 'defense' || (a.type === 'street' && a.round % 2 === 1) ? 'arcade.defend' : a.type === 'dunk' ? 'arcade.beat' : 'arcade.shoot')}</button>`}
       </section>${summary}`;
   }
+  const GUIDE = ['career', 'week', 'live', 'decisions', 'minigames', 'pet', 'playoffs', 'coach', 'saves', 'a11y'];
+  function renderGuide() {
+    return `<section class="card"><h2>${t('guide.title')}</h2><p class="muted">${t('guide.intro')}</p>${GUIDE.map(k => `<details><summary>${t('guide.s.' + k)}</summary><p>${t('guide.b.' + k)}</p></details>`).join('')}</section>`;
+  }
+  function renderHistory() {
+    if (!hasCareer()) return renderHome();
+    const st = state.career.state, s = state.career.summary, life = s.life || { achievements: [], counters: {} };
+    const c = life.counters || {};
+    const rows = st.history.map(h => `<tr><td>${seasonLabel(h.year)}</td><td>${esc(t('league.' + h.leagueId + 'Short'))}</td><td>${h.clubRank}.º</td><td>${t('sum.result.' + (h.champion === st.clubId ? 'champion' : (h.promoted || []).includes(st.clubId) ? 'promoted' : (h.result || 'none')))}</td><td>${esc(h.championName || '')}</td></tr>`).join('');
+    const mine = s.player ? (st.player.career.awards || []) : [];
+    const kpi = [['titles', c.titles || 0], ['playoffApps', c.playoffApps || 0], ['awards', c.awards || 0], ['trophies', life.achievements.length]];
+    return `<section class="card"><span class="eyebrow">${t('hof.kicker')}</span><h2>${esc(s.player ? s.player.name : s.coach.name)}</h2>
+      <div class="statline">${kpi.map(([k, v]) => `<div><b>${v}</b><small>${t('hof.' + k)}</small></div>`).join('')}</div>
+      ${s.player ? `<p class="muted small">${t('hof.totals', { gp: (st.player.career.totals || {}).gp || 0, pts: (st.player.career.totals || {}).pts || 0, reb: (st.player.career.totals || {}).reb || 0, ast: (st.player.career.totals || {}).ast || 0 })}</p>` : ''}</section>
+      <section class="card"><h3>${t('hof.seasons')}</h3>${rows ? `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('hof.seasons')}"><table><thead><tr><th>${t('hof.season')}</th><th>${t('hof.league')}</th><th>#</th><th>${t('hof.result')}</th><th>${t('hof.champion')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<p class="muted">${t('hof.empty')}</p>`}</section>
+      ${mine.length ? `<section class="card"><h3>${t('hof.myAwards')}</h3><ul class="news">${mine.map(a => `<li>🏆 <b>${t('award.' + a.award)}</b> · ${seasonLabel(a.year)}</li>`).join('')}</ul></section>` : ''}`;
+  }
   function renderMore() {
     const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${ico}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
-    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
+    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${row('history', '🏛')}${row('guide', '📖')}${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
       <button class="row-link" data-action="boot-menu"><span class="ico" aria-hidden="true">⌂</span><span><b>${t('more.menu')}</b><small>${t('more.menuSub')}</small></span><span aria-hidden="true">›</span></button></div></section>`;
   }
 
@@ -523,7 +540,7 @@
       doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
-      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : renderSettings();
+      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : renderSettings();
       const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' ? 'life' : 'more';
       const icons = { career: '⌂', life: '👕', league: '▤', more: '▦' };
       doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
