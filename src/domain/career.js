@@ -561,14 +561,15 @@
   function petOp(state, config = {}) {
     const life = Content.ensureLife(state);
     let out = null;
-    if (config.op === 'adopt') out = Pet.adopt(state, config);
+    if (config.op === 'adopt') out = Pet.adopt(state, config, life);
     else if (config.op === 'act') out = Pet.act(state, life, config);
-    else if (config.op === 'contest') out = Pet.contest(state, life);
+    else if (config.op === 'contest') out = Pet.contest(state, life, config);
     else if (config.op === 'buy') out = Pet.buy(state, life, config.item);
+    else if (config.op === 'supply') out = Pet.buySupply(state, life, config.item);
     else if (config.op === 'equip') out = Pet.equip(state, config.item);
     else throw new Error('unknown pet op');
     petCounters(state);
-    record(state, { type: 'pet', op: config.op, action: config.action || null, trick: config.trick || null, item: config.item || null });
+    record(state, { type: 'pet', op: config.op, action: config.action || null, trick: config.trick || null, item: config.item || null, route: config.route || null, tier: config.tier || null, toy: config.toy || null, food: config.food || null });
     return out;
   }
   // Entrenador: quinteto, táctica y carga semanal (paridad con alineación/tácticas/week29 del fútbol).
@@ -750,13 +751,39 @@
   }
   function dismissSummary(state) { if (state.lastSeasonSummary) state.lastSeasonSummary.dismissed = true; return state; }
   function arcadeAttrs(state) { return state.player ? state.player.attrs : {}; }
+  // Retos semanales de minijuegos (como los retos de sp-modes del fútbol): tres por semana, deterministas.
+  const ARCADE_CH = [['freeThrow', 8], ['freeThrow', 10], ['three', 16], ['three', 20], ['buzzer', 6], ['buzzer', 9], ['dunk', 45], ['dunk', 52], ['defense', 5], ['defense', 7], ['street', 7]];
+  function arcadeChallenges(state) {
+    const life = Content.ensureLife(state); life.arcade = life.arcade || { best: {}, plays: {} };
+    const key = state.year + ':' + state.week;
+    if (!life.arcade.ch || life.arcade.ch.key !== key) {
+      const rng = RNG.create(state.seed + ':arcade-ch:' + key), pool = ARCADE_CH.slice(), list = [];
+      while (list.length < 3 && pool.length) { const [type, target] = pool.splice(rng.int(0, pool.length - 1), 1)[0]; if (!list.some(c => c.type === type)) list.push({ type, target, done: false }); }
+      life.arcade.ch = { key, list };
+    }
+    return life.arcade.ch.list;
+  }
+  // Concurso del All-Star (equivalente a la tanda del fútbol): triples o mates contra tres jugadores reales de tu liga.
+  const CONTEST_TYPES = ['three', 'dunk'];
+  function contestRivals(state, type) {
+    const others = state.season.clubs.filter(c => c.id !== state.clubId).flatMap(c => c.roster.map(p => ({ p, club: c.name })));
+    const key = type === 'three' ? 'tiroTriple' : 'mate';
+    return others.sort((a, b) => (b.p.attrs[key] || 0) - (a.p.attrs[key] || 0) || a.p.id.localeCompare(b.p.id)).slice(0, 3);
+  }
   function arcadeStart(state, config = {}) {
     const life = Content.ensureLife(state);
     if (life.pendingArcade) return life.pendingArcade;
     if (!Arcade.GAMES[config.type]) throw new Error('unknown minigame');
+    const diff = Arcade.DIFF[config.diff] ? config.diff : 'normal';
+    const contest = !!config.contest;
+    if (contest) {
+      if (!CONTEST_TYPES.includes(config.type)) throw new Error('no contest for this minigame');
+      life.arcade = life.arcade || { best: {}, plays: {} };
+      if ((life.arcade.contests || {})[state.year + ':' + config.type]) throw new Error('contest already played this season');
+    }
     life.arcadeSeq = (life.arcadeSeq || 0) + 1;
-    life.pendingArcade = { type: config.type, seed: state.seed + ':arcade:' + life.arcadeSeq, week: state.week, seq: life.arcadeSeq };
-    record(state, { type: 'arcadeCommit', minigame: config.type, seq: life.arcadeSeq });
+    life.pendingArcade = { type: config.type, seed: state.seed + ':arcade:' + life.arcadeSeq + (contest ? ':allstar' : '') + (diff !== 'normal' && !contest ? ':' + diff : ''), week: state.week, seq: life.arcadeSeq, contest, diff: contest ? 'normal' : diff };
+    record(state, { type: 'arcadeCommit', minigame: config.type, seq: life.arcadeSeq, diff, contest });
     return life.pendingArcade;
   }
   function arcadeFinish(state, config = {}) {
@@ -775,6 +802,24 @@
     const record_ = prev == null || res.score > prev;
     if (record_) life.arcade.best[pend.type] = res.score;
     life.arcade.plays[pend.type] = (life.arcade.plays[pend.type] || 0) + 1;
+    // Estadísticas por juego (media y acierto) y retos semanales.
+    const st = (life.arcade.stats = life.arcade.stats || {})[pend.type] || (life.arcade.stats[pend.type] = { plays: 0, sum: 0, hits: 0, rounds: 0 });
+    st.plays++; st.sum = Math.round((st.sum + res.score) * 10) / 10; st.hits += res.results.filter(r => r.made).length; st.rounds += res.results.length;
+    const challenges = [];
+    if (!config.auto) for (const ch of arcadeChallenges(state)) if (!ch.done && ch.type === pend.type && (pend.type === 'street' ? res.won && res.score >= ch.target : res.score >= ch.target)) {
+      ch.done = true; life.style += 8; life.cash += 500; challenges.push(ch); c.arcadeChallenges = (c.arcadeChallenges || 0) + 1;
+    }
+    // Concurso del All-Star: rivales reales de la liga con su propio tiro (deterministas).
+    let contest = null;
+    if (pend.contest) {
+      const rivals = contestRivals(state, pend.type).map((x, i) => { const at = x.p.attrs, sd = pend.seed + ':rival:' + i; const r = Arcade.play(pend.type, sd, Arcade.autoTicks(pend.type, sd, at), at); return { name: x.p.name, club: x.club, score: r.score }; });
+      const place = 1 + rivals.filter(r => r.score > res.score).length;
+      const prize = { 1: [30, 5000], 2: [15, 2000], 3: [8, 800], 4: [2, 0] }[place];
+      life.style += prize[0]; life.cash += prize[1];
+      if (place === 1) { c.allStarWins = (c.allStarWins || 0) + 1; life.fame = Math.min(100, (life.fame || 0) + 4); }
+      contest = { rivals, place, prize: { style: prize[0], cash: prize[1] } };
+      (life.arcade.contests = life.arcade.contests || {})[state.year + ':' + pend.type] = { place, score: res.score };
+    }
     const c = life.counters;
     c.arcadePlays = (c.arcadePlays || 0) + 1;
     c['best_' + pend.type] = Math.max(c['best_' + pend.type] || 0, res.score);
@@ -783,7 +828,7 @@
     life.pendingArcade = null;
     Content.evaluateAchievements(state);
     record(state, { type: 'arcade', minigame: pend.type, score: res.score, hash: res.hash });
-    return Object.assign({ rewards: rw, record: record_, previous: prev == null ? null : prev, auto: !!config.auto }, res);
+    return Object.assign({ rewards: rw, record: record_, previous: prev == null ? null : prev, auto: !!config.auto, challenges, contest, diff: pend.diff || 'normal' }, res);
   }
   function arcadeCancel(state) {
     const life = Content.ensureLife(state);
@@ -871,7 +916,7 @@
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       era: state.era ? { start: state.era.start, decade: Eras.decadeOf(state.year), legends: state.era.legends, look: Eras.look(state.year), ball: Eras.ballColor(state.year), traits: Eras.traits(state.year, league) } : null,
       rival: rivalOf(state), social: state.life && state.life.social ? state.life.social.slice(-6).reverse() : [], records: state.life ? state.life.records || null : null, diary: state.life && state.life.diary ? state.life.diary.slice(-30).reverse() : [],
-      leagueId: state.season.leagueId, league: { country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
+      leagueId: state.season.leagueId, league: { cup: league.cup || null, country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
       round: state.season.round, club: { id: club.id, name: club.name, custom: club.custom || null, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
       gear: state.life ? Gear.view(state) : null, clubFin: state.mode === 'coach' ? Finance.view(state) : null, transfers: state.mode === 'coach' && state.clubFin ? Market.view(state) : null, national: state.player ? National.view(state) : null, cup: state.season.cup || null, look: state.life ? Gear.avatarLook(state) : null,
@@ -879,7 +924,7 @@
       playoffs: state.season.playoffs ? { format: state.season.playoffs.format, round: Playoffs.current(state.season.playoffs).name, done: state.season.playoffs.done, series: Playoffs.seriesOf(state.season.playoffs, state.clubId), status: Playoffs.status(state.season.playoffs, state.clubId), result: Playoffs.resultOf(state.season.playoffs, state.clubId) } : null,
       awards: state.season.awards || null, coach: state.coach,
       squad: state.mode === 'coach' ? (() => { const c = clubOf(state); const starters = Season.clubToMatchTeam(c).players.filter(p => p.starter).map(p => p.id); return { starters, tactic: c.tacticChoice || { pace: 'normal', focus: 'balanced', defense: 'man' }, training: c.training || 'normal',
-        roster: c.roster.map(p => ({ id: p.id, name: p.name, pos: p.pos, ovr: p.ovr, age: p.age, morale: p.morale == null ? 70 : p.morale, load: Math.round(p.load || 0), injury: p.injury ? p.injury.weeksRemaining : 0, archetype: p.archetype, pts: p.stats ? p.stats.pts : 0, gp: p.stats ? p.stats.gp : 0 })) }; })() : null,
+        roster: c.roster.map(p => ({ id: p.id, name: p.name, nationality: p.nationality, gender: p.gender, pos: p.pos, ovr: p.ovr, age: p.age, morale: p.morale == null ? 70 : p.morale, load: Math.round(p.load || 0), injury: p.injury ? p.injury.weeksRemaining : 0, archetype: p.archetype, pts: p.stats ? p.stats.pts : 0, gp: p.stats ? p.stats.gp : 0 })) }; })() : null,
       scouting: scouting(state), hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
     };
   }
@@ -955,6 +1000,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, CHALLENGES, gearOp, clubOp, marketOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, CHALLENGES, arcadeChallenges, CONTEST_TYPES, gearOp, clubOp, marketOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

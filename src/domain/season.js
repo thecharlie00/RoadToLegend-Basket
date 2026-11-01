@@ -16,6 +16,22 @@
   };
   // Resto del mundo (masculinas y femeninas), todas ficticias: ver leagues.js.
   if (Catalog) for (const id of Object.keys(Catalog.LEAGUES)) LEAGUES[id] = Catalog.LEAGUES[id];
+  // Nombres reales de ligas, copas y clubes (como el juego de fútbol). Los IDs internos no cambian, así que las
+  // partidas guardadas siguen cargando. Sin dato fiable: nombre descriptivo del país y clubes con su ciudad.
+  const RealRosters = CAA.RealRosters || (typeof require === 'function' ? require('./real-rosters.js') : null);
+  const Real = CAA.RealWorld || (typeof require === 'function' ? require('./real-world.js') : null);
+  function countryName(code) { try { return new Intl.DisplayNames(['es'], { type: 'region' }).of(code); } catch (e) { return (Real && Real.COUNTRY_ES[code]) || code; } }
+  if (Real) for (const l of Object.values(LEAGUES)) {
+    const r = Real.LEAGUES[l.id], cities = Catalog && Catalog.COUNTRIES[l.country] ? Catalog.COUNTRIES[l.country].cities : [];
+    const city = c => 'BC ' + c;
+    l.name = r ? r.n : 'Liga de ' + countryName(l.country) + (l.gender === 'f' ? ' Femenina' : '') + (l.level === 2 ? ' 2' : '');
+    l.cup = r && r.cup ? r.cup : null;
+    let list = r && r.c ? r.c.split('|') : cities.slice(0, l.teams).map(city);
+    if (!list.length && l.clubs) list = l.clubs.slice();
+    for (let i = 0; list.length < 8 && i < cities.length; i++) if (!list.includes(city(cities[i]))) list.push(city(cities[i]));
+    l.clubs = list; l.realClubs = !!(r && r.c); l.inspired = false;
+    if (l.format !== 'na' && list.length !== l.teams && Catalog) { l.teams = list.length; l.games = Catalog.gamesFor(list.length); }
+  }
   const genderOf = leagueId => (LEAGUES[leagueId] && LEAGUES[leagueId].gender === 'f') ? 'women' : 'men';
   function leagueBudget(league) { return league.budget != null ? league.budget : league.region === 'EU' ? (league.level === 1 ? 18000000 : 3500000) : 0; }
 
@@ -27,7 +43,14 @@
     const pos = ['PG', 'SG', 'SF', 'PF', 'C', 'PG', 'SG', 'SF', 'PF', 'C', 'SF', 'SG'];
     const budget = leagueBudget(league), gender = league.gender === 'f' ? 'women' : 'men';
     const nat = () => league.pool ? (rng.float() < league.share ? league.pool[0] : rng.pick(league.pool.slice(1))) : league.region === 'EU' ? (rng.float() < 0.6 ? 'ES' : rng.pick(['FR', 'DE', 'IT', 'TR', 'GR', 'LT', 'RS', 'AR', 'BR'])) : rng.pick(['US', 'US', 'US', 'CA', 'FR', 'AU', 'CN', 'JP', 'KR', 'PH', 'ZA']);
-    for (let i = 0; i < 12; i++) {
+    // Plantilla real versionada (estilo PES) si el club la tiene; el resto hasta 12 se genera.
+    const real = league.realClubs && RealRosters && RealRosters.ROSTERS[name];
+    if (real) real.slice(0, 12).forEach((r, j) => {
+      const p = Player.createPlayer({ seed: clubSeed(leagueId, index) + ':r' + j, name: r[0], pos: r[1], age: r[2], quality: r[3], nationality: r[4], gender });
+      p.real = true; p.contract = Contracts.offerForPlayer(p, { league: leagueId, budget }, rng, Contracts.NA_ECONOMY_2026_27);
+      players.push(p);
+    });
+    for (let i = players.length; i < 12; i++) {
       const quality = Math.max(30, Math.min(85, rating + (i < 5 ? 3 : -5) + rng.int(-4, 4)));
       const p = Player.createPlayer({ seed: clubSeed(leagueId, index) + ':p' + i, pos: pos[i], quality, age: rng.int(19, 34), nationality: nat(), gender });
       p.contract = Contracts.offerForPlayer(p, { league: leagueId, budget }, rng, Contracts.NA_ECONOMY_2026_27);

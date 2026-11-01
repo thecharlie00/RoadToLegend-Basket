@@ -93,6 +93,16 @@
       "worker": true
     },
     {
+      "id": "real-world",
+      "path": "src/domain/real-world.js",
+      "worker": true
+    },
+    {
+      "id": "real-rosters",
+      "path": "src/domain/real-rosters.js",
+      "worker": true
+    },
+    {
       "id": "season",
       "path": "src/domain/season.js",
       "worker": true
@@ -230,6 +240,11 @@
     {
       "id": "voxel",
       "path": "src/render/voxel.js",
+      "worker": false
+    },
+    {
+      "id": "faces",
+      "path": "src/render/faces.js",
       "worker": false
     },
     {

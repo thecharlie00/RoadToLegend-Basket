@@ -190,7 +190,7 @@ test('pet: adopt, weekly care limit, deterministic tricks, contests, items and r
   assert.equal(a.pet.equipped.head, 'cap');
   assert.ok(Career.validate(Career.resume(Career.serialize(a))).ok);
   // descuido: la mascota triste baja la moral del dueño
-  const owners = [95, 10].map(h => { const s = Career.createCareer({ seed: 'pet-mood', mode: 'player' }); Career.petOp(s, { op: 'adopt', species: 'cat' }); s.pet.happiness = h; s.pet.hunger = 100; s.pet.hygiene = 100; Career.advanceWeek(s, { type: 'rest' }); return s.player.morale; });
+  const owners = [95, 10].map(h => { const s = Career.createCareer({ seed: 'pet-mood', mode: 'player' }); Career.petOp(s, { op: 'adopt', species: 'cat' }); for (const k of ['hunger', 'thirst', 'hygiene', 'energy', 'fun', 'affection']) s.pet[k] = h > 50 ? 100 : 12; if (h > 50) s.pet.energy = 60; Career.advanceWeek(s, { type: 'rest' }); return s.player.morale; });
   assert.equal(owners[0] - owners[1], 3, 'happy pet +1 morale, sad pet -2');
 });
 
@@ -222,7 +222,7 @@ test('playoff formats: NA play-in + two conferences best-of-7; EU top 8; EU prom
 });
 
 test('career plays playoffs week by week (live-capable), records awards, summary and history', () => {
-  const s = Career.createCareer({ seed: 'po-career', mode: 'coach', route: 'na-draft' });
+  const s = Career.createCareer({ seed: 'po-career', mode: 'coach', route: 'na-draft', clubId: 'na-boreal-men-4' }) // con plantillas reales, un aspirante a playoffs;
   let guard = 0, playoffLive = 0;
   while (s.year < 2027 && guard++ < 200) {
     if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
@@ -380,7 +380,7 @@ test('regression: when your European club is promoted, your next season is playe
   assert.ok(s.season.clubsById[s.clubId]);
   assert.equal(s.topSeason.leagueId, 'es-ascenso-iberico');
   assert.ok(s.inbox.some(m => m.type === 'promoted'));
-  assert.equal(Career.summary(s).leagueName, 'Liga Ibérica');
+  assert.equal(Career.summary(s).leagueName, 'Liga Endesa');
   if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
   Career.advanceWeek(s, { type: 'play' });
   assert.ok(s.lastMatch.state.teams.some(t => t.id === s.clubId), 'you play your own league games');

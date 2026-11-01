@@ -142,12 +142,13 @@
     const p = s.player;
     return { mode: s.mode, name: p ? p.name : s.coach.name, height: p ? p.height : 190, archetype: p ? p.archetype : null, handedness: p ? p.handedness : 'right', women: !!(s.league && s.league.gender === 'f'), look: s.look || null, equipment: { jersey: color('jersey'), shoes: color('shoes'), accessory: color('accessory') } };
   }
+  function face(p) { return CAA.Faces ? CAA.Faces.svg(p, 26) : ''; }
   function avatarHtml() {
     const profile = avatarProfile();
     if (!profile) return '';
     const eq = profile.equipment || {};
     const style = c => c ? ` style="background:${esc(c)}"` : '';
-    return `<div class="avatar-wrap"><canvas id="me3d" role="img" aria-label="${t('life.me3d', { name: esc(profile.name) })}"></canvas><div id="me2d" class="me2d" role="img" aria-label="${t('life.me')}" hidden><div class="me-head"${style(eq.accessory)}></div><div class="me-body"${style(eq.jersey)}></div><div class="me-legs"></div><div class="me-shoes"${style(eq.shoes)}></div></div><p class="muted">${t('life.meNote')}</p></div>`;
+    return `<div class="avatar-wrap"><canvas id="me3d" role="img" aria-label="${t('life.me3d', { name: esc(profile.name) })}"></canvas><button class="small-btn celebrate" data-action="celebrate">🎉 ${t('look.celebrate')}</button><div id="me2d" class="me2d" role="img" aria-label="${t('life.me')}" hidden><div class="me-head"${style(eq.accessory)}></div><div class="me-body"${style(eq.jersey)}></div><div class="me-legs"></div><div class="me-shoes"${style(eq.shoes)}></div></div><p class="muted">${t('life.meNote')}</p></div>`;
   }
   let petRenderer = null, petCanvas = null, petTimer = null;
   function drawPet() {
@@ -170,7 +171,11 @@
         avatarCanvas = canvas;
         avatarRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { fallback(); avatarRenderer = null; avatarCanvas = null; } });
       }
-      avatarRenderer.draw(CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast }), 'avatar');
+      // Celebración: al tocar el modelo hace la celebración elegida en «Aspecto» durante 1,6 s.
+      const cel = state.celebrate, ph = cel ? (root.performance.now() - cel) / 1600 : 1;
+      if (cel && ph >= 1) state.celebrate = null;
+      avatarRenderer.draw(CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, celebrate: !!state.celebrate, phase: Math.min(1, ph) }), 'avatar');
+      if (state.celebrate) root.setTimeout(drawAvatar, 60);
     } catch (_) { fallback(); }
   }
   function clockText(tenths) { const sec = Math.ceil(Math.max(0, tenths) / 10); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
@@ -246,6 +251,18 @@
       else if (e.type === 'rebound' && e.team === me) b(e.player).reb++;
       else if (e.type === 'foul' && e.team === me && e.player) b(e.player).pf++;
     }
+    // Estadísticas de equipo, parciales por cuarto y momentum (últimas 12 canastas) con lo ya emitido.
+    const ts = [0, 1].map(() => ({ fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 0, fta: 0, reb: 0, tov: 0 })), qs = {}, swing = [];
+    for (const e of shown) {
+      const T = ts[e.team];
+      if (e.type === 'shot' && T) { T.fga++; if ((e.points || 2) === 3) T.tpa++; if (e.made) { T.fgm++; if ((e.points || 2) === 3) T.tpm++; } }
+      else if (e.type === 'ft' && T) { T.fta++; if (e.made) T.ftm++; }
+      else if ((e.type === 'rebound' || e.type === 'teamRebound') && T) T.reb++;
+      else if ((e.type === 'turnover' || e.type === 'shotClockViolation') && T) T.tov++;
+      const pts = e.type === 'shot' && e.made ? (e.points || 2) : e.type === 'ft' && e.made ? 1 : 0;
+      if (pts && e.team != null) { const q = qs[e.period] || (qs[e.period] = [0, 0]); q[e.team] += pts; swing.push(e.team === me ? pts : -pts); }
+    }
+    const momentum = Math.max(-1, Math.min(1, swing.slice(-12).reduce((a, b) => a + b, 0) / 12));
     const caught = p.seq >= m.events.length && !!(raw.moment || raw.finished);
     const clk = caught ? { period: m.period, clock: m.gameClock } : absToClock(prof, Math.min(p.cursor, m.events.length ? evAbs(prof, m.events[m.events.length - 1].period, m.events[m.events.length - 1].clock) : 0));
     const seqs = new Set(shown.map(e => e.seq));
@@ -253,7 +270,7 @@
     const mine = m.teams[me];
     const top = mine.players.map(pl => Object.assign({ id: pl.id, name: pl.name, me: pl.id === raw.myPlayerId, onCourt: mine.onCourt.includes(pl.id) }, b(pl.id)))
       .sort((a, c) => c.pts - a.pts || a.id.localeCompare(c.id)).slice(0, 5);
-    return Object.assign({}, v, { score: caught ? m.score.slice() : score, period: clk.period, clock: clk.clock, periodLabel: CAA.Rules.periodLabel(prof, clk.period), feed, top, caught,
+    return Object.assign({}, v, { score: caught ? m.score.slice() : score, period: clk.period, clock: clk.clock, periodLabel: CAA.Rules.periodLabel(prof, clk.period), feed, top, caught, teamStats: ts, quarters: qs, momentum,
       moment: caught ? v.moment : null, finished: caught && v.finished, myName: raw.myPlayerId ? (mine.players.find(x => x.id === raw.myPlayerId) || {}).name : null });
   }
   function pbTick() {
@@ -287,11 +304,18 @@
     const set = (id, html) => { const el = doc.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; };
     set('pb-score', `${v.score[me]} – ${v.score[opp]}`);
     set('pb-clock', `${esc(v.periodLabel)} · ${clockText(v.clock)}`);
-    if (full) { set('pb-feed', liveFeedHtml(v)); set('pb-top', liveTopHtml(v)); const cap = doc.getElementById('live3d-cap'); if (cap) cap.textContent = live3dCaption(raw); }
+    if (full) { set('pb-feed', liveFeedHtml(v)); set('pb-top', liveTopHtml(v)); set('pb-stats', liveStatsHtml(v)); const mm = doc.getElementById('pb-mom'); if (mm) { mm.style.setProperty('--mom', String(v.momentum)); mm.setAttribute('aria-valuenow', String(Math.round(v.momentum * 100))); } const cap = doc.getElementById('live3d-cap'); if (cap) cap.textContent = live3dCaption(raw); }
   }
   function pbStart() { if (pbTimer == null) { pbLast = root.performance.now(); pbTimer = root.setInterval(pbTick, 100); } }
   function pbStop() { if (pbTimer != null) { root.clearInterval(pbTimer); pbTimer = null; } }
   function liveFeedHtml(v) { return v.feed.map(e => `<li${v.myName && e.player === v.myName ? ' class="mine"' : ''}><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`).join(''); }
+  function liveStatsHtml(v) {
+    const me = v.userTeam, op = 1 - me, A = v.teamStats[me], B = v.teamStats[op], pct = (m, a) => a ? Math.round(m / a * 100) + '%' : '—';
+    const row = (k, a, b) => `<tr><td>${a}</td><th scope="row">${t('live.stat.' + k)}</th><td>${b}</td></tr>`;
+    const qk = Object.keys(v.quarters).sort((x, y) => x - y);
+    return `<table class="vs"><thead><tr><th>${esc(v.teams[me])}</th><th></th><th>${esc(v.teams[op])}</th></tr></thead><tbody>${row('fg', `${A.fgm}/${A.fga} (${pct(A.fgm, A.fga)})`, `${B.fgm}/${B.fga} (${pct(B.fgm, B.fga)})`)}${row('tp', `${A.tpm}/${A.tpa}`, `${B.tpm}/${B.tpa}`)}${row('ft', `${A.ftm}/${A.fta}`, `${B.ftm}/${B.fta}`)}${row('reb', A.reb, B.reb)}${row('tov', A.tov, B.tov)}</tbody></table>
+      ${qk.length ? `<p class="muted small">${t('live.quarters')}: ${qk.map(q => `${q}º ${v.quarters[q][me]}–${v.quarters[q][op]}`).join(' · ')}</p>` : ''}`;
+  }
   function liveTopHtml(v) { return v.top.map(p => `<tr${p.me ? ' class="me"' : ''}><td>${esc(p.name)}${p.onCourt ? ' •' : ''}</td><td>${p.pts}</td><td>${p.reb}</td><td>${p.ast}</td><td>${p.pf}</td></tr>`).join(''); }
   function renderLive(c) {
     const raw = c.state && c.state.live;
@@ -316,7 +340,9 @@
       <div class="scoreboard"><span>${esc(v.teams[me])}</span><strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong><span>${esc(v.teams[opp])}</span>
       <span class="muted"><span id="pb-clock">${esc(v.periodLabel)} · ${clockText(v.clock)}</span> · ${t('live.timeouts')}: ${v.timeouts}</span></div>
       <div class="live3d"><canvas id="live3d" role="img" aria-label="${t('live.view3d')}" aria-describedby="live3d-cap"></canvas><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p></div>
+      <div class="momentum" id="pb-mom" role="meter" aria-label="${t('live.momentum')}" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="${Math.round(v.momentum * 100)}" style="--mom:${v.momentum}"><span>${esc(v.teams[opp])}</span><i aria-hidden="true"></i><span>${esc(v.teams[me])}</span></div>
       ${controls}${momentHtml}${outcomeHtml}
+      <details class="live-stats" open><summary>${t('live.statsTitle')}</summary><div id="pb-stats">${liveStatsHtml(v)}</div></details>
       <div class="grid"><div><h4 id="live-feed-title">${t('live.feed.title')}</h4><ol class="feed" id="pb-feed" reversed tabindex="0" aria-labelledby="live-feed-title">${liveFeedHtml(v)}</ol></div>
       <div class="table-scroll" tabindex="0"><table><caption class="muted">${t('live.top')}</caption><thead><tr><th>${t('live.col.player')}</th><th>PTS</th><th>REB</th><th>AST</th><th>PF</th></tr></thead><tbody id="pb-top">${liveTopHtml(v)}</tbody></table></div></div></section>`;
   }
@@ -578,7 +604,7 @@
       ${fm.legends.length ? `<h4 class="eyebrow">${t('fam.dynasty', { n: fm.generation })}</h4><ul class="news">${fm.legends.map((l, i) => `<li>🏛 <b>${esc(l.name)}</b> · ${t('fam.gen', { n: i + 1 })} · ${t('ret.legendLine', { seasons: seasonsTxt(l.seasons), pts: l.totals ? l.totals.pts : 0, titles: l.titles })}</li>`).join('')}</ul>` : ''}</section>` : '';
     const coachCards = s.squad ? renderSquad(s) : '';
     const best = (life.arcade && life.arcade.best) || {};
-    const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div><div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
+    const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div>${arcadeExtras(life)}<div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}${arcadeStat(life, g)}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
       ${life.pendingArcade ? `<p class="muted small">${t('arcade.pending', { game: t('arcade.' + life.pendingArcade.type) })}</p><div class="row"><button class="small-btn" data-action="arcade-resume">${t('arcade.resume')}</button><button class="small-btn" data-action="arcade-cancel">${t('arcade.abandon')}</button></div>` : ''}</section>`;
     const practice = `<section class="card"><h3>${t('me.practice')}</h3><p class="muted small">${t('me.practiceDesc')}</p>
       <div class="pick-grid two"><button class="option" data-action="life-practice-start"><b>${t('life.practiceManual')}</b></button><button class="option" data-action="life-practice-auto"><b>${t('life.practiceAuto')}</b></button><button class="option" data-action="life-buzzer-start"><b>${t('life.buzzerManual')}</b></button><button class="option" data-action="life-buzzer-auto"><b>${t('life.buzzerAuto')}</b></button></div>
@@ -599,7 +625,7 @@
   function renderSquad(s) {
     const sq = s.squad;
     const pick = state.coachPick && state.coachPick.career === s.careerId ? state.coachPick.ids : sq.starters;
-    const rows = sq.roster.map(p => { const on = pick.includes(p.id); return `<tr class="${on ? 'me' : ''}"><td><button class="starter ${on ? 'on' : ''}" data-action="coach-starter" data-id="${esc(p.id)}" aria-pressed="${on}" aria-label="${t(on ? 'coach.removeStarter' : 'coach.addStarter', { name: esc(p.name) })}">${on ? '★' : '☆'}</button></td><td>${esc(p.name)}${p.injury ? ` <span class="bad small">+${p.injury}</span>` : ''}</td><td>${esc(p.pos)}</td><td>${p.ovr}</td><td>${p.age}</td><td class="${p.morale < 40 ? 'bad' : ''}">${p.morale}</td><td class="${p.load > 60 ? 'bad' : ''}">${p.load}</td></tr>`; }).join('');
+    const rows = sq.roster.map(p => { const on = pick.includes(p.id); return `<tr class="${on ? 'me' : ''}"><td><button class="starter ${on ? 'on' : ''}" data-action="coach-starter" data-id="${esc(p.id)}" aria-pressed="${on}" aria-label="${t(on ? 'coach.removeStarter' : 'coach.addStarter', { name: esc(p.name) })}">${on ? '★' : '☆'}</button></td><td>${face(p)} ${esc(p.name)}${p.injury ? ` <span class="bad small">+${p.injury}</span>` : ''}</td><td>${esc(p.pos)}</td><td>${p.ovr}</td><td>${p.age}</td><td class="${p.morale < 40 ? 'bad' : ''}">${p.morale}</td><td class="${p.load > 60 ? 'bad' : ''}">${p.load}</td></tr>`; }).join('');
     const changed = JSON.stringify(pick.slice().sort()) !== JSON.stringify(sq.starters.slice().sort());
     const tac = (k, vals) => `<div class="seg" role="group" aria-label="${t('coach.' + k)}">${vals.map(v => `<button data-action="coach-tactic" data-k="${k}" data-v="${v}" aria-pressed="${sq.tactic[k] === v}">${t('coach.' + k + '.' + v)}</button>`).join('')}</div>`;
     return `<section class="card"><div class="guide-head"><h3>${t('coach.squad')}</h3><span class="tag ${pick.length === 5 ? 'led' : ''}">${t('coach.starters', { n: pick.length })}</span></div>
@@ -657,29 +683,56 @@
     return `<section class="card"><h3>${t('world.champions', { season: seasonLabel(s.world.year) })}</h3>${by}</section>`;
   }
   function renderPet(s) {
-    const pet = s.pet;
+    const pet = s.pet, P = CAA.Pet;
     if (!pet) {
       const sp = state.petSpecies || 'dog';
+      const cash = s.life ? s.life.cash : 0;
       return `<section class="card pet"><h3>${t('pet.title')}</h3><p class="muted small">${t('pet.adoptDesc')}</p>
-        <div class="pick-grid">${Object.keys(CAA.Pet.SPECIES).map(k => `<button class="pick" data-action="pet-species" data-species="${k}" aria-pressed="${k === sp}"><b>${t('pet.species.' + k)}</b></button>`).join('')}</div>
+        <div class="pick-grid">${Object.keys(P.SPECIES).map(k => `<button class="pick" data-action="pet-species" data-species="${k}" aria-pressed="${k === sp}"><b>${t('pet.species.' + k)}</b>${P.SPECIES[k].exotic ? `<small>${t('pet.exotic', { n: P.EXOTIC_COST.toLocaleString(CAA.I18N.getLocale()) })}</small>` : ''}</button>`).join('')}</div>
         <label for="pet-name">${t('pet.name')}<input id="pet-name" maxlength="20" value="${esc(draft('pet-name', ''))}" placeholder="${t('pet.namePlaceholder.' + sp)}"></label>
-        <button class="cta" data-action="pet-adopt">${t('pet.adopt')}</button></section>`;
+        <button class="cta" data-action="pet-adopt" ${P.SPECIES[sp].exotic && cash < P.EXOTIC_COST ? 'disabled' : ''}>${t('pet.adopt')}</button></section>`;
     }
-    const L = CAA.I18N.getLocale();
-    const learnedN = CAA.Pet.learned(pet).length;
-    const msg = pet.last ? t('pet.msg.' + pet.last.key, { name: pet.name, trick: pet.last.trick ? t('pet.trick.' + pet.last.trick) : '' }) : '';
-    const canContest = pet.lastContestWeek < 0 || state.career.state.week - pet.lastContestWeek >= 4;
-    const acts = [['feed', '🍖'], ['play', '🏀'], ['walk', '🌳'], ['bath', '🛁']];
-    const tricks = CAA.Pet.TRICKS.map(tr => { const pr = pet.tricks[tr.id] || 0; return `<button class="trick ${pr >= 100 ? 'done' : ''}" data-action="pet-act" data-act="train" data-trick="${tr.id}" ${pet.actionsLeft <= 0 || pr >= 100 ? 'disabled' : ''}><span><b>${t('pet.trick.' + tr.id)}</b><small>${'★'.repeat(tr.diff)}</small></span><span class="track" aria-hidden="true"><i style="width:${pr}%"></i></span><small>${pr >= 100 ? t('pet.learned') : pr + ' %'}</small></button>`; }).join('');
-    const items = CAA.Pet.ITEMS.filter(i => !i.prize || pet.owned.includes(i.id)).map(i => { const owned = pet.owned.includes(i.id), on = pet.equipped[i.slot] === i.id; return `<div class="item"><span class="swatch" style="background:${i.color}" aria-hidden="true"></span><span><b>${t('pet.item.' + i.id)}</b><small>${t('pet.slot.' + i.slot)}${owned ? '' : ' · ' + i.cost + ' ' + t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="pet-equip" data-item="${i.id}" aria-pressed="${on}">${t(on ? 'pet.unequip' : 'life.equip')}</button>` : `<button class="small-btn" data-action="pet-buy" data-item="${i.id}">${t('life.buy')}</button>`}</div>`; }).join('');
-    return `<section class="card pet"><div class="guide-head"><h3>${esc(pet.name)}</h3><span class="tag">${t('pet.species.' + pet.species)} · ${t('pet.age', { n: pet.ageWeeks })}</span></div>
-      <div class="pet-stage"><canvas id="pet3d" role="img" aria-label="${t('pet.canvas', { name: esc(pet.name) })}"></canvas><div class="pet-bars">${meter(t('pet.hunger'), pet.hunger)}${meter(t('pet.energy'), pet.energy)}${meter(t('pet.happiness'), pet.happiness)}${meter(t('pet.hygiene'), pet.hygiene)}${meter(t('pet.bond'), pet.bond)}</div></div>
+    const SP = P.SPECIES[pet.species], stage = P.stageOf(pet), wk = state.career.state.week;
+    const learnedN = P.learned(pet).length;
+    const msg = pet.last ? t('pet.msg.' + pet.last.key, { name: pet.name, trick: pet.last.trick ? t('pet.trick.' + pet.last.trick) : '', route: pet.last.route ? t('pet.route.' + pet.last.route) : '', stage: pet.last.stage ? t('pet.stage.' + pet.last.stage) : '', tier: pet.last.tier ? t('pet.tier.' + pet.last.tier) : '', toy: pet.last.toy ? t('pet.supply.' + pet.last.toy) : '' }) : '';
+    const canContest = pet.lastContestWeek < 0 || wk - pet.lastContestWeek >= 4;
+    const none = pet.actionsLeft <= 0, quick = pet.quick || {};
+    const qBtn = (a, ico, used) => `<button class="option center" data-action="pet-act" data-act="${a}" ${used ? 'disabled' : ''}><b>${ico} ${t('pet.act.' + a)}</b></button>`;
+    const care = qBtn('cuddle', '🤗', pet.cuddled) + qBtn('water', '💧', quick.water) + qBtn('brush', '🪮', quick.brush);
+    const inv = pet.inv || {}, toys = pet.toys || [];
+    const main = [`<button class="option center" data-action="pet-act" data-act="feed" ${none ? 'disabled' : ''}><b>🍖 ${t('pet.act.feed')}</b></button>`,
+      `<button class="option center" data-action="pet-act" data-act="feed" data-food="food_prem" ${none || (!(inv.food_prem > 0) && s.life.cash < 300) ? 'disabled' : ''}><b>🥩 ${t('pet.act.premium')}</b><small>${t('pet.left', { n: inv.food_prem || 0 })}</small></button>`,
+      `<button class="option center" data-action="pet-act" data-act="feed" data-food="treats" ${none || !(inv.treats > 0) ? 'disabled' : ''}><b>🦴 ${t('pet.act.treat')}</b><small>${t('pet.left', { n: inv.treats || 0 })}</small></button>`,
+      `<button class="option center" data-action="pet-act" data-act="bath" ${none ? 'disabled' : ''}><b>🛁 ${t('pet.act.bath')}</b></button>`,
+      `<button class="option center" data-action="pet-act" data-act="play" ${none ? 'disabled' : ''}><b>🏀 ${t('pet.act.play')}</b></button>`]
+      .concat(toys.map(k => `<button class="option center" data-action="pet-act" data-act="play" data-toy="${k}" ${none ? 'disabled' : ''}><b>🎾 ${t('pet.supply.' + k)}</b></button>`)).join('');
+    const routes = SP.walks ? Object.entries(P.ROUTES).map(([k, r]) => `<button class="option center" data-action="pet-act" data-act="walk" data-route="${k}" ${none || pet.bond < r.bond ? 'disabled' : ''}><b>🌳 ${t('pet.route.' + k)}</b><small>${pet.bond < r.bond ? t('pet.needBond', { n: r.bond }) : t('pet.walk')}</small></button>`).join('') : `<p class="muted small">${t('pet.noWalk')}</p>`;
+    const tricks = P.TRICKS.map(tr => { const pr = pet.tricks[tr.id] || 0, cant = tr.diff > SP.maxTrick; return `<button class="trick ${pr >= 100 ? 'done' : ''}" data-action="pet-act" data-act="train" data-trick="${tr.id}" ${none || pr >= 100 || cant ? 'disabled' : ''}><span><b>${t('pet.trick.' + tr.id)}</b><small>${cant ? t('pet.cannot') : '★'.repeat(tr.diff)}</small></span><span class="track" aria-hidden="true"><i style="width:${pr}%"></i></span><span class="muted small">${pr >= 100 ? t('pet.learned') : pr + '%'}</span></button>`; }).join('');
+    const items = P.ITEMS.filter(i => !i.prize || pet.owned.includes(i.id)).map(i => { const owned = pet.owned.includes(i.id), on = pet.equipped[i.slot] === i.id; return `<div class="item"><span class="swatch" style="background:${i.color}" aria-hidden="true"></span><span><b>${t('pet.item.' + i.id)}</b><small>${t('pet.slot.' + i.slot)} · ${t('pet.rarity.' + i.rarity)}${owned ? '' : ' · ' + i.cost + ' ' + t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="pet-equip" data-item="${i.id}">${on ? t('pet.unequip') : t('life.equip')}</button>` : `<button class="small-btn" data-action="pet-buy" data-item="${i.id}" ${s.life.style < i.cost ? 'disabled' : ''}>${t('life.buy')}</button>`}</div>`; }).join('');
+    const supplies = P.SUPPLIES.map(x => { const own = x.kind === 'toy' && toys.includes(x.id); return `<div class="item"><span aria-hidden="true">${x.kind === 'toy' ? '🎾' : '🍖'}</span><span><b>${t('pet.supply.' + x.id)}</b><small>${x.qty ? '×' + x.qty + ' · ' : ''}${x.price.toLocaleString(CAA.I18N.getLocale())} €</small></span>${own ? `<span class="tag">${t('pet.owned')}</span>` : `<button class="small-btn" data-action="pet-supply" data-item="${x.id}" ${s.life.cash < x.price ? 'disabled' : ''}>${t('life.buy')}</button>`}</div>`; }).join('');
+    const tiers = Object.keys(P.CONTESTS).map(k => { const open = P.contestOpen(pet, k); return `<button class="option center" data-action="pet-contest" data-tier="${k}" ${!open || !canContest ? 'disabled' : ''}><b>🏆 ${t('pet.tier.' + k)}</b><small>${open ? t('pet.tierWins', { n: (pet.contests.wins || {})[k] || 0 }) : t('pet.tierLocked')}</small></button>`; }).join('');
+    const album = (pet.album || []).slice().reverse().slice(0, 8).map(m => `<li><span class="muted">${seasonLabel(m.year)} · ${t('pet.week', { n: m.week })}</span> ${esc(t('pet.album.' + m.key, { name: pet.name, x: m.x ? (m.key === 'trick' ? t('pet.trick.' + m.x) : m.key === 'route' ? t('pet.route.' + m.x) : m.key === 'grew' ? t('pet.stage.' + m.x) : m.key === 'contestWin' ? t('pet.tier.' + m.x) : m.key === 'toy' ? t('pet.supply.' + m.x) : m.x) : '' }))}</li>`).join('');
+    return `<section class="card pet"><div class="guide-head"><h3>${esc(pet.name)}</h3><span class="tag">${t('pet.species.' + pet.species)} · ${t('pet.stage.' + stage)} · ${t('pet.trait.' + pet.trait)}</span></div>
+      <div class="pet-stage"><canvas id="pet3d" role="img" aria-label="${t('pet.canvas', { name: esc(pet.name) })}"></canvas><div class="pet-bars">${P.NEEDS.map(k => meter(t('pet.' + k), pet[k])).join('')}${meter(t('pet.bond'), pet.bond)}</div></div>
       ${msg ? `<p class="pet-msg" role="status">${esc(msg)}</p>` : ''}
-      <p class="eyebrow">${t('pet.actionsLeft', { n: pet.actionsLeft })}</p>
-      <div class="pick-grid">${acts.map(([a, ico]) => `<button class="option center" data-action="pet-act" data-act="${a}" ${pet.actionsLeft <= 0 ? 'disabled' : ''}><b>${ico} ${t('pet.act.' + a)}</b></button>`).join('')}<button class="option center" data-action="pet-act" data-act="feed" data-premium="1" ${pet.actionsLeft <= 0 ? 'disabled' : ''}><b>🥩 ${t('pet.act.premium')}</b></button><button class="option center" data-action="pet-act" data-act="cuddle" ${pet.cuddled ? 'disabled' : ''}><b>💛 ${t('pet.act.cuddle')}</b></button></div>
-      <details><summary>${t('pet.tricks', { n: learnedN, total: CAA.Pet.TRICKS.length })}</summary><div class="tricks">${tricks}</div></details>
-      <div class="guide-head"><span class="muted small">${t('pet.contestDesc', { won: pet.contests.won, played: pet.contests.played })}</span><button class="small-btn" data-action="pet-contest" ${canContest ? '' : 'disabled'}>${t(canContest ? 'pet.contest' : 'pet.contestWait')}</button></div>
-      <details><summary>${t('pet.shop')}</summary><div class="shop">${items}</div></details></section>`;
+      <p class="eyebrow">${t('pet.quick')}</p><div class="pick-grid three">${care}</div>
+      <p class="eyebrow">${t('pet.actionsLeft', { n: pet.actionsLeft })}</p><div class="pick-grid">${main}</div>
+      <details><summary>${t('pet.walks')}</summary><div class="pick-grid">${routes}</div></details>
+      <details><summary>${t('pet.tricks', { n: learnedN, total: P.TRICKS.length })}</summary><div class="tricks">${tricks}</div></details>
+      <details><summary>${t('pet.contests', { won: pet.contests.won, played: pet.contests.played })}</summary>${canContest ? '' : `<p class="muted small">${t('pet.contestWait')}</p>`}<div class="pick-grid three">${tiers}</div></details>
+      <details><summary>${t('pet.shopSupplies')}</summary><div class="shop">${supplies}</div></details>
+      <details><summary>${t('pet.shop')}</summary><div class="shop">${items}</div></details>
+      ${album ? `<details><summary>${t('pet.albumTitle')}</summary><ul class="news">${album}</ul></details>` : ''}</section>`;
+  }
+  // Minijuegos: dificultad, retos semanales, concurso del All-Star y estadísticas (paridad con sp-modes del fútbol).
+  function arcadeStat(life, g) { const st = life.arcade && life.arcade.stats && life.arcade.stats[g]; return st && st.plays ? ' · ' + t('arcade.stat', { avg: Math.round(st.sum / st.plays * 10) / 10, pct: st.rounds ? Math.round(st.hits / st.rounds * 100) : 0 }) : ''; }
+  function arcadeExtras(life) {
+    const d = state.arcadeDiff || 'normal', c = state.career.state, ch = (life.arcade && life.arcade.ch && life.arcade.ch.key === c.year + ':' + c.week ? life.arcade.ch.list : null) || CAA.Career.arcadeChallenges(JSON.parse(JSON.stringify(c)));
+    const played = (life.arcade && life.arcade.contests) || {};
+    const diff = `<div class="pick-grid three" role="group" aria-label="${t('arcade.diff')}">${['easy', 'normal', 'hard'].map(k => `<button class="pick" data-action="arcade-diff" data-diff="${k}" aria-pressed="${d === k}"><b>${t('arcade.diff.' + k)}</b></button>`).join('')}</div>`;
+    const chHtml = `<ul class="news">${ch.map(x => `<li class="${x.done ? 'ok' : ''}">${x.done ? '✅' : '🎯'} ${esc(t('arcade.ch.' + x.type, { n: x.target }))}</li>`).join('')}</ul>`;
+    const contest = CAA.Career.CONTEST_TYPES.map(g => { const r = played[c.year + ':' + g]; return `<button class="option center" data-action="arcade-start" data-game="${g}" data-contest="1" ${r ? 'disabled' : ''}><b>⭐ ${t('arcade.contest.' + g)}</b><small>${r ? t('arcade.contestDone', { place: r.place }) : t('arcade.contestDesc')}</small></button>`; }).join('');
+    return `<p class="eyebrow">${t('arcade.diff')}</p>${diff}<p class="eyebrow">${t('arcade.chTitle')}</p>${chHtml}<p class="eyebrow">${t('arcade.allStar')}</p><div class="pick-grid">${contest}</div>`;
   }
   function renderArcade() {
     const a = state.arcade;
@@ -691,7 +744,9 @@
       ${done.record ? `<p class="ok"><b>${t('arcade.newRecord')}</b></p>` : done.previous != null ? `<p class="muted">${t('arcade.best', { n: done.previous })}</p>` : ''}
       <p class="muted small">${done.auto ? t('arcade.autoNote') : t('arcade.perfects', { n: done.perfects, streak: done.bestStreak })}</p>
       <span class="chips"><span class="chip up">+${done.rewards.style} ${t('effect.style')}</span><span class="chip up">+${done.rewards.xp} XP</span>${done.rewards.form ? `<span class="chip up">+1 ${t('effect.form')}</span>` : ''}</span>
-      <div class="row"><button class="cta" data-action="arcade-start" data-game="${a.type}">${t('arcade.again')}</button><button class="small-btn" data-tab="life">${t('arcade.back')}</button></div></section>` : '';
+      ${done.contest ? `<h3>${t('arcade.contestTable', { place: done.contest.place })}</h3><ol class="news">${[{ name: t('arcade.you'), score: done.score, me: true }].concat(done.contest.rivals).sort((x, y) => y.score - x.score).map(r => `<li class="${r.me ? 'ok' : ''}"><b>${esc(r.name)}</b>${r.club ? ` <small class="muted">${esc(r.club)}</small>` : ''} · ${r.score}</li>`).join('')}</ol><p class="small">${t('arcade.contestPrize', { style: done.contest.prize.style, cash: done.contest.prize.cash.toLocaleString(CAA.I18N.getLocale()) })}</p>` : ''}
+      ${(done.challenges || []).map(x => `<p class="ok small">✅ ${esc(t('arcade.chDone', { ch: t('arcade.ch.' + x.type, { n: x.target }) }))}</p>`).join('')}
+      <div class="row">${done.contest ? '' : `<button class="cta" data-action="arcade-start" data-game="${a.type}">${t('arcade.again')}</button>`}<button class="small-btn" data-tab="life">${t('arcade.back')}</button></div></section>` : '';
     return `<section class="card arcade"><div class="guide-head"><div><span class="eyebrow">${t('arcade.round', { n: Math.min(a.round + 1, g.rounds), total: g.rounds })}</span><h2>${t('arcade.' + a.type)}</h2></div><div class="arcade-score"><b>${scoreTxt}</b><small>${t('arcade.streak', { n: a.streak })}</small></div></div>
       <div class="arcade-stage">${state.arcade3dOff ? '' : '<canvas id="arcade3d" aria-hidden="true"></canvas>'}<canvas id="arcade-canvas" class="${state.arcade3dOff ? '' : 'hud'}" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas></div>
       <p id="arcade-help" class="muted small">${t('arcade.help.' + g.meter)}</p>
@@ -805,9 +860,9 @@
     const full = m.roster.length >= 15, short = m.roster.length <= 10;
     const staff = r => `<div class="gear-item"><span class="swatch lvl" aria-hidden="true">${m.staff[r]}</span><div class="gi-body"><b>${t('mkt.role.' + r)}</b><small>${t('mkt.role.' + r + 'Desc')}</small><small class="muted">${t('mkt.wage', { v: money(m.wages[m.staff[r]]) })}</small></div>
       <div class="gi-act">${m.staff[r] < 3 ? `<button class="small-btn" data-action="mkt-op" data-op="staff" data-role="${r}" data-level="${m.staff[r] + 1}" ${f.cash < m.wages[m.staff[r] + 1] * 0.25 ? 'disabled' : ''}>⬆ ${money(m.wages[m.staff[r] + 1] * 0.25)}</button>` : `<span class="tag">${t('club.max')}</span>`}${m.staff[r] > 0 ? `<button class="small-btn ghost" data-action="mkt-op" data-op="staff" data-role="${r}" data-level="${m.staff[r] - 1}" aria-label="${t('mkt.down')}: ${t('mkt.role.' + r)}">⬇</button>` : ''}</div></div>`;
-    const cand = x => `<li><b>${esc(x.name)}</b> ${flag(x.nat)} · ${x.pos} · ${t('mkt.ovr', { n: x.ovr })} · ${t('mkt.age', { n: x.age })}<br><small class="muted">${t('mkt.salary', { v: money(x.salary) })} · ${x.free ? t('mkt.free') : t('mkt.fee', { v: money(x.fee) })}</small>
+    const cand = x => `<li>${face({ id: x.id, name: x.name, nationality: x.nat, gender: x.gender, age: x.age })} <b>${esc(x.name)}</b> ${flag(x.nat)} · ${x.pos} · ${t('mkt.ovr', { n: x.ovr })} · ${t('mkt.age', { n: x.age })}<br><small class="muted">${t('mkt.salary', { v: money(x.salary) })} · ${x.free ? t('mkt.free') : t('mkt.fee', { v: money(x.fee) })}</small>
       <button class="small-btn" data-action="mkt-op" data-op="sign" data-id="${esc(x.id)}" ${!m.open || full || f.cash < x.fee ? 'disabled' : ''}>${t('mkt.sign')}</button></li>`;
-    const mine = p => `<li><b>${esc(p.name)}</b> · ${p.pos} · ${t('mkt.ovr', { n: p.ovr })} · ${t('mkt.age', { n: p.age })} <small class="muted">${t('mkt.salary', { v: money(p.salary) })}</small>
+    const mine = p => `<li>${face(p)} <b>${esc(p.name)}</b> · ${p.pos} · ${t('mkt.ovr', { n: p.ovr })} · ${t('mkt.age', { n: p.age })} <small class="muted">${t('mkt.salary', { v: money(p.salary) })}</small>
       <button class="small-btn ghost" data-action="mkt-op" data-op="release" data-id="${esc(p.id)}" ${short ? 'disabled' : ''} aria-label="${t('mkt.release')}: ${esc(p.name)}">${t('mkt.release')}</button></li>`;
     return `<section class="card"><span class="eyebrow">${t('mkt.kicker')}</span><h2>${t('mkt.title')}</h2>
       <div class="statline"><span>${t('club.cash')}</span><b class="${f.cash < 0 ? 'bad' : ''}">${money(f.cash)}</b></div>
@@ -833,7 +888,7 @@
   function cupCard(s) {
     const c = s.cup; if (!c) return '';
     const nm = id => (s.table.find(r => r.id === id) || {}).name || id;
-    return `<section class="card"><h3>🏆 ${t('cup.title')}</h3><p class="${c.champion === s.club.id ? 'ok' : ''}">${t('cup.champion', { club: esc(c.championName) })}${c.mine !== 'out' ? ' · ' + t('cup.mine.' + c.mine) : ''}</p>
+    return `<section class="card"><h3>🏆 ${esc(s.league && s.league.cup ? s.league.cup : t('cup.title'))}</h3><p class="${c.champion === s.club.id ? 'ok' : ''}">${t('cup.champion', { club: esc(c.championName) })}${c.mine !== 'out' ? ' · ' + t('cup.mine.' + c.mine) : ''}</p>
       <ul class="news">${c.rounds.map(r => r.games.map(g => `<li><span class="muted">${t('cup.' + r.name)}</span> ${esc(nm(g.a))} ${g.score[0]}–${g.score[1]} ${esc(nm(g.b))}</li>`).join('')).join('')}</ul></section>`;
   }
   // ===== Editor (edit35) =====
@@ -1283,24 +1338,26 @@
         if (!state.career.state) throw new Error(t('career.empty'));
         const nameEl = doc.getElementById('pet-name');
         const config = name === 'pet-adopt' ? { op: 'adopt', species: state.petSpecies || 'dog', name: nameEl ? nameEl.value : '' }
-          : name === 'pet-act' ? { op: 'act', action: el.dataset.act, trick: el.dataset.trick, premium: el.dataset.premium === '1' }
-          : name === 'pet-contest' ? { op: 'contest' } : { op: name === 'pet-buy' ? 'buy' : 'equip', item: el.dataset.item };
+          : name === 'pet-act' ? { op: 'act', action: el.dataset.act, trick: el.dataset.trick, premium: el.dataset.premium === '1', food: el.dataset.food, toy: el.dataset.toy, route: el.dataset.route }
+          : name === 'pet-contest' ? { op: 'contest', tier: el.dataset.tier } : { op: name === 'pet-buy' ? 'buy' : name === 'pet-supply' ? 'supply' : 'equip', item: el.dataset.item };
         const res = await worker.send('career.pet', { state: state.career.state, config });
         await acceptCareer(res);
         if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce');
-        if (name === 'pet-contest') notify(t('pet.contestResult', { place: res.pet.place, score: res.pet.score }));
+        if (name === 'pet-contest') notify(t('pet.contestResult', { place: res.pet.place, score: res.pet.score, tier: t('pet.tier.' + res.pet.tier) }));
       } else if (name === 'live-hero') {
         state.heroShot = { aimStart: root.performance.now() }; if (audio) audio.play('whistle');
       } else if (name === 'arcade-start' || name === 'arcade-resume') {
         if (!state.career.state) throw new Error(t('career.empty'));
-        const res = await worker.send('career.arcade', { state: state.career.state, start: true, type: el.dataset.game || (state.career.state.life.pendingArcade || {}).type });
+        const res = await worker.send('career.arcade', { state: state.career.state, start: true, type: el.dataset.game || (state.career.state.life.pendingArcade || {}).type, diff: state.arcadeDiff || 'normal', contest: el.dataset.contest === '1' });
         await acceptCareer(res); arcadeBegin(res.arcade.pending);
       } else if (name === 'arcade-auto') {
         if (!state.career.state) throw new Error(t('career.empty'));
-        if (!state.career.state.life.pendingArcade) { const st = await worker.send('career.arcade', { state: state.career.state, start: true, type: el.dataset.game }); await acceptCareer(st); }
+        if (!state.career.state.life.pendingArcade) { const st = await worker.send('career.arcade', { state: state.career.state, start: true, type: el.dataset.game, diff: state.arcadeDiff || 'normal' }); await acceptCareer(st); }
         const pend = state.career.state.life.pendingArcade;
         const res = await worker.send('career.arcade', { state: state.career.state, auto: true });
         await acceptCareer(res); arcadeBegin(pend); state.arcade.final = res.arcade; state.arcade.phase = 'done'; state.arcade.round = CAA.Arcade.GAMES[pend.type].rounds - 1; state.arcade.live = { score: res.arcade.score, opponent: res.arcade.opponent || 0 };
+      } else if (name === 'celebrate') { state.celebrate = root.performance.now(); state.busy = false; drawAvatar(); if (audio) audio.play('success'); return;
+      } else if (name === 'arcade-diff') { state.arcadeDiff = el.dataset.diff;
       } else if (name === 'arcade-release') { state.busy = false; arcadeRelease(); return;
       } else if (name === 'arcade-cancel') {
         const res = await worker.send('career.arcade', { state: state.career.state, cancel: true }); await acceptCareer(res); state.arcade = null; if (state.tab === 'arcade') state.tab = 'life';

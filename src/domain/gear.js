@@ -71,10 +71,10 @@
   // Aspecto (look56): piel, peinado, color de pelo, barba y celebración.
   const LOOK = {
     skin: ['#f3d2b8', '#e0ac85', '#c68b5e', '#9b6640', '#6e4426', '#4a2c18'],
-    hair: ['short', 'buzz', 'afro', 'braids', 'long', 'bun', 'ponytail', 'bald'],
+    hair: ['short', 'buzz', 'afro', 'braids', 'long', 'bun', 'ponytail', 'bald', 'mohawk', 'curly', 'dreads', 'cornrows', 'topknot', 'fade'],
     hairColor: ['#1d1612', '#4a2f1d', '#8a5a2e', '#d9b36c', '#b8402a', '#e8e4dc', '#3be3ff', '#ff4fb1'],
-    beard: ['none', 'stubble', 'full'],
-    celebration: ['point', 'shimmy', 'flex', 'silence', 'archer', 'crown']
+    beard: ['none', 'stubble', 'full', 'goatee', 'mustache'],
+    celebration: ['point', 'shimmy', 'flex', 'silence', 'archer', 'crown', 'goggles', 'heart', 'salute']
   };
 
   function ensure(state) {

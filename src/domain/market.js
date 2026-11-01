@@ -80,8 +80,8 @@
   function view(state) {
     const m = ensure(state); if (!m) return null;
     const club = state.season.clubsById[state.clubId];
-    return { open: open(state), staff: Object.assign({}, m.staff), wages: STAFF_WAGE, roster: club.roster.map(p => ({ id: p.id, name: p.name, pos: p.pos, ovr: p.ovr, age: p.age, salary: p.contract ? p.contract.salary : 0 })),
-      list: list(state).map(x => ({ id: x.id, name: x.player.name, pos: x.player.pos, ovr: x.player.ovr, age: x.player.age, nat: x.player.nationality, salary: x.player.contract.salary, fee: x.fee, free: x.free })) };
+    return { open: open(state), staff: Object.assign({}, m.staff), wages: STAFF_WAGE, roster: club.roster.map(p => ({ id: p.id, name: p.name, nationality: p.nationality, gender: p.gender, pos: p.pos, ovr: p.ovr, age: p.age, salary: p.contract ? p.contract.salary : 0 })),
+      list: list(state).map(x => ({ id: x.id, name: x.player.name, gender: x.player.gender, pos: x.player.pos, ovr: x.player.ovr, age: x.player.age, nat: x.player.nationality, salary: x.player.contract.salary, fee: x.fee, free: x.free })) };
   }
   CAA.Market = { ROLES, STAFF_WAGE, ensure, list, op, weekTick, view, open };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Market;

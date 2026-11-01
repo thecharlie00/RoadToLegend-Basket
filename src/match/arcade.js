@@ -25,11 +25,15 @@
     return keys.reduce((s, k) => s + (attrs && attrs[k] != null ? attrs[k] : 50), 0) / keys.length;
   }
   // Centro de la zona buena por ronda: varía con la semilla para que no sea siempre igual.
+  // Dificultad: va codificada al final de la semilla de la sesión (…:easy / …:hard), así el render y el motor la ven igual.
+  const DIFF = { easy: { width: 1.4, reward: 0.7 }, normal: { width: 1, reward: 1 }, hard: { width: 0.72, reward: 1.5 } };
+  function diffOf(seed) { const m = /:(easy|hard)$/.exec(String(seed)); return m ? m[1] : 'normal'; }
   function roundSpec(type, seed, round, streak) {
     const g = GAMES[type];
+    const dw = DIFF[diffOf(seed)].width;
     const r = RNG.create(seed + ':spec:' + round);
     const center = g.meter === 'jump' || g.meter === 'ring' ? 0.5 : 0.5 + (r.float() - 0.5) * 0.36;
-    const width = Math.max(0.06, g.width - (streak || 0) * g.shrink);
+    const width = Math.max(0.06, (g.width - (streak || 0) * g.shrink) * dw);
     const period = g.period * (type === 'three' ? 1 - Math.floor(round / 5) * 0.04 : type === 'street' ? 0.9 + r.float() * 0.25 : 1);
     return { center, width, period, periodTicks: Math.round(period * HZ) };
   }
@@ -112,9 +116,10 @@
   function rewards(type, res) {
     const max = { freeThrow: 10, three: 30, buzzer: 15, dunk: 60, defense: 8, street: 7 }[type];
     const ratio = clamp((type === 'dunk' ? (res.score - 30) / 30 : res.score / max), 0, 1);
-    return { style: Math.round(2 + ratio * 10), xp: Math.round(2 + ratio * 6), form: ratio >= 0.7 ? 1 : 0, ratio: +ratio.toFixed(3) };
+    const k = DIFF[diffOf(res.seed)].reward;
+    return { style: Math.round((2 + ratio * 10) * k), xp: Math.round((2 + ratio * 6) * k), form: ratio >= 0.7 ? 1 : 0, ratio: +ratio.toFixed(3) };
   }
 
-  CAA.Arcade = { HZ, GAMES, TYPES, roundSpec, cursorAt, centerTick, quality, resolveRound, play, autoTicks, rewards, skillOf };
+  CAA.Arcade = { HZ, GAMES, TYPES, DIFF, diffOf, roundSpec, cursorAt, centerTick, quality, resolveRound, play, autoTicks, rewards, skillOf };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Arcade;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -95,3 +95,38 @@ test('narrative content ships in French, German and Italian', () => {
   assert.ok(posts.every(p => p.text.fr && p.text.de && p.text.it && !/\{\w+\}/.test(p.text.de)));
   assert.equal(ContentI18n.tr('it', 'Spain'), 'Spagna');
 });
+
+test('pet parity: exotic species, six needs, growth, routes, contest tiers, supplies and album', () => {
+  const s = Career.createCareer({ seed: 'pet2', mode: 'player', route: 'eu-academy' });
+  assert.throws(() => Career.petOp(s, { op: 'adopt', species: 'capybara' }), /not enough cash/);
+  s.life.cash += 20000;
+  Career.petOp(s, { op: 'adopt', species: 'capybara', name: 'Zen' });
+  const Pet = require('../src/domain/pet.js');
+  assert.ok(Pet.TRAITS.includes(s.pet.trait));
+  Career.petOp(s, { op: 'act', action: 'water' }); Career.petOp(s, { op: 'act', action: 'brush' });
+  assert.equal(s.pet.actionsLeft, Pet.PER_WEEK, 'quick care is free');
+  Career.petOp(s, { op: 'supply', item: 'toy_frisbee' });
+  Career.petOp(s, { op: 'act', action: 'play', toy: 'toy_frisbee' });
+  assert.throws(() => Career.petOp(s, { op: 'act', action: 'walk', route: 'arena' }), /route locked/);
+  assert.throws(() => Career.petOp(s, { op: 'contest', tier: 'national' }), /locked/);
+  for (let w = 0; w < 40; w++) { if (s.life.pendingEvent) Career.chooseEvent(s, 'a'); Career.advanceWeek(s, { type: 'play' }); }
+  assert.notEqual(Pet.stageOf(s.pet), 'baby');
+  assert.ok(s.pet.album.some(m => m.key === 'grew'));
+  const fish = Career.createCareer({ seed: 'pet3', mode: 'player' }); Career.petOp(fish, { op: 'adopt', species: 'fish' });
+  assert.throws(() => Career.petOp(fish, { op: 'act', action: 'walk' }), /does not walk/);
+  assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
+});
+
+test('minigames parity: difficulty, weekly challenges, All-Star contest vs league players, faces', () => {
+  const s = Career.createCareer({ seed: 'mg2', mode: 'player', route: 'eu-academy' });
+  assert.equal(Career.arcadeChallenges(s).length, 3);
+  Career.arcadeStart(s, { type: 'dunk', contest: true });
+  const r = Career.arcadeFinish(s, { auto: true });
+  assert.equal(r.contest.rivals.length, 3); assert.ok(r.contest.place >= 1 && r.contest.place <= 4);
+  assert.throws(() => Career.arcadeStart(s, { type: 'dunk', contest: true }), /already played/);
+  const Arcade = require('../src/match/arcade.js');
+  assert.ok(Arcade.roundSpec('freeThrow', 'x:hard', 0, 0).width < Arcade.roundSpec('freeThrow', 'x:easy', 0, 0).width);
+  const Faces = require('../src/render/faces.js');
+  assert.deepEqual(Faces.vector({ id: 'p1', name: 'A', nationality: 'SN' }), Faces.vector({ id: 'p1', name: 'A', nationality: 'SN' }));
+  assert.match(Faces.svg({ id: 'p1', name: 'A' }), /^<svg/);
+});

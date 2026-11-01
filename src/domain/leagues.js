@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
-  // Catálogo mundial de ligas (masculinas y femeninas). Todo es ficticio: nombres de liga y apodos de club
-  // inventados sobre ciudades reales, sin marcas, logotipos ni competiciones con licencia.
+  // Catálogo mundial de ligas (masculinas y femeninas): estructura, ciudades y fuerza. Los nombres visibles de ligas,
+  // copas y clubes los pone real-world.js (reales, como en el juego de fútbol; sin escudos ni logotipos).
   const CAA = root.CAA = root.CAA || {};
 
   // País → ciudades (ordenadas de mayor a menor peso deportivo) y continente.

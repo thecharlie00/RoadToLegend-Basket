@@ -161,9 +161,30 @@
       if (style === 'bun') part(0,2.12,-0.12,0.2,0.16,0.2,'hair');
       if (style === 'long') { part(0,1.72,-0.2,0.46,0.48,0.08,'hair'); part(-0.22,1.78,-0.05,0.04,0.34,0.3,'hair'); part(0.22,1.78,-0.05,0.04,0.34,0.3,'hair'); }
       if (style === 'braids') for (const x of [-0.15, -0.05, 0.05, 0.15]) part(x,1.7,-0.22,0.06,0.42,0.06,'hair');
+      if (style === 'mohawk') part(0,2.12,-0.02,0.12,0.2,0.46,'hair');
+      if (style === 'curly') for (const [x, z] of [[-0.16,0.1],[0.16,0.1],[-0.16,-0.14],[0.16,-0.14],[0,-0.02]]) part(x,2.08,z,0.18,0.14,0.18,'hair');
+      if (style === 'dreads') for (const x of [-0.2, -0.1, 0, 0.1, 0.2]) part(x,1.72,-0.2,0.07,0.5,0.07,'hair');
+      if (style === 'cornrows') for (const x of [-0.15, -0.05, 0.05, 0.15]) part(x,2.07,-0.02,0.05,0.04,0.46,'skinA');
+      if (style === 'topknot') { part(0,2.14,-0.05,0.18,0.14,0.18,'hair'); part(0,2.26,-0.05,0.12,0.1,0.12,'hair'); }
+      if (style === 'fade') part(0,1.9,-0.02,0.47,0.06,0.45,'skinA');
     }
     if (lk && lk.beard === 'full') part(0,1.62,0.18,0.38,0.14,0.1,'hair'); else if (lk && lk.beard === 'stubble') part(0,1.62,0.2,0.34,0.08,0.04,'hair');
-    part(-0.46,1.28,0,0.21,0.58,0.23,'skinA'); part(0.46,1.28,0,0.21,0.58,0.23,'skinA');
+    else if (lk && lk.beard === 'goatee') part(0,1.58,0.2,0.12,0.12,0.06,'hair'); else if (lk && lk.beard === 'mustache') part(0,1.7,0.22,0.2,0.04,0.04,'hair');
+    // Brazos: reposo o la celebración elegida (look56: se ve al tocar tu modelo).
+    const pose = options.celebrate && lk ? lk.celebration : null, k = options.phase == null ? 1 : options.phase;
+    const side = profile.handedness === 'left' ? -1 : 1, up = (x) => part(x,1.86,0,0.21,0.58,0.23,'skinA'), down = (x) => part(x,1.28,0,0.21,0.58,0.23,'skinA');
+    const flat = (x, y) => part(x * 1.55,y,0,0.58,0.21,0.23,'skinA');
+    if (!pose) { down(-0.46); down(0.46); }
+    else if (pose === 'point') { down(-0.46 * side); up(0.46 * side); }
+    else if (pose === 'shimmy') { const w = Math.sin(k * Math.PI * 6) * 0.08; flat(-0.46, 1.45 + w); flat(0.46, 1.45 - w); }
+    else if (pose === 'flex') for (const x of [-0.46, 0.46]) { flat(x, 1.5); part(x * 2.05,1.75,0,0.21,0.4,0.23,'skinA'); }
+    else if (pose === 'silence') { down(-0.46 * side); part(0.32 * side,1.42,0.12,0.21,0.4,0.2,'skinA'); part(0.1 * side,1.66,0.26,0.07,0.22,0.07,'skinA'); }
+    else if (pose === 'archer') { flat(-0.46 * side, 1.55); part(0.3 * side,1.55,0.12,0.4,0.18,0.2,'skinA'); }
+    else if (pose === 'crown') { part(-0.3,1.95,0,0.21,0.58,0.23,'skinA'); part(0.3,1.95,0,0.21,0.58,0.23,'skinA'); }
+    else if (pose === 'goggles') for (const x of [-0.46, 0.46]) { part(x * 0.7,1.5,0.12,0.21,0.4,0.2,'skinA'); part(x * 0.24,1.81,0.25,0.12,0.12,0.04,'skinA'); }
+    else if (pose === 'heart') { part(-0.24,1.5,0.18,0.21,0.4,0.2,'skinA'); part(0.24,1.5,0.18,0.21,0.4,0.2,'skinA'); part(0,1.44,0.3,0.24,0.18,0.06,'skinA'); }
+    else if (pose === 'salute') { down(-0.46 * side); part(0.36 * side,1.62,0.08,0.21,0.4,0.2,'skinA'); part(0.18 * side,1.9,0.2,0.24,0.06,0.06,'skinA'); }
+    else { down(-0.46); down(0.46); }
     part(-0.09,1.81,0.215,0.06,0.06,0.03,lk ? 'eye' : 'hair'); part(0.09,1.81,0.215,0.06,0.06,0.03,lk ? 'eye' : 'hair');
     if (!lk) part(0,1.98,0,0.48,0.07,0.46,'accessory');
     if (lk) {
@@ -177,7 +198,7 @@
       if (colors.g_chain) part(0,1.48,0.21,0.14,0.14,0.02,'g_chain');
     }
     const hand = profile.handedness === 'left' ? -0.58 : 0.58;
-    add(hand,1.02,0.28,0.24,0.24,0.24,'ball');
+    if (!(options.celebrate && lk)) add(hand,1.02,0.28,0.24,0.24,0.24,'ball');
     if (profile.mode === 'coach') { colors.jersey = hex('#344d58') || colors.post; part(0,1.32,0.22,0.18,0.4,0.04,'line'); }
     return { version: VERSION, kind: 'avatar', cubes, colors, quality: 'low', aspect: 0.8, maxCubes: MAX_CUBES };
   }

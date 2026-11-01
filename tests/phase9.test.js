@@ -17,18 +17,21 @@ const run = s => {
   return s;
 };
 
-test('world catalog: every continent, men and women, complete and unique fictional clubs', () => {
+test('world catalog: every continent, men and women, complete and unique real club names', () => {
   const all = Season.leagueList();
   assert.ok(all.length >= 25);
   for (const c of ['europe', 'americas', 'asia', 'oceania', 'africa']) assert.ok(all.some(l => l.continent === c && l.gender === 'm'), 'men in ' + c);
   for (const c of ['europe', 'americas', 'asia', 'oceania']) assert.ok(all.some(l => l.continent === c && l.gender === 'f'), 'women in ' + c);
-  const banned = /\b(NBA|WNBA|ACB|Euro ?League|EuroCup|FIBA Europe|Telekom|Brose|Liberty|Aces|Lynx|Sparks|Mystics|Fever|Evessa|Albirex|Brex|Wildcats|Zvezda|Partizan|Olympiacos|Panathinaikos|Fenerbah|Efes|Real Madrid|Barça)\b/i;
   for (const l of all) {
     const names = Season.clubCatalog(l.id).map(c => c.name);
     assert.equal(names.length, l.teams, l.id);
     assert.equal(new Set(names).size, names.length, 'unique names in ' + l.id);
-    assert.ok(!banned.test(l.name) && names.every(n => !banned.test(n)), 'no real brands in ' + l.id);
   }
+  // Como el juego de fútbol: ligas y clubes con su nombre real; los jugadores reales llevan el nombre versionado.
+  assert.equal(Season.LEAGUES['es-iberica-men'].name, 'Liga Endesa');
+  assert.ok(Season.clubCatalog('na-boreal-men').some(c => c.name === 'Boston Celtics'));
+  const lakers = Season.createSeason('na-boreal-men', 'v').clubs.find(c => c.name === 'Los Angeles Lakers');
+  assert.ok(lakers.roster.some(p => p.real) && lakers.roster.every(p => !/^(LeBron James|Luka Dončić)$/.test(p.name)));
 });
 
 test('women leagues have women players with female names and validate after resume', () => {

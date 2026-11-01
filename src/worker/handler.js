@@ -109,7 +109,7 @@
           const state = CAA.Career.resume(msg.payload.state);
           const p = msg.payload || {};
           let arcade = null;
-          if (p.start) arcade = { pending: CAA.Career.arcadeStart(state, { type: p.type }) };
+          if (p.start) arcade = { pending: CAA.Career.arcadeStart(state, { type: p.type, diff: p.diff, contest: !!p.contest }) };
           else if (p.cancel) { CAA.Career.arcadeCancel(state); arcade = { cancelled: true }; }
           else arcade = CAA.Career.arcadeFinish(state, { ticks: p.ticks, auto: !!p.auto });
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), arcade };
