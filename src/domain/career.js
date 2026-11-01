@@ -76,6 +76,7 @@
     }
     Content.ensureLife(state);
     Content.press(state);
+    { const evRng = RNG.create(seed + ':story0'); Content.maybeEvent(state, evRng); }
     record(state, { type: 'create', mode, route, clubId: state.clubId, startingClubId: club.id, archetype: state.player ? state.player.archetype : null, handedness: state.player ? state.player.handedness : null });
     return state;
   }
@@ -89,6 +90,9 @@
     const rng = RNG.create(0); rng.restore(state.rng);
     const club = clubOf(state);
     const act = action || { type: 'play' };
+    const lifeNow = Content.ensureLife(state);
+    if (lifeNow.lastOutcome && lifeNow.lastOutcome.week < state.week) lifeNow.lastOutcome = null;
+    if (act.type === 'rest') lifeNow.counters.rests = (lifeNow.counters.rests || 0) + 1;
     if (state.player) {
       const p = state.player;
       if (act.type === 'train') { Player.develop(p, { focus: act.focus || 'tiroTriple' }, rng); p.load = Math.min(100, p.load + 12); Content.ensureLife(state).counters.train++; }
@@ -106,8 +110,12 @@
       const mine = played && played.find(m => m.teams.some(t => t.id === state.clubId));
       if (mine) state.lastMatch = Match.replay(mine, { week: state.week + 1, year: state.year, clubId: state.clubId, source: 'career' });
       state.week++;
-      for (const c of state.season.clubs) for (const p of c.roster) { p.load = Math.max(0, (p.load || 0) - 6); p.fatigue = Math.max(0, (p.fatigue || 0) - 0.08); }
+      for (const c of state.season.clubs) for (const p of c.roster) { p.load = Math.max(0, Math.round((p.load || 0) * 0.62)); p.fatigue = Math.max(0, (p.fatigue || 0) - 0.08); }
       record(state, { type: 'week', round: state.season.round, clubWins: club.wins, clubLosses: club.losses });
+      const lc = Content.ensureLife(state).counters;
+      if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) lc.totalWins = (lc.totalWins || 0) + 1; }
+      if (state.coach) lc.coachGames = (lc.coachGames || 0) + 1;
+      Content.weeklyIncome(state);
       Content.maybeEvent(state, rng);
       Content.evaluateAchievements(state);
       Content.press(state);
@@ -160,6 +168,12 @@
     life.counters.live = (life.counters.live || 0) + 1;
     const hero = live.decisions.find(d => !d.auto && d.type === 'lastShot' && d.result === 'made');
     if (hero) life.counters.clutchMakes = (life.counters.clutchMakes || 0) + 1;
+    const lc = life.counters, mine = live.decisions.filter(d => !d.auto);
+    if (o.won) lc.liveWins = (lc.liveWins || 0) + 1;
+    lc.heroShots = (lc.heroShots || 0) + mine.filter(d => d.type === 'lastShot' && d.choice === 'hero').length;
+    lc.timeouts = (lc.timeouts || 0) + mine.filter(d => d.choice === 'timeout').length;
+    lc.tacticalFouls = (lc.tacticalFouls || 0) + mine.filter(d => d.choice === 'foul').length;
+    lc.decisionsLive = (lc.decisionsLive || 0) + mine.length;
     state.inbox.push({ type: 'live', week: state.week, won: o.won, score: o.score, decisions: o.decisions });
     record(state, { type: 'live', hash: o.hash, decisions: live.decisions.filter(d => !d.auto).map(d => d.type + ':' + d.choice) });
   }
@@ -187,6 +201,7 @@
       const p = state.player;
       if (!p.contract) {
         const offer = Contracts.offerForPlayer(p, clubOf(state), rng, Contracts.NA_ECONOMY_2026_27);
+        offer.salary = Math.round(offer.salary * Content.offerFactor(state));
         state.market.push({ playerId: p.id, clubId: state.clubId, contract: offer });
         state.inbox.push({ type: 'offer', week: state.week, contract: offer });
       }
@@ -334,7 +349,7 @@
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       leagueId: state.season.leagueId, round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
-      coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
+      event: Content.pendingView(state), coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
     };
   }
   function validate(state) {

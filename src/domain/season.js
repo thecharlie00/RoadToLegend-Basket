@@ -126,6 +126,7 @@
         p.stats.gp++; p.stats.min += mp.stats.min; p.stats.pts += mp.stats.pts;
         p.stats.reb += mp.stats.orb + mp.stats.drb; p.stats.ast += mp.stats.ast;
         p.stats.stl += mp.stats.stl; p.stats.blk += mp.stats.blk; p.stats.tov += mp.stats.tov;
+        if (p.career) { const tt = p.career.totals || (p.career.totals = { gp: 0, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0 }); tt.gp++; tt.pts += mp.stats.pts; tt.reb += mp.stats.orb + mp.stats.drb; tt.ast += mp.stats.ast; tt.stl += mp.stats.stl; tt.blk += mp.stats.blk; }
         p.load = Math.min(100, (p.load || 0) + mp.stats.min * 0.8);
         p.fatigue = Math.min(1, (p.fatigue || 0) + mp.stats.min / 200);
       }

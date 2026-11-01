@@ -1,43 +1,109 @@
 {
-  "schemaVersion": 1,
-  "packId": "mvp-press",
-  "version": "0.1.0",
+  "schemaVersion": 2,
+  "packId": "baloncesto-prensa",
+  "version": "2.0.0",
   "templates": [
     {
-      "id": "win-streak",
-      "condition": "wins>=3",
-      "es": "{club} encadena {wins} victorias y mira hacia arriba.",
-      "en": "{club} strings together {wins} wins and looks up."
-    },
-    {
-      "id": "loss-streak",
-      "condition": "losses>=3",
-      "es": "Preguntas en {club} tras {losses} derrotas seguidas.",
-      "en": "Questions at {club} after {losses} straight losses."
-    },
-    {
-      "id": "star-game",
-      "condition": "points>=20",
-      "es": "{player} firma {points} puntos y gana focos.",
-      "en": "{player} posts {points} points and earns the spotlight."
-    },
-    {
-      "id": "injury",
+      "id": "injury-0",
       "condition": "injury",
-      "es": "{player} gestiona una lesión y el cuerpo técnico pide paciencia.",
-      "en": "{player} manages an injury and the staff asks for patience."
+      "es": "El parte médico aleja a {player} de la pista: el {club} cuenta los días.",
+      "en": "The injury report keeps {player} off the court: {club} counts the days."
     },
     {
-      "id": "draft",
-      "condition": "drafted",
-      "es": "{player} empieza una nueva etapa tras el draft.",
-      "en": "{player} begins a new chapter after the draft."
+      "id": "my-big-1",
+      "condition": "my-big",
+      "es": "{player} firma {myPts} puntos ante {opponent} y se gana los titulares.",
+      "en": "{player} drops {myPts} on {opponent} and grabs the headlines."
     },
     {
-      "id": "default",
+      "id": "my-big-2",
+      "condition": "my-big",
+      "es": "Noche de {player}: {myPts} puntos y el pabellón en pie.",
+      "en": "{player}'s night: {myPts} points and the arena on its feet."
+    },
+    {
+      "id": "win-close-3",
+      "condition": "win-close",
+      "es": "Final de infarto: el {club} gana {us}-{them} a {opponent} en el último suspiro.",
+      "en": "Heart-stopper: {club} beats {opponent} {us}-{them} at the death."
+    },
+    {
+      "id": "win-close-4",
+      "condition": "win-close",
+      "es": "{us}-{them}: el {club} sobrevive a {opponent} con el corazón en la mano.",
+      "en": "{us}-{them}: {club} survives {opponent} with hearts in mouths."
+    },
+    {
+      "id": "win-big-5",
+      "condition": "win-big",
+      "es": "Exhibición del {club}: {us}-{them} a {opponent}, sin discusión.",
+      "en": "{club} clinic: {us}-{them} over {opponent}, no debate."
+    },
+    {
+      "id": "win-big-6",
+      "condition": "win-big",
+      "es": "El {club} pasa por encima de {opponent} ({us}-{them}).",
+      "en": "{club} rolls over {opponent} ({us}-{them})."
+    },
+    {
+      "id": "loss-close-7",
+      "condition": "loss-close",
+      "es": "El {club} cae {us}-{them} ante {opponent} por un suspiro y sale con dudas.",
+      "en": "{club} falls {us}-{them} to {opponent} by a whisker and leaves with doubts."
+    },
+    {
+      "id": "loss-big-8",
+      "condition": "loss-big",
+      "es": "Noche para olvidar: {opponent} arrolla al {club} ({them}-{us}).",
+      "en": "A night to forget: {opponent} crushes {club} ({them}-{us})."
+    },
+    {
+      "id": "streak-win-9",
+      "condition": "streak-win",
+      "es": "El {club} encadena {streak} victorias y ya mira a la parte alta.",
+      "en": "{club} strings together {streak} wins and looks upward."
+    },
+    {
+      "id": "streak-loss-10",
+      "condition": "streak-loss",
+      "es": "Alarma en el {club}: {streakAbs} derrotas seguidas y el banquillo, en el foco.",
+      "en": "Alarm at {club}: {streakAbs} straight losses and the bench under fire."
+    },
+    {
+      "id": "top-11",
+      "condition": "top",
+      "es": "El {club} es {rank}.º y se lo cree: la ciudad empieza a ilusionarse.",
+      "en": "{club} sits {rank}th and believes: the city starts to dream."
+    },
+    {
+      "id": "bottom-12",
+      "condition": "bottom",
+      "es": "El {club}, {rank}.º, necesita reaccionar antes de que sea tarde.",
+      "en": "{club}, {rank}th, needs to react before it is too late."
+    },
+    {
+      "id": "my-quiet-13",
+      "condition": "my-quiet",
+      "es": "Partido gris de {player} ante {opponent}: la grada espera más.",
+      "en": "A grey night for {player} against {opponent}: the crowd expects more."
+    },
+    {
+      "id": "win-14",
+      "condition": "win",
+      "es": "Victoria del {club} ante {opponent} ({us}-{them}). Trabajo hecho.",
+      "en": "{club} beats {opponent} ({us}-{them}). Job done."
+    },
+    {
+      "id": "loss-15",
+      "condition": "loss",
+      "es": "Derrota del {club} ante {opponent} ({us}-{them}). Toca mirar el vídeo.",
+      "en": "{club} loses to {opponent} ({us}-{them}). Time to watch the film."
+    },
+    {
+      "id": "always-16",
       "condition": "always",
-      "es": "Semana de trabajo en {club}: rol, carga y próximo rival.",
-      "en": "Work week at {club}: role, load and next opponent."
+      "es": "Semana de trabajo en el {club} antes de medirse a {next}.",
+      "en": "Work week at {club} ahead of {next}."
     }
   ]
 }

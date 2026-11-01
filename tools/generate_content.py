@@ -35,7 +35,7 @@ for cat,count in cats:
         if cat=='finance': opts[0]['effects'].update({'cash':-2000,'morale':2}); opts[1]['effects'].update({'cash':3000})
         if cat=='press': opts[0]['effects'].update({'chemistry':-2,'style':2}); opts[1]['effects'].update({'chemistry':3})
         events.append({'id':eid,'category':cat,'weight':10-(i%4),'cooldownWeeks':6,'conditions':{'mode':'player' if cat in ('player','health','finance') else 'any'},'title':{'es':es,'en':en},'body':{'es':'Una decisión breve puede cambiar el ánimo, la carga o los recursos de la carrera.','en':'A short decision can change career morale, load or resources.'},'options':opts})
-dump('events.json',{'schemaVersion':1,'packId':'mvp-events','version':'0.1.0','targetCount':100,'events':events})
+# events.json lo genera tools/content_v2.py (contenido escrito a mano).
 
 ach=[]
 metrics=[('games',1,10,25,50,100),('points',100,500,1000,2500,5000),('wins',1,5,15,30,50),('seasons',1,2,3,5,10),('ovr',55,60,65,70,80),('cash',10000,50000,100000,250000,500000),('style',10,25,50,100,200),('events',1,5,10,25,50),('train',1,5,10,25,50),('signs',1,2,3,5,10)]
@@ -45,7 +45,7 @@ for row in metrics:
     metric, vals = row[0], row[1:]
     for tier,v in enumerate(vals):
         ach.append({'id':f'{metric}-{tier+1}','metric':metric,'threshold':v,'tier':tier+1,'title':{'es':f'{names_es[tier]} · {metric}','en':f'{names_en[tier]} · {metric}'},'rewardStyle':(tier+1)*5})
-dump('achievements.json',{'schemaVersion':1,'packId':'mvp-achievements','version':'0.1.0','targetCount':50,'achievements':ach})
+# achievements.json lo genera tools/content_v2.py (trofeos con guiños).
 
 shop=[]
 items=[('shoes','AroWear Uno','AroWear One',20,'#ffb547'),('shoes','Parquet Lab Air','Parquet Lab Air',45,'#59d18c'),('shoes','Skyline Hoops Pro','Skyline Hoops Pro',80,'#5aa9ff'),('jersey','Local Clásica','Local Classic',15,'#eef6f4'),('jersey','Local Noche','Local Night',35,'#122126'),('jersey','Local Retro','Local Retro',60,'#ff7a6b'),('accessory','Muñeca Barrio','Neighborhood Wristband',10,'#ffb547'),('accessory','Cinta Capitán','Captain Headband',30,'#59d18c'),('accessory','Manga Tiro','Shooting Sleeve',50,'#5aa9ff'),('background','Cancha Barrio','Neighborhood Court',25,'#24424a'),('background','Pabellón Local','Local Arena',55,'#0b1417'),('background','Atardecer Urbano','Urban Sunset',90,'#ff9f43')]
@@ -61,7 +61,7 @@ press=[
  {'id':'draft','condition':'drafted','es':'{player} empieza una nueva etapa tras el draft.','en':'{player} begins a new chapter after the draft.'},
  {'id':'default','condition':'always','es':'Semana de trabajo en {club}: rol, carga y próximo rival.','en':'Work week at {club}: role, load and next opponent.'}
 ]
-dump('press.json',{'schemaVersion':1,'packId':'mvp-press','version':'0.1.0','templates':press})
+_unused_press=({'schemaVersion':1,'packId':'mvp-press','version':'0.1.0','templates':press})
 
 guide=[
  {'id':'create','es':'Crea jugador o entrenador y elige ruta.','en':'Create a player or coach and choose a route.'},

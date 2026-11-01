@@ -63,12 +63,13 @@ test('content packs validate and are bilingual', () => {
   globalThis.CAA_DATA = saved;
   assert.equal(v.ok, true, v.errors.join('; '));
   const p = Content.packs();
-  assert.equal(p.events.events.length, 100);
-  assert.equal(p.achievements.achievements.length, 50);
+  assert.ok(p.events.events.length >= 100);
+  assert.ok(p.achievements.achievements.length >= 150);
+  assert.ok(p.achievements.achievements.some(a => a.platinum));
   assert.equal(p.shop.items.length, 12);
-  assert.equal(p.press.templates.length, 6);
+  assert.ok(p.press.templates.length >= 12);
   assert.equal(p.guide.steps.length, 8);
-  for (const e of p.events.events) { assert.ok(e.title.es && e.title.en && e.body.es && e.body.en); assert.ok(e.options.length >= 2); }
+  for (const e of p.events.events) { assert.ok(e.title.es && e.title.en && e.body.es && e.body.en); assert.ok(e.options.length >= 2); for (const o of e.options) assert.ok(o.label.es && o.label.en); }
   for (const a of p.achievements.achievements) assert.ok(a.title.es && a.title.en);
   for (const i of p.shop.items) assert.ok(i.name.es && i.name.en);
   for (const g of p.guide.steps) assert.ok(g.es && g.en);

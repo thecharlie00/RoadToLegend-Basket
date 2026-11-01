@@ -285,6 +285,19 @@
     return t(key, vars);
   }
 
+  function chips(fx) {
+    const out = [];
+    for (const [k, v] of Object.entries(fx || {})) {
+      if (['agent', 'sponsor', 'flag', 'unflag', 'xp'].includes(k)) continue;
+      if (k === 'attr') { for (const [a, d] of Object.entries(v)) out.push(`<span class="chip ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : ''}${d} ${t('attr.' + a)}</span>`); continue; }
+      if (k === 'salary') { out.push(`<span class="chip ${v >= 1 ? 'up' : 'down'}">${v >= 1 ? '+' : ''}${Math.round((v - 1) * 100)} % ${t('effect.salary')}</span>`); continue; }
+      if (k === 'injuryWeeks') { out.push(`<span class="chip ${v < 0 ? 'up' : 'down'}">${v > 0 ? '+' : ''}${v} ${t('effect.injuryWeeks')}</span>`); continue; }
+      if (k === 'fatigue') { out.push(`<span class="chip ${v < 0 ? 'up' : 'down'}">${v > 0 ? '+' : ''}${Math.round(v * 100)} ${t('effect.fatigue')}</span>`); continue; }
+      const bad = k === 'load' ? v > 0 : v < 0;
+      out.push(`<span class="chip ${bad ? 'down' : 'up'}">${v > 0 ? '+' : ''}${k === 'cash' ? v.toLocaleString(CAA.I18N.getLocale()) : v} ${t('effect.' + k)}</span>`);
+    }
+    return out.join('');
+  }
   function renderHome() {
     if (!hasCareer()) return `<section class="card"><h2>${t('home.noCareer')}</h2><p class="muted">${t('home.noCareerDesc')}</p><button class="cta" data-action="boot-new">${t('boot.new')} ▶</button></section>`;
     const c = state.career, s = c.summary, life = s.life || { counters: {}, press: [] };
@@ -301,12 +314,14 @@
       <ol class="timeline" aria-label="${t('home.timeline')}">${Array.from({ length: segs }, (_, i) => `<li class="${i < seg ? 'done' : i === seg ? 'now' : ''}" ${i === seg ? 'aria-current="step"' : ''}>${t('home.seg' + i)}</li>`).join('')}</ol>
       <div class="meters">${s.player ? meter(t('meter.form'), m.form) + meter(t('meter.morale'), m.morale) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.trust'), m.trust) + meter(t('meter.fans'), m.fans)
         : meter(t('meter.morale'), m.morale) + meter(t('meter.board'), m.trust) + meter(t('meter.locker'), m.locker) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.fans'), m.fans)}</div></section>`;
-    const packs = CAA.Content.packs();
-    const pending = life.pendingEvent && packs.events.events.find(e => e.id === life.pendingEvent.id);
-    const chip = (k, v) => `<span class="chip ${v > 0 ? 'up' : 'down'}">${v > 0 ? '+' : ''}${v} ${t('effect.' + k)}</span>`;
-    const decision = pending ? `<section class="card decision"><div class="guide-head"><span class="tag led">● ${t('home.decision')}</span><span class="muted small">${esc(t('eventcat.' + pending.category))}</span></div>
-      <h3>${esc(loc(pending.title))}</h3><p>${esc(loc(pending.body))}</p>
-      <div class="stack">${pending.options.map(o => `<button class="option" data-action="life-event" data-option="${o.id}"><b>${esc(loc(o))}</b><span class="chips">${Object.entries(o.effects || {}).filter(([k]) => k !== 'xp').map(([k, v]) => chip(k, v)).join('')}</span></button>`).join('')}</div></section>` : '';
+    const ev = s.event;
+    const L = pair => pair ? (CAA.I18N.getLocale() === 'en' ? pair.en : pair.es) : '';
+    const decision = ev ? `<section class="card decision"><div class="guide-head"><span class="tag led">● ${t(ev.story ? 'home.story' : 'home.decision')}</span><span class="muted small">${esc(t('eventcat.' + ev.category))}</span></div>
+      <h3>${esc(L(ev.title))}</h3><p>${esc(L(ev.body))}</p>
+      <div class="stack">${ev.options.map(o => `<button class="option" data-action="life-event" data-option="${o.id}"><span class="opt-head"><b>${esc(L(o.label))}</b><span class="odds ${o.p == null ? 'sure' : o.p >= 0.6 ? 'hi' : o.p >= 0.45 ? 'mid' : 'lo'}">${o.p == null ? t('odds.sure') : t('odds.pct', { p: Math.round(o.p * 100) })}</span></span>${o.desc ? `<span class="muted small">${esc(L(o.desc))}</span>` : ''}
+        <span class="chips">${o.p == null ? chips(o.effects) : `<span class="chip-label">${t('odds.ifGood')}</span>${chips(o.ok)}<span class="chip-label">${t('odds.ifBad')}</span>${chips(o.ko)}`}</span></button>`).join('')}</div></section>` : '';
+    const lo = life.lastOutcome;
+    const outcome = lo && !ev ? `<section class="card outcome ${lo.uncertain ? (lo.good ? 'good' : 'bad') : ''}"><span class="eyebrow">${esc(L(lo.title))} · ${esc(L(lo.label))}</span><p><b>${esc(L(lo.result))}</b></p><span class="chips">${chips(lo.effects)}</span></section>` : '';
     const next = s.next ? `<section class="card next"><span class="eyebrow">${t('home.next', { n: s.next.round })} · ${t(s.next.home ? 'home.home' : 'home.away')}</span>
       <div class="versus">${crest(s.club)}<b>${esc(s.club.name)}</b><span class="muted">${s.club.wins}-${s.club.losses}</span><em>vs</em>${crest(s.next.opponent)}<b>${esc(s.next.opponent.name)}</b><span class="muted">${s.next.opponent.wins}-${s.next.opponent.losses}</span></div></section>` : '';
     const recent = s.recent.length ? `<section class="card"><div class="guide-head"><h3>${t('home.lastGame')}</h3>${c.state.lastMatch ? `<button class="small-btn" data-action="career-watch">${t('career.watch')}</button>` : ''}</div>
@@ -316,7 +331,7 @@
       <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button></div></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
-    return `${guide}${renderLive(c)}${decision}${season}${next}${week}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    return `${guide}${renderLive(c)}${decision}${outcome}${season}${next}${week}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   function renderMe() {
@@ -329,6 +344,8 @@
       ${p ? `<p class="muted">${t('pos.' + p.pos)} · ${t('career.archetype.' + p.archetype)} · ${t(p.handedness === 'left' ? 'career.left' : 'career.right')}</p>
       <div class="kv"><span>${t('me.ovr')}</span><b>${p.ovr}</b><span>${t('me.pot')}</span><b>${potLow}–${potHigh}</b><span>${t('me.height')}</span><b>${p.height} cm</b><span>${t('me.wingspan')}</span><b>${p.wingspan} cm</b><span>${t('me.weight')}</span><b>${p.weight} kg</b><span>${t('career.nationality')}</span><b>${flag(p.nationality)} ${esc(nationName(p.nationality))}</b></div>`
       : `<p class="muted">${t('cromo.coachRole')} · ${esc(s.club.name)}</p><div class="kv"><span>${t('meter.morale')}</span><b>${s.coach.morale}</b><span>${t('meter.board')}</span><b>${s.coach.trust}</b></div>`}</div></section>`;
+    const brand = life.sponsor ? t('sponsor.' + life.sponsor) : t('me.noSponsor');
+    const offcourt = `<section class="card"><h3>${t('me.offcourt')}</h3><div class="kv"><span>${t('me.agent')}</span><b>${t(life.agent ? 'agent.' + life.agent : 'me.noAgent')}</b><span>${t('me.sponsor')}</span><b>${esc(brand)}</b><span>${t('meter.fame')}</span><b>${life.fame || 0}</b><span>${t('life.cash')}</span><b>${(life.cash || 0).toLocaleString(CAA.I18N.getLocale())}</b><span>${t('life.style')}</span><b>${life.style}</b></div></section>`;
     const attrs = p ? `<section class="card"><h3>${t('me.attributes')}</h3><div class="attr-groups">${ATTR_GROUPS.map(([g, keys]) => `<div><h4 class="eyebrow">${t('attrg.' + g)}</h4>${keys.map(k => bar(t('attr.' + k), p.attrs[k])).join('')}</div>`).join('')}</div></section>` : '';
     const st = p ? p.stats : null;
     const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
@@ -341,10 +358,10 @@
     const shop = `<section class="card"><div class="guide-head"><h3>${t('life.shop')}</h3><span class="tag">${t('life.style')}: ${life.style} · ${t('life.cash')}: ${life.cash}</span></div><div class="shop">${packs.shop.items.map(i => {
       const owned = life.owned.includes(i.id), equipped = (life.equipment || {})[i.slot] === i.id;
       return `<div class="item"><span class="swatch" style="background:${esc(i.color)}" aria-hidden="true"></span><span><b>${esc(loc(i.name))}</b><small>${t('slot.' + i.slot)} · ${i.cost} ${t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="life-equip" data-item="${i.id}" ${equipped ? 'disabled' : ''}>${equipped ? t('me.equipped') : t('life.equip')}</button>` : `<button class="small-btn" data-action="life-buy" data-item="${i.id}">${t('life.buy')}</button>`}</div>`; }).join('')}</div></section>`;
-    const unlocked = life.achievements.length, all = packs.achievements.achievements;
-    const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b>${a.desc ? `<small>${esc(loc(a.desc))}</small>` : ''}</span></li>`; }).join('')}</ul></section>`;
+    const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
+    const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
-    return hero + attrs + stats + practice + shop + trophies + press;
+    return hero + offcourt + attrs + stats + practice + shop + trophies + press;
   }
 
   function renderLeague() {
