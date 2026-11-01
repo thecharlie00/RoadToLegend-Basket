@@ -41,3 +41,27 @@ test('challenges award a medal; editor renames persist; quick career ends after 
   assert.ok(q.careerOver && q.quickEnd);
   assert.ok(q.season.clubs.every(c => c.roster.length >= 12), 'rosters refilled every summer');
 });
+
+const Season = require('../src/domain/season.js');
+const Names = require('../src/domain/names.js');
+test('all the basketball world: 200+ fictional leagues in 140+ countries, every one playable', () => {
+  const all = Season.leagueList();
+  assert.ok(all.length >= 200, 'leagues ' + all.length);
+  assert.ok(new Set(all.map(l => l.country)).size >= 140);
+  assert.ok(all.filter(l => l.gender === 'f').length >= 60);
+  for (const l of all) {
+    const s = Season.createSeason(l.id, 'world-all');
+    assert.equal(s.clubs.length, l.teams, l.id);
+    assert.ok(s.clubs.every(c => c.roster.length >= 10), l.id);
+  }
+  assert.ok(!/^(Indigo|Alex|Blair|Casey)\b/.test(Names.generateName('x', 'UA').first), 'regional name pools');
+});
+
+test('a new national league and a college league play a full season', () => {
+  for (const id of ['ru-nacional-men', 'us-universitaria-women']) {
+    let s = Career.createCareer({ seed: 'w-' + id, mode: 'player', leagueId: id, pos: 'PG' });
+    Career.simSeason(s); s = Career.resume(Career.serialize(s));
+    assert.equal(s.year, 2027, id);
+    assert.ok(s.history[0].champion, id);
+  }
+});

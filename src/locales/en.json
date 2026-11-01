@@ -1230,5 +1230,7 @@
   "ach.challengeMedals": "Earn {n} challenge medal(s)",
   "ach.challengeGolds": "Win {n} challenge gold(s)",
   "ach.gearBought": "Buy {n} piece(s) of gear",
-  "ach.gearTier": "Upgrade a piece to tier {n}"
+  "ach.gearTier": "Upgrade a piece to tier {n}",
+  "wiz.country": "Country",
+  "wiz.leagueCount": "{n} leagues in {c} countries."
 }

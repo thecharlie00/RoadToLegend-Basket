@@ -1230,5 +1230,7 @@
   "ach.challengeMedals": "Hole {n} Medaille(n) in Herausforderungen",
   "ach.challengeGolds": "Gewinne {n}-mal Gold in Herausforderungen",
   "ach.gearBought": "Kaufe {n} Ausrüstungsteil(e)",
-  "ach.gearTier": "Verbessere ein Teil bis Stufe {n}"
+  "ach.gearTier": "Verbessere ein Teil bis Stufe {n}",
+  "wiz.country": "Land",
+  "wiz.leagueCount": "{n} Ligen in {c} Ländern."
 }

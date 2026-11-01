@@ -1230,5 +1230,7 @@
   "ach.challengeMedals": "Obtiens {n} médaille(s) en défis",
   "ach.challengeGolds": "Gagne {n} or(s) en défis",
   "ach.gearBought": "Achète {n} pièce(s) d’équipement",
-  "ach.gearTier": "Améliore une pièce jusqu’au tier {n}"
+  "ach.gearTier": "Améliore une pièce jusqu’au tier {n}",
+  "wiz.country": "Pays",
+  "wiz.leagueCount": "{n} ligues dans {c} pays."
 }

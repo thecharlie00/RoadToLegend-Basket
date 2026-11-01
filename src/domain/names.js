@@ -90,6 +90,21 @@
     ID: { first: ['Abraham', 'Agus', 'Arki', 'Bagas', 'Dimas', 'Fajar', 'Hardianus', 'Kevin', 'Rizky', 'Surliyadin', 'Widi', 'Yudha'], last: ['Aditya', 'Dwi', 'Halim', 'Kurniawan', 'Nugroho', 'Pratama', 'Putra', 'Santoso', 'Saputra', 'Setiawan', 'Susanto', 'Wijaya'] },
     TW: { first: ['Chen-yu', 'Chih-hao', 'Chun-chieh', 'Hsin-yi', 'Jia-hao', 'Kai-wen', 'Po-han', 'Tzu-yang', 'Wei-lun', 'Yu-ting', 'Zhi-wei', 'Cheng-en'], last: ['Chang', 'Chen', 'Huang', 'Hsu', 'Kuo', 'Lai', 'Lin', 'Liu', 'Tsai', 'Wang', 'Wu', 'Yang'] },
     LB: { first: ['Ali', 'Elie', 'Fadi', 'Georges', 'Hadi', 'Jad', 'Karim', 'Marc', 'Nadim', 'Rami', 'Wael', 'Ziad'], last: ['Abboud', 'Fakhoury', 'Haddad', 'Khalil', 'Khoury', 'Mansour', 'Nasr', 'Rizk', 'Saad', 'Saliba', 'Tannous', 'Zein'] },
+    RU: { first: ['Alexéi', 'Dmitri', 'Iván', 'Serguéi', 'Nikita', 'Andréi', 'Mijaíl', 'Artiom', 'Yegor', 'Kirill', 'Pável', 'Vladímir'], last: ['Ivanov', 'Smirnov', 'Kuznetsov', 'Popov', 'Sokolov', 'Lébedev', 'Kozlov', 'Nóvikov', 'Morozov', 'Volkov', 'Fiódorov', 'Orlov'] },
+    SE: { first: ['Erik', 'Lars', 'Oskar', 'Nils', 'Anders', 'Johan', 'Henrik', 'Magnus', 'Viktor', 'Gustav', 'Axel', 'Emil'], last: ['Andersson', 'Johansson', 'Karlsson', 'Nilsson', 'Eriksson', 'Larsson', 'Olsen', 'Hansen', 'Jensen', 'Lindqvist', 'Berg', 'Dahl'] },
+    FI: { first: ['Lauri', 'Mikko', 'Sasu', 'Antti', 'Elias', 'Juho', 'Teemu', 'Ville', 'Aleksi', 'Olli', 'Petteri', 'Joonas'], last: ['Korhonen', 'Virtanen', 'Mäkinen', 'Nieminen', 'Mäkelä', 'Hämäläinen', 'Laine', 'Heikkinen', 'Koskinen', 'Järvinen', 'Lehtonen', 'Salo'] },
+    RO: { first: ['Andrei', 'Mihai', 'Alexandru', 'Ionuț', 'Vlad', 'Cristian', 'Bogdan', 'Răzvan', 'Ștefan', 'Tudor', 'Florin', 'Sorin'], last: ['Popescu', 'Ionescu', 'Popa', 'Dumitru', 'Stan', 'Stoica', 'Gheorghe', 'Matei', 'Ciobanu', 'Rusu', 'Munteanu', 'Constantin'] },
+    IR: { first: ['Ali', 'Hamed', 'Mohammad', 'Reza', 'Behnam', 'Arsalan', 'Saeed', 'Mehdi', 'Navid', 'Arman', 'Kaveh', 'Sina'], last: ['Haddadi', 'Kazemi', 'Ahmadi', 'Hosseini', 'Rezaei', 'Mohammadi', 'Karimi', 'Jafari', 'Sadeghi', 'Rahimi', 'Moradi', 'Davari'] },
+    IL: { first: ['Yonatan', 'Omri', 'Lior', 'Tamir', 'Gal', 'Itay', 'Yuval', 'Amit', 'Noam', 'Roi', 'Elad', 'Guy'], last: ['Cohen', 'Levi', 'Mizrahi', 'Peretz', 'Biton', 'Dahan', 'Avraham', 'Friedman', 'Katz', 'Azoulay', 'Golan', 'Shapira'] },
+    IN: { first: ['Arjun', 'Rohan', 'Vikram', 'Amjyot', 'Satnam', 'Rahul', 'Aditya', 'Karan', 'Vishesh', 'Pranav', 'Muin', 'Sahaj'], last: ['Singh', 'Sharma', 'Patel', 'Kumar', 'Reddy', 'Nair', 'Iyer', 'Gupta', 'Bhriguvanshi', 'Joshi', 'Mehta', 'Rao'] },
+    TH: { first: ['Somchai', 'Anan', 'Kittisak', 'Narong', 'Prasert', 'Wichai', 'Chaiwat', 'Thanakorn', 'Sakda', 'Pongsak', 'Nattapong', 'Krit'], last: ['Saetang', 'Srisuk', 'Wongsakul', 'Chaiyaporn', 'Thongchai', 'Boonmee', 'Sukprasert', 'Kaewkla', 'Jaidee', 'Phromma', 'Rattanakul', 'Somboon'] },
+    VN: { first: ['Minh', 'Tuấn', 'Hùng', 'Dũng', 'Nam', 'Khoa', 'Long', 'Phúc', 'Quang', 'Thành', 'Vinh', 'Huy'], last: ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Phan', 'Vũ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô'] },
+    GE: { first: ['Giorgi', 'Levan', 'Nika', 'Davit', 'Luka', 'Tornike', 'Zaza', 'Beka', 'Irakli', 'Sandro', 'Goga', 'Vakhtang'], last: ['Beridze', 'Kapanadze', 'Gelashvili', 'Lomidze', 'Shengelia', 'Pachulia', 'Tsiklauri', 'Bitadze', 'Mamukelashvili', 'Kvaratskhelia', 'Nozadze', 'Abuladze'] },
+    AL: { first: ['Arben', 'Besnik', 'Dritan', 'Elvis', 'Florian', 'Gentian', 'Ilir', 'Klevis', 'Lorik', 'Ndriçim', 'Rron', 'Valon'], last: ['Hoxha', 'Krasniqi', 'Gashi', 'Berisha', 'Shala', 'Kelmendi', 'Dervishi', 'Leka', 'Basha', 'Muça', 'Rama', 'Topalli'] },
+    CD: { first: ['Christian', 'Junior', 'Patrick', 'Jonathan', 'Serge', 'Dieudonné', 'Fabrice', 'Landry', 'Cédric', 'Merveille', 'Prince', 'Joël'], last: ['Mbuyi', 'Kabongo', 'Ilunga', 'Tshibangu', 'Mutombo', 'Kasongo', 'Lukaku', 'Mbala', 'Ngoy', 'Mukendi', 'Kalala', 'Banza'] },
+    KE: { first: ['Brian', 'Kevin', 'Dennis', 'Collins', 'Victor', 'Emmanuel', 'Moses', 'Peter', 'Joseph', 'Samuel', 'Daniel', 'Felix'], last: ['Otieno', 'Mwangi', 'Kamau', 'Wanjala', 'Mutua', 'Njoroge', 'Ochieng', 'Kiprop', 'Mensah', 'Achieng', 'Odhiambo', 'Masai'] },
+    AO: { first: ['Carlos', 'Edson', 'Gerson', 'Hélder', 'Leonel', 'Miguel', 'Nelson', 'Olímpio', 'Paulo', 'Reggie', 'Silvio', 'Yanick'], last: ['Moreira', 'Gonçalves', 'Domingos', 'Kiala', 'Neto', 'Cipriano', 'Mingas', 'Fernandes', 'Almeida', 'Pedro', 'Morais', 'Manuel'] },
+    GB: { first: ['Oliver', 'Harry', 'George', 'Jack', 'Callum', 'Liam', 'Kieran', 'Ewan', 'Rhys', 'Connor', 'Owen', 'Ben'], last: ['Smith', 'Jones', 'Williams', 'Taylor', 'Davies', 'Evans', 'Thomas', 'Roberts', 'Walker', 'Wright', 'Murphy', 'MacLeod'] },
     DEFAULT: { first: ['Alex','Blair','Casey','Drew','Emery','Finley','Gray','Harper','Indigo','Jules','Kai','Lane','Morgan','Noel','Oakley','Parker','Reese','Sage'], last: ['Arden','Brook','Cedar','Dale','Ember','Field','Glen','Hollow','Ives','Jordan','Keel','Lark','Marsh','North','Orchard','Pike','Quill','Rowan'] }
   };
 
@@ -132,23 +147,41 @@
     ID: ['Dewi', 'Indah', 'Kadek', 'Maya', 'Putri', 'Rani', 'Sari', 'Wulan'],
     TW: ['Hsin-yi', 'Mei-ling', 'Pei-shan', 'Shu-fen', 'Ya-ting', 'Yi-chen', 'Yu-chen', 'Wan-ting'],
     LB: ['Joelle', 'Lara', 'Maya', 'Nour', 'Rana', 'Rita', 'Sara', 'Yara'],
+    RU: ['Anastasia', 'Maria', 'Yekaterina', 'Olga', 'Daria', 'Elena', 'Natalia', 'Anna'],
+    SE: ['Elin', 'Maja', 'Ebba', 'Saga', 'Linnea', 'Freja', 'Ida', 'Astrid'],
+    FI: ['Aino', 'Emilia', 'Iida', 'Venla', 'Ella', 'Sanni', 'Heidi', 'Noora'],
+    RO: ['Ioana', 'Andreea', 'Elena', 'Maria', 'Alexandra', 'Bianca', 'Diana', 'Raluca'],
+    IR: ['Sara', 'Maryam', 'Zahra', 'Fatemeh', 'Niloufar', 'Shirin', 'Parisa', 'Leila'],
+    IL: ['Noa', 'Shira', 'Maya', 'Tamar', 'Yael', 'Lihi', 'Adi', 'Michal'],
+    IN: ['Priya', 'Anjali', 'Kavya', 'Pooja', 'Ananya', 'Meera', 'Shireen', 'Raspreet'],
+    TH: ['Ploy', 'Nok', 'Fah', 'Mai', 'Pim', 'Dao', 'Kwan', 'Fon'],
+    VN: ['Linh', 'Lan', 'Mai', 'Hương', 'Thảo', 'Trang', 'Ngọc', 'Hà'],
+    GE: ['Nino', 'Mariam', 'Ana', 'Tamar', 'Salome', 'Elene', 'Nato', 'Keti'],
+    AL: ['Arta', 'Blerta', 'Era', 'Jonida', 'Liridona', 'Majlinda', 'Rina', 'Vesa'],
+    CD: ['Grâce', 'Ruth', 'Esther', 'Sarah', 'Divine', 'Merveille', 'Chancelle', 'Plamedie'],
+    KE: ['Faith', 'Mercy', 'Grace', 'Joy', 'Wanjiru', 'Akinyi', 'Njeri', 'Achieng'],
+    AO: ['Ana', 'Luísa', 'Nadir', 'Sónia', 'Italee', 'Catarina', 'Cristina', 'Judite'],
+    GB: ['Olivia', 'Amelia', 'Isla', 'Sophie', 'Grace', 'Emily', 'Ellie', 'Freya'],
     DEFAULT: ['Alex','Blair','Casey','Drew','Emery','Harper','Jules','Morgan','Reese','Sage']
   };
   function femaleLast(last, nationality) {
     if (nationality === 'LT') return last.replace(/(as|is|ys|us)$/, m => ({ as: 'aitė', is: 'ytė', ys: 'ytė', us: 'utė' })[m]);
+    if (nationality === 'RU') return last.replace(/(ov|ev|in)$/, m => m + 'a');
     if (nationality === 'PL') return last.replace(/(ski|cki|dzki)$/, m => m.slice(0, -1) + 'a');
     if (nationality === 'CZ') return /ý$/.test(last) ? last.replace(/ý$/, 'á') : /ek$/.test(last) ? last.replace(/ek$/, 'ková') : /ec$/.test(last) ? last.replace(/ec$/, 'cová') : last + 'ová';
     if (nationality === 'GR') return last.replace(/(os|as|is)$/, m => ({ os: 'ou', as: 'a', is: 'i' })[m]);
     return last;
   }
 
-  function pool(nationality) { return POOLS[nationality] || POOLS.DEFAULT; }
+  // Países sin lista propia usan la de su familia lingüística más cercana.
+  const ALIAS = {"CL": "AR", "PY": "AR", "BO": "AR", "CO": "VE", "EC": "VE", "PA": "VE", "DO": "PR", "CU": "PR", "CR": "MX", "GT": "MX", "HN": "MX", "SV": "MX", "NI": "MX", "PE": "MX", "BS": "US", "BB": "US", "BZ": "US", "JM": "US", "TT": "US", "IE": "GB", "IS": "SE", "NO": "SE", "DK": "SE", "EE": "LT", "LV": "LT", "UA": "RU", "BY": "RU", "KZ": "RU", "KG": "RU", "UZ": "RU", "MN": "RU", "MD": "RO", "BG": "RS", "MK": "RS", "BA": "RS", "ME": "RS", "SI": "HR", "SK": "CZ", "XK": "AL", "AT": "DE", "CH": "DE", "LU": "FR", "CY": "GR", "MT": "IT", "AD": "ES", "AM": "GE", "AZ": "TR", "DZ": "MA", "TN": "MA", "LY": "MA", "SA": "EG", "QA": "EG", "KW": "EG", "BH": "EG", "AE": "EG", "OM": "EG", "JO": "LB", "IQ": "EG", "SY": "LB", "PS": "LB", "SD": "EG", "PK": "IN", "BD": "IN", "NP": "IN", "LK": "IN", "KH": "TH", "MY": "ID", "SG": "CN", "HK": "CN", "FJ": "NZ", "CI": "CD", "CM": "CD", "BJ": "CD", "TG": "CD", "GA": "CD", "CG": "CD", "CF": "CD", "RW": "CD", "BI": "CD", "MG": "CD", "ML": "SN", "NE": "SN", "BF": "SN", "GN": "SN", "TD": "SN", "GH": "NG", "TZ": "KE", "UG": "KE", "ET": "KE", "SS": "KE", "ZM": "KE", "ZW": "KE", "NA": "ZA", "MZ": "AO", "CV": "AO"};
+  function pool(nationality) { return POOLS[nationality] || POOLS[ALIAS[nationality]] || POOLS.DEFAULT; }
   function generateName(seed, nationality, gender) {
     const rng = RNG.create(seed);
     const p = pool(nationality);
     let first = rng.pick(p.first);
     let last = rng.pick(p.last);
-    if (gender === 'f') { first = rng.pick(FEMALE[nationality] || FEMALE.DEFAULT); last = femaleLast(last, nationality); }
+    if (gender === 'f') { first = rng.pick(FEMALE[nationality] || FEMALE[ALIAS[nationality]] || FEMALE.DEFAULT); last = femaleLast(last, ALIAS[nationality] && !POOLS[nationality] ? ALIAS[nationality] : nationality); }
     return { first, last, full: first + ' ' + last };
   }
   function generateRosterNames(seed, nationality, count) {

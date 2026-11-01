@@ -12,11 +12,19 @@
     US: [92, 93], ES: [84, 82], FR: [85, 83], RS: [84, 76], AU: [80, 83], CA: [81, 79], GR: [80, 70], LT: [78, 68], AR: [77, 66], DE: [81, 75], IT: [77, 73],
     TR: [77, 76], BR: [74, 74], CN: [70, 81], JP: [71, 78], PL: [72, 70], HR: [74, 62], CZ: [70, 74], BE: [72, 81], NL: [66, 66], PT: [62, 60], HU: [62, 72],
     UY: [66, 56], VE: [68, 60], PR: [72, 66], NZ: [70, 68], EG: [64, 56], MA: [58, 52], ID: [58, 50], TW: [60, 58], LB: [70, 50], MX: [70, 64], NG: [72, 79],
+RU: [82, 80], SI: [82, 68], LV: [76, 70], EE: [66, 58], FI: [74, 60], IL: [70, 62], GE: [74, 52], ME: [76, 66], BA: [70, 56], BG: [64, 60], MK: [64, 54], UA: [70, 66], BY: [62, 72],
+    SK: [58, 68], AT: [64, 58], CH: [60, 56], SE: [66, 70], DK: [56, 56], NO: [54, 52], GB: [70, 72], IE: [52, 56], IS: [58, 50], RO: [60, 60], AL: [50, 45], XK: [56, 45], AM: [50, 45], AZ: [52, 45],
+    CY: [48, 45], LU: [46, 50], MT: [40, 40], MD: [46, 45], AD: [40, 38], KZ: [58, 60], IR: [72, 50], JO: [70, 52], QA: [58, 45], SA: [58, 45], SY: [60, 50], IQ: [56, 45], KW: [52, 44], BH: [56, 44],
+    AE: [52, 44], IN: [54, 58], TH: [56, 56], VN: [50, 50], MY: [50, 50], SG: [48, 48], HK: [50, 52], MN: [50, 52], UZ: [48, 45], KG: [44, 44], PK: [44, 44], BD: [38, 38], NP: [40, 40], LK: [42, 42],
+    KH: [40, 40], PS: [54, 45], OM: [42, 40], DO: [74, 62], CU: [62, 66], CL: [60, 58], CO: [62, 62], PA: [62, 52], PY: [58, 58], BO: [50, 48], EC: [52, 50], PE: [48, 48], CR: [50, 48], GT: [46, 45],
+    HN: [44, 44], SV: [50, 46], NI: [42, 42], BS: [64, 50], JM: [62, 54], TT: [52, 48], BB: [48, 44], BZ: [46, 42], FJ: [48, 50], AO: [70, 68], CI: [68, 60], CM: [68, 62], TN: [70, 56], DZ: [56, 50],
+    CD: [66, 58], ML: [60, 72], RW: [60, 52], KE: [52, 52], UG: [58, 56], SS: [72, 45], CV: [64, 56], GN: [58, 50], GH: [50, 48], MZ: [54, 66], ZM: [46, 44], ZW: [46, 44], TZ: [46, 44], ET: [44, 42],
+    LY: [58, 45], SD: [48, 44], MG: [52, 50], BF: [46, 45], BJ: [46, 45], TG: [44, 44], GA: [50, 48], CG: [52, 50], CF: [56, 50], TD: [50, 45], NE: [44, 42], NA: [42, 42], BI: [44, 42],
     SN: [68, 72], KR: [66, 72], PH: [67, 56], ZA: [56, 50]
   };
   const CONTINENT = { US: 'americas', CA: 'americas', AR: 'americas', BR: 'americas', UY: 'americas', VE: 'americas', PR: 'americas', MX: 'americas',
     CN: 'asia', JP: 'asia', KR: 'asia', PH: 'asia', ID: 'asia', TW: 'asia', LB: 'asia', AU: 'asia', NZ: 'asia', EG: 'africa', MA: 'africa', NG: 'africa', SN: 'africa', ZA: 'africa' };
-  const contOf = c => CONTINENT[c] || 'europe';
+  const contOf = c => { const C = CAA.LeagueCatalog && CAA.LeagueCatalog.COUNTRIES[c]; const k = CONTINENT[c] || (C && C.continent) || 'europe'; return k === 'oceania' ? 'asia' : k; };
   const str = (c, g) => (STRENGTH[c] || [55, 55])[g === 'women' ? 1 : 0];
 
   // Torneo de verano de un año (o null). Respeta la historia en el modo Épocas.

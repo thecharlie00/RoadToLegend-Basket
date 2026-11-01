@@ -49,7 +49,7 @@ async function newCareer(page, o = {}) {
     await click(page, 'wiz-next');
   }
   if (o.route) await set('route', o.route);
-  if (o.leagueId) { await page.locator('#career-league').selectOption(o.leagueId); await page.waitForFunction(id => CAA_APP.state.career.clubsRoute === 'world:' + id && !CAA_APP.state.career.clubsLoading, o.leagueId); }
+  if (o.leagueId) { const lc = await page.evaluate(id => CAA.Season.LEAGUES[id].country, o.leagueId); if (await page.locator('#career-country').inputValue() !== lc) { await page.locator('#career-country').selectOption(lc); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); } await page.locator('#career-league').selectOption(o.leagueId); await page.waitForFunction(id => CAA_APP.state.career.clubsRoute === 'world:' + id && !CAA_APP.state.career.clubsLoading, o.leagueId); }
   await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
   if (o.clubId) await set('clubId', o.clubId);
   if (o.seed) { await page.locator('details summary').first().click(); await page.locator('#career-seed').fill(o.seed); }
@@ -302,7 +302,7 @@ try {
     await tab(page, 'league');
     assert.match(await page.locator('main').textContent(), /Liga Sakura Femenina/);
     assert.equal(await page.locator('#crossing-league option[value$="-men"]').count(), 0, 'only women leagues offered');
-    await page.locator('#crossing-league').selectOption('au-austral-women'); await click(page, 'career-crossing');
+    await page.locator('#crossing-country').selectOption('AU'); await page.locator('#crossing-league').selectOption('au-austral-women'); await click(page, 'career-crossing');
     const wa = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     report.accessibility.push({ locale: 'es', tab: 'world-league', violations: wa.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
     await tab(page, 'career');

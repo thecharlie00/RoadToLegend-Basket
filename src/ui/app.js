@@ -315,7 +315,7 @@
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
   const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history', 'shop', 'look', 'club', 'national', 'editor'];
-  const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA', 'NG', 'SN', 'MX', 'PL', 'HR', 'CZ', 'BE', 'NL', 'PT', 'HU', 'UY', 'VE', 'PR', 'NZ', 'EG', 'MA', 'ID', 'TW', 'LB'];
+  const NATIONS = Array.from(new Set(['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA', 'NG', 'SN', 'MX', 'PL', 'HR', 'CZ', 'BE', 'NL', 'PT', 'HU', 'UY', 'VE', 'PR', 'NZ', 'EG', 'MA', 'ID', 'TW', 'LB'].concat(Object.keys(CAA.LeagueCatalog.COUNTRIES).filter(c => c !== 'AF' && c !== 'FJ'), ['FJ'])));
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
   const TALENT = { promise: 50, gem: 55, chosen: 60 };
   const ATTR_GROUPS = [
@@ -392,7 +392,7 @@
           <label for="club-abbr">${t('club.abbr')}<input id="club-abbr" value="${esc(draft('club-abbr', c.newClub.abbr))}" maxlength="4" autocomplete="off"></label>
           <div class="pick-grid two"><label for="club-primary">${t('club.primary')}<input id="club-primary" type="color" value="${esc(c.newClub.primary)}"></label><label for="club-secondary">${t('club.secondary')}<input id="club-secondary" type="color" value="${esc(c.newClub.secondary)}"></label></div>` : ''}
         ${chal ? `<details><summary>${t('wiz.advanced')}</summary><label for="career-seed">${t('career.seed')}<input id="career-seed" value="${esc(draft('career-seed', c.seed))}"></label></details>` : ''}
-        ${player ? `<label for="career-nationality">${t('career.nationality')}<select id="career-nationality">${NATIONS.map(n => `<option value="${n}" ${n === c.nationality ? 'selected' : ''}>${flag(n)} ${esc(nationName(n))}</option>`).join('')}</select></label>` : ''}`;
+        ${player ? `<label for="career-nationality">${t('career.nationality')}<select id="career-nationality">${NATIONS.slice().sort((a, b) => nationName(a).localeCompare(nationName(b))).map(n => `<option value="${n}" ${n === c.nationality ? 'selected' : ''}>${flag(n)} ${esc(nationName(n))}</option>`).join('')}</select></label>` : ''}`;
     } else if (stepKey === 'position') {
       body = `<h3 class="eyebrow">${t('career.pos')}</h3><div class="pick-grid">${['PG', 'SG', 'SF', 'PF', 'C'].map(p => pick('pos', p, p, t('pos.' + p))).join('')}</div>
         <h3 class="eyebrow">${t('career.archetype')}</h3><div class="pick-list">${CAA.Player.ARCHETYPES.map(a => pick('archetype', a, t('career.archetype.' + a), t('arch.' + a))).join('')}</div>
@@ -404,7 +404,7 @@
       const routes = c.gender === 'f' || era ? ['world'] : player ? ['eu-academy', 'na-draft', 'na-undrafted', 'world'] : ['eu-academy', 'na-draft', 'world'];
       const clubLeague = c.route === 'world' ? c.leagueId : c.route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
       body = `<h3 class="eyebrow">${t('wiz.path')}</h3><div class="pick-list">${routes.map(r => pick('route', r, t('route.' + r), t('route.' + r + 'Desc'))).join('')}</div>
-        ${c.route === 'world' ? `<label for="career-league">${t('wiz.league')}<select id="career-league">${leagueOptions(c.gender, c.leagueId, null, c.eraYear)}</select></label>${era ? `<p class="muted small">${t('era.leaguesNote', { year: c.eraYear })}</p>` : ''}` : ''}
+        ${c.route === 'world' ? `${leaguePicker('career', c.gender, c.leagueId, null, c.eraYear, c.leagueCountry)}${era ? `<p class="muted small">${t('era.leaguesNote', { year: c.eraYear })}</p>` : ''}` : ''}
         ${c.newClub ? `<p class="muted small">${t('club.foundNote')}</p>` : `<h3 class="eyebrow">${t(c.route === 'na-draft' ? 'wiz.preferredClub' : 'wiz.firstClub')}</h3>`}
         ${c.newClub ? '' : c.clubsLoading ? `<p class="muted">${t('status.working')}</p>` : `<div class="pick-list clubs">${c.clubs.map(x => `<button class="pick club" data-action="wiz-set" data-field="clubId" data-value="${esc(x.id)}" aria-pressed="${x.id === c.clubId}">${crest(x)}<b>${esc(x.name)}</b><small>${esc(c.route === 'world' ? leagueLabel(clubLeague) : t('league.' + clubLeague))}</small></button>`).join('')}</div>`}
         <p class="muted small">${t(c.route === 'na-draft' ? 'career.draftClubNote' : 'career.clubNote')}</p>
@@ -438,6 +438,19 @@
   function leagueName(id) { const L = CAA.Season.LEAGUES[id]; return L ? L.name : id; }
   function leagueLabel(id) { const L = CAA.Season.LEAGUES[id]; return L ? (L.country === 'AF' ? '🌍' : flag(L.country)) + ' ' + L.name : id; }
   const CONTINENTS = ['europe', 'americas', 'asia', 'oceania', 'africa'];
+  // Selector en dos pasos (país → liga) para las más de 200 ligas del mundo.
+  function leaguePicker(prefix, gender, selected, exclude, year, countryState) {
+    const list = CAA.Season.leagueList(gender).filter(l => (!exclude || !exclude.includes(l.id)) && (!year || CAA.Eras.available(CAA.Season.LEAGUES[l.id], year)));
+    const selL = CAA.Season.LEAGUES[selected];
+    const country = countryState && list.some(l => l.country === countryState) ? countryState : selL && list.some(l => l.country === selL.country) ? selL.country : (list[0] || {}).country;
+    const countries = Array.from(new Set(list.map(l => l.country)));
+    const cname = c => c === 'AF' ? t('continent.africa') : nationName(c);
+    const groups = CONTINENTS.map(ct => { const cs = countries.filter(c => (list.find(l => l.country === c) || {}).continent === ct).sort((a, b) => cname(a).localeCompare(cname(b))); return cs.length ? `<optgroup label="${t('continent.' + ct)}">${cs.map(c => `<option value="${c}" ${c === country ? 'selected' : ''}>${c === 'AF' ? '🌍' : flag(c)} ${esc(cname(c))}</option>`).join('')}</optgroup>` : ''; }).join('');
+    const leagues = list.filter(l => l.country === country).sort((a, b) => a.level - b.level || a.gender.localeCompare(b.gender));
+    return `<label for="${prefix}-country">${t('wiz.country')}<select id="${prefix}-country" data-picker="${prefix}">${groups}</select></label>
+      <label for="${prefix}-league">${t('wiz.league')}<select id="${prefix}-league">${leagues.map(l => `<option value="${l.id}" ${l.id === selected ? 'selected' : ''}>${esc(CAA.Season.LEAGUES[l.id].name)}${l.level === 2 ? ' · 2' : ''}</option>`).join('')}</select></label>
+      <p class="muted small">${t('wiz.leagueCount', { n: list.length, c: countries.length })}</p>`;
+  }
   function leagueOptions(gender, selected, exclude, year) {
     const list = CAA.Season.leagueList(gender).filter(l => (!exclude || !exclude.includes(l.id)) && (!year || CAA.Eras.available(CAA.Season.LEAGUES[l.id], year)));
     return CONTINENTS.map(c => { const ls = list.filter(l => l.continent === c); return ls.length ? `<optgroup label="${t('continent.' + c)}">${ls.map(l => `<option value="${l.id}" ${l.id === selected ? 'selected' : ''}>${esc(leagueLabel(l.id))}${l.level === 2 ? ' · 2' : ''}</option>`).join('')}</optgroup>` : ''; }).join('');
@@ -617,7 +630,7 @@
       ${renderWorldNews(s)}
       ${s.player ? `<section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p>
         ${s.pendingMove ? `<p class="ok small">${t('league.pendingMove', { club: esc(clubLabel(s.pendingMove)), league: esc(leagueName(s.pendingMove.leagueId)) })}</p>` : ''}
-        <label for="crossing-league">${t('league.target')}<select id="crossing-league">${leagueOptions(s.league.gender, state.career.crossingLeague, [s.leagueId], s.era ? s.year : null)}</select></label>
+        ${leaguePicker('crossing', s.league.gender, state.career.crossingLeague, [s.leagueId], s.era ? s.year : null, state.career.crossingCountry)}
         <button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>` : ''}`;
   }
 
@@ -631,7 +644,7 @@
   }
   function renderWorldNews(s) {
     if (!s.world || !s.world.champions.length) return `<section class="card"><h3>${t('world.leagues')}</h3><p class="muted small">${t('world.leaguesEmpty', { n: Object.keys(CAA.Season.LEAGUES).length })}</p></section>`;
-    const by = CONTINENTS.map(c => { const rows = s.world.champions.filter(x => (CAA.Season.LEAGUES[x.leagueId] || {}).continent === c); return rows.length ? `<h4 class="eyebrow">${t('continent.' + c)}</h4><ul class="news">${rows.map(x => `<li>🏆 <b>${esc(x.club)}</b> <small class="muted">${esc(leagueLabel(x.leagueId))}</small></li>`).join('')}</ul>` : ''; }).join('');
+    const by = CONTINENTS.map(c => { const rows = s.world.champions.filter(x => (CAA.Season.LEAGUES[x.leagueId] || {}).continent === c); return rows.length ? `<details><summary class="eyebrow">${t('continent.' + c)} · ${rows.length}</summary><ul class="news">${rows.map(x => `<li>🏆 <b>${esc(x.club)}</b> <small class="muted">${esc(leagueLabel(x.leagueId))}</small></li>`).join('')}</ul></details>` : ''; }).join('');
     return `<section class="card"><h3>${t('world.champions', { season: seasonLabel(s.world.year) })}</h3>${by}</section>`;
   }
   function renderPet(s) {
@@ -1313,6 +1326,17 @@
       const el = e.target;
       if (el.id === 'slot') { state.slot = el.value; return; }
       if (el.id === 'career-mode') { state.career.mode = el.value; render(); return; }
+      if (el.id === 'career-country') {
+        const c = state.career; c.leagueCountry = el.value;
+        const first = CAA.Season.leagueList(c.gender).find(l => l.country === el.value && (!c.eraYear || CAA.Eras.available(CAA.Season.LEAGUES[l.id], c.eraYear)));
+        if (first) { c.leagueId = first.id; c.clubId = ''; await ensureClubs('world'); } else render();
+        return;
+      }
+      if (el.id === 'crossing-country') {
+        const s = state.career.summary; state.career.crossingCountry = el.value;
+        const first = CAA.Season.leagueList(s.league.gender).find(l => l.country === el.value && l.id !== s.leagueId);
+        state.career.crossingLeague = first ? first.id : null; render(); return;
+      }
       if (el.id === 'career-league') { state.career.leagueId = el.value; state.career.clubId = ''; await ensureClubs('world'); return; }
       if (el.id === 'crossing-league') { state.career.crossingLeague = el.value; return; }
       if (el.id === 'career-route') { state.career.route = el.value; state.career.clubId = ''; await ensureClubs(el.value); return; }

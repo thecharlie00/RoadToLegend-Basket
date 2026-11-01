@@ -186,5 +186,5 @@
   // Las primeras divisiones con segunda enlazada conocen a su pareja.
   for (const l of Object.values(LEAGUES)) if (l.pair && LEAGUES[l.pair] && l.level === 2) LEAGUES[l.pair].pair = l.id;
   CAA.LeagueCatalog = { COUNTRIES, LEAGUES, CONTINENT_OF, gamesFor };
-  if (typeof module !== 'undefined' && module.exports) module.exports = CAA.LeagueCatalog;
+  if (typeof module !== 'undefined' && module.exports) { module.exports = CAA.LeagueCatalog; require('./leagues-world.js'); }
 })(typeof globalThis !== 'undefined' ? globalThis : this);
