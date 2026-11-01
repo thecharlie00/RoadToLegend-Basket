@@ -12,6 +12,7 @@
     if (!CAA.Arcade) require('../match/arcade.js');
     if (!CAA.Pet) require('../domain/pet.js');
     if (!CAA.Playoffs) require('../domain/playoffs.js');
+    if (!CAA.Family) require('../domain/family.js');
     if (!CAA.Calibration) require('../match/calibration.js');
     if (!CAA.Names) require('../domain/names.js');
     if (!CAA.Player) require('../domain/player.js');
@@ -128,6 +129,13 @@
         case 'career.coach': {
           const state = CAA.Career.resume(msg.payload.state);
           CAA.Career.coachSet(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
+          break;
+        }
+        case 'career.family': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const c = msg.payload.config || {};
+          if (c.op === 'setup') CAA.Career.familySetup(state, c); else if (c.op === 'retire') CAA.Career.afterRetirement(state, c); else throw new Error('unknown family op');
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
           break;
         }

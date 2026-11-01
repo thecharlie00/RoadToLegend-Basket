@@ -2,7 +2,7 @@
 
 Carrera de baloncesto offline-first para web y Android WebView. Hermano de `camino-a-la-leyenda`, con repositorio y dominio propios.
 
-**Estado:** fase 8: interfaz y bucle como *Camino a la Leyenda* (portada, modos, creación por pasos, INICIO/YO/LIGA/MÁS), 104 decisiones narrativas, 199 trofeos, minijuegos, mascota vóxel, playoffs con premios, herramientas de entrenador, guía y Salón de la fama. Base anterior: creación con club/arquetipo/mano, avatar voxel en Carrera/Vida, replays 3D con los cinco reales en pista y audio procedural opcional, con fallback 2D. Nombre visible actualizado; IDs internos y partidas anteriores conservados. Android sigue pendiente de compilación y prueba real. Hay fundaciones offline, guardado, i18n/a11y, worker, censo mundial parcial, motor determinista, carreras MVP jugador/entrenador, España 1+2, NA 30/draft, contratos, lesiones, carga, mercado, cruces, vista 2D, minijuegos TL/bocina, 100 eventos/50 logros, tienda, prensa, guía y fuentes offline. Solo se modifican nombres de jugadores; los equipos no se renombran desde el motor. Los nombres inspirados están `pending-clearance`.
+**Estado:** fase 9: estética propia "Pabellón", partido en directo y minijuegos en 3D, Familia y Dinastías (pareja, hijos, retirada, entrenador o relevo generacional). Fase 8: interfaz y bucle como *Camino a la Leyenda* (portada, modos, creación por pasos, INICIO/YO/LIGA/MÁS), 104 decisiones narrativas, 199 trofeos, minijuegos, mascota vóxel, playoffs con premios, herramientas de entrenador, guía y Salón de la fama. Base anterior: creación con club/arquetipo/mano, avatar voxel en Carrera/Vida, replays 3D con los cinco reales en pista y audio procedural opcional, con fallback 2D. Nombre visible actualizado; IDs internos y partidas anteriores conservados. Android sigue pendiente de compilación y prueba real. Hay fundaciones offline, guardado, i18n/a11y, worker, censo mundial parcial, motor determinista, carreras MVP jugador/entrenador, España 1+2, NA 30/draft, contratos, lesiones, carga, mercado, cruces, vista 2D, minijuegos TL/bocina, 100 eventos/50 logros, tienda, prensa, guía y fuentes offline. Solo se modifican nombres de jugadores; los equipos no se renombran desde el motor. Los nombres inspirados están `pending-clearance`.
 
 Objetivo de mundo confirmado: **todas las ligas existentes, ecosistema completo** (senior/pro/semipro, amateur/regional, juveniles/canteras y universitario). La cobertura se ampliará por paquetes verificables.
 
@@ -23,6 +23,7 @@ Objetivo de mundo confirmado: **todas las ligas existentes, ecosistema completo*
 - [Fase 6b: club, avatar, quintetos y audio](docs/13-INFORME-FASE-6B.md)
 - [Fase 7: partido en directo y tabla de paridad](docs/14-INFORME-FASE-7.md)
 - [Fase 8: parecido con el fútbol, contenido, minijuegos, mascota, playoffs y entrenador](docs/15-INFORME-FASE-8.md)
+- [Fase 9: Familia y Dinastías, 3D y estética propia](docs/16-INFORME-FASE-9.md)
 
 ## Desarrollo
 

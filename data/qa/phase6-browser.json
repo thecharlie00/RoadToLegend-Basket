@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T07:12:50.242Z",
+  "date": "2026-11-01T08:01:52.815Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -35,6 +35,11 @@
     },
     {
       "name": "Minigames: committed session, manual play, record, auto and a11y",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Family and dynasty: setup, family week, retirement and next generation",
       "ok": true,
       "missingTranslations": []
     },
@@ -196,19 +201,24 @@
       "locale": "es",
       "tab": "pet",
       "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "retirement",
+      "violations": []
     }
   ],
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T07:13:12.449Z",
+    "measuredAt": "2026-11-01T08:02:14.238Z",
     "frames": 180,
-    "meanFrameMs": 16.573,
+    "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
-    "meanFps": 60.34,
-    "framesOver16_67Ms": 114,
+    "meanFps": 60,
+    "framesOver16_67Ms": 112,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -237,15 +247,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T07:14:02.524Z",
+    "measuredAt": "2026-11-01T08:03:02.216Z",
     "frames": 180,
-    "meanFrameMs": 74.627,
-    "medianFrameMs": 16.8,
-    "p95FrameMs": 183.4,
-    "maxFrameMs": 400,
-    "meanFps": 13.4,
-    "framesOver16_67Ms": 144,
-    "framesOver33_34Ms": 79,
+    "meanFrameMs": 69.442,
+    "medianFrameMs": 16.7,
+    "p95FrameMs": 166.7,
+    "maxFrameMs": 283.3,
+    "meanFps": 14.4,
+    "framesOver16_67Ms": 134,
+    "framesOver33_34Ms": 68,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -258,10 +268,10 @@
       "workload": "voxel-balanced"
     },
     "longTasks": [
-      55
+      75
     ],
     "stopped": false,
-    "jsHeapUsedBytes": 24500000
+    "jsHeapUsedBytes": 27600000
   },
   "avatar": {
     "version": "voxel-1",
@@ -295,9 +305,9 @@
       85
     ]
   },
-  "arcade": 2,
+  "arcade": 3,
   "locales": {
-    "es": 896,
-    "en": 896
+    "es": 947,
+    "en": 947
   }
 }

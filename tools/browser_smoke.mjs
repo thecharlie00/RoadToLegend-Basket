@@ -263,6 +263,28 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.locator('#pet3d').screenshot({ path: 'data/qa/phase8-pet-screen.png' });
   });
+  await scenario('Family and dynasty: setup, family week, retirement and next generation', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { seed: 'dynasty-browser' });
+    await page.locator('#partner-name').fill('Lucía');
+    await page.locator('[data-action="family-setup"][data-kind="parent"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.family.partner.name), 'Lucía');
+    if (await page.locator('[data-action="life-event"]').count()) { await page.locator('[data-action="life-event"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
+    await click(page, 'career-family');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.life.counters.familyWeeks), 1);
+    // Avanza hasta el final de una temporada de despedida en el hilo principal y guarda.
+    await page.evaluate(async () => { const s = CAA.Career.resume(CAA_APP.state.career.state); CAA_APP.state.career.state = s; s.family.children[0].gender = 'm'; CAA.Content.applyEffects(s, { flag: 'farewell' }); let g = 0; const y = s.year;
+      while (s.year === y && !(s.retirement && s.retirement.pending) && g++ < 200) { if (s.life.pendingEvent) CAA.Career.chooseEvent(s, CAA.Career.summary(s).event.options[0].id); const st = CAA.Career.summary(s).playoffs; CAA.Career.advanceWeek(s, { type: st && !st.done && !['playing', 'waiting'].includes(st.status) ? 'skipPlayoffs' : 'play' }); }
+      CAA_APP.state.career.summary = CAA.Career.summary(s); await CAA_APP.persistCareer(); });
+    await tab(page, 'life'); await tab(page, 'career');
+    assert.equal(await page.locator('[data-action="retire-heir"]').count(), 1);
+    assert.ok(await page.evaluate(() => CAA_APP.state.career.state.retirement.legacy.seasons >= 1 && CAA_APP.state.career.state.retirement.legacy.totals.pts > 0));
+    const ra = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'retirement', violations: ra.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await page.locator('#heir-pos').selectOption('PG'); await click(page, 'retire-heir');
+    const st = await page.evaluate(() => ({ gen: CAA_APP.state.career.state.family.generation, age: CAA_APP.state.career.state.player.age, pos: CAA_APP.state.career.state.player.pos, legends: CAA_APP.state.career.state.family.legends.length }));
+    assert.deepEqual(st, { gen: 2, age: 18, pos: 'PG', legends: 1 });
+    await tab(page, 'life'); assert.match(await page.locator('.family').textContent(), /generación 2/);
+  });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');
     await page.evaluate(() => { const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function(type, ...args) { return type === 'webgl' ? null : original.call(this, type, ...args); }; });

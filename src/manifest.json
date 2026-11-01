@@ -100,6 +100,11 @@
       "worker": true
     },
     {
+      "id": "family",
+      "path": "src/domain/family.js",
+      "worker": true
+    },
+    {
       "id": "minigames",
       "path": "src/match/minigames.js",
       "worker": true

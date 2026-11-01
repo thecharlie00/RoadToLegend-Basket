@@ -292,3 +292,119 @@ test('3D: perspective cameras, arena dressing within budget and a 3D scene for e
     assert.ok(Voxel.vertexData(out.scene).length > 0);
   }
 });
+
+const Family = require('../src/domain/family.js');
+
+function runToSeasonEnd(s) {
+  let g = 0; const y = s.year;
+  while (s.year === y && !(s.retirement && s.retirement.pending) && g++ < 200) {
+    if (s.life.pendingEvent) Career.chooseEvent(s, Career.summary(s).event.options[0].id);
+    const st = Career.summary(s).playoffs;
+    Career.advanceWeek(s, { type: st && !st.done && !['playing', 'waiting'].includes(st.status) ? 'skipPlayoffs' : 'play' });
+  }
+}
+
+test('family: setup, conciliation weeks, partner mood affects morale, babies from events', () => {
+  const s = Career.createCareer({ seed: 'fam', mode: 'player' });
+  Career.familySetup(s, { kind: 'partner', partnerName: 'Lucía' });
+  assert.throws(() => Career.familySetup(s, { kind: 'parent' }), /already/);
+  assert.equal(s.family.partner.name, 'Lucía');
+  if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
+  const h0 = s.family.partner.happiness;
+  Career.advanceWeek(s, { type: 'family' });
+  assert.ok(s.family.partner.happiness > h0, 'family week makes partner happier');
+  const h1 = s.family.partner.happiness;
+  if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
+  Career.advanceWeek(s, { type: 'train' });
+  assert.ok(s.family.partner.happiness < h1, 'extra training strains the relationship');
+  Content.applyEffects(s, { baby: true, familyStatus: 'married' });
+  assert.equal(s.family.children.length, 1); assert.equal(s.family.status, 'married');
+  assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
+});
+
+test('dynasty: farewell season retires, heir takes over with time skip and a legacy; or become coach; or end', () => {
+  const base = () => {
+    const s = Career.createCareer({ seed: 'dyn', mode: 'player', route: 'eu-academy' });
+    Career.familySetup(s, { kind: 'parent' });
+    s.family.children[0].gender = 'm';
+    Content.applyEffects(s, { flag: 'farewell' });
+    runToSeasonEnd(s);
+    return s;
+  };
+  const a = base();
+  assert.ok(a.retirement && a.retirement.pending, 'farewell season ends in retirement');
+  assert.throws(() => Career.advanceWeek(a, { type: 'play' }), /retirement/);
+  const legendName = a.player.name, legendNumber = a.player.number, childName = a.family.children[0].name, born = a.family.children[0].bornYear, yearBefore = a.year;
+  Career.afterRetirement(a, { choice: 'heir', pos: 'PG', archetype: 'creator', keepNumber: true });
+  assert.equal(a.family.generation, 2);
+  assert.equal(a.family.legends[0].name, legendName);
+  assert.ok(a.player.name.startsWith(childName));
+  assert.equal(a.player.age, 18); assert.equal(a.year, Math.max(yearBefore, born + 18));
+  assert.equal(a.player.number, legendNumber);
+  assert.equal(a.week, 0); assert.equal(a.retirement, null);
+  assert.ok(a.inbox.some(m => m.type === 'heir'));
+  assert.ok(a.life.achievements.includes('generation-2'));
+  assert.ok(Career.validate(Career.resume(Career.serialize(a))).ok);
+  if (a.life.pendingEvent) Career.chooseEvent(a, 'a');
+  Career.advanceWeek(a, { type: 'play' });
+  const b = base();
+  Career.afterRetirement(b, { choice: 'coach' });
+  assert.equal(b.mode, 'coach'); assert.equal(b.player, null); assert.ok(b.coach.formerPlayer);
+  assert.ok(Career.validate(Career.resume(Career.serialize(b))).ok);
+  if (b.life.pendingEvent) Career.chooseEvent(b, 'a');
+  Career.advanceWeek(b, { type: 'play' });
+  const c = base();
+  Career.afterRetirement(c, { choice: 'end' });
+  assert.equal(c.careerOver, true);
+  assert.throws(() => Career.advanceWeek(c, { type: 'play' }), /over/);
+});
+
+test('legacy events appear for the second generation', () => {
+  const s = Career.createCareer({ seed: 'legacy-ev', mode: 'player' });
+  Family.ensure(s).generation = 2; s.family.legends.push({ name: 'Leyenda Mayor', titles: 1, awards: 2, peak: 80 });
+  const ctx = Content.context(s);
+  assert.equal(ctx.legend, 'Leyenda Mayor');
+  const ev = Content.packs().events.events.find(e => e.id === 'legend-shadow');
+  s.week = 5; s.life.pendingEvent = { id: ev.id, week: 5 };
+  const v = Career.summary(s).event;
+  assert.ok(v.title.es.includes('Leyenda Mayor'));
+});
+
+test('regression: when your European club is promoted, your next season is played in the top league', () => {
+  const s = Career.createCareer({ seed: 'promo', mode: 'coach', route: 'eu-academy' });
+  let g = 0;
+  while (s.season.round < s.season.schedule.length - 1 && g++ < 60) { if (s.life.pendingEvent) Career.chooseEvent(s, 'a'); Career.advanceWeek(s, { type: 'play' }); }
+  s.season.clubsById[s.clubId].wins = 99;
+  runToSeasonEnd(s);
+  assert.equal(s.season.leagueId, 'es-iberica-men');
+  assert.ok(s.season.clubsById[s.clubId]);
+  assert.equal(s.topSeason.leagueId, 'es-ascenso-iberico');
+  assert.ok(s.inbox.some(m => m.type === 'promoted'));
+  assert.equal(Career.summary(s).leagueName, 'Liga Ibérica');
+  if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
+  Career.advanceWeek(s, { type: 'play' });
+  assert.ok(s.lastMatch.state.teams.some(t => t.id === s.clubId), 'you play your own league games');
+  assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
+  runToSeasonEnd(s);
+  assert.equal(s.year, 2028);
+});
+
+test('regression: a retired player can be saved, reloaded and hand over to the heir through the worker path', () => {
+  let s = Career.createCareer({ seed: 'retire-resume', mode: 'player', route: 'eu-academy', pos: 'SG', nationality: 'ES' });
+  Career.familySetup(s, { kind: 'parent' });
+  s.family.children[0].gender = 'm';
+  Content.applyEffects(s, { flag: 'farewell' });
+  const y = s.year; let g = 0;
+  while (s.year === y && !(s.retirement && s.retirement.pending) && g++ < 200) {
+    s = Career.resume(Career.serialize(s)); // como el worker: cada paso es un ida y vuelta serializado
+    if (s.life.pendingEvent) Career.chooseEvent(s, Career.summary(s).event.options[0].id);
+    const st = Career.summary(s).playoffs;
+    Career.advanceWeek(s, { type: st && !st.done && !['playing', 'waiting'].includes(st.status) ? 'skipPlayoffs' : 'play' });
+  }
+  assert.ok(s.retirement.pending);
+  assert.ok(s.retirement.legacy.seasons >= 1 && s.retirement.legacy.totals.pts > 0);
+  s = Career.resume(Career.serialize(s));
+  Career.afterRetirement(s, { choice: 'heir', pos: 'PG' });
+  assert.equal(s.family.generation, 2);
+  assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
+});

@@ -2369,9 +2369,105 @@
       "rewardStyle": 10
     },
     {
+      "id": "partner-1",
+      "metric": "partner",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Cómo conocí a tu madre",
+        "en": "How I Met Your Mother"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "married-1",
+      "metric": "married",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Cuatro bodas y un triple",
+        "en": "Four Weddings and a Three"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "childrenCount-1",
+      "metric": "childrenCount",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Mira quién bota",
+        "en": "Look Who's Dribbling"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "childrenCount-3",
+      "metric": "childrenCount",
+      "threshold": 3,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Los Increíbles",
+        "en": "The Incredibles"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "familyWeeks-10",
+      "metric": "familyWeeks",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Padre de familia",
+        "en": "Family Guy"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "legends-1",
+      "metric": "legends",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Leyenda del club",
+        "en": "Club Legend"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "generation-2",
+      "metric": "generation",
+      "threshold": 2,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "De tal palo…",
+        "en": "Like Father, Like Son"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "generation-3",
+      "metric": "generation",
+      "threshold": 3,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Dinastía Skywalker",
+        "en": "The Skywalker Saga"
+      },
+      "rewardStyle": 10
+    },
+    {
       "id": "platinum-player",
       "metric": "achievements",
-      "threshold": 187,
+      "threshold": 195,
       "mode": "player",
       "tier": 99,
       "platinum": true,
@@ -2384,7 +2480,7 @@
     {
       "id": "platinum-coach",
       "metric": "achievements",
-      "threshold": 113,
+      "threshold": 121,
       "mode": "coach",
       "tier": 99,
       "platinum": true,

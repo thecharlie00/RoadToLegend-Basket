@@ -216,6 +216,15 @@ T = [
  ('mvps', 3, 'player', 'Rey del norte', 'King in the North'),
  ('allLeague', 1, 'player', 'Quinteto de gala', 'First Team'),
  ('allLeague', 5, 'player', 'Habitual del cartel', 'Mainstay'),
+ # familia y dinastías
+ ('partner', 1, 'any', 'Cómo conocí a tu madre', 'How I Met Your Mother'),
+ ('married', 1, 'any', 'Cuatro bodas y un triple', 'Four Weddings and a Three'),
+ ('childrenCount', 1, 'any', 'Mira quién bota', 'Look Who\'s Dribbling'),
+ ('childrenCount', 3, 'any', 'Los Increíbles', 'The Incredibles'),
+ ('familyWeeks', 10, 'any', 'Padre de familia', 'Family Guy'),
+ ('legends', 1, 'any', 'Leyenda del club', 'Club Legend'),
+ ('generation', 2, 'any', 'De tal palo…', 'Like Father, Like Son'),
+ ('generation', 3, 'any', 'Dinastía Skywalker', 'The Skywalker Saga'),
 ]
 
 if __name__ == '__main__':

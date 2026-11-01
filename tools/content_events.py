@@ -18,12 +18,12 @@ def U(label, desc, p, okfx, okres, kofx, kores):
             'ok': {'effects': okfx, 'result': {'es': okres[0], 'en': okres[1]}},
             'ko': {'effects': kofx, 'result': {'es': kores[0], 'en': kores[1]}}}
 
-def ev(eid, cat, mode, title, body, opts, cond=None, story=False, once=False, weight=6, cooldown=12):
+def ev(eid, cat, mode, title, body, opts, cond=None, story=False, once=False, weight=6, cooldown=12, repeat=False):
     c = {'mode': mode}
     c.update(cond or {})
     for i, o in enumerate(opts):
         o['id'] = 'abcd'[i]
-    EVENTS.append({'id': eid, 'category': cat, 'story': story, 'once': once or story, 'weight': weight, 'cooldownWeeks': cooldown,
+    EVENTS.append({'id': eid, 'category': cat, 'story': story, 'once': (once or story) and not repeat, 'weight': weight, 'cooldownWeeks': cooldown,
                    'conditions': c, 'title': {'es': title[0], 'en': title[1]}, 'body': {'es': body[0], 'en': body[1]}, 'options': opts})
 
 P, C, A = 'player', 'coach', 'any'
@@ -867,6 +867,116 @@ ev('rivalry-derby', 'rivalry', A, ('Semana de derbi', 'Derby week'),
       ('Las entradas se agotan en minutos. Tú serás el blanco de todos.', 'Tickets sell out in minutes. You will be everyone\'s target.')),
     O(('Rebajar la tensión', 'Lower the temperature'), ('Respeto al rival.', 'Respect the rival.'), {'morale': 2},
       ('La prensa te llama aburrido. Tu cabeza, tranquila.', 'The press calls you boring. Your head, calm.'))])
+
+# ======================= FAMILIA Y DINASTÍAS =======================
+ev('meet-someone', 'family', P, ('Alguien especial', 'Someone special'),
+   ('En la gala benéfica del {club} conoces a alguien que no tiene ni idea de baloncesto. Y eso te encanta.', 'At {club}\'s charity gala you meet someone who knows nothing about basketball. And you love that.'),
+   [U(('Pedirle una cita', 'Ask them out'), ('Puede salir bien… o no.', 'It may work out… or not.'), 0.65,
+      {'familyStatus': 'dating', 'morale': 6, 'flag': 'dating'}, ('Primera cita en un restaurante pequeño. Hablas de todo menos de baloncesto.', 'First date at a small restaurant. You talk about everything but basketball.'),
+      {'morale': -2}, ('Te da su número… y nunca contesta. Al menos lo intentaste.', 'They give you their number… and never reply. At least you tried.')),
+    O(('Centrarte en la carrera', 'Focus on your career'), ('Ahora no es el momento.', 'Not the time now.'), {'confidence': 1},
+      ('Te vas pronto a casa. Mañana hay entrenamiento.', 'You head home early. Practice tomorrow.'))],
+   cond={'familyStatus': ['single'], 'minWeek': 6}, weight=4, cooldown=30)
+
+ev('propose', 'family', P, ('¿Es el momento?', 'Is it time?'),
+   ('Llevas tiempo con {partner}. Tus compañeros bromean con que ya te toca. Tú llevas semanas mirando anillos.', 'You have been with {partner} for a while. Teammates joke it is about time. You have been looking at rings for weeks.'),
+   [U(('Pedirle matrimonio en el centro de la pista', 'Propose at centre court'), ('Delante de todo el pabellón.', 'In front of the whole arena.'), 0.75,
+      {'familyStatus': 'married', 'partnerHappiness': 20, 'fans': 6, 'fame': 3, 'unflag': 'dating'}, ('¡Dice que sí! El pabellón entero estalla. El vídeo da la vuelta al mundo.', 'They say yes! The whole arena erupts. The video goes around the world.'),
+      {'partnerHappiness': -15, 'morale': -6}, ('Se queda en blanco. "Aquí no". Hablaréis en casa.', 'They freeze. "Not here." You will talk at home.')),
+    O(('Una cena tranquila, solo vosotros', 'A quiet dinner, just you two'), ('Íntimo.', 'Intimate.'), {'familyStatus': 'married', 'partnerHappiness': 15, 'morale': 5, 'unflag': 'dating'},
+      ('Dice que sí entre lágrimas. Nadie más lo sabe… hasta mañana.', 'They say yes in tears. Nobody else knows… until tomorrow.')),
+    O(('Esperar un poco más', 'Wait a bit longer'), ('No hay prisa.', 'No rush.'), {'partnerHappiness': -4},
+      ('Guardas el anillo en un cajón.', 'You put the ring in a drawer.'))],
+   cond={'familyStatus': ['dating', 'partner'], 'flags': ['dating'], 'flagDelay': 14}, weight=6)
+
+ev('baby', 'family', P, ('Vais a ser padres', 'You are going to be parents'),
+   ('{partner} te enseña la ecografía antes del entrenamiento. Nacerá a mitad de temporada.', '{partner} shows you the scan before practice. The baby will arrive mid-season.'),
+   [O(('Pedir dos semanas de permiso', 'Ask for two weeks of leave'), ('La familia primero.', 'Family first.'), {'baby': True, 'partnerHappiness': 15, 'trust': -4, 'morale': 6},
+      ('Estás en el parto. Te pierdes dos partidos y no te arrepientes ni un segundo.', 'You are there for the birth. You miss two games and do not regret a second.')),
+    O(('Seguir jugando', 'Keep playing'), ('El equipo te necesita.', 'The team needs you.'), {'baby': True, 'partnerHappiness': -10, 'trust': 3},
+      ('Llegas al hospital con la camiseta de juego. {partner} no dice nada. Lo dice todo.', 'You arrive at the hospital in your game jersey. {partner} says nothing. Says everything.'))],
+   cond={'familyStatus': ['partner', 'married'], 'minWeek': 8}, weight=3, cooldown=40)
+
+ev('partner-job', 'family', P, ('Una oferta para {partner}', 'An offer for {partner}'),
+   ('A {partner} le ofrecen el trabajo de su vida… en otra ciudad. Te mira esperando una respuesta.', '{partner} is offered a dream job… in another city. They look at you, waiting.'),
+   [O(('Apoyarle aunque estéis lejos', 'Support them even far apart'), ('Distancia y videollamadas.', 'Distance and video calls.'), {'partnerHappiness': 15, 'morale': -3, 'flag': 'long-distance'},
+      ('Os veréis los días libres. Cuesta, pero es lo justo.', 'You will meet on days off. It is hard, but fair.')),
+    O(('Pedirle que se quede', 'Ask them to stay'), ('Juntos aquí.', 'Together here.'), {'partnerHappiness': -15, 'morale': 2},
+      ('Se queda. Lo nota cada vez que suena su antiguo móvil del trabajo.', 'They stay. They feel it every time the old work phone rings.'))],
+   cond={'familyStatus': ['partner', 'married'], 'minWeek': 10}, once=True)
+
+ev('anniversary', 'family', P, ('Aniversario y derbi el mismo día', 'Anniversary and derby on the same day'),
+   ('Es vuestro aniversario y jugáis contra {opponent}. {partner} había reservado mesa.', 'It is your anniversary and you play {opponent}. {partner} had booked a table.'),
+   [O(('Cena después del partido', 'Dinner after the game'), ('Llegarás tarde, pero llegarás.', 'You will be late, but you will be there.'), {'partnerHappiness': 8, 'fatigue': 0.1},
+      ('Cenáis a medianoche con el pelo aún mojado. Perfecto.', 'You eat at midnight, hair still wet. Perfect.')),
+    O(('Posponerlo', 'Postpone it'), ('Ya lo celebraréis.', 'You will celebrate later.'), {'partnerHappiness': -12},
+      ('"Siempre hay un partido", dice. No es una pregunta.', '"There is always a game," they say. It is not a question.'))],
+   cond={'familyStatus': ['partner', 'married']}, weight=3, cooldown=40)
+
+ev('family-crisis', 'family', P, ('Crisis en casa', 'Trouble at home'),
+   ('{partner} siente que vive con una agenda, no con una persona. La conversación se alarga hasta las tantas.', '{partner} feels they live with a schedule, not a person. The talk runs late into the night.'),
+   [O(('Terapia de pareja (2.000)', 'Couples therapy (2,000)'), ('Pedir ayuda.', 'Ask for help.'), {'cash': -2000, 'partnerHappiness': 22},
+      ('Aprendéis a hablar sin gritar. Funciona.', 'You learn to talk without shouting. It works.')),
+    U(('Prometer cambiar', 'Promise to change'), ('Palabras… y hechos.', 'Words… and deeds.'), 0.5,
+      {'partnerHappiness': 15}, ('Cumples. Las cosas mejoran.', 'You keep your word. Things improve.'),
+      {'familyStatus': 'single', 'morale': -10}, ('No es suficiente. {partner} se marcha.', 'It is not enough. {partner} leaves.'))],
+   cond={'familyStatus': ['partner', 'married'], 'partnerHappyBelow': 30}, story=True, repeat=True, cooldown=12)
+
+ev('kid-first-game', 'family', P, ('Tu peque en la grada', 'Your kid in the stands'),
+   ('{child} viene por primera vez a verte jugar contra {opponent}. Lleva una camiseta con tu dorsal que le queda enorme.', '{child} comes to watch you play {opponent} for the first time, wearing a jersey with your number that is far too big.'),
+   [O(('Dedicarle la primera canasta', 'Dedicate your first basket'), ('Un gesto para siempre.', 'A gesture forever.'), {'childBond': 12, 'fans': 3, 'morale': 4},
+      ('Señalas a la grada. {child} se lo cuenta a todo el colegio durante un mes.', 'You point to the stands. {child} tells the whole school for a month.')),
+    O(('Concentrarte en el partido', 'Focus on the game'), ('Hoy toca ganar.', 'Today is about winning.'), {'form': 1, 'childBond': 2},
+      ('Juegas serio. Al acabar, te abraza igual.', 'You play serious. Afterwards, the hug comes anyway.'))],
+   cond={'hasChildren': True, 'minChildAge': 4}, once=True)
+
+ev('kid-basketball', 'family', P, ('{child} quiere jugar al baloncesto', '{child} wants to play basketball'),
+   ('{child} ha pedido apuntarse al equipo del colegio. Te pregunta si le enseñas a tirar como tú.', '{child} asked to join the school team. They ask if you will teach them to shoot like you.'),
+   [O(('Entrenarle tú', 'Coach them yourself'), ('Tardes de canasta en el patio.', 'Afternoons at the backyard hoop.'), {'childBond': 12, 'load': 4, 'flag': 'heir-trained'},
+      ('Le enseñas la rutina de tiro libre. Tiene muñeca. Mucha.', 'You teach your free-throw routine. They have touch. A lot.')),
+    O(('Que elija su camino', 'Let them choose their path'), ('Sin presión.', 'No pressure.'), {'childBond': 6},
+      ('Prueba el baloncesto y la natación. Ya verá.', 'They try basketball and swimming. They will see.'))],
+   cond={'hasChildren': True, 'minChildAge': 7}, once=True)
+
+ev('school-play', 'family', P, ('La función del colegio', 'The school play'),
+   ('{child} es el árbol número tres en la función del colegio. Coincide con el entrenamiento de tiro.', '{child} is tree number three in the school play. It clashes with shooting practice.'),
+   [O(('Ir a la función', 'Go to the play'), ('Primera fila.', 'Front row.'), {'childBond': 10, 'trust': -3},
+      ('El árbol número tres saluda desde el escenario. Tú saludas más.', 'Tree number three waves from the stage. You wave harder.')),
+    O(('Ir al entrenamiento', 'Go to practice'), ('El deber.', 'Duty.'), {'childBond': -6, 'attr': {'tiroMedia': 1}},
+      ('Te mandan el vídeo. Lo ves cinco veces en el vestuario.', 'They send you the video. You watch it five times in the locker room.'))],
+   cond={'hasChildren': True, 'minChildAge': 5}, weight=3, cooldown=40)
+
+ev('family-holiday', 'family', P, ('Vacaciones en familia', 'Family holiday'),
+   ('Se acaba la temporada. {partner} propone un viaje largo, sin balones ni pabellones.', 'The season is ending. {partner} suggests a long trip, no balls, no arenas.'),
+   [O(('Viaje de ensueño (6.000)', 'Dream trip (6,000)'), ('Desconexión total.', 'Total disconnection.'), {'cash': -6000, 'partnerHappiness': 15, 'childBond': 8, 'morale': 5, 'load': -15},
+      ('Dos semanas sin mirar el móvil. Vuelves con otra cara.', 'Two weeks without checking your phone. You come back a new person.')),
+    O(('Escapada corta', 'Short getaway'), ('Algo es algo.', 'Something is something.'), {'cash': -1500, 'partnerHappiness': 6},
+      ('Un fin de semana en la costa. Suficiente para recargar.', 'A weekend on the coast. Enough to recharge.'))],
+   cond={'familyStatus': ['partner', 'married'], 'lateSeason': True}, once=True)
+
+ev('farewell-question', 'milestone', P, ('¿La última temporada?', 'The final season?'),
+   ('Tienes {age} años. Las rodillas te avisan cada mañana. ¿Anuncias que esta será tu última temporada?', 'You are {age}. Your knees warn you every morning. Do you announce this will be your last season?'),
+   [O(('Anunciar la gira de despedida', 'Announce a farewell tour'), ('Cada pabellón te despedirá.', 'Every arena will say goodbye.'), {'flag': 'farewell', 'fans': 8, 'fame': 4, 'morale': 4},
+      ('Lo anuncias en rueda de prensa. Esa noche, ovación en pie.', 'You announce it at a press conference. That night, a standing ovation.')),
+    O(('Seguir compitiendo', 'Keep competing'), ('Aún te queda baloncesto.', 'There is basketball left in you.'), {'confidence': 1},
+      ('"Mientras me diviertan, sigo." El vestuario sonríe.', '"While it is fun, I keep going." The locker room smiles.'))],
+   cond={'minAge': 33, 'maxWeek': 2, 'notFlags': ['farewell']}, story=True, repeat=True, cooldown=30)
+
+ev('legend-shadow', 'legacy', P, ('La sombra de {legend}', 'In {legend}\'s shadow'),
+   ('Los periodistas no paran de compararte con {legend}. "¿Llegarás a su nivel?"', 'Reporters keep comparing you to {legend}. "Will you reach their level?"'),
+   [O(('Abrazar la herencia', 'Embrace the legacy'), ('Es tu familia.', 'It is your family.'), {'fame': 4, 'confidence': -1, 'fans': 3},
+      ('"Si llego a la mitad, seré feliz." Titular de portada.', '"If I get halfway, I will be happy." Front-page headline.')),
+    O(('Reivindicar tu camino', 'Claim your own path'), ('No eres una copia.', 'You are not a copy.'), {'confidence': 2, 'fame': 1},
+      ('"Yo soy yo." La frase acaba en camisetas.', '"I am me." The line ends up on T-shirts.'))],
+   cond={'minGeneration': 2, 'minWeek': 3}, once=True)
+
+ev('legend-stands', 'legacy', P, ('{legend} en la grada', '{legend} in the stands'),
+   ('{legend} ha venido a verte. El pabellón le dedica una ovación antes del salto inicial.', '{legend} came to watch you. The arena gives them an ovation before tip-off.'),
+   [O(('Saludar a {legend}', 'Wave to {legend}'), ('Orgullo familiar.', 'Family pride.'), {'morale': 6, 'fans': 3},
+      ('Os señaláis mutuamente. La foto sale en todos los periódicos.', 'You point at each other. The photo is in every paper.')),
+    O(('Pedirle consejo en el descanso', 'Ask for advice at halftime'), ('Sabiduría.', 'Wisdom.'), {'attr': {'lectura': 1}, 'confidence': 1},
+      ('Te dice una sola frase. Es justo la que necesitabas.', 'They tell you one sentence. Exactly the one you needed.'))],
+   cond={'minGeneration': 2, 'minWeek': 8}, once=True)
 
 
 if __name__ == '__main__':

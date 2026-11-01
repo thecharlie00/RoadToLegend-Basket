@@ -331,7 +331,7 @@
   function chips(fx) {
     const out = [];
     for (const [k, v] of Object.entries(fx || {})) {
-      if (['agent', 'sponsor', 'flag', 'unflag', 'xp'].includes(k)) continue;
+      if (['agent', 'sponsor', 'flag', 'unflag', 'xp', 'baby', 'familyStatus'].includes(k)) continue;
       if (k === 'attr') { for (const [a, d] of Object.entries(v)) out.push(`<span class="chip ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : ''}${d} ${t('attr.' + a)}</span>`); continue; }
       if (k === 'salary') { out.push(`<span class="chip ${v >= 1 ? 'up' : 'down'}">${v >= 1 ? '+' : ''}${Math.round((v - 1) * 100)} % ${t('effect.salary')}</span>`); continue; }
       if (k === 'injuryWeeks') { out.push(`<span class="chip ${v < 0 ? 'up' : 'down'}">${v > 0 ? '+' : ''}${v} ${t('effect.injuryWeeks')}</span>`); continue; }
@@ -341,7 +341,24 @@
     }
     return out.join('');
   }
+  const seasonsTxt = n => n === 1 ? t('ret.seasonOne') : t('ret.seasonMany', { n });
+  function renderRetirement(s) {
+    const r = s.retirement, L = r.legacy, f = s.family || { children: [] };
+    const sons = f.children.map((c, i) => ({ c, i })).filter(x => state.career.state.year - x.c.bornYear >= 0);
+    return `<section class="card retire"><span class="eyebrow">${t('ret.kicker', { year: seasonLabel(r.year) })}</span><h2>${t('ret.title')}</h2>
+      <p>${t('ret.body', { name: esc(L.name), seasons: seasonsTxt(L.seasons), pts: L.totals.pts, titles: L.titles, awards: L.awards })}</p>
+      <div class="stack">
+        <button class="option" data-action="retire-coach"><b>🧑‍🏫 ${t('ret.coach')}</b><span class="muted small">${t('ret.coachDesc', { club: esc(L.lastClubName) })}</span></button>
+        ${sons.length ? `<div class="option heir"><b>👪 ${t('ret.heir')}</b><span class="muted small">${t('ret.heirDesc')}</span>
+          ${sons.map(({ c, i }) => `<div class="heir-row"><span><b>${esc(c.name)}</b> <small class="muted">${t('ret.childAge', { n: state.career.state.year - c.bornYear })}</small></span>${c.gender === 'f' ? `<small class="muted">${t('ret.womenSoon')}</small>` : `<button class="small-btn primary" data-action="retire-heir" data-child="${i}">${t('ret.takeOver')}</button>`}</div>`).join('')}
+          <label for="heir-pos">${t('career.pos')}<select id="heir-pos">${['PG', 'SG', 'SF', 'PF', 'C'].map(p => `<option value="${p}">${p} · ${t('pos.' + p)}</option>`).join('')}</select></label>
+          <label class="check-label"><input id="heir-number" type="checkbox" checked>${t('ret.keepNumber', { n: L.number })}</label></div>` : `<p class="muted small">${t('ret.noHeir')}</p>`}
+        <button class="option" data-action="retire-end"><b>🏁 ${t('ret.end')}</b><span class="muted small">${t('ret.endDesc')}</span></button>
+      </div></section>`;
+  }
   function renderHome() {
+    if (hasCareer() && state.career.summary.retirement) return renderRetirement(state.career.summary);
+    if (hasCareer() && state.career.summary.careerOver) { const f = state.career.summary.family || { legends: [] }; return `<section class="card retire"><h2>${t('ret.overTitle')}</h2><p>${t('ret.overBody')}</p><ul class="news">${f.legends.map(l => `<li>🏛 <b>${esc(l.name)}</b> · ${t('ret.legendLine', { seasons: seasonsTxt(l.seasons), pts: l.totals ? l.totals.pts : 0, titles: l.titles })}</li>`).join('')}</ul><button class="cta" data-action="boot-new">${t('boot.new')} ▶</button></section>`; }
     if (!hasCareer()) return `<section class="card"><h2>${t('home.noCareer')}</h2><p class="muted">${t('home.noCareerDesc')}</p><button class="cta" data-action="boot-new">${t('boot.new')} ▶</button></section>`;
     const c = state.career, s = c.summary, life = s.life || { counters: {}, press: [] };
     const m = s.meters;
@@ -357,6 +374,10 @@
       <ol class="timeline" aria-label="${t('home.timeline')}">${Array.from({ length: segs }, (_, i) => `<li class="${i < seg ? 'done' : i === seg ? 'now' : ''}" ${i === seg ? 'aria-current="step"' : ''}>${t('home.seg' + i)}</li>`).join('')}</ol>
       <div class="meters">${s.player ? meter(t('meter.form'), m.form) + meter(t('meter.morale'), m.morale) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.trust'), m.trust) + meter(t('meter.fans'), m.fans)
         : meter(t('meter.morale'), m.morale) + meter(t('meter.board'), m.trust) + meter(t('meter.locker'), m.locker) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.fans'), m.fans)}</div></section>`;
+    const fam = s.family;
+    const famSetup = s.player && (!fam || !fam.configured) && s.week <= 4 ? `<section class="card family"><div class="guide-head"><h3>${t('fam.title')}</h3><span aria-hidden="true">👪</span></div><p class="muted small">${t('fam.setupDesc')}</p>
+      <label for="partner-name">${t('fam.partnerName')}<input id="partner-name" maxlength="24" value="${esc(draft('partner-name', ''))}" placeholder="${t('fam.partnerPlaceholder')}"></label>
+      <div class="pick-grid">${['none', 'partner', 'parent'].map(k => `<button class="option center" data-action="family-setup" data-kind="${k}"><b>${t('fam.setup.' + k)}</b></button>`).join('')}</div></section>` : '';
     const ev = s.event;
     const L = pair => pair ? (CAA.I18N.getLocale() === 'en' ? pair.en : pair.es) : '';
     const decision = ev ? `<section class="card decision"><div class="guide-head"><span class="tag led">● ${t(ev.story ? 'home.story' : 'home.decision')}</span><span class="muted small">${esc(t('eventcat.' + ev.category))}</span></div>
@@ -375,7 +396,7 @@
       <p class="result ${s.recent[0].won ? 'ok' : 'bad'}"><b>${t(s.recent[0].won ? 'home.win' : 'home.loss')}</b> ${s.recent[0].us}–${s.recent[0].them} ${t(s.recent[0].home ? 'home.vsHome' : 'home.vsAway', { team: s.recent[0].opponent })}</p>
       <p class="form-strip" aria-label="${t('home.formStrip')}">${s.recent.map(r => `<span class="${r.won ? 'w' : 'l'}">${t(r.won ? 'home.w' : 'home.l')}</span>`).join('')}</p></section>` : '';
     const week = s.player && !(c.state.live && c.state.live.week === c.state.week) && s.next ? `<section class="card"><h3>${t('home.week')}</h3><p class="muted small">${t('home.weekDesc')}</p>
-      <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button></div></section>` : '';
+      <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button>${fam && (fam.partner || fam.children.length) ? `<button class="option" data-action="career-family"><b>${t('home.family')}</b><span class="muted small">${t('home.familyDesc')}</span></button>` : ''}</div></section>` : '';
     const sq = s.squad;
     const coachWeek = sq && s.next ? `<section class="card"><h3>${t('coach.week')}</h3><p class="muted small">${t('coach.weekDesc')}</p><div class="seg" role="group" aria-label="${t('coach.week')}">${['light', 'normal', 'hard'].map(v => `<button data-action="coach-training" data-v="${v}" aria-pressed="${sq.training === v}">${t('coach.training.' + v)}</button>`).join('')}</div><p class="muted small">${t('coach.trainingDesc.' + sq.training)}</p></section>` : '';
     const sc = s.scouting;
@@ -383,7 +404,7 @@
       <p class="muted small">${t('coach.style', { pace: t('coach.pace.' + sc.pace), shooting: t('coach.focus.' + sc.shooting) })}</p><ul class="news">${sc.top.map(p => `<li><b>${esc(p.name)}</b> · ${esc(p.pos)} · ${p.ovr} <span class="muted small">${t('career.archetype.' + p.archetype)}</span></li>`).join('')}</ul></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
-    return `${seasonCard}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    return `${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   function renderMe() {
@@ -401,8 +422,13 @@
     const attrs = p ? `<section class="card"><h3>${t('me.attributes')}</h3><div class="attr-groups">${ATTR_GROUPS.map(([g, keys]) => `<div><h4 class="eyebrow">${t('attrg.' + g)}</h4>${keys.map(k => bar(t('attr.' + k), p.attrs[k])).join('')}</div>`).join('')}</div></section>` : '';
     const st = p ? p.stats : null;
     const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
-      <p class="muted small">${t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years })}</p></section>` : '';
+      <p class="muted small">${p.contract ? t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years }) : t('me.noContract')}</p></section>` : '';
     const petCard = renderPet(s);
+    const fm = s.family;
+    const famCard = fm && (fm.partner || fm.children.length || fm.legends.length) ? `<section class="card family"><h3>${t('fam.title')}</h3>
+      ${fm.partner ? `<p><b>${esc(fm.partner.name)}</b> · ${t('fam.status.' + fm.status)}</p>${meter(t('fam.happiness'), fm.partner.happiness)}` : `<p class="muted small">${t('fam.status.single')}</p>`}
+      ${fm.children.length ? `<h4 class="eyebrow">${t('fam.children')}</h4>${fm.children.map(c => `<div class="kv"><span>${esc(c.name)} · ${t('ret.childAge', { n: state.career.state.year - c.bornYear })}</span><b>${t('fam.bond', { n: Math.round(c.bond) })}</b></div>`).join('')}` : ''}
+      ${fm.legends.length ? `<h4 class="eyebrow">${t('fam.dynasty', { n: fm.generation })}</h4><ul class="news">${fm.legends.map((l, i) => `<li>🏛 <b>${esc(l.name)}</b> · ${t('fam.gen', { n: i + 1 })} · ${t('ret.legendLine', { seasons: seasonsTxt(l.seasons), pts: l.totals ? l.totals.pts : 0, titles: l.titles })}</li>`).join('')}</ul>` : ''}</section>` : '';
     const coachCards = s.squad ? renderSquad(s) : '';
     const best = (life.arcade && life.arcade.best) || {};
     const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div><div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
@@ -418,8 +444,8 @@
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
-    if (s.squad) return hero + coachCards + petCard + offcourt + minis + shop + trophies + press;
-    return hero + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
+    if (s.squad) return hero + coachCards + famCard + petCard + offcourt + minis + shop + trophies + press;
+    return hero + famCard + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
   }
 
   function renderSquad(s) {
@@ -528,7 +554,7 @@
   }
 
   function renderActionBar() {
-    if (!hasCareer() || state.tab !== 'career') return '';
+    if (!hasCareer() || state.tab !== 'career' || state.career.summary.retirement || state.career.summary.careerOver) return '';
     const c = state.career;
     const liveNow = c.state.live && c.state.live.week === c.state.week;
     if (liveNow) return '';
@@ -920,6 +946,16 @@
         const config = name === 'coach-save-starters' ? { starters: state.coachPick.ids } : name === 'coach-tactic' ? { tactic: { [el.dataset.k]: el.dataset.v } } : { training: el.dataset.v };
         const res = await worker.send('career.coach', { state: state.career.state, config }); await acceptCareer(res);
         if (name === 'coach-save-starters') { state.coachPick = null; notify(t('coach.saved')); }
+      } else if (name === 'family-setup') {
+        const nm = doc.getElementById('partner-name');
+        const res = await worker.send('career.family', { state: state.career.state, config: { op: 'setup', kind: el.dataset.kind, partnerName: nm ? nm.value : '' } }); await acceptCareer(res);
+      } else if (name === 'career-family') {
+        const res = await worker.send('career.advance', { state: state.career.state, action: { type: 'family' } }); await acceptCareer(res);
+      } else if (name === 'retire-coach' || name === 'retire-heir' || name === 'retire-end') {
+        const pos = doc.getElementById('heir-pos'), num = doc.getElementById('heir-number');
+        const config = { op: 'retire', choice: name === 'retire-coach' ? 'coach' : name === 'retire-heir' ? 'heir' : 'end', childIndex: el.dataset.child != null ? Number(el.dataset.child) : undefined, pos: pos ? pos.value : 'SG', keepNumber: num ? num.checked : true };
+        const res = await worker.send('career.family', { state: state.career.state, config }); await acceptCareer(res);
+        if (audio) audio.play('buzzer');
       } else if (name === 'career-skip') {
         const res = await worker.send('career.advance', { state: state.career.state, action: { type: 'skipPlayoffs' } }); await acceptCareer(res);
       } else if (name === 'summary-dismiss') {

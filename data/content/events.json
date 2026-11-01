@@ -6972,6 +6972,897 @@
           "id": "b"
         }
       ]
+    },
+    {
+      "id": "meet-someone",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 4,
+      "cooldownWeeks": 30,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "single"
+        ],
+        "minWeek": 6
+      },
+      "title": {
+        "es": "Alguien especial",
+        "en": "Someone special"
+      },
+      "body": {
+        "es": "En la gala benéfica del {club} conoces a alguien que no tiene ni idea de baloncesto. Y eso te encanta.",
+        "en": "At {club}'s charity gala you meet someone who knows nothing about basketball. And you love that."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Pedirle una cita",
+            "en": "Ask them out"
+          },
+          "desc": {
+            "es": "Puede salir bien… o no.",
+            "en": "It may work out… or not."
+          },
+          "p": 0.65,
+          "ok": {
+            "effects": {
+              "familyStatus": "dating",
+              "morale": 6,
+              "flag": "dating"
+            },
+            "result": {
+              "es": "Primera cita en un restaurante pequeño. Hablas de todo menos de baloncesto.",
+              "en": "First date at a small restaurant. You talk about everything but basketball."
+            }
+          },
+          "ko": {
+            "effects": {
+              "morale": -2
+            },
+            "result": {
+              "es": "Te da su número… y nunca contesta. Al menos lo intentaste.",
+              "en": "They give you their number… and never reply. At least you tried."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Centrarte en la carrera",
+            "en": "Focus on your career"
+          },
+          "desc": {
+            "es": "Ahora no es el momento.",
+            "en": "Not the time now."
+          },
+          "effects": {
+            "confidence": 1
+          },
+          "result": {
+            "es": "Te vas pronto a casa. Mañana hay entrenamiento.",
+            "en": "You head home early. Practice tomorrow."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "propose",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "dating",
+          "partner"
+        ],
+        "flags": [
+          "dating"
+        ],
+        "flagDelay": 14
+      },
+      "title": {
+        "es": "¿Es el momento?",
+        "en": "Is it time?"
+      },
+      "body": {
+        "es": "Llevas tiempo con {partner}. Tus compañeros bromean con que ya te toca. Tú llevas semanas mirando anillos.",
+        "en": "You have been with {partner} for a while. Teammates joke it is about time. You have been looking at rings for weeks."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Pedirle matrimonio en el centro de la pista",
+            "en": "Propose at centre court"
+          },
+          "desc": {
+            "es": "Delante de todo el pabellón.",
+            "en": "In front of the whole arena."
+          },
+          "p": 0.75,
+          "ok": {
+            "effects": {
+              "familyStatus": "married",
+              "partnerHappiness": 20,
+              "fans": 6,
+              "fame": 3,
+              "unflag": "dating"
+            },
+            "result": {
+              "es": "¡Dice que sí! El pabellón entero estalla. El vídeo da la vuelta al mundo.",
+              "en": "They say yes! The whole arena erupts. The video goes around the world."
+            }
+          },
+          "ko": {
+            "effects": {
+              "partnerHappiness": -15,
+              "morale": -6
+            },
+            "result": {
+              "es": "Se queda en blanco. \"Aquí no\". Hablaréis en casa.",
+              "en": "They freeze. \"Not here.\" You will talk at home."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Una cena tranquila, solo vosotros",
+            "en": "A quiet dinner, just you two"
+          },
+          "desc": {
+            "es": "Íntimo.",
+            "en": "Intimate."
+          },
+          "effects": {
+            "familyStatus": "married",
+            "partnerHappiness": 15,
+            "morale": 5,
+            "unflag": "dating"
+          },
+          "result": {
+            "es": "Dice que sí entre lágrimas. Nadie más lo sabe… hasta mañana.",
+            "en": "They say yes in tears. Nobody else knows… until tomorrow."
+          },
+          "id": "b"
+        },
+        {
+          "label": {
+            "es": "Esperar un poco más",
+            "en": "Wait a bit longer"
+          },
+          "desc": {
+            "es": "No hay prisa.",
+            "en": "No rush."
+          },
+          "effects": {
+            "partnerHappiness": -4
+          },
+          "result": {
+            "es": "Guardas el anillo en un cajón.",
+            "en": "You put the ring in a drawer."
+          },
+          "id": "c"
+        }
+      ]
+    },
+    {
+      "id": "baby",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 3,
+      "cooldownWeeks": 40,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "partner",
+          "married"
+        ],
+        "minWeek": 8
+      },
+      "title": {
+        "es": "Vais a ser padres",
+        "en": "You are going to be parents"
+      },
+      "body": {
+        "es": "{partner} te enseña la ecografía antes del entrenamiento. Nacerá a mitad de temporada.",
+        "en": "{partner} shows you the scan before practice. The baby will arrive mid-season."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Pedir dos semanas de permiso",
+            "en": "Ask for two weeks of leave"
+          },
+          "desc": {
+            "es": "La familia primero.",
+            "en": "Family first."
+          },
+          "effects": {
+            "baby": true,
+            "partnerHappiness": 15,
+            "trust": -4,
+            "morale": 6
+          },
+          "result": {
+            "es": "Estás en el parto. Te pierdes dos partidos y no te arrepientes ni un segundo.",
+            "en": "You are there for the birth. You miss two games and do not regret a second."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Seguir jugando",
+            "en": "Keep playing"
+          },
+          "desc": {
+            "es": "El equipo te necesita.",
+            "en": "The team needs you."
+          },
+          "effects": {
+            "baby": true,
+            "partnerHappiness": -10,
+            "trust": 3
+          },
+          "result": {
+            "es": "Llegas al hospital con la camiseta de juego. {partner} no dice nada. Lo dice todo.",
+            "en": "You arrive at the hospital in your game jersey. {partner} says nothing. Says everything."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "partner-job",
+      "category": "family",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "partner",
+          "married"
+        ],
+        "minWeek": 10
+      },
+      "title": {
+        "es": "Una oferta para {partner}",
+        "en": "An offer for {partner}"
+      },
+      "body": {
+        "es": "A {partner} le ofrecen el trabajo de su vida… en otra ciudad. Te mira esperando una respuesta.",
+        "en": "{partner} is offered a dream job… in another city. They look at you, waiting."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Apoyarle aunque estéis lejos",
+            "en": "Support them even far apart"
+          },
+          "desc": {
+            "es": "Distancia y videollamadas.",
+            "en": "Distance and video calls."
+          },
+          "effects": {
+            "partnerHappiness": 15,
+            "morale": -3,
+            "flag": "long-distance"
+          },
+          "result": {
+            "es": "Os veréis los días libres. Cuesta, pero es lo justo.",
+            "en": "You will meet on days off. It is hard, but fair."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedirle que se quede",
+            "en": "Ask them to stay"
+          },
+          "desc": {
+            "es": "Juntos aquí.",
+            "en": "Together here."
+          },
+          "effects": {
+            "partnerHappiness": -15,
+            "morale": 2
+          },
+          "result": {
+            "es": "Se queda. Lo nota cada vez que suena su antiguo móvil del trabajo.",
+            "en": "They stay. They feel it every time the old work phone rings."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "anniversary",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 3,
+      "cooldownWeeks": 40,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "partner",
+          "married"
+        ]
+      },
+      "title": {
+        "es": "Aniversario y derbi el mismo día",
+        "en": "Anniversary and derby on the same day"
+      },
+      "body": {
+        "es": "Es vuestro aniversario y jugáis contra {opponent}. {partner} había reservado mesa.",
+        "en": "It is your anniversary and you play {opponent}. {partner} had booked a table."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Cena después del partido",
+            "en": "Dinner after the game"
+          },
+          "desc": {
+            "es": "Llegarás tarde, pero llegarás.",
+            "en": "You will be late, but you will be there."
+          },
+          "effects": {
+            "partnerHappiness": 8,
+            "fatigue": 0.1
+          },
+          "result": {
+            "es": "Cenáis a medianoche con el pelo aún mojado. Perfecto.",
+            "en": "You eat at midnight, hair still wet. Perfect."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Posponerlo",
+            "en": "Postpone it"
+          },
+          "desc": {
+            "es": "Ya lo celebraréis.",
+            "en": "You will celebrate later."
+          },
+          "effects": {
+            "partnerHappiness": -12
+          },
+          "result": {
+            "es": "\"Siempre hay un partido\", dice. No es una pregunta.",
+            "en": "\"There is always a game,\" they say. It is not a question."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "family-crisis",
+      "category": "family",
+      "story": true,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "partner",
+          "married"
+        ],
+        "partnerHappyBelow": 30
+      },
+      "title": {
+        "es": "Crisis en casa",
+        "en": "Trouble at home"
+      },
+      "body": {
+        "es": "{partner} siente que vive con una agenda, no con una persona. La conversación se alarga hasta las tantas.",
+        "en": "{partner} feels they live with a schedule, not a person. The talk runs late into the night."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Terapia de pareja (2.000)",
+            "en": "Couples therapy (2,000)"
+          },
+          "desc": {
+            "es": "Pedir ayuda.",
+            "en": "Ask for help."
+          },
+          "effects": {
+            "cash": -2000,
+            "partnerHappiness": 22
+          },
+          "result": {
+            "es": "Aprendéis a hablar sin gritar. Funciona.",
+            "en": "You learn to talk without shouting. It works."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Prometer cambiar",
+            "en": "Promise to change"
+          },
+          "desc": {
+            "es": "Palabras… y hechos.",
+            "en": "Words… and deeds."
+          },
+          "p": 0.5,
+          "ok": {
+            "effects": {
+              "partnerHappiness": 15
+            },
+            "result": {
+              "es": "Cumples. Las cosas mejoran.",
+              "en": "You keep your word. Things improve."
+            }
+          },
+          "ko": {
+            "effects": {
+              "familyStatus": "single",
+              "morale": -10
+            },
+            "result": {
+              "es": "No es suficiente. {partner} se marcha.",
+              "en": "It is not enough. {partner} leaves."
+            }
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "kid-first-game",
+      "category": "family",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "hasChildren": true,
+        "minChildAge": 4
+      },
+      "title": {
+        "es": "Tu peque en la grada",
+        "en": "Your kid in the stands"
+      },
+      "body": {
+        "es": "{child} viene por primera vez a verte jugar contra {opponent}. Lleva una camiseta con tu dorsal que le queda enorme.",
+        "en": "{child} comes to watch you play {opponent} for the first time, wearing a jersey with your number that is far too big."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Dedicarle la primera canasta",
+            "en": "Dedicate your first basket"
+          },
+          "desc": {
+            "es": "Un gesto para siempre.",
+            "en": "A gesture forever."
+          },
+          "effects": {
+            "childBond": 12,
+            "fans": 3,
+            "morale": 4
+          },
+          "result": {
+            "es": "Señalas a la grada. {child} se lo cuenta a todo el colegio durante un mes.",
+            "en": "You point to the stands. {child} tells the whole school for a month."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Concentrarte en el partido",
+            "en": "Focus on the game"
+          },
+          "desc": {
+            "es": "Hoy toca ganar.",
+            "en": "Today is about winning."
+          },
+          "effects": {
+            "form": 1,
+            "childBond": 2
+          },
+          "result": {
+            "es": "Juegas serio. Al acabar, te abraza igual.",
+            "en": "You play serious. Afterwards, the hug comes anyway."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "kid-basketball",
+      "category": "family",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "hasChildren": true,
+        "minChildAge": 7
+      },
+      "title": {
+        "es": "{child} quiere jugar al baloncesto",
+        "en": "{child} wants to play basketball"
+      },
+      "body": {
+        "es": "{child} ha pedido apuntarse al equipo del colegio. Te pregunta si le enseñas a tirar como tú.",
+        "en": "{child} asked to join the school team. They ask if you will teach them to shoot like you."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Entrenarle tú",
+            "en": "Coach them yourself"
+          },
+          "desc": {
+            "es": "Tardes de canasta en el patio.",
+            "en": "Afternoons at the backyard hoop."
+          },
+          "effects": {
+            "childBond": 12,
+            "load": 4,
+            "flag": "heir-trained"
+          },
+          "result": {
+            "es": "Le enseñas la rutina de tiro libre. Tiene muñeca. Mucha.",
+            "en": "You teach your free-throw routine. They have touch. A lot."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Que elija su camino",
+            "en": "Let them choose their path"
+          },
+          "desc": {
+            "es": "Sin presión.",
+            "en": "No pressure."
+          },
+          "effects": {
+            "childBond": 6
+          },
+          "result": {
+            "es": "Prueba el baloncesto y la natación. Ya verá.",
+            "en": "They try basketball and swimming. They will see."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "school-play",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 3,
+      "cooldownWeeks": 40,
+      "conditions": {
+        "mode": "player",
+        "hasChildren": true,
+        "minChildAge": 5
+      },
+      "title": {
+        "es": "La función del colegio",
+        "en": "The school play"
+      },
+      "body": {
+        "es": "{child} es el árbol número tres en la función del colegio. Coincide con el entrenamiento de tiro.",
+        "en": "{child} is tree number three in the school play. It clashes with shooting practice."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ir a la función",
+            "en": "Go to the play"
+          },
+          "desc": {
+            "es": "Primera fila.",
+            "en": "Front row."
+          },
+          "effects": {
+            "childBond": 10,
+            "trust": -3
+          },
+          "result": {
+            "es": "El árbol número tres saluda desde el escenario. Tú saludas más.",
+            "en": "Tree number three waves from the stage. You wave harder."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Ir al entrenamiento",
+            "en": "Go to practice"
+          },
+          "desc": {
+            "es": "El deber.",
+            "en": "Duty."
+          },
+          "effects": {
+            "childBond": -6,
+            "attr": {
+              "tiroMedia": 1
+            }
+          },
+          "result": {
+            "es": "Te mandan el vídeo. Lo ves cinco veces en el vestuario.",
+            "en": "They send you the video. You watch it five times in the locker room."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "family-holiday",
+      "category": "family",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "familyStatus": [
+          "partner",
+          "married"
+        ],
+        "lateSeason": true
+      },
+      "title": {
+        "es": "Vacaciones en familia",
+        "en": "Family holiday"
+      },
+      "body": {
+        "es": "Se acaba la temporada. {partner} propone un viaje largo, sin balones ni pabellones.",
+        "en": "The season is ending. {partner} suggests a long trip, no balls, no arenas."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Viaje de ensueño (6.000)",
+            "en": "Dream trip (6,000)"
+          },
+          "desc": {
+            "es": "Desconexión total.",
+            "en": "Total disconnection."
+          },
+          "effects": {
+            "cash": -6000,
+            "partnerHappiness": 15,
+            "childBond": 8,
+            "morale": 5,
+            "load": -15
+          },
+          "result": {
+            "es": "Dos semanas sin mirar el móvil. Vuelves con otra cara.",
+            "en": "Two weeks without checking your phone. You come back a new person."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Escapada corta",
+            "en": "Short getaway"
+          },
+          "desc": {
+            "es": "Algo es algo.",
+            "en": "Something is something."
+          },
+          "effects": {
+            "cash": -1500,
+            "partnerHappiness": 6
+          },
+          "result": {
+            "es": "Un fin de semana en la costa. Suficiente para recargar.",
+            "en": "A weekend on the coast. Enough to recharge."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "farewell-question",
+      "category": "milestone",
+      "story": true,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 30,
+      "conditions": {
+        "mode": "player",
+        "minAge": 33,
+        "maxWeek": 2,
+        "notFlags": [
+          "farewell"
+        ]
+      },
+      "title": {
+        "es": "¿La última temporada?",
+        "en": "The final season?"
+      },
+      "body": {
+        "es": "Tienes {age} años. Las rodillas te avisan cada mañana. ¿Anuncias que esta será tu última temporada?",
+        "en": "You are {age}. Your knees warn you every morning. Do you announce this will be your last season?"
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Anunciar la gira de despedida",
+            "en": "Announce a farewell tour"
+          },
+          "desc": {
+            "es": "Cada pabellón te despedirá.",
+            "en": "Every arena will say goodbye."
+          },
+          "effects": {
+            "flag": "farewell",
+            "fans": 8,
+            "fame": 4,
+            "morale": 4
+          },
+          "result": {
+            "es": "Lo anuncias en rueda de prensa. Esa noche, ovación en pie.",
+            "en": "You announce it at a press conference. That night, a standing ovation."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Seguir compitiendo",
+            "en": "Keep competing"
+          },
+          "desc": {
+            "es": "Aún te queda baloncesto.",
+            "en": "There is basketball left in you."
+          },
+          "effects": {
+            "confidence": 1
+          },
+          "result": {
+            "es": "\"Mientras me diviertan, sigo.\" El vestuario sonríe.",
+            "en": "\"While it is fun, I keep going.\" The locker room smiles."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "legend-shadow",
+      "category": "legacy",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minGeneration": 2,
+        "minWeek": 3
+      },
+      "title": {
+        "es": "La sombra de {legend}",
+        "en": "In {legend}'s shadow"
+      },
+      "body": {
+        "es": "Los periodistas no paran de compararte con {legend}. \"¿Llegarás a su nivel?\"",
+        "en": "Reporters keep comparing you to {legend}. \"Will you reach their level?\""
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Abrazar la herencia",
+            "en": "Embrace the legacy"
+          },
+          "desc": {
+            "es": "Es tu familia.",
+            "en": "It is your family."
+          },
+          "effects": {
+            "fame": 4,
+            "confidence": -1,
+            "fans": 3
+          },
+          "result": {
+            "es": "\"Si llego a la mitad, seré feliz.\" Titular de portada.",
+            "en": "\"If I get halfway, I will be happy.\" Front-page headline."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Reivindicar tu camino",
+            "en": "Claim your own path"
+          },
+          "desc": {
+            "es": "No eres una copia.",
+            "en": "You are not a copy."
+          },
+          "effects": {
+            "confidence": 2,
+            "fame": 1
+          },
+          "result": {
+            "es": "\"Yo soy yo.\" La frase acaba en camisetas.",
+            "en": "\"I am me.\" The line ends up on T-shirts."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "legend-stands",
+      "category": "legacy",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minGeneration": 2,
+        "minWeek": 8
+      },
+      "title": {
+        "es": "{legend} en la grada",
+        "en": "{legend} in the stands"
+      },
+      "body": {
+        "es": "{legend} ha venido a verte. El pabellón le dedica una ovación antes del salto inicial.",
+        "en": "{legend} came to watch you. The arena gives them an ovation before tip-off."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Saludar a {legend}",
+            "en": "Wave to {legend}"
+          },
+          "desc": {
+            "es": "Orgullo familiar.",
+            "en": "Family pride."
+          },
+          "effects": {
+            "morale": 6,
+            "fans": 3
+          },
+          "result": {
+            "es": "Os señaláis mutuamente. La foto sale en todos los periódicos.",
+            "en": "You point at each other. The photo is in every paper."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedirle consejo en el descanso",
+            "en": "Ask for advice at halftime"
+          },
+          "desc": {
+            "es": "Sabiduría.",
+            "en": "Wisdom."
+          },
+          "effects": {
+            "attr": {
+              "lectura": 1
+            },
+            "confidence": 1
+          },
+          "result": {
+            "es": "Te dice una sola frase. Es justo la que necesitabas.",
+            "en": "They tell you one sentence. Exactly the one you needed."
+          },
+          "id": "b"
+        }
+      ]
     }
   ]
 }

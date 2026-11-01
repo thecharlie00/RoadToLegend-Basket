@@ -11,7 +11,7 @@
     return null;
   }
   function packs() { return { events: load('events', 'events'), achievements: load('achievements', 'achievements'), shop: load('shop', 'shop'), press: load('press', 'press'), guide: load('guide', 'guide') }; }
-  const EFFECT_KEYS = ['morale', 'load', 'fatigue', 'chemistry', 'form', 'trust', 'confidence', 'cash', 'style', 'xp', 'fame', 'fans', 'salary', 'agent', 'sponsor', 'flag', 'unflag', 'attr', 'injuryWeeks', 'board', 'locker'];
+  const EFFECT_KEYS = ['morale', 'load', 'fatigue', 'chemistry', 'form', 'trust', 'confidence', 'cash', 'style', 'xp', 'fame', 'fans', 'salary', 'agent', 'sponsor', 'flag', 'unflag', 'attr', 'injuryWeeks', 'board', 'locker', 'partnerHappiness', 'childBond', 'familyStatus', 'baby'];
   const AGENTS = { star: { commission: 0.10, offer: 1.12 }, family: { commission: 0.05, offer: 1.0 }, self: { commission: 0, offer: 0.92 } };
 
   function validate() {
@@ -82,6 +82,7 @@
       else if (p && k === 'injuryWeeks' && p.injury) p.injury.weeksRemaining = Math.max(0, p.injury.weeksRemaining + v);
       else if (state.coach && (k === 'morale')) state.coach.morale = clamp(state.coach.morale + v, 0, 100);
       else if (state.coach && (k === 'trust' || k === 'board')) state.coach.trust = clamp(state.coach.trust + v, 0, 100);
+      else if (['partnerHappiness', 'childBond', 'familyStatus', 'baby'].includes(k)) (CAA.Family || require('./family.js')).applyEffect(state, k, v);
       else if (k === 'locker') { const club = clubOf(state); if (club) for (const r of club.roster) r.morale = clamp((r.morale == null ? 70 : r.morale) + v, 0, 100); }
     }
   }
@@ -108,7 +109,11 @@
       contractYears: p && p.contract ? p.contract.years : 0, injured: !!(p && p.injury), injuryWeeks: p && p.injury ? p.injury.weeksRemaining : 0,
       trust: p ? (p.coachTrust == null ? 60 : p.coachTrust) : (state.coach ? state.coach.trust : 60), morale: p ? p.morale : (state.coach ? state.coach.morale : 70),
       load: p ? p.load || 0 : 0, fame: life.fame, route: state.route, mode: state.mode, week: state.week, rounds: s ? s.schedule.length : 0,
-      region: s && s.leagueId === 'na-boreal-men' ? 'NA' : 'EU', agent: life.agent, sponsor: life.sponsor, live: life.counters.live || 0
+      region: s && s.leagueId === 'na-boreal-men' ? 'NA' : 'EU',
+      partner: state.family && state.family.partner ? state.family.partner.name : '', child: state.family && state.family.children.length ? state.family.children[state.family.children.length - 1].name : '',
+      legend: state.family && state.family.legends.length ? state.family.legends[state.family.legends.length - 1].name : '', familyStatus: state.family ? state.family.status : 'single',
+      children: state.family ? state.family.children.length : 0, oldestChild: state.family && state.family.children.length ? Math.max(...state.family.children.map(c => state.year - c.bornYear)) : 0,
+      partnerHappiness: state.family && state.family.partner ? state.family.partner.happiness : 100, generation: state.family ? state.family.generation : 1, agent: life.agent, sponsor: life.sponsor, live: life.counters.live || 0
     };
   }
   function fill(text, ctx) { return String(text).replace(/\{(\w+)\}/g, (_, k) => ctx[k] == null || ctx[k] === '' ? '—' : String(ctx[k])); }
@@ -141,6 +146,11 @@
     if (c.noSponsor && life.sponsor) return false;
     if (c.hasSponsor && !life.sponsor) return false;
     if (c.minLive != null && ctx.live < c.minLive) return false;
+    if (c.familyStatus && !c.familyStatus.includes(ctx.familyStatus)) return false;
+    if (c.hasChildren && !ctx.children) return false;
+    if (c.minChildAge != null && ctx.oldestChild < c.minChildAge) return false;
+    if (c.partnerHappyBelow != null && ctx.partnerHappiness >= c.partnerHappyBelow) return false;
+    if (c.minGeneration != null && ctx.generation < c.minGeneration) return false;
     if (c.flags && !c.flags.every(f => life.flags[f] != null && state.week - life.flags[f] >= (c.flagDelay || 0))) return false;
     if (c.notFlags && c.notFlags.some(f => life.flags[f] != null)) return false;
     const last = life.eventHistory.slice().reverse().find(h => h.id === e.id);
