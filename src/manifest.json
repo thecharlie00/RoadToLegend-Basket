@@ -6,7 +6,10 @@
   "out": "dist/index.html",
   "locales": [
     "es",
-    "en"
+    "en",
+    "fr",
+    "de",
+    "it"
   ],
   "data": [
     "data/world/seed.json",

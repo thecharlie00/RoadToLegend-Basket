@@ -128,7 +128,7 @@
     const p = state.player; if (!p) return null;
     const n = ensure(state), g = p.gender || 'men';
     return { country: p.nationality, strength: str(p.nationality, g), threshold: threshold(p.nationality, g), eligible: p.ovr >= threshold(p.nationality, g), caps: n.caps, points: n.points,
-      medals: n.medals.slice(), last: n.last, next: tournamentOf(state.year, g), tournaments: n.tournaments.slice(-6), debut: n.debut };
+      medals: n.medals.slice(), last: n.last, next: tournamentOf(state.year + 1, g), tournaments: n.tournaments.slice(-6), debut: n.debut };
   }
   CAA.National = { STRENGTH, tournamentOf, threshold, ensure, window, summer, runTournament, view };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.National;

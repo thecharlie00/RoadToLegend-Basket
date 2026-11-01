@@ -355,6 +355,15 @@ try {
     const na = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     report.accessibility.push({ locale: 'es', tab: 'national', violations: na.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
   });
+  for (const lang of ['fr', 'de', 'it']) await scenario('Locale ' + lang + ': boot, career, shop and league without missing texts', { viewport: { width: 390, height: 844 } }, async page => {
+    await click(page, `boot-lang"][data-locale="${lang}`);
+    assert.equal(await page.evaluate(() => document.documentElement.lang), lang);
+    await newCareer(page, { seed: 'loc-' + lang });
+    for (const tb of ['life', 'league', 'shop', 'national', 'career']) await tab(page, tb);
+    const la = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: lang, tab: 'career', violations: la.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    assert.deepEqual(await page.evaluate(() => CAA.I18N.missingKeys()), []);
+  });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');
     await page.evaluate(() => { const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function(type, ...args) { return type === 'webgl' ? null : original.call(this, type, ...args); }; });

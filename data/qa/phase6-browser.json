@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T13:51:38.895Z",
+  "date": "2026-11-01T14:08:14.060Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -55,6 +55,21 @@
     },
     {
       "name": "Club mode, challenge, editor, simulated season with cup and national team",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Locale fr: boot, career, shop and league without missing texts",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Locale de: boot, career, shop and league without missing texts",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Locale it: boot, career, shop and league without missing texts",
       "ok": true,
       "missingTranslations": []
     },
@@ -256,20 +271,35 @@
       "locale": "es",
       "tab": "national",
       "violations": []
+    },
+    {
+      "locale": "fr",
+      "tab": "career",
+      "violations": []
+    },
+    {
+      "locale": "de",
+      "tab": "career",
+      "violations": []
+    },
+    {
+      "locale": "it",
+      "tab": "career",
+      "violations": []
     }
   ],
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T13:52:00.932Z",
+    "measuredAt": "2026-11-01T14:08:39.709Z",
     "frames": 180,
-    "meanFrameMs": 16.759,
+    "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.8,
-    "maxFrameMs": 33.368,
-    "meanFps": 59.67,
-    "framesOver16_67Ms": 111,
-    "framesOver33_34Ms": 1,
+    "p95FrameMs": 16.7,
+    "maxFrameMs": 16.8,
+    "meanFps": 60,
+    "framesOver16_67Ms": 110,
+    "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -283,7 +313,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 29400000
+    "jsHeapUsedBytes": 50400000
   },
   "voxel": {
     "version": "voxel-1",
@@ -297,15 +327,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T13:52:51.215Z",
+    "measuredAt": "2026-11-01T14:09:28.978Z",
     "frames": 180,
-    "meanFrameMs": 74.534,
+    "meanFrameMs": 71.942,
     "medianFrameMs": 16.7,
     "p95FrameMs": 183.3,
-    "maxFrameMs": 300,
-    "meanFps": 13.42,
+    "maxFrameMs": 350,
+    "meanFps": 13.9,
     "framesOver16_67Ms": 144,
-    "framesOver33_34Ms": 81,
+    "framesOver33_34Ms": 75,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -317,7 +347,9 @@
       "storage": "indexedDB",
       "workload": "voxel-balanced"
     },
-    "longTasks": [],
+    "longTasks": [
+      70
+    ],
     "stopped": false,
     "jsHeapUsedBytes": 39600000
   },
@@ -353,7 +385,7 @@
       85
     ]
   },
-  "arcade": 5,
+  "arcade": 7,
   "locales": {
     "es": 1232,
     "en": 1232

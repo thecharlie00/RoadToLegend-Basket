@@ -20,7 +20,7 @@
     const team = CAA.Season.genderOf(c.season.leagueId) === 'women', self = !!(c.player && c.player.gender === 'women');
     return team || self ? CAA.Fem.opts(team, self, null) : null;
   }
-  function t(key, vars) { const s = CAA.I18N.t(key, vars), o = femOpts(); return o ? CAA.Fem.apply(s, CAA.I18N.getLocale(), o) : s; }
+  function t(key, vars) { const s = CAA.I18N.t(key, vars), l = CAA.I18N.getLocale(), o = (l === 'es' || l === 'en') ? femOpts() : null; return o ? CAA.Fem.apply(s, l, o) : s; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
   function loadSettings() {
@@ -110,7 +110,7 @@
     <button data-action="match-simulate">${t('match.simulate')}</button><button data-action="match-calibrate">${t('match.calibrate')}</button></div>${body}${cal}</section>`;
   }
 
-  function loc(obj) { const v = obj ? (obj[CAA.I18N.getLocale()] || obj.es || obj.en || '') : ''; const o = femOpts(); return o && v ? CAA.Fem.apply(v, CAA.I18N.getLocale(), o) : v; }
+  function loc(obj) { const l = CAA.I18N.getLocale(); const v = obj ? (obj[l] || (l === 'es' ? obj.es : obj.en) || obj.es || '') : ''; const o = femOpts(); return o && v ? CAA.Fem.apply(v, obj && obj[l] ? l : (l === 'es' ? 'es' : 'en'), o) : v; }
   async function ensureClubs(route) {
     const c = state.career;
     const key = route === 'world' ? 'world:' + c.leagueId : route;
@@ -346,7 +346,7 @@
   function renderBoot() {
     if (state.screen === 'lang') {
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">Idioma · Language</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
-        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${f}</span><b>${name}</b></button>`).join('')}</div></main>`;
+        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English'], ['fr', '🇫🇷', 'Français'], ['de', '🇩🇪', 'Deutsch'], ['it', '🇮🇹', 'Italiano']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${f}</span><b>${name}</b></button>`).join('')}</div></main>`;
     }
     if (state.screen === 'menu') {
       const leagues = Object.keys(CAA.Season.LEAGUES).length;
@@ -505,7 +505,7 @@
       <label for="partner-name">${t('fam.partnerName')}<input id="partner-name" maxlength="24" value="${esc(draft('partner-name', ''))}" placeholder="${t('fam.partnerPlaceholder')}"></label>
       <div class="pick-grid">${['none', 'partner', 'parent'].map(k => `<button class="option center" data-action="family-setup" data-kind="${k}"><b>${t('fam.setup.' + k)}</b></button>`).join('')}</div></section>` : '';
     const ev = s.event;
-    const L = pair => pair ? (CAA.I18N.getLocale() === 'en' ? pair.en : pair.es) : '';
+    const L = pair => pair ? (CAA.I18N.getLocale() === 'es' ? pair.es : pair.en) : '';
     const decision = ev ? `<section class="card decision"><div class="guide-head"><span class="tag led">● ${t(ev.story ? 'home.story' : 'home.decision')}</span><span class="muted small">${esc(t('eventcat.' + ev.category))}</span></div>
       <h3>${esc(L(ev.title))}</h3><p>${esc(L(ev.body))}</p>
       <div class="stack">${ev.options.map(o => `<button class="option" data-action="life-event" data-option="${o.id}"><span class="opt-head"><b>${esc(L(o.label))}</b><span class="odds ${o.p == null ? 'sure' : o.p >= 0.6 ? 'hi' : o.p >= 0.45 ? 'mid' : 'lo'}">${o.p == null ? t('odds.sure') : t('odds.pct', { p: Math.round(o.p * 100) })}</span></span>${o.desc ? `<span class="muted small">${esc(L(o.desc))}</span>` : ''}
@@ -529,7 +529,7 @@
     const scout = sc ? `<section class="card"><span class="eyebrow">${t('coach.scout')}</span><h3>${esc(sc.name)} <span class="muted small">${sc.wins}-${sc.losses} · ${t('coach.avg', { n: sc.avgOvr })}</span></h3>
       <p class="muted small">${t('coach.style', { pace: t('coach.pace.' + sc.pace), shooting: t('coach.focus.' + sc.shooting) })}</p><ul class="news">${sc.top.map(p => `<li><b>${esc(p.name)}</b> · ${esc(p.pos)} · ${p.ovr} <span class="muted small">${t('career.archetype.' + p.archetype)}</span></li>`).join('')}</ul></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${mk.crossing ? `<b>${esc(mk.crossing.clubName || '')}</b> <small class="muted">${esc(leagueLabel(mk.crossing.targetLeague))}</small><br>` : ''}${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
-    const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
+    const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'es' ? p.es : p.en)}</li>`)).slice(0, 8).join('');
     return `${eraBanner(s)}${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
@@ -570,7 +570,7 @@
       <div class="row"><button class="small-btn primary" data-tab="shop">🛍 ${t('more.shop')}</button><button class="small-btn" data-tab="look">🎨 ${t('more.look')}</button></div></section>` : '';
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
-    const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
+    const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'es' ? x.es : x.en)}</li>`).join('')}</ul></section>` : '';
     if (s.squad) return hero + coachCards + famCard + petCard + offcourt + minis + shop + trophies + press;
     return hero + famCard + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
   }
@@ -806,7 +806,7 @@
     const s = state.settings;
     const opt = (val, cur, label) => `<option value="${val}" ${val === cur ? 'selected' : ''}>${label}</option>`;
     return `<section class="panel"><h2>${t('settings.title')}</h2><div class="grid">
-    <label>${t('settings.language')}<select data-setting="locale">${opt('es', CAA.I18N.getLocale(), 'Español')}${opt('en', CAA.I18N.getLocale(), 'English')}</select></label>
+    <label>${t('settings.language')}<select data-setting="locale">${opt('es', CAA.I18N.getLocale(), 'Español')}${opt('en', CAA.I18N.getLocale(), 'English')}${opt('fr', CAA.I18N.getLocale(), 'Français')}${opt('de', CAA.I18N.getLocale(), 'Deutsch')}${opt('it', CAA.I18N.getLocale(), 'Italiano')}</select></label>
     <label>${t('settings.fontSize')}<select data-setting="fontSize">${opt('0', String(s.fontSize), t('settings.normal'))}${opt('1', String(s.fontSize), t('settings.large'))}${opt('2', String(s.fontSize), t('settings.xlarge'))}</select></label>
     <label>${t('settings.color')}<select data-setting="colorMode">${opt('standard', s.colorMode, t('settings.standard'))}${opt('blue-orange', s.colorMode, t('settings.blueOrange'))}</select></label>
     <label>${t('settings.motion')}<select data-setting="reducedMotion">${opt('system', s.reducedMotion, t('settings.system'))}${opt('reduced', s.reducedMotion, t('settings.reduced'))}${opt('full', s.reducedMotion, t('settings.full'))}</select></label>
@@ -1038,7 +1038,7 @@
       state.confirmed = false;
       if (name === 'confirm-cancel') { state.confirm = null; }
       else if (name === 'confirm-yes') { const pending = state.confirm; state.confirm = null; state.confirmed = true; state.busy = false; await action(pending.name, pending.el); return; }
-      else if (name === 'boot-lang') { CAA.I18N.setLocale(el.dataset.locale === 'en' ? 'en' : 'es'); saveSettings(); state.screen = 'menu'; }
+      else if (name === 'boot-lang') { CAA.I18N.setLocale(['en', 'fr', 'de', 'it'].includes(el.dataset.locale) ? el.dataset.locale : 'es'); saveSettings(); state.screen = 'menu'; }
       else if (name === 'boot-new') { state.screen = 'modes'; }
       else if (name === 'boot-continue') { state.screen = 'game'; state.tab = 'career'; }
       else if (name === 'boot-open') { state.screen = 'game'; state.tab = el.dataset.target || 'more'; }

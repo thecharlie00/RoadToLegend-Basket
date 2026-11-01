@@ -19,7 +19,7 @@
     const table = dicts[locale] || {};
     let text = table[key];
     if (text == null) {
-      for (const fallbackLocale of ['es', 'en']) {
+      for (const fallbackLocale of locale === 'es' ? ['en'] : ['en', 'es']) {
         if (fallbackLocale === locale) continue;
         const fallback = dicts[fallbackLocale] || {};
         if (fallback[key] != null) { text = fallback[key]; break; }
