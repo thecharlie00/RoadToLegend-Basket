@@ -8,7 +8,7 @@
 
   function palette(opts) {
     const cb = opts && opts.colorMode === 'blue-orange';
-    return { floor1: '#3a2614', floor2: '#4a3119', line: '#e9d8b8', good: cb ? '#5aa9ff' : '#3fcf7c', bad: cb ? '#ff9f43' : '#ff5b66', led: '#ffb21e', ink: '#edf1e8', ball: '#e2731b', seam: '#5a2a08', jersey: (opts && opts.jersey) || '#ffb21e', skin: '#c98b5b', night: '#0b1417' };
+    return { floor1: '#3a2614', floor2: '#4a3119', line: '#e9d8b8', good: cb ? '#3be3ff' : '#43d17a', bad: cb ? '#ff9f43' : '#ff5470', led: '#ff7a1f', ink: '#edf1e8', ball: '#e2731b', seam: '#5a2a08', jersey: (opts && opts.jersey) || '#ffb21e', skin: '#c98b5b', night: '#0b1417' };
   }
   function scene(ctx, w, h, P, view) {
     const sky = ctx.createLinearGradient(0, 0, 0, h * 0.5);
@@ -138,12 +138,24 @@
     meter(ctx, w, h, P, view);
     if (view.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${0.25 * view.flash})`; ctx.fillRect(-10, 0, w + 20, h); }
     if (view.label) {
-      ctx.font = `700 ${Math.round(w / 11)}px CamDisp, Pixelify Sans, sans-serif`; ctx.textAlign = 'center';
+      ctx.font = `400 ${Math.round(w / 8)}px 'Bebas Neue', 'Barlow Condensed', sans-serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillText(view.label, w / 2 + 3, h * 0.47 + 3);
       ctx.fillStyle = view.labelGood ? P.good : P.bad; ctx.fillText(view.label, w / 2, h * 0.47);
     }
     ctx.restore();
   }
-  CAA.Arcade2D = { draw };
+  // HUD sobre el 3D: solo medidor, destello y rótulo, con fondo transparente.
+  function hud(ctx, w, h, view, opts) {
+    const P = palette(opts);
+    ctx.clearRect(0, 0, w, h);
+    meter(ctx, w, h, P, view);
+    if (view.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${0.22 * view.flash})`; ctx.fillRect(0, 0, w, h); }
+    if (view.label) {
+      ctx.font = `400 ${Math.round(w / 8)}px 'Bebas Neue', 'Barlow Condensed', sans-serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillText(view.label, w / 2 + 3, h * 0.42 + 3);
+      ctx.fillStyle = view.labelGood ? P.good : P.bad; ctx.fillText(view.label, w / 2, h * 0.42);
+    }
+  }
+  CAA.Arcade2D = { draw, hud };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Arcade2D;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

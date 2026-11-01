@@ -29,26 +29,25 @@ def font_licenses() -> str:
 def font_faces() -> str:
     """Embed offline OFL fonts as data URIs; no network font requests."""
     specs = [
-        ("Atkinson Hyperlegible Next", "atkinson-hyperlegible-next-latin-400-normal.woff2", 400),
-        ("Atkinson Hyperlegible Next", "atkinson-hyperlegible-next-latin-700-normal.woff2", 700),
-        ("Pixelify Sans", "pixelify-sans-latin-400-normal.woff2", 400),
-        ("Pixelify Sans", "pixelify-sans-latin-700-normal.woff2", 700),
+        ("Atkinson Hyperlegible Next", "atkinson-hyperlegible-next-latin-400-normal.woff2", 400, None),
+        ("Atkinson Hyperlegible Next", "atkinson-hyperlegible-next-latin-700-normal.woff2", 700, None),
+        # Identidad propia del baloncesto (distinta del pixelado del fútbol): Bebas Neue para títulos, Barlow Condensed para UI y cifras.
+        ("Bebas Neue", "bebas-neue-latin-400-normal.woff2", 400, "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"),
+        ("Bebas Neue", "bebas-neue-latin-ext-400-normal.woff2", 400, "U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF"),
+        ("Barlow Condensed", "barlow-condensed-latin-600-normal.woff2", 600, None),
+        ("Barlow Condensed", "barlow-condensed-latin-700-normal.woff2", 700, None),
     ]
     faces = []
-    for family, filename, weight in specs:
+    for family, filename, weight, urange in specs:
         path = ROOT / "src/assets/fonts" / filename
         if not path.exists():
             raise FileNotFoundError(path)
         b64 = base64.b64encode(path.read_bytes()).decode("ascii")
         faces.append(
             f"@font-face{{font-family:'{family}';font-style:normal;font-weight:{weight};"
-            f"font-display:swap;src:url(data:font/woff2;base64,{b64}) format('woff2')}}"
+            + (f"unicode-range:{urange};" if urange else "")
+            + f"font-display:swap;src:url(data:font/woff2;base64,{b64}) format('woff2')}}"
         )
-    # CamDisp (como en el juego de fútbol): letras de Pixelify Sans con cifras y signos de Atkinson, legibles.
-    for filename, weight, rng in [("pixelify-sans-latin-700-normal.woff2", 700, "U+0000-002F,U+003A-00FF,U+0131,U+0152-0153,U+02C6,U+2000-206F"),
-                                  ("atkinson-hyperlegible-next-latin-700-normal.woff2", 700, "U+0030-0039,U+002B-002E,U+0025,U+00B7,U+2013,U+2212")]:
-        b64 = base64.b64encode((ROOT / "src/assets/fonts" / filename).read_bytes()).decode("ascii")
-        faces.append(f"@font-face{{font-family:'CamDisp';font-style:normal;font-weight:{weight};font-display:swap;unicode-range:{rng};src:url(data:font/woff2;base64,{b64}) format('woff2')}}")
     return "\n".join(faces) + "\n"
 
 

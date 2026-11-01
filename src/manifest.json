@@ -175,6 +175,11 @@
       "worker": false
     },
     {
+      "id": "arcade3d",
+      "path": "src/render/arcade3d.js",
+      "worker": false
+    },
+    {
       "id": "app",
       "path": "src/ui/app.js",
       "worker": false

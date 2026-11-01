@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T01:26:56.921Z",
+  "date": "2026-11-01T07:12:50.242Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -201,14 +201,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T01:27:11.296Z",
+    "measuredAt": "2026-11-01T07:13:12.449Z",
     "frames": 180,
-    "meanFrameMs": 16.666,
+    "meanFrameMs": 16.573,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
-    "meanFps": 60,
-    "framesOver16_67Ms": 113,
+    "meanFps": 60.34,
+    "framesOver16_67Ms": 114,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -227,8 +227,8 @@
   },
   "voxel": {
     "version": "voxel-1",
-    "cubes": 200,
-    "vertices": 7200,
+    "cubes": 390,
+    "vertices": 14040,
     "drawCalls": 1,
     "quality": "low",
     "lost": false,
@@ -237,15 +237,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T01:27:31.367Z",
+    "measuredAt": "2026-11-01T07:14:02.524Z",
     "frames": 180,
-    "meanFrameMs": 16.851,
-    "medianFrameMs": 16.7,
-    "p95FrameMs": 16.8,
-    "maxFrameMs": 50.1,
-    "meanFps": 59.34,
-    "framesOver16_67Ms": 105,
-    "framesOver33_34Ms": 1,
+    "meanFrameMs": 74.627,
+    "medianFrameMs": 16.8,
+    "p95FrameMs": 183.4,
+    "maxFrameMs": 400,
+    "meanFps": 13.4,
+    "framesOver16_67Ms": 144,
+    "framesOver33_34Ms": 79,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -257,9 +257,11 @@
       "storage": "indexedDB",
       "workload": "voxel-balanced"
     },
-    "longTasks": [],
+    "longTasks": [
+      55
+    ],
     "stopped": false,
-    "jsHeapUsedBytes": 18200000
+    "jsHeapUsedBytes": 24500000
   },
   "avatar": {
     "version": "voxel-1",
@@ -293,9 +295,9 @@
       85
     ]
   },
-  "arcade": 4,
+  "arcade": 2,
   "locales": {
-    "es": 893,
-    "en": 893
+    "es": 896,
+    "en": 896
   }
 }

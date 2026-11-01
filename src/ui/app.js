@@ -166,6 +166,35 @@
     if (e.type === 'turnover') return t(e.steal ? 'live.feed.steal' : 'live.feed.turnover', v);
     return t('live.feed.' + e.type, v);
   }
+  // Última jugada destacada del directo para la vista 3D (canasta, triple, tapón, robo o adicional).
+  function liveKeyIndex(m) {
+    for (let i = m.events.length - 1; i >= 0; i--) { const e = m.events[i]; if ((e.type === 'shot' && e.made) || e.type === 'block' || (e.type === 'turnover' && e.steal) || (e.type === 'ft' && e.made && e.reason === 'andOne')) return i; }
+    return 0;
+  }
+  function live3dCaption(raw) {
+    const m = raw.match, i = liveKeyIndex(m), e = m.events[i];
+    if (!e || e.type === 'start') return t('live.view3dWaiting');
+    const team = m.teams[e.team] ? m.teams[e.team].name : '';
+    const who = (m.teams[e.team] && m.teams[e.team].players.find(p => p.id === e.player)) || {};
+    const other = m.teams[1 - e.team] ? m.teams[1 - e.team].players : [];
+    const nm = id => (other.find(p => p.id === id) || {}).name || '';
+    return t('live.view3dCap', { period: e.period, clock: clockText(e.clock), text: feedText({ type: e.type, made: e.made, points: e.points, player: who.name || '', teamName: team, steal: e.steal, defender: nm(e.defender), shooter: nm(e.shooter) }) });
+  }
+  let liveRenderer = null, liveCanvas = null, liveRaf = null, liveAnim = { key: null, start: 0 };
+  function drawLive3d(ts) {
+    const canvas = doc.getElementById('live3d'), raw = state.career.state && state.career.state.live;
+    if (!canvas || !raw || state.screen !== 'game' || state.tab !== 'career' || state.liveViewOff) { liveRaf = null; return; }
+    try {
+      if (!liveRenderer || liveCanvas !== canvas) { liveCanvas = canvas; liveRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { state.liveViewOff = true; liveRenderer = null; } }); }
+      const m = raw.match, idx = liveKeyIndex(m), key = m.matchId + ':' + idx;
+      if (liveAnim.key !== key) liveAnim = { key, start: ts };
+      const reduced = CAA.A11Y.reduced(state.settings);
+      const cycle = 2600, progress = reduced ? 1 : Math.min(1, ((ts - liveAnim.start) % cycle) / 1300);
+      const diff = Math.abs(m.score[0] - m.score[1]), clutch = m.period >= 4 && m.gameClock <= 1800 && diff <= 8;
+      liveRenderer.draw(CAA.Voxel.geometry(m, idx, progress, { quality: 'low', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : 0.25 }), 'broadcast');
+      liveRaf = reduced ? null : root.requestAnimationFrame(drawLive3d);
+    } catch (_) { state.liveViewOff = true; canvas.hidden = true; liveRaf = null; }
+  }
   function renderLive(c) {
     const raw = c.state && c.state.live;
     if (!raw || raw.week !== c.state.week) return '';
@@ -186,6 +215,7 @@
     return `<section class="panel live" aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
       <div class="scoreboard" role="status" aria-live="polite" aria-atomic="true"><span>${esc(v.teams[me])}</span><strong>${v.score[me]} – ${v.score[opp]}</strong><span>${esc(v.teams[opp])}</span>
       <span class="muted">${esc(v.periodLabel)} · ${clockText(v.clock)} · ${t('live.timeouts')}: ${v.timeouts}</span></div>
+      <div class="live3d"><canvas id="live3d" role="img" aria-label="${t('live.view3d')}" aria-describedby="live3d-cap"></canvas><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p></div>
       ${momentHtml}${outcomeHtml}${controls}
       <div class="grid"><div><h4 id="live-feed-title">${t('live.feed.title')}</h4><ol class="feed" reversed tabindex="0" aria-labelledby="live-feed-title">${feed}</ol></div>
       <div class="table-scroll" tabindex="0"><table><caption class="muted">${t('live.top')}</caption><thead><tr><th>${t('live.col.player')}</th><th>PTS</th><th>REB</th><th>AST</th><th>PF</th></tr></thead><tbody>${top}</tbody></table></div></div></section>`;
@@ -468,7 +498,7 @@
       <span class="chips"><span class="chip up">+${done.rewards.style} ${t('effect.style')}</span><span class="chip up">+${done.rewards.xp} XP</span>${done.rewards.form ? `<span class="chip up">+1 ${t('effect.form')}</span>` : ''}</span>
       <div class="row"><button class="cta" data-action="arcade-start" data-game="${a.type}">${t('arcade.again')}</button><button class="small-btn" data-tab="life">${t('arcade.back')}</button></div></section>` : '';
     return `<section class="card arcade"><div class="guide-head"><div><span class="eyebrow">${t('arcade.round', { n: Math.min(a.round + 1, g.rounds), total: g.rounds })}</span><h2>${t('arcade.' + a.type)}</h2></div><div class="arcade-score"><b>${scoreTxt}</b><small>${t('arcade.streak', { n: a.streak })}</small></div></div>
-      <canvas id="arcade-canvas" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas>
+      <div class="arcade-stage">${state.arcade3dOff ? '' : '<canvas id="arcade3d" aria-hidden="true"></canvas>'}<canvas id="arcade-canvas" class="${state.arcade3dOff ? '' : 'hud'}" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas></div>
       <p id="arcade-help" class="muted small">${t('arcade.help.' + g.meter)}</p>
       <p class="sr-only" role="status" aria-live="polite">${esc(a.lastText || '')}</p>
       ${done ? '' : `<button class="cta shoot" data-action="arcade-release" ${a.phase !== 'aim' ? 'disabled' : ''}>${t(a.type === 'defense' || (a.type === 'street' && a.round % 2 === 1) ? 'arcade.defend' : a.type === 'dunk' ? 'arcade.beat' : 'arcade.shoot')}</button>`}
@@ -526,7 +556,9 @@
   function render() {
     if (voxelRenderer) { voxelRenderer.dispose(); voxelRenderer = null; voxelCanvas = null; }
     if (avatarRenderer) { avatarRenderer.dispose(); avatarRenderer = null; avatarCanvas = null; }
-    if (petRenderer) { petRenderer.dispose(); petRenderer = null; petCanvas = null; } if (petTimer) { root.clearTimeout(petTimer); petTimer = null; }
+    if (petRenderer) { petRenderer.dispose(); petRenderer = null; petCanvas = null; }
+    if (arcadeRenderer) { arcadeRenderer.dispose(); arcadeRenderer = null; arcadeGlCanvas = null; }
+    if (liveRenderer) { liveRenderer.dispose(); liveRenderer = null; liveCanvas = null; } if (petTimer) { root.clearTimeout(petTimer); petTimer = null; }
     const active = doc.activeElement;
     const focusId = active && active.id;
     const focusAction = active && active.dataset.action;
@@ -563,6 +595,8 @@
     drawPet();
     if (state.arcade && state.tab === 'arcade' && arcadeRaf == null) arcadeSync();
     if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
+    if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
+    if (doc.getElementById('live3d')) liveRaf = root.requestAnimationFrame(drawLive3d);
   }
   function drawMatchFrame() {
     const m = state.match;
@@ -631,7 +665,7 @@
   function syncAnimation() { playStarted = 0; if (animationId != null) root.cancelAnimationFrame(animationId); animationId = null; if (state.match.playing && state.tab === 'match' && !doc.hidden && !CAA.A11Y.reduced(state.settings)) animationId = root.requestAnimationFrame(animate); }
 
   // ===== Minijuegos: bucle de juego (el resultado lo decide CAA.Arcade con el tick de suelta) =====
-  let arcadeRaf = null;
+  let arcadeRaf = null, arcadeRenderer = null, arcadeGlCanvas = null;
   function arcadeAttrs() { return state.career.state && state.career.state.player ? state.career.state.player.attrs : {}; }
   function arcadeBegin(pending) {
     state.arcade = { type: pending.type, seed: pending.seed, round: 0, ticks: [], results: [], streak: 0, phase: 'aim', aimStart: root.performance.now(), anim: null, final: null, label: '', flash: 0,
@@ -678,9 +712,20 @@
     const anim = a.anim ? { t: Math.min(1, (ts - a.anim.start) / (CAA.A11Y.reduced(state.settings) ? 1 : 700)), made: a.anim.made } : null;
     const s = state.career.summary, eq = s && s.life && s.life.equipment;
     const jerseyItem = eq && eq.jersey && CAA.Content.packs().shop.items.find(i => i.id === eq.jersey);
-    CAA.Arcade2D.draw(ctx, canvas.width, canvas.height, { type: a.type, round: a.round, phase: a.phase, spec, cursor: a.phase === 'aim' ? CAA.Arcade.cursorAt(spec, tick) : spec.center, meterType: CAA.Arcade.GAMES[a.type].meter,
-      anim, now: ts, label: a.label, labelGood: a.labelGood, flash: a.flash ? Math.max(0, 1 - (ts - (a.anim ? a.anim.start : ts)) / 250) : 0, netKick: anim && anim.made && anim.t > 0.7 ? 1 - (anim.t - 0.7) / 0.3 : 0, hype: Math.min(1, a.streak / 4) },
-      { colorMode: state.settings.colorMode, jersey: jerseyItem ? jerseyItem.color : null });
+    const view = { type: a.type, round: a.round, phase: a.phase, spec, cursor: a.phase === 'aim' ? CAA.Arcade.cursorAt(spec, tick) : spec.center, meterType: CAA.Arcade.GAMES[a.type].meter,
+      anim, now: ts, label: a.label, labelGood: a.labelGood, flash: a.flash ? Math.max(0, 1 - (ts - (a.anim ? a.anim.start : ts)) / 250) : 0, netKick: anim && anim.made && anim.t > 0.7 ? 1 - (anim.t - 0.7) / 0.3 : 0, hype: Math.min(1, 0.2 + a.streak / 4) };
+    const opts = { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: CAA.A11Y.reduced(state.settings), jersey: jerseyItem ? jerseyItem.color : null };
+    const gl = doc.getElementById('arcade3d');
+    let drawn3d = false;
+    if (gl && !state.arcade3dOff) {
+      try {
+        if (!arcadeRenderer || arcadeGlCanvas !== gl) { arcadeGlCanvas = gl; arcadeRenderer = CAA.Voxel.createRenderer(gl, { onContextLost: () => { state.arcade3dOff = true; arcadeRenderer = null; render(); arcadeSync(); } }); }
+        const g = CAA.Arcade3D.geometry(view, opts);
+        drawn3d = arcadeRenderer.draw(g.scene, g.camera);
+      } catch (_) { state.arcade3dOff = true; arcadeRenderer = null; root.setTimeout(() => { render(); arcadeSync(); }, 0); }
+    }
+    if (drawn3d) CAA.Arcade2D.hud(ctx, canvas.width, canvas.height, view, opts);
+    else CAA.Arcade2D.draw(ctx, canvas.width, canvas.height, view, opts);
     if (a.phase === 'aim' || a.phase === 'flight') arcadeRaf = root.requestAnimationFrame(arcadeDraw); else arcadeRaf = null;
   }
   function arcadeSync() { if (arcadeRaf != null) root.cancelAnimationFrame(arcadeRaf); arcadeRaf = null; if (state.arcade && state.tab === 'arcade' && !doc.hidden) arcadeRaf = root.requestAnimationFrame(arcadeDraw); }

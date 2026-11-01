@@ -891,5 +891,8 @@
   "hof.myAwards": "Your awards",
   "league.es-ascenso-ibericoShort": "Ascenso Ibérico",
   "league.es-iberica-menShort": "Liga Ibérica",
-  "league.na-boreal-menShort": "Liga Boreal"
+  "league.na-boreal-menShort": "Liga Boreal",
+  "live.view3d": "3D arena view: latest highlight",
+  "live.view3dWaiting": "Tip-off…",
+  "live.view3dCap": "Q{period} · {clock} · {text}"
 }

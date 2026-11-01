@@ -4,7 +4,7 @@
   const Rules = CAA.Rules || (typeof require === 'function' ? require('../match/rules.js') : null);
   const Hash = CAA.Hash || (typeof require === 'function' ? require('../core/hash.js') : null);
   const VERSION = 'voxel-1';
-  const MAX_CUBES = 512;
+  const MAX_CUBES = 800;
   const FLOATS_PER_VERTEX = 9;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const mix = (a, b, t) => a + (b - a) * t;
@@ -154,7 +154,28 @@
   function palette(options = {}) {
     const cb = options.colorMode === 'blue-orange', hc = !!options.highContrast;
     const hex = s => [parseInt(s.slice(1, 3), 16) / 255, parseInt(s.slice(3, 5), 16) / 255, parseInt(s.slice(5, 7), 16) / 255];
-    return { floor: hex('#14282e'), court: hex(hc ? '#805522' : '#ad7945'), line: hex('#fff4d8'), board: hex('#b9d9df'), rim: hex('#ff713d'), post: hex('#344d58'), seatA: hex('#24434c'), seatB: hex('#365b64'), home: hex(cb ? '#5aa9ff' : '#36b98a'), away: hex(cb ? '#ff9f43' : '#ef7565'), skinA: hex('#c98c62'), skinB: hex('#805137'), hair: hex('#252323'), shorts: hex('#182c38'), shoes: hex('#f2eee4'), ball: hex('#ffb547'), shadow: hex('#624725') };
+    return { crowdA: hex('#ff7a1f'), crowdB: hex('#3be3ff'), crowdC: hex('#f3efe7'), crowdD: hex('#8b5cf6'), jumbo: hex(hc ? '#ffffff' : '#0d1a3a'), ledBoard: hex('#ff7a1f'), net: hex('#f5f5f5'), floor: hex('#121633'), court: hex(hc ? '#805522' : '#ad7945'), line: hex('#fff4d8'), board: hex('#b9d9df'), rim: hex('#ff713d'), post: hex('#344d58'), seatA: hex('#232a5c'), seatB: hex('#3a2f6b'), home: hex(cb ? '#5aa9ff' : '#36b98a'), away: hex(cb ? '#ff9f43' : '#ef7565'), skinA: hex('#c98c62'), skinB: hex('#805137'), hair: hex('#252323'), shorts: hex('#182c38'), shoes: hex('#f2eee4'), ball: hex('#ffb547'), shadow: hex('#624725') };
+  }
+  // Ambientación de pabellón: grada con público (se anima con hype), videomarcador y focos.
+  function arenaDressing(add, L, W, options = {}) {
+    const t = options.t || 0, hype = options.hype || 0, reduced = !!options.reducedMotion;
+    const people = ['crowdA', 'crowdB', 'crowdC', 'crowdD'];
+    for (const side of [-1, 1]) for (let row = 0; row < 2; row++) for (let j = 0; j < 14; j++) {
+      const x = -L / 2 + 1 + j * (L - 2) / 13, z = side * (W / 2 + 1.4 + row * 0.9), y = 0.45 + row * 0.55;
+      add(x, y - 0.2, z, 1.6, 0.4, 0.7, row ? 'seatA' : 'seatB');
+      const bob = reduced ? 0 : Math.max(0, Math.sin(t * 6 + j * 1.7 + row)) * 0.25 * hype;
+      add(x, y + 0.35 + bob, z, 0.4, 0.5, 0.35, people[(j + row * 3) % 4]);
+    }
+    add(0, 7.6, 0, 3.2, 1.6, 3.2, 'post'); add(0, 7.6, 0, 3.0, 1.2, 3.25, 'jumbo'); add(0, 7.6, 0, 3.25, 1.2, 3.0, 'jumbo');
+    for (const side of [-1, 1]) add(side * (L / 2 + 2.4), 0.5, 0, 0.3, 0.7, W * 0.55, 'ledBoard');
+  }
+  // Red deformable: anillos de cubos bajo el aro que se estiran al entrar el balón.
+  function rimAndNet(add, hx, kick, t) {
+    for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; add(hx + Math.cos(a) * 0.23, 3.05, Math.sin(a) * 0.23, 0.07, 0.04, 0.07, 'rim'); }
+    for (let lvl = 1; lvl <= 3; lvl++) {
+      const r = 0.22 - lvl * 0.035, drop = lvl * (0.13 + kick * 0.06);
+      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + lvl * 0.2 + Math.sin(t * 14) * kick * 0.3; add(hx + Math.cos(a) * r, 3.05 - drop, Math.sin(a) * r, 0.035, 0.12, 0.035, 'net'); }
+    }
   }
   function geometry(match, index, progress, options = {}) {
     const quality = options.quality === 'balanced' ? 'balanced' : 'low';
@@ -174,14 +195,30 @@
       part(-0.43, armY, p.armsUp * 0.18, 0.2, 0.55, 0.22, 'skinA'); part(0.43, armY, p.armsUp * 0.18, 0.2, 0.55, 0.22, 'skinA');
       if (quality === 'balanced') { part(-0.09, 1.76, 0.205, 0.055, 0.055, 0.025, 'hair'); part(0.09, 1.76, 0.205, 0.055, 0.055, 0.025, 'hair'); }
     }
+    if (options.arena !== false) {
+      const L = court.dimensions.length, W = court.dimensions.width;
+      const e = f.event || {}, made = (e.type === 'shot' && e.made) || (e.type === 'ft' && e.made);
+      for (const side of [-1, 1]) { const hx = side * (L / 2 - 1.575); const near = Math.hypot(f.ball.x - hx, f.ball.y - 3.05, f.ball.z) < 1.2; rimAndNet(add, hx, made && near ? 1 : 0, options.t || 0); }
+      arenaDressing(add, L, W, { t: options.t || 0, hype: options.hype == null ? ((e.period || 1) >= 4 && (e.clock || 9999) <= 1200 ? 1 : 0.3) : options.hype, reducedMotion: options.reducedMotion });
+    }
     add(f.ball.x, f.ball.y, f.ball.z, 0.24, 0.24, 0.24, 'ball', f.progress * Math.PI);
+    add(f.ball.x, f.ball.y, f.ball.z, 0.2, 0.27, 0.2, 'ball', f.progress * Math.PI + 0.78);
     return { frame: f, cubes, colors, dimensions: court.dimensions, quality, maxCubes: MAX_CUBES };
   }
 
   function normalize(v) { const l = Math.hypot(...v) || 1; return v.map(x => x / l); }
   function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
   function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+  function lookAt(eye, target) {
+    const z = normalize(eye.map((v, i) => v - target[i])), x = normalize(cross([0, 1, 0], z)), y = cross(z, x);
+    return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x, eye), -dot(y, eye), -dot(z, eye), 1]);
+  }
+  function perspective(aspect, fovDeg, near, far) {
+    const f = 1 / Math.tan((fovDeg || 55) * Math.PI / 360), n = near || 0.1, fa = far || 120;
+    return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, 2 * fa * n / (n - fa), 0]);
+  }
   function viewMatrix(camera) {
+    if (camera && typeof camera === 'object') return lookAt(camera.eye, camera.target);
     if (camera === 'avatar') {
       const eye = [2.5, 2.0, 3.4], target = [0, 1.3, 0];
       const z = normalize(eye.map((v, i) => v - target[i])), x = normalize(cross([0, 1, 0], z)), y = cross(z, x);
@@ -193,6 +230,7 @@
     return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x, eye), -dot(y, eye), -dot(z, eye), 1]);
   }
   function orthoMatrix(aspect, camera = 'court') {
+    if (camera && typeof camera === 'object') return perspective(aspect, camera.fov, camera.near, camera.far);
     const halfH = camera === 'avatar' ? 2.25 : Math.max(11.5, 18 / Math.max(0.4, aspect)), halfW = halfH * aspect, near = camera === 'avatar' ? 0.1 : 1, far = camera === 'avatar' ? 30 : 100;
     return new Float32Array([1 / halfW, 0, 0, 0, 0, 1 / halfH, 0, 0, 0, 0, -2 / (far - near), 0, 0, 0, -(far + near) / (far - near), 1]);
   }
@@ -234,7 +272,7 @@
       buffer = gl.createBuffer(); gl.useProgram(program); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       const pos = gl.getAttribLocation(program, 'aPosition'), col = gl.getAttribLocation(program, 'aColor');
       gl.enableVertexAttribArray(pos); gl.enableVertexAttribArray(col);
-      gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE); gl.clearColor(0.043, 0.078, 0.09, 1);
+      gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE); gl.clearColor(0.043, 0.05, 0.11, 1);
     } catch (error) { shaders.forEach(s => gl.deleteShader(s)); if (buffer) gl.deleteBuffer(buffer); if (program) gl.deleteProgram(program); throw error; }
     const viewLoc = gl.getUniformLocation(program, 'uView'), projectionLoc = gl.getUniformLocation(program, 'uProjection');
     const posLoc = gl.getAttribLocation(program, 'aPosition'), colLoc = gl.getAttribLocation(program, 'aColor');
@@ -257,6 +295,6 @@
     function dispose() { if (disposed) return; disposed = true; canvas.removeEventListener('webglcontextlost', onLost); canvas.removeEventListener('webglcontextrestored', onRestored); gl.deleteBuffer(buffer); gl.deleteProgram(program); shaders.forEach(s => gl.deleteShader(s)); }
     return { draw, dispose, stats: () => ({ version: VERSION, cubes: lastScene ? lastScene.cubes.length : 0, vertices: count, drawCalls: draws ? 1 : 0, quality: lastScene && lastScene.quality, lost, disposed }), isLost: () => lost };
   }
-  CAA.Voxel = { VERSION, MAX_CUBES, keyPlays, scoreAt, courtGeometry, frameAt, geometry, avatarGeometry, palette, vertexData, viewMatrix, orthoMatrix, createRenderer };
+  CAA.Voxel = { VERSION, MAX_CUBES, keyPlays, scoreAt, courtGeometry, frameAt, geometry, arenaDressing, rimAndNet, lookAt, perspective, avatarGeometry, palette, vertexData, viewMatrix, orthoMatrix, createRenderer };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Voxel;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

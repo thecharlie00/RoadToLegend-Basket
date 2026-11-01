@@ -271,3 +271,24 @@ test('coach: chosen starters start, tactics really change the engine, training l
   assert.ok(club.roster.reduce((a, p) => a + (p.load || 0), 0) > load0);
   assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
 });
+
+test('3D: perspective cameras, arena dressing within budget and a 3D scene for every minigame', () => {
+  globalThis.CAA = globalThis.CAA || {};
+  const Voxel = require('../src/render/voxel.js'); globalThis.CAA.Voxel = Voxel;
+  const Arcade3D = require('../src/render/arcade3d.js');
+  const p = Voxel.perspective(16 / 9, 55, 0.1, 100);
+  assert.equal(p.length, 16); assert.ok(Number.isFinite(p[0]) && p[11] === -1);
+  const v = Voxel.viewMatrix({ eye: [0, 3, 8], target: [0, 1, 0] });
+  assert.equal(v.length, 16);
+  const m = Match.simulateMatch({ seed: '3d-arena' });
+  const g = Voxel.geometry(m, Math.floor(m.events.length / 2), 0.5, { t: 1, hype: 1 });
+  assert.ok(g.cubes.length <= Voxel.MAX_CUBES);
+  assert.ok(g.cubes.some(c => c.color === 'jumbo') && g.cubes.some(c => c.color === 'net'));
+  for (const type of Arcade.TYPES) for (const phase of ['aim', 'flight']) {
+    const out = Arcade3D.geometry({ type, round: 2, phase, cursor: 0.4, now: 1200, anim: phase === 'flight' ? { t: 0.5, made: true } : null, netKick: 0.5, hype: 0.6 }, {});
+    assert.ok(out.scene.cubes.length > 100 && out.scene.cubes.length < 600, type + ' cubes ' + out.scene.cubes.length);
+    assert.ok(out.camera.eye.every(Number.isFinite) && out.camera.target.every(Number.isFinite));
+    assert.ok(out.scene.cubes.every(c => out.scene.colors[c.color] || Voxel.palette({})[c.color]), type + ' unknown color');
+    assert.ok(Voxel.vertexData(out.scene).length > 0);
+  }
+});
