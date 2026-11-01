@@ -39,6 +39,7 @@ async function newCareer(page, o = {}) {
   await click(page, 'boot-new');
   await page.locator(`[data-action="boot-mode"][data-mode="${o.mode || 'player'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
   if (o.name) await page.locator('#career-name').fill(o.name);
+  if (o.gender) { await page.locator(`[data-action="wiz-set"][data-field="gender"][data-value="${o.gender}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   const set = async (field, value) => { await page.locator(`[data-action="wiz-set"][data-field="${field}"][data-value="${value}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); };
   while (!(await page.locator('[data-action="career-create"]').count())) {
     if (o.archetype && await page.locator('[data-field="archetype"]').count()) await set('archetype', o.archetype);
@@ -46,6 +47,7 @@ async function newCareer(page, o = {}) {
     await click(page, 'wiz-next');
   }
   if (o.route) await set('route', o.route);
+  if (o.leagueId) { await page.locator('#career-league').selectOption(o.leagueId); await page.waitForFunction(id => CAA_APP.state.career.clubsRoute === 'world:' + id && !CAA_APP.state.career.clubsLoading, o.leagueId); }
   await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
   if (o.clubId) await set('clubId', o.clubId);
   if (o.seed) { await page.locator('details summary').first().click(); await page.locator('#career-seed').fill(o.seed); }
@@ -284,6 +286,21 @@ try {
     const st = await page.evaluate(() => ({ gen: CAA_APP.state.career.state.family.generation, age: CAA_APP.state.career.state.player.age, pos: CAA_APP.state.career.state.player.pos, legends: CAA_APP.state.career.state.family.legends.length }));
     assert.deepEqual(st, { gen: 2, age: 18, pos: 'PG', legends: 1 });
     await tab(page, 'life'); assert.match(await page.locator('.family').textContent(), /generación 2/);
+  });
+  await scenario('World leagues: women career in Asia, world card and offer from another league', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { seed: 'world-browser', gender: 'f', leagueId: 'jp-sakura-women' });
+    const st = await page.evaluate(() => ({ g: CAA_APP.state.career.state.player.gender, l: CAA_APP.state.career.state.season.leagueId, n: CAA_APP.state.career.state.season.clubs.length }));
+    assert.deepEqual(st, { g: 'women', l: 'jp-sakura-women', n: 12 });
+    await tab(page, 'league');
+    assert.match(await page.locator('main').textContent(), /Liga Sakura Femenina/);
+    assert.equal(await page.locator('#crossing-league option[value$="-men"]').count(), 0, 'only women leagues offered');
+    await page.locator('#crossing-league').selectOption('au-austral-women'); await click(page, 'career-crossing');
+    const wa = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'world-league', violations: wa.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await tab(page, 'career');
+    const idx = await page.evaluate(() => CAA_APP.state.career.summary.market.findIndex(m => m.crossing));
+    await page.locator(`[data-action="career-sign"][data-index="${idx}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.season.leagueId), 'au-austral-women');
   });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');

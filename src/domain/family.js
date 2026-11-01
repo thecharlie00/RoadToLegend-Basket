@@ -16,7 +16,7 @@
     return f;
   }
   function firstName(seed, nationality, gender) {
-    const n = Names.generateName(seed + ':' + gender, nationality || 'ES');
+    const n = Names.generateName(seed + ':' + gender, nationality || 'ES', gender);
     return n.first;
   }
   function addChild(state, config = {}) {
@@ -34,11 +34,12 @@
     f.configured = true;
     if (config.kind === 'partner' || config.kind === 'parent') {
       f.status = 'partner';
-      f.partner = { name: String(config.partnerName || '').trim().slice(0, 24) || firstName(state.seed + ':partner', state.player ? state.player.nationality : 'ES', 'f'), happiness: 70, since: state.year };
+      f.partner = { name: String(config.partnerName || '').trim().slice(0, 24) || firstName(state.seed + ':partner', state.player ? state.player.nationality : 'ES', partnerGender(state)), happiness: 70, since: state.year };
       if (config.kind === 'parent') addChild(state, { bornYear: state.year - 2 });
     }
     return f;
   }
+  function partnerGender(state) { return state.player && state.player.gender === 'women' ? 'm' : 'f'; }
   function ageOf(child, year) { return year - child.bornYear; }
   // Efectos de contenido propios de la familia (los llama Content.applyEffects).
   function applyEffect(state, key, value) {
@@ -48,7 +49,7 @@
     else if (key === 'familyStatus') {
       f.configured = true;
       if (value === 'single') { f.status = 'single'; f.partner = null; }
-      else { if (!f.partner) f.partner = { name: firstName(state.seed + ':partner:' + state.year + ':' + state.week, state.player ? state.player.nationality : 'ES', 'f'), happiness: 70, since: state.year }; f.status = value; }
+      else { if (!f.partner) f.partner = { name: firstName(state.seed + ':partner:' + state.year + ':' + state.week, state.player ? state.player.nationality : 'ES', partnerGender(state)), happiness: 70, since: state.year }; f.status = value; }
     } else if (key === 'baby') addChild(state, {});
     else return false;
     return true;

@@ -7,12 +7,17 @@
   const Player = CAA.Player || (typeof require === 'function' ? require('./player.js') : null);
   const Contracts = CAA.Contracts || (typeof require === 'function' ? require('./contracts.js') : null);
   const Names = CAA.Names || (typeof require === 'function' ? require('./names.js') : null);
+  const Catalog = CAA.LeagueCatalog || (typeof require === 'function' ? require('./leagues.js') : null);
 
   const LEAGUES = {
-    'es-iberica-men': { id: 'es-iberica-men', name: 'Liga Ibérica', ruleSet: 'FIBA-2026', teams: 18, games: 34, region: 'EU', level: 1 },
-    'es-ascenso-iberico': { id: 'es-ascenso-iberico', name: 'Ascenso Ibérico', ruleSet: 'FIBA-2026', teams: 18, games: 34, region: 'EU', level: 2 },
-    'na-boreal-men': { id: 'na-boreal-men', name: 'Liga Boreal', ruleSet: 'NA-2026-27', teams: 30, games: 82, region: 'NA', level: 1 }
+    'es-iberica-men': { id: 'es-iberica-men', name: 'Liga Ibérica', ruleSet: 'FIBA-2026', teams: 18, games: 34, region: 'EU', level: 1, gender: 'm', country: 'ES', continent: 'europe', pair: 'es-ascenso-iberico', inspired: true },
+    'es-ascenso-iberico': { id: 'es-ascenso-iberico', name: 'Ascenso Ibérico', ruleSet: 'FIBA-2026', teams: 18, games: 34, region: 'EU', level: 2, gender: 'm', country: 'ES', continent: 'europe', pair: 'es-iberica-men', inspired: true },
+    'na-boreal-men': { id: 'na-boreal-men', name: 'Liga Boreal', ruleSet: 'NA-2026-27', teams: 30, games: 82, region: 'NA', level: 1, gender: 'm', country: 'US', continent: 'americas', format: 'na', inspired: true }
   };
+  // Resto del mundo (masculinas y femeninas), todas ficticias: ver leagues.js.
+  if (Catalog) for (const id of Object.keys(Catalog.LEAGUES)) LEAGUES[id] = Catalog.LEAGUES[id];
+  const genderOf = leagueId => (LEAGUES[leagueId] && LEAGUES[leagueId].gender === 'f') ? 'women' : 'men';
+  function leagueBudget(league) { return league.budget != null ? league.budget : league.region === 'EU' ? (league.level === 1 ? 18000000 : 3500000) : 0; }
 
   function clubSeed(leagueId, index) { return leagueId + ':club:' + index; }
   function createClub(leagueId, index, name, rating) {
@@ -20,17 +25,20 @@
     const rng = RNG.create(clubSeed(leagueId, index));
     const players = [];
     const pos = ['PG', 'SG', 'SF', 'PF', 'C', 'PG', 'SG', 'SF', 'PF', 'C', 'SF', 'SG'];
+    const budget = leagueBudget(league), gender = league.gender === 'f' ? 'women' : 'men';
+    const nat = () => league.pool ? (rng.float() < league.share ? league.pool[0] : rng.pick(league.pool.slice(1))) : league.region === 'EU' ? (rng.float() < 0.6 ? 'ES' : rng.pick(['FR', 'DE', 'IT', 'TR', 'GR', 'LT', 'RS', 'AR', 'BR'])) : rng.pick(['US', 'US', 'US', 'CA', 'FR', 'AU', 'CN', 'JP', 'KR', 'PH', 'ZA']);
     for (let i = 0; i < 12; i++) {
       const quality = Math.max(30, Math.min(85, rating + (i < 5 ? 3 : -5) + rng.int(-4, 4)));
-      const p = Player.createPlayer({ seed: clubSeed(leagueId, index) + ':p' + i, pos: pos[i], quality, age: rng.int(19, 34), nationality: league.region === 'EU' ? (rng.float() < 0.6 ? 'ES' : rng.pick(['FR', 'DE', 'IT', 'TR', 'GR', 'LT', 'RS', 'AR', 'BR'])) : rng.pick(['US', 'US', 'US', 'CA', 'FR', 'AU', 'CN', 'JP', 'KR', 'PH', 'ZA']) });
-      p.contract = Contracts.offerForPlayer(p, { league: leagueId, budget: league.region === 'EU' ? (league.level === 1 ? 18000000 : 3500000) : 0 }, rng, Contracts.NA_ECONOMY_2026_27);
+      const p = Player.createPlayer({ seed: clubSeed(leagueId, index) + ':p' + i, pos: pos[i], quality, age: rng.int(19, 34), nationality: nat(), gender });
+      p.contract = Contracts.offerForPlayer(p, { league: leagueId, budget }, rng, Contracts.NA_ECONOMY_2026_27);
       players.push(p);
     }
-    return { id: leagueId + '-' + (index + 1), name, league: leagueId, region: league.region, budget: league.region === 'EU' ? (league.level === 1 ? 18000000 : 3500000) : 0, roster: players, tactic: Object.assign({}, Match.DEFAULT_TACTIC), wins: 0, losses: 0, pf: 0, pa: 0, streak: 0 };
+    return { id: leagueId + '-' + (index + 1), name, league: leagueId, region: league.region, budget, roster: players, tactic: Object.assign({}, Match.DEFAULT_TACTIC), wins: 0, losses: 0, pf: 0, pa: 0, streak: 0 };
   }
   function clubNames(leagueId) {
     const league = LEAGUES[leagueId];
     if (!league) throw new Error('unknown league ' + leagueId);
+    if (league.clubs) return league.clubs;
     return league.region === 'EU'
       ? (league.level === 1 ? ['Madrid Alcores','Barcelona Dracs','Valencia Horts','Sevilla Torres','Bilbao Forja','Málaga Faro','Zaragoza Viento','A Coruña Marea','Granada Alhambra','Murcia Huerta','Córdoba Mezquita','Valladolid Pinar','Santiago Bruma','Alicante Palmeral','Girona Onyar','Las Palmas Dunas','Pamplona Muralla','Santander Bahía'] : ['Madrid Cantera','Barcelona Litoral','Valencia Delta','Sevilla Compás','Bilbao Acero','Málaga Costa','Zaragoza Cierzo','A Coruña Faro','Granada Vega','Murcia Segura','Córdoba Patio','Valladolid Duero','Santiago Niebla','Alicante Sal','Girona Ter','Las Palmas Volcán','Pamplona Arga','Santander Ola'])
       : ['New York Bridges','Boston Beacons','Chicago Forge','Los Angeles Reels','Seattle Pines','Austin Comets','Miami Tides','Denver Peaks','Phoenix Sunsands','Portland Timberside','Sacramento Rivers','Salt Lake Summits','Oklahoma City Prairies','Dallas Lone Stars','Houston Bayous','San Antonio Alamos','Minneapolis Lakes','Milwaukee Brews','Detroit Motors','Cleveland Rocks','Indiana Pacerset','Atlanta Peaches','Charlotte Hornetside','Orlando Orbits','Washington Monuments','Philadelphia Keys','Brooklyn Docks','Toronto Towers','Memphis Blues','New Orleans Crescents'];
@@ -41,14 +49,30 @@
     const names = clubNames(leagueId);
     return Array.from({ length: league.teams }, (_, i) => ({ id: leagueId + '-' + (i + 1), name: names[i] || league.name + ' ' + (i + 1) }));
   }
+  function clubRating(league, i) {
+    if (league.strength == null) return league.region === 'EU' ? (league.level === 1 ? 62 : 52) : 55;
+    // Las primeras ciudades del catálogo son las potencias de su liga.
+    return Math.round(league.strength + (league.spread || 0) * (0.5 - i / Math.max(1, league.teams - 1)));
+  }
   function defaultClubs(leagueId) {
     const league = LEAGUES[leagueId];
     if (!league) throw new Error('unknown league ' + leagueId);
     const names = clubNames(leagueId);
     const out = [];
-    for (let i = 0; i < league.teams; i++) out.push(createClub(leagueId, i, names[i] || league.name + ' ' + (i + 1), league.region === 'EU' ? (league.level === 1 ? 62 : 52) : 55));
-    Names.assignInspiredToClubs(out, leagueId + ':inspired', league.region === 'EU' ? 'eu' : 'na', league.region === 'EU' && league.level === 2 ? 18 : 0);
+    for (let i = 0; i < league.teams; i++) out.push(createClub(leagueId, i, names[i] || league.name + ' ' + (i + 1), clubRating(league, i)));
+    if (league.inspired) Names.assignInspiredToClubs(out, leagueId + ':inspired', league.region === 'EU' ? 'eu' : 'na', league.region === 'EU' && league.level === 2 ? 18 : 0);
     return out;
+  }
+  // Lista para elegir liga: agrupada por continente y género.
+  function leagueList(gender) {
+    return Object.values(LEAGUES).filter(l => !gender || l.gender === gender).map(l => ({ id: l.id, name: l.name, country: l.country, continent: l.continent, gender: l.gender, level: l.level, teams: l.teams, strength: l.strength == null ? clubRating(l, 0) : l.strength }));
+  }
+  // Campeón de una liga que no se juega partido a partido (simulación ligera para las noticias del mundo).
+  function quickChampion(leagueId, seed) {
+    const league = LEAGUES[leagueId], names = clubNames(leagueId), rng = RNG.create(seed + ':' + leagueId);
+    const w = names.map((_, i) => Math.pow(1.22, clubRating(league, i) - 40) * (0.6 + rng.float()));
+    let best = 0; for (let i = 1; i < w.length; i++) if (w[i] > w[best]) best = i;
+    return { leagueId, club: names[best], id: leagueId + '-' + (best + 1) };
   }
 
   function roundRobin(ids) {
@@ -178,6 +202,6 @@
     return Hash.hex32(Hash.hashObject({ leagueId: season.leagueId, round: season.round, results: season.results, clubs: season.clubs.map(c => ({ id: c.id, wins: c.wins, losses: c.losses, pf: c.pf, pa: c.pa })) }));
   }
 
-  CAA.Season = { LEAGUES, createClub, clubCatalog, defaultClubs, createSchedule, createSeason, playRound, playRegularSeason, standings, euPromotionRelegation, naPlayoffSeeds, clubToMatchTeam, simulateGame, hashSeason, applyGameResult, gameSeed };
+  CAA.Season = { LEAGUES, genderOf, leagueBudget, leagueList, quickChampion, createClub, clubCatalog, defaultClubs, createSchedule, createSeason, playRound, playRegularSeason, standings, euPromotionRelegation, naPlayoffSeeds, clubToMatchTeam, simulateGame, hashSeason, applyGameResult, gameSeed };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Season;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -41,7 +41,8 @@
     const nationality = config.nationality || 'ES';
     const age = config.age || rng.int(18, 34);
     const quality = config.quality == null ? rng.int(38, 68) : config.quality;
-    const name = config.name || Names.generateName(seed + ':name', nationality).full;
+    const gender = (config.gender === 'f' || config.gender === 'women') ? 'f' : 'm';
+    const name = config.name || Names.generateName(seed + ':name', nationality, gender).full;
     const attrs = {};
     const posBias = POS_WEIGHTS[pos.includes('/') ? pos.split('/')[0] : pos] || {};
     const archBias = ARCHETYPE_BIAS[archetype] || {};
@@ -57,7 +58,7 @@
     return {
       id: config.id || 'p-' + seed,
       name, nationality, secondNationality: config.secondNationality || null,
-      gender: config.gender || 'men', age, pos, archetype,
+      gender: gender === 'f' ? 'women' : 'men', age, pos, archetype,
       handedness: config.handedness || (rng.float() < 0.1 ? 'left' : 'right'),
       height, wingspan, weight,
       attrs, ovr: ovr(attrs, pos), potential,

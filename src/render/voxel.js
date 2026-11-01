@@ -146,6 +146,7 @@
     part(-0.46,1.28,0,0.21,0.58,0.23,'skinA'); part(0.46,1.28,0,0.21,0.58,0.23,'skinA');
     part(-0.09,1.81,0.215,0.06,0.06,0.03,'hair'); part(0.09,1.81,0.215,0.06,0.06,0.03,'hair');
     part(0,1.98,0,0.48,0.07,0.46,'accessory');
+    if (profile.women) { part(0,1.9,-0.26,0.18,0.14,0.12,'hair'); part(0,1.66,-0.3,0.13,0.3,0.11,'hair'); }
     const hand = profile.handedness === 'left' ? -0.58 : 0.58;
     add(hand,1.02,0.28,0.24,0.24,0.24,'ball');
     if (profile.mode === 'coach') { colors.jersey = hex('#344d58') || colors.post; part(0,1.32,0.22,0.18,0.4,0.04,'line'); }
@@ -193,6 +194,7 @@
       part(0, 1.72, 0, 0.42, 0.42, 0.4, p.team ? 'skinB' : 'skinA'); part(0, 1.94, -0.02, 0.44, 0.12, 0.42, 'hair');
       const armY = 1.22 + p.armsUp * 0.48;
       part(-0.43, armY, p.armsUp * 0.18, 0.2, 0.55, 0.22, 'skinA'); part(0.43, armY, p.armsUp * 0.18, 0.2, 0.55, 0.22, 'skinA');
+      if (options.women) { part(0, 1.86, -0.25, 0.16, 0.13, 0.11, 'hair'); part(0, 1.64, -0.28, 0.12, 0.26, 0.1, 'hair'); }
       if (quality === 'balanced') { part(-0.09, 1.76, 0.205, 0.055, 0.055, 0.025, 'hair'); part(0.09, 1.76, 0.205, 0.055, 0.055, 0.025, 'hair'); }
     }
     if (options.arena !== false) {

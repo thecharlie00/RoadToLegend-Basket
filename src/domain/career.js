@@ -17,7 +17,7 @@
   const Family = CAA.Family || (typeof require === 'function' ? require('./family.js') : null);
 
   const MODES = ['player', 'coach'];
-  const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted'];
+  const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted', 'world'];
 
   function createCareer(config = {}) {
     const mode = config.mode || 'player';
@@ -27,18 +27,20 @@
     const route = config.route || (mode === 'coach' ? 'eu-academy' : 'eu-academy');
     const seed = config.seed == null ? 'career' : config.seed;
     const rng = RNG.create(seed);
-    const leagueId = route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
+    if (config.leagueId && !Season.LEAGUES[config.leagueId]) throw new Error('unknown league');
+    const leagueId = config.leagueId || (route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men');
     const season = Season.createSeason(leagueId, seed + ':season');
-    const topSeason = route === 'eu-academy' ? Season.createSeason('es-iberica-men', seed + ':season-top') : null;
+    const pair = Season.LEAGUES[leagueId].pair;
+    const topSeason = pair ? Season.createSeason(pair, seed + ':season-top') : null;
     const club = config.clubId ? season.clubs.find(c => c.id === config.clubId) : season.clubs[season.clubs.length - 1];
     if (!club) throw new Error('club not found');
     const state = {
       schemaVersion: 1, careerId: config.careerId || 'career-' + Hash.hex32(Hash.hashString(String(seed))),
-      mode, route, seed, rng: rng.serialize(), week: 0, year: 2026, season, topSeason, clubId: club.id, startingClubId: club.id,
+      mode, route: config.leagueId && route !== 'na-draft' && route !== 'na-undrafted' && leagueId !== 'es-ascenso-iberico' ? 'world' : route, seed, rng: rng.serialize(), week: 0, year: 2026, season, topSeason, clubId: club.id, startingClubId: club.id,
       player: null, coach: null, inbox: [], market: [], draft: null, history: [], hash: '00000000'
     };
     if (mode === 'player') {
-      const p = Player.createPlayer({ seed: seed + ':myplayer', nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || 'shooter', handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
+      const p = Player.createPlayer({ seed: seed + ':myplayer', gender: Season.genderOf(leagueId), nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || 'shooter', handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
       // Tu jugador siempre tiene margen real: el techo oculto queda 14-28 puntos por encima de su media inicial.
       p.potential = Math.max(p.potential, Math.min(95, p.ovr + 14 + rng.int(0, 14)));
       p.number = Number.isInteger(config.number) && config.number >= 0 && config.number <= 99 ? config.number : 7;
@@ -51,7 +53,7 @@
       state.coach = { name: config.name || 'Coach', authority: config.authority || 'coach', morale: 70, trust: 65 };
       state.inbox.push({ type: 'welcome', text: 'welcome-coach', week: 0 });
     }
-    if (route === 'na-draft' || route === 'na-undrafted') {
+    if ((route === 'na-draft' || route === 'na-undrafted') && leagueId === 'na-boreal-men') {
       const table = Season.standings(season.clubs);
       const lottery = Draft.lotteryOrder(table.slice(-14).map(r => r.id), seed + ':lottery');
       const order = Draft.draftOrder(lottery, table.slice(0, 16).map(r => r.id));
@@ -321,7 +323,14 @@
       const mine = (state.season.clubsById[state.clubId] || state.topSeason && state.topSeason.clubsById[state.clubId]);
       const updated = mine && mine.roster.find(p => p.id === state.player.id);
       if (updated) state.player = updated;
+      if (state.pendingMove && !state.player.career.retired) { moveTo(state, state.pendingMove.leagueId, state.pendingMove.clubId); }
+      state.pendingMove = null;
+      worldOffers(state, rng);
     }
+    // Noticias del mundo: campeones del resto de ligas (simulación ligera).
+    const played = [state.history[state.history.length - 1].leagueId, other && other.leagueId];
+    state.world = { year: state.year - 1, champions: Object.keys(Season.LEAGUES).filter(id => !played.includes(id)).map(id => Season.quickChampion(id, state.seed + ':world:' + state.year)) };
+    if (other) state.world.champions.unshift({ leagueId: other.leagueId, club: other.clubsById[other.champion || (other.playoffs && other.playoffs.champion) || Season.standings(other.clubs)[0].id].name });
     state.week = 0;
     state.live = null;
     record(state, { type: 'seasonEnd', year: state.year - 1, champion: season.champion });
@@ -439,6 +448,56 @@
     c.childrenCount = Math.max(c.childrenCount || 0, f.children.length); c.generation = f.generation; c.legends = f.legends.length;
     Content.evaluateAchievements(state);
   }
+  // Liga de arranque del heredero: la más modesta de su país y de su género (o la Ibérica como refugio).
+  function heirLeague(currentId, female) {
+    const cur = Season.LEAGUES[currentId], want = female ? 'f' : 'm';
+    if (!female && currentId === 'na-boreal-men') return 'na-boreal-men';
+    if (!female && cur.country === 'ES') return 'es-ascenso-iberico';
+    const same = Season.leagueList(want).filter(l => l.country === cur.country).sort((a, b) => b.level - a.level || a.strength - b.strength)[0];
+    return same ? same.id : female ? 'es-iberica-women' : 'es-ascenso-iberico';
+  }
+  // Traslada al jugador del usuario a otro club (de su liga o de otra del mundo).
+  function moveTo(state, leagueId, clubId) {
+    const L = Season.LEAGUES[leagueId];
+    if (!L) throw new Error('unknown league');
+    const p = state.player, old = clubOf(state);
+    if (old) old.roster = old.roster.filter(x => x.id !== p.id);
+    let season = state.season.leagueId === leagueId ? state.season : state.topSeason && state.topSeason.leagueId === leagueId ? state.topSeason : null;
+    if (!season) {
+      season = Season.createSeason(leagueId, state.seed + ':move:' + state.year + ':' + leagueId);
+      state.topSeason = L.pair ? Season.createSeason(L.pair, state.seed + ':move-pair:' + state.year) : null;
+    } else if (season === state.topSeason) state.topSeason = state.season;
+    state.season = season;
+    const club = season.clubsById[clubId] || season.clubs[season.clubs.length - 1];
+    club.roster.push(p);
+    state.clubId = club.id; state.live = null;
+    p.coachTrust = Math.min(p.coachTrust == null ? 55 : p.coachTrust, 55);
+    state.route = leagueId === 'na-boreal-men' ? (state.route === 'na-draft' ? 'na-draft' : 'na-undrafted') : leagueId === 'es-ascenso-iberico' || leagueId === 'es-iberica-men' ? 'eu-academy' : 'world';
+    state.inbox.push({ type: 'moved', week: state.week, detail: { leagueId, club: club.name } });
+    return club;
+  }
+  // Oferta de un club concreto de otra liga para el jugador del usuario.
+  function foreignOffer(state, leagueId, rng) {
+    const L = Season.LEAGUES[leagueId], p = state.player;
+    const names = Season.clubCatalog(leagueId);
+    const club = names[rng.int(0, names.length - 1)];
+    const offer = Contracts.offerForPlayer(p, { league: leagueId, budget: Season.leagueBudget(L) }, rng, Contracts.NA_ECONOMY_2026_27);
+    offer.salary = Math.round(offer.salary * Content.offerFactor(state));
+    const buyout = p.contract && p.contract.league === 'EU' && p.contract.years > 0 ? Contracts.buyoutCost(p) : 0;
+    return { playerId: p.id, clubId: club.id, contract: offer, crossing: { targetLeague: leagueId, clubId: club.id, clubName: club.name, buyout, draftAndStash: leagueId === 'na-boreal-men' && p.age < 22 && rng.float() < 0.35 } };
+  }
+  // Al final de temporada llegan ofertas del extranjero acordes al nivel del jugador.
+  function worldOffers(state, rng) {
+    const p = state.player;
+    if (!p || p.career.retired) return;
+    const L = Season.LEAGUES[state.season.leagueId];
+    const pool = Season.leagueList(L.gender).filter(l => l.id !== state.season.leagueId && l.id !== L.pair && p.ovr >= l.strength - 8);
+    const n = Math.min(pool.length, p.ovr >= 70 ? 2 : 1);
+    for (let i = 0; i < n; i++) {
+      const pick = pool.splice(rng.int(0, pool.length - 1), 1)[0];
+      if (rng.float() < 0.25 + Math.max(0, p.ovr - pick.strength) * 0.05) { const o = foreignOffer(state, pick.id, rng); state.market.push(o); state.inbox.push({ type: 'foreignOffer', week: state.week, detail: o.crossing }); }
+    }
+  }
   // Tras la retirada: seguir como entrenador, relevo con tu hijo/a o fin de la carrera.
   function afterRetirement(state, config = {}) {
     const r = state.retirement;
@@ -454,21 +513,20 @@
     } else if (config.choice === 'heir') {
       const child = f.children[config.childIndex == null ? f.children.length - 1 : config.childIndex];
       if (!child) throw new Error('no child to take over');
-      if (child.gender === 'f') throw new Error('women leagues not available yet');
       f.legends.push(legend); f.generation++;
       const age = state.year - child.bornYear;
       if (age < 18) state.year += 18 - age;
       const gen = f.generation;
-      const isNA = state.season.leagueId === 'na-boreal-men';
-      const leagueId = isNA ? 'na-boreal-men' : 'es-ascenso-iberico';
+      const leagueId = heirLeague(state.season.leagueId, child.gender === 'f');
+      const pair = Season.LEAGUES[leagueId].pair;
       state.season = Season.createSeason(leagueId, state.seed + ':gen' + gen + ':season', null);
-      state.topSeason = isNA ? null : Season.createSeason('es-iberica-men', state.seed + ':gen' + gen + ':top');
-      state.route = isNA ? 'na-undrafted' : 'eu-academy';
+      state.topSeason = pair ? Season.createSeason(pair, state.seed + ':gen' + gen + ':top') : null;
+      state.route = leagueId === 'na-boreal-men' ? 'na-undrafted' : leagueId === 'es-ascenso-iberico' ? 'eu-academy' : 'world';
       const homeClub = state.season.clubsById[legend.lastClub] || state.season.clubs[state.season.clubs.length - 1];
       const rng = RNG.create(state.seed + ':heir:' + gen);
       const quality = Math.max(46, Math.min(62, 50 + Family.legacyBonus(legend) + Math.round((child.talent - 55) / 5)));
       const pos = ['PG', 'SG', 'SF', 'PF', 'C'].includes(config.pos) ? config.pos : 'SG';
-      const p = Player.createPlayer({ seed: state.seed + ':heir:' + gen, nationality: legend.nationality || (state.player && state.player.nationality) || 'ES', pos, archetype: Player.ARCHETYPES.includes(config.archetype) ? config.archetype : 'shooter', handedness: 'right', name: child.name + ' ' + (f.surname || ''), age: 18, quality });
+      const p = Player.createPlayer({ seed: state.seed + ':heir:' + gen, gender: child.gender === 'f' ? 'women' : 'men', nationality: legend.nationality || (state.player && state.player.nationality) || 'ES', pos, archetype: Player.ARCHETYPES.includes(config.archetype) ? config.archetype : 'shooter', handedness: 'right', name: child.name + ' ' + (f.surname || ''), age: 18, quality });
       p.potential = Math.max(p.potential, Math.min(96, p.ovr + 18 + rng.int(0, 12)));
       p.number = config.keepNumber && legend.number != null ? legend.number : 7;
       p.coachTrust = 58; p.confidence = 0;
@@ -542,23 +600,31 @@
   function exploreCrossing(state, targetLeagueId) {
     if (!state.player) throw new Error('player career required');
     const rng = RNG.create(0); rng.restore(state.rng);
-    const target = targetLeagueId === 'na-boreal-men' ? 'na-boreal-men' : 'es-iberica-men';
-    const p = state.player;
-    const buyout = p.contract && p.contract.league === 'EU' ? Contracts.buyoutCost(p) : 0;
-    const fakeClub = { league: target, budget: target === 'es-iberica-men' ? 18000000 : 0 };
-    const offer = Contracts.offerForPlayer(p, fakeClub, rng, Contracts.NA_ECONOMY_2026_27);
-    const crossing = { targetLeague: target, buyout, contract: offer, draftAndStash: target === 'na-boreal-men' && p.age < 22 && rng.float() < 0.35 };
-    state.market.push({ playerId: p.id, clubId: state.clubId, contract: offer, crossing });
-    state.inbox.push({ type: 'crossing', week: state.week, detail: crossing });
+    const L = Season.LEAGUES[state.season.leagueId];
+    let target = Season.LEAGUES[targetLeagueId] ? targetLeagueId : (L.gender === 'f' ? (state.season.leagueId === 'na-boreal-women' ? 'es-iberica-women' : 'na-boreal-women') : state.season.leagueId === 'na-boreal-men' ? 'es-iberica-men' : 'na-boreal-men');
+    if (Season.LEAGUES[target].gender !== L.gender) throw new Error('league of another category');
+    if (target === state.season.leagueId) throw new Error('already in that league');
+    const o = foreignOffer(state, target, rng);
+    state.market.push(o);
+    state.inbox.push({ type: 'crossing', week: state.week, detail: o.crossing });
     state.rng = rng.serialize();
-    record(state, { type: 'crossing', target, buyout });
-    return crossing;
+    record(state, { type: 'crossing', target, buyout: o.crossing.buyout });
+    return Object.assign({ contract: o.contract }, o.crossing);
   }
   function signOffer(state, index) {
     const offer = state.market[index || 0];
     if (!offer || !state.player) throw new Error('no offer');
     state.player.contract = offer.contract;
     Content.ensureLife(state).counters.signs++;
+    if (offer.crossing) {
+      // Antes del primer partido de la temporada el traspaso es inmediato; si no, se hace efectivo en verano.
+      const fresh = state.season.round === 0 && !state.season.playoffs;
+      if (fresh) { moveTo(state, offer.crossing.targetLeague, offer.crossing.clubId); state.pendingMove = null; }
+      else state.pendingMove = { leagueId: offer.crossing.targetLeague, clubId: offer.crossing.clubId };
+      state.market = state.market.filter(m => m !== offer && !m.crossing);
+      record(state, { type: 'sign', salary: offer.contract.salary, crossing: offer.crossing.targetLeague });
+      return state;
+    }
     state.market.splice(index || 0, 1);
     record(state, { type: 'sign', salary: offer.contract.salary });
     return state;
@@ -601,7 +667,8 @@
     return {
       leagueName: league.name || state.season.leagueId, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
-      leagueId: state.season.leagueId, round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
+      leagueId: state.season.leagueId, league: { country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
+      round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
       event: Content.pendingView(state), pet: state.pet || null, family: state.family || null, retirement: state.retirement || null, careerOver: !!state.careerOver, lastSeason: state.lastSeasonSummary && !state.lastSeasonSummary.dismissed ? state.lastSeasonSummary : null,
       playoffs: state.season.playoffs ? { format: state.season.playoffs.format, round: Playoffs.current(state.season.playoffs).name, done: state.season.playoffs.done, series: Playoffs.seriesOf(state.season.playoffs, state.clubId), status: Playoffs.status(state.season.playoffs, state.clubId), result: Playoffs.resultOf(state.season.playoffs, state.clubId) } : null,
@@ -625,7 +692,7 @@
     function season(s, optional) {
       if (optional && s == null) return;
       if (!object(s) || !Array.isArray(s.clubs) || !Array.isArray(s.schedule) || !object(s.clubsById)) { errors.push('invalid season'); return; }
-      if (![18, 30].includes(s.clubs.length) || s.schedule.length > 100 || !Number.isInteger(s.round) || s.round < 0 || s.round > s.schedule.length) { errors.push('invalid season size/round'); return; }
+      if (!(Season.LEAGUES[s.leagueId] && s.clubs.length === Season.LEAGUES[s.leagueId].teams) || s.schedule.length > 100 || !Number.isInteger(s.round) || s.round < 0 || s.round > s.schedule.length) { errors.push('invalid season size/round'); return; }
       const ids = new Set();
       for (const c of s.clubs) {
         if (!object(c) || typeof c.id !== 'string' || ids.has(c.id) || typeof c.name !== 'string' || !Array.isArray(c.roster) || c.roster.length < 5 || c.roster.length > 30 || !finite(c.wins) || !finite(c.losses)) { errors.push('invalid club'); continue; }
@@ -683,6 +750,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -75,6 +75,11 @@
       "worker": true
     },
     {
+      "id": "leagues",
+      "path": "src/domain/leagues.js",
+      "worker": true
+    },
+    {
       "id": "season",
       "path": "src/domain/season.js",
       "worker": true

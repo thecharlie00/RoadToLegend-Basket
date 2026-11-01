@@ -71,15 +71,50 @@
     KR: { first: ['Min-jun','Seo-jun','Do-yun','Ha-jun','Ji-ho','Eun-woo','Si-woo','Yu-jun','Ju-won','Ga-on','Hyun-woo','Seung-min','Tae-yang','Jin-woo','Dong-hyun','Sung-ho'], last: ['Gang','Namgung','Do','Bae','Seo','Sunwoo','An','Yeo','Hwangbo','Jegal','Hwang','Son','Yu','Hong','Jeon','Go'] },
     PH: { first: ['Adrian','Benjie','Carlo','Dante','Emilio','Franco','Gio','Hector','Iñigo','Jomar','Kiko','Lorenzo','Miguel','Nico','Paolo','Rafael','Sandro','Tonio'], last: ['Agbayani','Bautista','Castillo','Dizon','Espino','Fajardo','Gatchalian','Hizon','Ilagan','Javier','Katigbak','Lacson','Manalo','Navarro','Ocampo','Panganiban'] },
     ZA: { first: ['Bandile','Chumani','Dumisani','Enzokuhle','Fanele','Gcobani','Hlumelo','Inathi','Jabulani','Kagiso','Lwazi','Mandla','Nkosinathi','Onke','Phakamile','Siyabonga','Thabo','Unathi'], last: ['Arendse','Baloyi','Cele','Dlamini','Ebrahim','Fani','Gumede','Hadebe','Jacobs','Khumalo','Luthuli','Mabaso','Nkosi','Oosthuizen','Pillay','Radebe','Sithole','Zulu'] },
+    NG: { first: ['Chinedu','Emeka','Ikenna','Kelechi','Obinna','Olumide','Tunde','Uche','Yusuf','Femi','Ade','Chuka'], last: ['Adeyemi','Balogun','Eze','Nwosu','Okafor','Okeke','Oladipo','Onuoha','Uzoma','Ibekwe'] },
+    SN: { first: ['Abdou','Cheikh','Gorgui','Ibrahima','Mamadou','Moustapha','Ousmane','Pape','Serigne','Tacko','Youssou','Babacar'], last: ['Ba','Cissé','Diallo','Diop','Fall','Faye','Gueye','Ndiaye','Sarr','Seck','Sow','Thiam'] },
+    MX: { first: ['Alejandro','Diego','Emiliano','Gael','Iván','Jorge','Leonardo','Manuel','Rodrigo','Santiago','Uriel','Ximeno'], last: ['Aguilar','Castañeda','Domínguez','Escobedo','Garza','Hernández','Ibarra','Mendoza','Ramírez','Sandoval','Treviño','Villalobos'] },
     DEFAULT: { first: ['Alex','Blair','Casey','Drew','Emery','Finley','Gray','Harper','Indigo','Jules','Kai','Lane','Morgan','Noel','Oakley','Parker','Reese','Sage'], last: ['Arden','Brook','Cedar','Dale','Ember','Field','Glen','Hollow','Ives','Jordan','Keel','Lark','Marsh','North','Orchard','Pike','Quill','Rowan'] }
   };
 
+  // Nombres femeninos por nacionalidad (los apellidos se comparten salvo formas propias de LT y GR).
+  const FEMALE = {
+    ES: ['Alba','Lucía','Carla','Paula','Marta','Laura','Noa','Irene','Claudia','Sara','Elena','Nerea','Aitana','Leire','Queralt','Raquel','Ainhoa','Cristina','Iris','Vega'],
+    US: ['Aaliyah','Brianna','Caitlin','Destiny','Erica','Gabrielle','Imani','Jasmine','Kelsey','Maya','Natalie','Paige','Riley','Skylar','Taylor','Zoe'],
+    FR: ['Amandine','Camille','Chloé','Élodie','Fatou','Inès','Juliette','Léa','Manon','Marine','Océane','Pauline','Sarah','Yasmine'],
+    DE: ['Anna','Emma','Hannah','Johanna','Laura','Lea','Lena','Marie','Mia','Nina','Sophie','Svenja'],
+    IT: ['Alessia','Beatrice','Chiara','Elisa','Francesca','Giulia','Ilaria','Martina','Sara','Sofia','Valentina','Cecilia'],
+    TR: ['Ayşe','Buse','Cansu','Defne','Ece','Elif','Gizem','Merve','Nilay','Selin','Tuğba','Zeynep'],
+    GR: ['Anastasia','Christina','Eleni','Georgia','Ioanna','Katerina','Maria','Sofia','Vasiliki','Zoi'],
+    AR: ['Agustina','Camila','Delfina','Florencia','Julieta','Lucía','Martina','Micaela','Sol','Valentina'],
+    BR: ['Ana','Beatriz','Camila','Damiris','Fernanda','Isabela','Júlia','Larissa','Mariana','Tainá','Yasmin'],
+    AU: ['Abbey','Chloe','Ezi','Georgia','Isla','Jade','Lauren','Matilda','Sami','Tahlia'],
+    CA: ['Ava','Bridget','Kia','Laeticia','Maddie','Natalie','Nirra','Shay','Syla','Yvonne'],
+    LT: ['Aistė','Eglė','Gintarė','Ieva','Justė','Kotryna','Laura','Milda','Rūta','Urtė'],
+    RS: ['Ana','Dragana','Jelena','Milica','Nevena','Sonja','Tamara','Teodora','Vanja','Yvonne'],
+    CN: ['Fang','Hui','Jing','Lan','Li','Mei','Ning','Qing','Xia','Xue','Yan','Yu'],
+    JP: ['Aiko','Haruka','Hina','Maki','Moeko','Nanako','Rui','Saki','Yuki','Yuna'],
+    KR: ['Ji-su','Min-ji','Seo-yeon','Ha-eun','Ye-jin','Su-bin','Da-eun','Ji-woo'],
+    PH: ['Afril','Andrea','Camille','Clare','Janine','Kristine','Mikaela','Sofia'],
+    ZA: ['Ayanda','Lerato','Naledi','Nomvula','Thandeka','Zanele','Zodwa'],
+    NG: ['Adaora','Amarachi','Chioma','Ezinne','Ifeoma','Ngozi','Oluchi','Temitope'],
+    SN: ['Aminata','Astou','Awa','Fatou','Khady','Mame','Ndèye','Yacine'],
+    MX: ['Ana','Daniela','Fernanda','Guadalupe','Itzel','Jimena','Mariana','Regina','Valeria','Ximena'],
+    DEFAULT: ['Alex','Blair','Casey','Drew','Emery','Harper','Jules','Morgan','Reese','Sage']
+  };
+  function femaleLast(last, nationality) {
+    if (nationality === 'LT') return last.replace(/(as|is|ys|us)$/, m => ({ as: 'aitė', is: 'ytė', ys: 'ytė', us: 'utė' })[m]);
+    if (nationality === 'GR') return last.replace(/(os|as|is)$/, m => ({ os: 'ou', as: 'a', is: 'i' })[m]);
+    return last;
+  }
+
   function pool(nationality) { return POOLS[nationality] || POOLS.DEFAULT; }
-  function generateName(seed, nationality) {
+  function generateName(seed, nationality, gender) {
     const rng = RNG.create(seed);
     const p = pool(nationality);
-    const first = rng.pick(p.first);
-    const last = rng.pick(p.last);
+    let first = rng.pick(p.first);
+    let last = rng.pick(p.last);
+    if (gender === 'f') { first = rng.pick(FEMALE[nationality] || FEMALE.DEFAULT); last = femaleLast(last, nationality); }
     return { first, last, full: first + ' ' + last };
   }
   function generateRosterNames(seed, nationality, count) {
@@ -94,6 +129,6 @@
     return out;
   }
 
-  CAA.Names = { POOLS, configure, getPack, inspiredName, assignInspiredToClubs, generateName, generateRosterNames };
+  CAA.Names = { POOLS, FEMALE, configure, getPack, inspiredName, assignInspiredToClubs, generateName, generateRosterNames };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Names;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

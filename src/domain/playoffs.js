@@ -19,7 +19,7 @@
   function create(season) {
     const league = S().LEAGUES[season.leagueId];
     const table = S().standings(season.clubs);
-    const b = { leagueId: season.leagueId, format: league.region === 'NA' ? 'na' : league.level === 1 ? 'eu-top' : 'eu-promotion', rounds: [], champion: null, runnerUp: null, promoted: [], seeds: {}, done: false, step: 0 };
+    const b = { leagueId: season.leagueId, format: league.format || (league.level === 1 ? 'eu-top' : 'eu-promotion'), rounds: [], champion: null, runnerUp: null, promoted: [], seeds: {}, done: false, step: 0 };
     if (b.format === 'na') {
       const confs = { east: [], west: [] };
       for (const r of table) confs[conferenceOf(season.clubsById[r.id])].push(r.id);

@@ -78,7 +78,8 @@
           break;
         case 'career.clubs': {
           const route = msg.payload && msg.payload.route || 'eu-academy';
-          const leagueId = route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
+          const wanted = msg.payload && msg.payload.leagueId;
+          const leagueId = route === 'world' && CAA.Season.LEAGUES[wanted] ? wanted : route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
           result = { route, leagueId, clubs: CAA.Season.clubCatalog(leagueId) };
           break;
         }
