@@ -44,6 +44,11 @@ def font_faces() -> str:
             f"@font-face{{font-family:'{family}';font-style:normal;font-weight:{weight};"
             f"font-display:swap;src:url(data:font/woff2;base64,{b64}) format('woff2')}}"
         )
+    # CamDisp (como en el juego de fútbol): letras de Pixelify Sans con cifras y signos de Atkinson, legibles.
+    for filename, weight, rng in [("pixelify-sans-latin-700-normal.woff2", 700, "U+0000-002F,U+003A-00FF,U+0131,U+0152-0153,U+02C6,U+2000-206F"),
+                                  ("atkinson-hyperlegible-next-latin-700-normal.woff2", 700, "U+0030-0039,U+002B-002E,U+0025,U+00B7,U+2013,U+2212")]:
+        b64 = base64.b64encode((ROOT / "src/assets/fonts" / filename).read_bytes()).decode("ascii")
+        faces.append(f"@font-face{{font-family:'CamDisp';font-style:normal;font-weight:{weight};font-display:swap;unicode-range:{rng};src:url(data:font/woff2;base64,{b64}) format('woff2')}}")
     return "\n".join(faces) + "\n"
 
 

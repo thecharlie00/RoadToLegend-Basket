@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-10-31T23:40:42.251Z",
+  "date": "2026-11-01T00:15:55.217Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -70,12 +70,22 @@
   "accessibility": [
     {
       "locale": "es",
-      "tab": "world",
+      "tab": "boot-lang",
       "violations": []
     },
     {
       "locale": "es",
-      "tab": "match",
+      "tab": "boot-menu",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "boot-modes",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "boot-create",
       "violations": []
     },
     {
@@ -86,6 +96,26 @@
     {
       "locale": "es",
       "tab": "life",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "league",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "more",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "world",
+      "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "match",
       "violations": []
     },
     {
@@ -141,14 +171,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-10-31T23:40:54.558Z",
+    "measuredAt": "2026-11-01T00:16:08.884Z",
     "frames": 180,
     "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.8,
+    "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
     "meanFps": 60,
-    "framesOver16_67Ms": 113,
+    "framesOver16_67Ms": 109,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -177,14 +207,14 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-10-31T23:41:09.176Z",
+    "measuredAt": "2026-11-01T00:16:26.268Z",
     "frames": 180,
-    "meanFrameMs": 16.665,
+    "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
-    "meanFps": 60.01,
-    "framesOver16_67Ms": 111,
+    "meanFps": 60,
+    "framesOver16_67Ms": 114,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -199,7 +229,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 35100000
+    "jsHeapUsedBytes": 21700000
   },
   "avatar": {
     "version": "voxel-1",
@@ -234,7 +264,7 @@
     ]
   },
   "locales": {
-    "es": 309,
-    "en": 309
+    "es": 553,
+    "en": 553
   }
 }

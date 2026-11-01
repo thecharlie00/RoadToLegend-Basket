@@ -21,27 +21,56 @@ async function scenario(name, options, fn) {
   await context.close();
 }
 async function click(page, action) { await page.locator(`[data-action="${action}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
-async function tab(page, name) { await page.locator(`[data-tab="${name}"]`).click(); }
+const screen = page => page.evaluate(() => CAA_APP.state.screen);
+async function enterGame(page) {
+  if (await screen(page) === 'lang') await click(page, 'boot-lang"][data-locale="es');
+  if (await screen(page) === 'menu') { if (await page.locator('[data-action="boot-continue"]').count()) await click(page, 'boot-continue'); else await page.locator('[data-action="boot-open"][data-target="more"]').click(); }
+}
+async function tab(page, name) {
+  await enterGame(page);
+  if (!(await page.locator(`[data-tab="${name}"]`).count())) await page.locator('#tab-more').click();
+  await page.locator(`[data-tab="${name}"]`).first().click();
+}
+async function reload(page) { await page.reload(); await page.waitForFunction(() => globalThis.CAA_APP); await enterGame(page); }
+// Recorre portada → modos → asistente por pasos, como un usuario.
+async function newCareer(page, o = {}) {
+  if (await screen(page) === 'lang') await click(page, 'boot-lang"][data-locale="es');
+  if (await screen(page) === 'game') await page.locator('[data-action="boot-menu"]').first().click();
+  await click(page, 'boot-new');
+  await page.locator(`[data-action="boot-mode"][data-mode="${o.mode || 'player'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+  if (o.name) await page.locator('#career-name').fill(o.name);
+  const set = async (field, value) => { await page.locator(`[data-action="wiz-set"][data-field="${field}"][data-value="${value}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); };
+  while (!(await page.locator('[data-action="career-create"]').count())) {
+    if (o.archetype && await page.locator('[data-field="archetype"]').count()) await set('archetype', o.archetype);
+    if (o.handedness && await page.locator('[data-field="handedness"]').count()) await set('handedness', o.handedness);
+    await click(page, 'wiz-next');
+  }
+  if (o.route) await set('route', o.route);
+  await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
+  if (o.clubId) await set('clubId', o.clubId);
+  if (o.seed) { await page.locator('details summary').first().click(); await page.locator('#career-seed').fill(o.seed); }
+  await click(page, 'career-create');
+  if (await page.locator('[data-action="confirm-yes"]').count()) await click(page, 'confirm-yes');
+  await page.waitForFunction(() => CAA_APP.state.screen === 'game' && CAA_APP.state.career.state && CAA_APP.state.saveState !== 'saving');
+}
 try {
   await scenario('desktop career / autosave / reload / import / event / committed practice', {}, async (page, context) => {
     assert.equal(await page.evaluate(() => CAA_APP.worker.getMode()), 'worker');
-    await tab(page, 'career');
-    await page.locator('#career-seed').fill('phase5-browser');
-    await click(page, 'career-create');
-    await page.waitForFunction(() => CAA_APP.state.career.state && CAA_APP.state.saveState === 'saved');
+    await newCareer(page, { seed: 'phase5-browser' });
+    await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.week), 0);
     await click(page, 'career-play');
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.week), 1);
-    await page.reload(); await page.waitForFunction(() => globalThis.CAA_APP);
+    await reload(page);
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.week), 1);
     await click(page, 'career-play'); await click(page, 'career-play');
-    await tab(page, 'life');
+    await tab(page, 'career');
     await page.locator('[data-action="life-event"][data-option="a"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.life.pendingEvent), null);
-    await click(page, 'life-practice-start');
+    await tab(page, 'life'); await click(page, 'life-practice-start');
     assert.ok(await page.evaluate(() => CAA_APP.state.career.state.life.pendingPractice));
     const attempt = await page.evaluate(() => CAA_APP.state.career.state.life.pendingPractice.id);
-    await page.reload(); await page.waitForFunction(() => globalThis.CAA_APP);
+    await reload(page);
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.life.pendingPractice.id), attempt);
     await tab(page, 'life'); await click(page, 'life-practice-resume'); await click(page, 'life-practice-release');
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.life.pendingPractice), null);
@@ -71,12 +100,20 @@ try {
     assert.equal(await page.evaluate(async () => await CAA_APP.storage.load('slot-2')), null);
   });
   await scenario('mobile 360px / keyboard / Spanish a11y', { viewport: { width: 360, height: 800 } }, async page => {
-    await tab(page, 'career'); await click(page, 'career-create'); await click(page, 'career-play'); await click(page, 'career-play'); await click(page, 'career-play');
+    for (const step of ['lang', 'menu', 'modes', 'create']) {
+      assert.equal(await screen(page), step);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'horizontal overflow: ' + step);
+      const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+      report.accessibility.push({ locale: 'es', tab: 'boot-' + step, violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+      if (step === 'lang') await click(page, 'boot-lang"][data-locale="es'); else if (step === 'menu') await click(page, 'boot-new'); else if (step === 'modes') await click(page, 'boot-mode"][data-mode="player');
+    }
+    await click(page, 'wiz-cancel'); await click(page, 'boot-back');
+    await newCareer(page); await click(page, 'career-play'); await click(page, 'career-play'); await click(page, 'career-play');
     await tab(page, 'match'); await click(page, 'match-simulate');
-    await page.locator('#tab-world').focus(); await page.keyboard.press('ArrowRight');
-    assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-match');
-    await page.keyboard.press('End'); assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-settings');
-    for (const name of ['world', 'match', 'career', 'life', 'save', 'lab', 'settings']) {
+    await page.locator('#tab-career').focus(); await page.keyboard.press('ArrowRight');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-life');
+    await page.keyboard.press('End'); assert.equal(await page.evaluate(() => document.activeElement.id), 'tab-more');
+    for (const name of ['career', 'life', 'league', 'more', 'world', 'match', 'save', 'lab', 'settings']) {
       await tab(page, name);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'horizontal overflow: ' + name);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
@@ -99,7 +136,7 @@ try {
   });
   await scenario('Phase 6 voxel career replay / key plays / mobile a11y', { viewport: { width: 390, height: 844 } }, async page => {
     assert.equal(await page.title(), 'Baketball: Road to legend');
-    await tab(page, 'career'); await click(page, 'career-create'); await click(page, 'career-play');
+    await newCareer(page); await click(page, 'career-play');
     const storedHash = await page.evaluate(() => CAA_APP.state.career.state.lastMatch.state.hash);
     await click(page, 'career-watch');
     assert.equal(await page.evaluate(() => CAA_APP.state.match.source), 'career');
@@ -125,15 +162,8 @@ try {
     assert.equal(report.voxelPerformance.frames, 180); assert.match(report.voxelPerformance.context.workload, /^voxel-/);
   });
   await scenario('Phase 6b club/archetype choice, voxel identity, lineups and optional audio', { viewport: { width: 390, height: 844 } }, async page => {
-    await tab(page, 'career');
-    await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
-    await page.locator('#career-club').selectOption('es-ascenso-iberico-5');
-    await page.locator('#career-archetype').selectOption('interior');
-    await page.locator('#career-handedness').selectOption('left');
-    await page.locator('#career-name').fill('Voxel Prueba');
-    await page.locator('#career-seed').fill('phase6b-browser');
-    await click(page, 'career-create');
-    await page.waitForFunction(() => CAA_APP.state.career.state && CAA_APP.state.saveState === 'saved');
+    await newCareer(page, { clubId: 'es-ascenso-iberico-5', archetype: 'interior', handedness: 'left', name: 'Voxel Prueba', seed: 'phase6b-browser' });
+    await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
     const created = await page.evaluate(() => ({ clubId: CAA_APP.state.career.state.clubId, startingClubId: CAA_APP.state.career.state.startingClubId, archetype: CAA_APP.state.career.state.player.archetype, handedness: CAA_APP.state.career.state.player.handedness, name: CAA_APP.state.career.state.player.name }));
     assert.deepEqual(created, { clubId: 'es-ascenso-iberico-5', startingClubId: 'es-ascenso-iberico-5', archetype: 'interior', handedness: 'left', name: 'Voxel Prueba' });
     await tab(page, 'life');
@@ -166,13 +196,8 @@ try {
     report.lineups = lineupCheck;
   });
   await scenario('Phase 7 live match: key moments, decisions, official result and a11y', { viewport: { width: 390, height: 844 } }, async page => {
-    await tab(page, 'career');
-    await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
-    await page.locator('#career-mode').selectOption('coach');
-    await page.waitForFunction(() => CAA_APP.state.career.clubs.length > 0 && !CAA_APP.state.career.clubsLoading);
-    await page.locator('#career-seed').fill('phase7-browser');
-    await click(page, 'career-create');
-    await page.waitForFunction(() => CAA_APP.state.career.state && CAA_APP.state.saveState === 'saved');
+    await newCareer(page, { mode: 'coach', seed: 'phase7-browser' });
+    await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
     await click(page, 'live-start');
     assert.equal(await page.locator('.scoreboard strong').textContent(), '0 – 0');
     let moments = 0, guard = 0;
@@ -203,7 +228,7 @@ try {
     await page.waitForFunction(() => CAA_APP.state.match.view === '2d');
     assert.equal(await page.locator('#court2d').count(), 1);
     await page.evaluate(() => { const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = original; });
-    await page.reload(); await page.waitForFunction(() => globalThis.CAA_APP);
+    await reload(page);
     await tab(page, 'match'); await click(page, 'match-simulate'); await page.locator('#match-view').selectOption('3d');
     await page.waitForFunction(() => CAA_APP.rendererStats());
     const hash = await page.evaluate(() => CAA_APP.state.match.result.state.hash);
@@ -219,7 +244,7 @@ try {
     assert.equal(await page.evaluate(() => CAA_APP.state.match.playing), false);
   });
   await scenario('IndexedDB backup recovery / file picker / native pause-resume', {}, async page => {
-    await tab(page, 'career'); await click(page, 'career-create'); await click(page, 'career-play'); await click(page, 'career-play');
+    await newCareer(page); await click(page, 'career-play'); await click(page, 'career-play');
     const saved = await page.evaluate(async () => JSON.stringify(await CAA_APP.storage.load('slot-1')));
     await page.evaluate(async () => {
       const db = await new Promise((resolve, reject) => { const r = indexedDB.open('camino-al-aro', 1); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
@@ -236,7 +261,7 @@ try {
     assert.equal(await page.evaluate(async () => (await CAA_APP.storage.load('slot-1')).payload.career.week), 2);
   });
   await scenario('Android bridge contract / lifecycle / native export handoff', { init: () => { window.CAAAndroid = { exportSave(text) { window.__nativeExport = text; } }; } }, async page => {
-    await tab(page, 'career'); await click(page, 'career-create');
+    await newCareer(page);
     await tab(page, 'save'); await click(page, 'save-export');
     const exported = await page.evaluate(() => JSON.parse(window.__nativeExport));
     assert.equal(exported.game, 'camino-al-aro'); assert.ok(exported.payload.career);
@@ -244,18 +269,22 @@ try {
     await page.evaluate(() => window.dispatchEvent(new Event('caa:native-pause')));
     await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
     assert.equal(await page.evaluate(() => CAA_APP.handleBack()), true);
+    assert.equal(await page.evaluate(() => CAA_APP.state.tab), 'more');
+    assert.equal(await page.evaluate(() => CAA_APP.handleBack()), true);
     assert.equal(await page.evaluate(() => CAA_APP.state.tab), 'career');
+    assert.equal(await page.evaluate(() => CAA_APP.handleBack()), true);
+    assert.equal(await page.evaluate(() => CAA_APP.state.screen), 'menu');
     assert.equal(await page.evaluate(() => CAA_APP.handleBack()), false);
   });
   await scenario('Worker unavailable: deterministic main-thread fallback', { init: () => { window.Worker = undefined; } }, async page => {
     assert.equal(await page.evaluate(() => CAA_APP.worker.getMode()), 'main');
-    await tab(page, 'career'); await click(page, 'career-create'); await click(page, 'career-play');
+    await newCareer(page); await click(page, 'career-play');
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.week), 1);
   });
   await scenario('Storage denied: explicit memory-only warning', { init: () => { Object.defineProperty(window, 'indexedDB', { value: undefined }); Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('denied', 'SecurityError'); } }); } }, async page => {
     assert.equal(await page.evaluate(() => CAA_APP.storage.kind), 'memory');
     assert.equal(await page.evaluate(() => CAA_APP.storage.persistent), false);
-    await tab(page, 'career'); await click(page, 'career-create');
+    await newCareer(page);
     assert.equal(await page.evaluate(() => CAA_APP.state.saveState), 'memory');
     await tab(page, 'save'); assert.match(await page.locator('#app').textContent(), /solo vive en memoria/);
     assert.match(await page.locator('#app').textContent(), /solo vive en memoria/);

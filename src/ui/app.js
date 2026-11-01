@@ -7,9 +7,8 @@
   const payload = JSON.parse(doc.getElementById('caa-payload').textContent);
   const workerCode = JSON.parse(doc.getElementById('caa-worker-code').textContent);
   const world = payload.data.seed || payload.data.world || { competitions: [] };
-  const state = { tab: 'world', slot: 'slot-1', message: '', lab: '', match: { ruleSetId: 'FIBA-2026', seed: 'camino-demo', result: null, calibration: null, frame: 0, playing: false, view: '2d', quality: 'low', camera: 'broadcast', keyOnly: false, progress: 1, source: 'lab' }, career: { mode: 'player', route: 'eu-academy', seed: 'carrera-demo', nationality: 'ES', pos: 'SG', clubId: '', archetype: 'shooter', handedness: 'right', name: '', clubs: [], clubsRoute: null, clubsLoading: false, state: null, summary: null }, practice: null, busy: false, saveState: 'idle', saveError: '', slots: [], importText: '', importPreview: null, confirm: null, diagnostics: null, drafts: {}, settings: CAA.A11Y.DEFAULTS };
+  const state = { screen: 'lang', wizard: { step: 1 }, tab: 'career', slot: 'slot-1', message: '', lab: '', match: { ruleSetId: 'FIBA-2026', seed: 'camino-demo', result: null, calibration: null, frame: 0, playing: false, view: '2d', quality: 'low', camera: 'broadcast', keyOnly: false, progress: 1, source: 'lab' }, career: { mode: 'player', route: 'eu-academy', seed: 'carrera-demo', nationality: 'ES', pos: 'SG', clubId: '', archetype: 'shooter', handedness: 'right', name: '', number: 7, talent: 'gem', clubs: [], clubsRoute: null, clubsLoading: false, state: null, summary: null }, practice: null, busy: false, saveState: 'idle', saveError: '', slots: [], importText: '', importPreview: null, confirm: null, diagnostics: null, drafts: {}, settings: CAA.A11Y.DEFAULTS };
   let storage, worker, voxelRenderer = null, voxelCanvas = null, avatarRenderer = null, avatarCanvas = null, audio = null, clubRequest = 0;
-  const tabs = ['world', 'match', 'career', 'life', 'save', 'lab', 'settings'];
   const saveOptions = () => ({ careerValidator: CAA.Career.validate });
   function notify(text, error = false) { state.message = text; state.messageError = error; }
   function draft(id, value) { return Object.prototype.hasOwnProperty.call(state.drafts, id) ? state.drafts[id] : value; }
@@ -105,33 +104,6 @@
   }
 
   function loc(obj) { return obj ? (obj[CAA.I18N.getLocale()] || obj.es || obj.en || '') : ''; }
-  function renderLife() {
-    const s = state.career.summary;
-    if (!s) return `<section class="panel"><h2>${t('life.title')}</h2><p class="muted">${t('career.empty')}</p></section>`;
-    const life = s.life || { cash: 0, style: 0, xp: 0, achievements: [], owned: [], equipment: {}, eventHistory: [], pendingEvent: null, press: [], guideStep: 0, counters: {} };
-    const packs = CAA.Content.packs();
-    const pending = life.pendingEvent && packs.events.events.find(e => e.id === life.pendingEvent.id);
-    const eventHtml = pending ? `<div class="panel"><h3>${esc(loc(pending.title))}</h3><p>${esc(loc(pending.body))}</p><div class="row">${pending.options.map(o => `<button data-action="life-event" data-option="${o.id}">${esc(loc(o))}</button>`).join('')}</div></div>` : `<p class="muted">${t('life.noEvent')}</p>`;
-    const ach = packs.achievements.achievements.map(a => `<li class="${life.achievements.includes(a.id) ? 'ok' : 'muted'}">${esc(loc(a.title))} · ${a.metric} ≥ ${a.threshold}</li>`).join('');
-    const shop = packs.shop.items.map(i => `<li>${esc(loc(i.name))} · ${i.cost} ${t('life.style')} ${life.owned.includes(i.id) ? `<button data-action="life-equip" data-item="${i.id}">${t('life.equip')}</button>` : `<button data-action="life-buy" data-item="${i.id}">${t('life.buy')}</button>`}</li>`).join('');
-    const press = life.press.map(p => `<li>${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`).join('');
-    const guide = packs.guide.steps.map((g, i) => `<li class="${i <= life.guideStep ? 'ok' : 'muted'}">${esc(loc(g))}</li>`).join('');
-    const eq = life.equipment || {};
-    const color = slot => { const item = packs.shop.items.find(i => i.id === eq[slot]); return item ? item.color : '#9fb7b2'; };
-    return `<section class="panel"><h2>${t('life.title')}</h2>
-    <div class="grid"><div>${t('life.cash')}: <strong>${life.cash}</strong></div><div>${t('life.style')}: <strong>${life.style}</strong></div><div>XP: <strong>${life.xp}</strong></div><div>${t('life.achievements')}: <strong>${life.achievements.length}/${packs.achievements.achievements.length}</strong></div></div>
-    ${avatarHtml()}
-    ${eventHtml}
-    <div class="row"><button data-action="life-practice-auto">${t('life.practiceAuto')}</button><button data-action="life-practice-start">${t('life.practiceManual')}</button><button data-action="life-buzzer-auto">${t('life.buzzerAuto')}</button><button data-action="life-buzzer-start">${t('life.buzzerManual')}</button>${state.practice && state.practice.start != null ? `<button data-action="life-practice-release" class="primary">${t('life.release')}</button>` : ''}${life.pendingPractice ? `<button data-action="life-practice-resume">${t('life.resumeAttempt')}</button><button data-action="life-practice-cancel">${t('life.cancelAttempt')}</button>` : ''}</div>
-    ${life.pendingPractice ? `<p class="muted">${t('life.pendingAttempt', { type: t(life.pendingPractice.type === 'buzzer' ? 'life.buzzerAuto' : 'life.practiceAuto'), id: life.pendingPractice.id })}</p>` : ''}
-    ${state.practice && state.practice.result ? `<p class="${state.practice.result.made ? 'ok' : 'bad'}">${state.practice.result.made ? t('life.made') : t('life.missed')} · p=${state.practice.result.p}</p>` : ''}
-    <details open><summary>${t('life.press')}</summary><ul>${press}</ul></details>
-    <details><summary>${t('life.shop')}</summary><ul>${shop}</ul></details>
-    <details><summary>${t('life.achievements')}</summary><ul>${ach}</ul></details>
-    <details><summary>${t('life.guide')}</summary><ol>${guide}</ol><button data-action="life-guide-next">${t('life.nextStep')}</button></details>
-    </section>`;
-  }
-
   async function ensureClubs(route) {
     const c = state.career;
     if (c.clubsRoute === route && c.clubs.length) return;
@@ -205,42 +177,200 @@
       <div class="grid"><div><h4 id="live-feed-title">${t('live.feed.title')}</h4><ol class="feed" reversed tabindex="0" aria-labelledby="live-feed-title">${feed}</ol></div>
       <div class="table-scroll" tabindex="0"><table><caption class="muted">${t('live.top')}</caption><thead><tr><th>${t('live.col.player')}</th><th>PTS</th><th>REB</th><th>AST</th><th>PF</th></tr></thead><tbody>${top}</tbody></table></div></div></section>`;
   }
-  function renderCareer() {
-    const c = state.career;
-    const s = c.summary;
-    const opt = (val, cur, label) => `<option value="${val}" ${val === cur ? 'selected' : ''}>${label}</option>`;
-    let body = `<p class="muted">${t('career.empty')}</p>`;
-    if (s) {
-      const p = s.player;
-      const inbox = s.inbox.map(i => `<li>${esc(i.type)}${i.detail && i.detail.overall ? ' · pick ' + i.detail.overall : ''}</li>`).join('');
-      const market = s.market.map((m, i) => `<li>${esc(m.contract.salary)} €/$ · ${m.contract.years} ${t('career.years')} <button data-action="career-sign" data-index="${i}">${t('career.sign')}</button></li>`).join('');
-      body = `${avatarHtml()}<div class="grid">
-        <div>${t('career.club')}: <strong>${esc(s.club.name)}</strong> (${s.club.wins}-${s.club.losses}, #${s.club.rank})</div>
-        <div>${t('career.year')}: <strong>${s.year}</strong> · ${t('career.week')}: <strong>${s.week}</strong></div>
-        <div>${t('career.hash')}: <strong>${esc(s.hash)}</strong></div>
-        ${p ? `<div>${t('career.player')}: <strong>${esc(p.name)}</strong> · ${esc(p.pos)} · OVR ${p.ovr} · ${p.age} ${t('career.years')}</div>
-        <div>${t('career.loadStat')}: <strong>${Math.round(p.load)}</strong> · ${p.injury ? t('career.injured') + ' ' + p.injury.weeksRemaining : t('career.healthy')}</div>
-        <div>${t('career.stats')}: ${p.stats.gp} PJ · ${p.stats.min.toFixed(1)} MIN · ${(p.stats.pts / Math.max(1, p.stats.gp)).toFixed(1)} PTS · ${(p.stats.reb / Math.max(1, p.stats.gp)).toFixed(1)} REB · ${(p.stats.ast / Math.max(1, p.stats.gp)).toFixed(1)} AST</div>` : `<div>${t('career.coach')}: <strong>${esc(s.coach.name)}</strong> · ${esc(s.coach.authority)}</div>`}
-      </div>
-      ${renderLive(c)}
-      <div class="row">${c.state.live && c.state.live.week === c.state.week ? '' : `<button data-action="live-start" class="primary">${t('live.start')}</button>`}<button data-action="career-play">${t('career.play')}</button><button data-action="career-train">${t('career.train')}</button><button data-action="career-rest">${t('career.rest')}</button><button data-action="career-save">${t('career.save')}</button><button data-action="career-load">${t('career.load')}</button><button data-action="career-crossing">${t('career.crossing')}</button><button data-action="career-watch" ${!c.state.lastMatch ? 'disabled' : ''}>${t('career.watch')}</button></div>
-      <details><summary>${t('career.inbox')}</summary><ul>${inbox}</ul></details>
-      ${market ? `<details open><summary>${t('career.market')}</summary><ul>${market}</ul></details>` : ''}
-      <details><summary>${t('career.history')}</summary><pre>${esc(JSON.stringify(s.history, null, 2))}</pre></details>`;
+  // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
+  const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
+  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings'];
+  const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA'];
+  const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
+  const TALENT = { promise: 50, gem: 55, chosen: 60 };
+  const ATTR_GROUPS = [
+    ['shooting', ['tiroCerca', 'tiroMedia', 'tiroTriple', 'tiroLibre']],
+    ['offense', ['bandeja', 'mate', 'poste', 'manejo', 'pase', 'vision']],
+    ['defense', ['defExterior', 'defInterior', 'robo', 'tapon', 'rebOf', 'rebDef']],
+    ['physical', ['velocidad', 'aceleracion', 'salto', 'fuerza', 'resistencia', 'durabilidad']],
+    ['mental', ['lectura', 'clutch', 'liderazgo']]
+  ];
+  function flag(code) { return /^[A-Z]{2}$/.test(code || '') ? String.fromCodePoint(...code.split('').map(c => 127397 + c.charCodeAt(0))) : '🏀'; }
+  function nationName(code) { try { return new Intl.DisplayNames([CAA.I18N.getLocale()], { type: 'region' }).of(code); } catch (_) { return code; } }
+  function hue(id) { return Math.round((CAA.Hash.hashString(String(id)) >>> 0) % 360); }
+  function crest(club) {
+    const initials = String(club.name || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase();
+    return `<span class="crest" aria-hidden="true" style="--c1:hsl(${hue(club.id)} 62% 42%);--c2:hsl(${(hue(club.id) + 40) % 360} 70% 62%)">${esc(initials)}</span>`;
+  }
+  function tier(ovr) { return ovr >= 80 ? 'gold' : ovr >= 68 ? 'silver' : 'bronze'; }
+  function meter(label, value) {
+    const v = Math.max(0, Math.min(100, Math.round(value)));
+    const cls = v >= 65 ? 'hi' : v >= 40 ? 'mid' : 'lo';
+    return `<div class="meter ${cls}"><span>${label}</span><span class="pips" aria-hidden="true">${Array.from({ length: 6 }, (_, i) => `<i class="${i < Math.round(v / 100 * 6) ? 'on' : ''}"></i>`).join('')}</span><b>${v}</b></div>`;
+  }
+  function bar(label, value) { const v = Math.round(value); return `<div class="attr"><span>${label}</span><span class="track" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span><b>${v}</b></div>`; }
+  function hasCareer() { return !!(state.career.state && state.career.summary); }
+  function seasonLabel(year) { return year + '/' + String((year + 1) % 100).padStart(2, '0'); }
+
+  function renderBoot() {
+    if (state.screen === 'lang') {
+      return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">Idioma · Language</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
+        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${f}</span><b>${name}</b></button>`).join('')}</div></main>`;
     }
-    return `<section class="panel"><h2>${t('career.title')}</h2><p class="muted">${t('career.note')}</p>
-    <div class="row">
-      <label>${t('career.mode')}<select id="career-mode">${opt('player', c.mode, t('career.modePlayer'))}${opt('coach', c.mode, t('career.modeCoach'))}</select></label>
-      <label>${t('career.route')}<select id="career-route">${opt('eu-academy', c.route, t('career.routeEu'))}${opt('na-draft', c.route, t('career.routeDraft'))}${opt('na-undrafted', c.route, t('career.routeUndrafted'))}</select></label>
-      <label>${t('career.initialClub')}<select id="career-club" ${c.clubsLoading || !c.clubs.length ? 'disabled' : ''}>${c.clubsLoading ? `<option>${t('status.working')}</option>` : c.clubs.map(x => opt(x.id, c.clubId, esc(x.name))).join('')}</select></label>
-      <label>${t('career.name')}<input id="career-name" value="${esc(draft('career-name', c.name))}" maxlength="40" placeholder="${t('career.namePlaceholder')}"></label>
-      ${c.mode === 'player' ? `<label>${t('career.nationality')}<input id="career-nationality" value="${esc(draft('career-nationality', c.nationality))}" maxlength="2"></label>
-      <label>${t('career.pos')}<select id="career-pos">${['PG','SG','SF','PF','C'].map(p => opt(p, c.pos, p)).join('')}</select></label>
-      <label>${t('career.archetype')}<select id="career-archetype">${CAA.Player.ARCHETYPES.map(a => opt(a, c.archetype, t('career.archetype.' + a))).join('')}</select></label>
-      <label>${t('career.handedness')}<select id="career-handedness">${opt('right', c.handedness, t('career.right'))}${opt('left', c.handedness, t('career.left'))}</select></label>` : ''}
-      <label>${t('career.seed')}<input id="career-seed" value="${esc(draft('career-seed', c.seed))}"></label>
-      <button data-action="career-create" class="primary" ${c.clubsLoading || !c.clubs.length ? 'disabled' : ''}>${t('career.create')}</button>
-    </div><p class="muted">${t(c.route === 'na-draft' ? 'career.draftClubNote' : 'career.clubNote')}</p>${body}</section>`;
+    if (state.screen === 'menu') {
+      const leagues = Object.keys(CAA.Season.LEAGUES).length;
+      const clubs = Object.values(CAA.Season.LEAGUES).reduce((a, l) => a + l.teams, 0);
+      return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.kicker')}</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
+        <p class="boot-lead">${t('boot.lead')}</p><p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>2 ${t('boot.worlds')}</b></p>
+        <p class="eyebrow">${t('boot.play')}</p>
+        ${hasCareer() ? `<button class="cta" data-action="boot-continue">${t('boot.continue')} <span aria-hidden="true">▶</span></button><p class="muted small">${esc(state.career.summary.player ? state.career.summary.player.name : state.career.summary.coach.name)} · ${esc(state.career.summary.club.name)} · ${t('career.week')} ${state.career.summary.week}</p>` : ''}
+        <button class="${hasCareer() ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
+        <button class="cta ghost" data-action="boot-goat" disabled aria-describedby="goat-soon">🏆 GOAT LADDER</button><p id="goat-soon" class="muted small">${t('boot.goatSoon')}</p>
+        <button class="row-link" data-action="boot-open" data-target="settings"><span class="ico" aria-hidden="true">⚙</span><span><b>${t('boot.settings')}</b><small>${t('boot.settingsSub')}</small></span><span aria-hidden="true">›</span></button>
+        <button class="row-link" data-action="boot-open" data-target="more"><span class="ico" aria-hidden="true">▦</span><span><b>${t('boot.more')}</b><small>${t('boot.moreSub')}</small></span><span aria-hidden="true">›</span></button>
+        <p class="version">v${esc(payload.manifest.version)} · ${root.CAAAndroid ? 'ANDROID' : 'WEB'}</p></main>`;
+    }
+    if (state.screen === 'modes') {
+      const card = (mode, ok) => `<button class="mode-card" data-action="boot-mode" data-mode="${mode}" ${ok ? '' : 'disabled'}><b>${t('modes.' + mode)}</b><span>${t('modes.' + mode + 'Desc')}</span>${ok ? '' : `<em>${t('modes.soon')}</em>`}</button>`;
+      return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.new')}</p><h1 class="boot-title small">${t('modes.title')}</h1>
+        <div class="seg" role="group" aria-label="${t('modes.league')}"><button aria-pressed="true">${t('modes.men')}</button><button disabled aria-pressed="false">${t('modes.women')} · ${t('modes.soonShort')}</button></div>
+        ${card('player', true)}${card('coach', true)}${card('club', false)}${card('eras', false)}
+        <button class="ghost-btn" data-action="boot-back">${t('wiz.back')}</button></main>`;
+    }
+    return renderCreate();
+  }
+
+  function renderCreate() {
+    const c = state.career, w = state.wizard;
+    const player = c.mode === 'player';
+    const total = player ? 4 : 2;
+    const step = Math.min(w.step, total);
+    const pick = (field, value, label, sub) => `<button class="pick" data-action="wiz-set" data-field="${field}" data-value="${esc(value)}" aria-pressed="${String(c[field]) === String(value)}"><b>${label}</b>${sub ? `<small>${sub}</small>` : ''}</button>`;
+    let body = '';
+    const stepKey = player ? ['who', 'position', 'talent', 'club'][step - 1] : ['who', 'club'][step - 1];
+    if (stepKey === 'who') {
+      body = `<label for="career-name">${t(player ? 'wiz.name' : 'wiz.coachName')}<input id="career-name" value="${esc(draft('career-name', c.name))}" maxlength="40" autocomplete="off" placeholder="${t('career.namePlaceholder')}"></label>
+        ${player ? `<label for="career-nationality">${t('career.nationality')}<select id="career-nationality">${NATIONS.map(n => `<option value="${n}" ${n === c.nationality ? 'selected' : ''}>${flag(n)} ${esc(nationName(n))}</option>`).join('')}</select></label>` : ''}`;
+    } else if (stepKey === 'position') {
+      body = `<h3 class="eyebrow">${t('career.pos')}</h3><div class="pick-grid">${['PG', 'SG', 'SF', 'PF', 'C'].map(p => pick('pos', p, p, t('pos.' + p))).join('')}</div>
+        <h3 class="eyebrow">${t('career.archetype')}</h3><div class="pick-list">${CAA.Player.ARCHETYPES.map(a => pick('archetype', a, t('career.archetype.' + a), t('arch.' + a))).join('')}</div>
+        <h3 class="eyebrow">${t('career.handedness')}</h3><div class="pick-grid two">${pick('handedness', 'right', t('career.right'))}${pick('handedness', 'left', t('career.left'))}</div>
+        <h3 class="eyebrow">${t('wiz.number')}</h3><div class="pick-grid nums">${NUMBERS.map(n => pick('number', n, String(n))).join('')}</div>`;
+    } else if (stepKey === 'talent') {
+      body = `<div class="pick-list">${['promise', 'gem', 'chosen', 'mystery'].map(k => pick('talent', k, t('talent.' + k), t('talent.' + k + 'Desc'))).join('')}</div>`;
+    } else {
+      const routes = player ? ['eu-academy', 'na-draft', 'na-undrafted'] : ['eu-academy', 'na-draft'];
+      body = `<h3 class="eyebrow">${t('wiz.path')}</h3><div class="pick-list">${routes.map(r => pick('route', r, t('route.' + r), t('route.' + r + 'Desc'))).join('')}</div>
+        <h3 class="eyebrow">${t(c.route === 'na-draft' ? 'wiz.preferredClub' : 'wiz.firstClub')}</h3>
+        ${c.clubsLoading ? `<p class="muted">${t('status.working')}</p>` : `<div class="pick-list clubs">${c.clubs.map(x => `<button class="pick club" data-action="wiz-set" data-field="clubId" data-value="${esc(x.id)}" aria-pressed="${x.id === c.clubId}">${crest(x)}<b>${esc(x.name)}</b><small>${esc(t('league.' + (c.route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men')))}</small></button>`).join('')}</div>`}
+        <p class="muted small">${t(c.route === 'na-draft' ? 'career.draftClubNote' : 'career.clubNote')}</p>
+        <details><summary>${t('wiz.advanced')}</summary><label for="career-seed">${t('career.seed')}<input id="career-seed" value="${esc(draft('career-seed', c.seed))}"></label></details>`;
+    }
+    const last = step === total;
+    return `<main id="panel" class="boot create" tabindex="-1"><p class="eyebrow">${t('wiz.step', { n: step, total })}</p>
+      <div class="steps" aria-hidden="true">${Array.from({ length: total }, (_, i) => `<i class="${i < step ? 'on' : ''}"></i>`).join('')}</div>
+      <h1 class="boot-title small">${t('wiz.' + stepKey + (player ? '' : 'Coach'))}</h1>${body}
+      <div class="wiz-nav"><button class="ghost-btn" data-action="${step === 1 ? 'wiz-cancel' : 'wiz-back'}">${t(step === 1 ? 'confirm.cancel' : 'wiz.back')}</button>
+      ${last ? `<button class="cta" data-action="career-create" ${c.clubsLoading || !c.clubId ? 'disabled' : ''}>${t('wiz.start')} <span aria-hidden="true">▶</span></button>` : `<button class="cta" data-action="wiz-next">${t('wiz.next')}</button>`}</div></main>`;
+  }
+
+  function renderCromo() {
+    if (!hasCareer()) return `<header class="cromo"><div class="cromo-id"><b class="title-sm">${t('boot.title1')} ${t('boot.title2')}</b></div><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
+    const s = state.career.summary, p = s.player;
+    const ovr = p ? p.ovr : Math.round(s.table.length ? 50 + (s.club.wins - s.club.losses) : 50);
+    return `<header class="cromo"><div class="ovr tier-${tier(ovr)}" aria-label="${t('cromo.ovr', { ovr })}"><b>${p ? p.ovr : '★'}</b><small>${p ? esc(p.pos) : t('cromo.coach')}</small></div>
+      <div class="cromo-id">${p ? `<span class="dorsal" aria-label="${t('cromo.number', { n: p.number })}">${p.number}</span>` : ''}<b class="name">${esc(p ? p.name : s.coach.name)}</b>
+      <span class="cromo-sub">${crest(s.club)} ${esc(s.club.name)} · ${p ? t('cromo.age', { age: p.age }) + ' ' + flag(p.nationality) : t('cromo.coachRole')}</span></div>
+      <button class="iconbtn" data-action="toggle-audio" aria-pressed="${!!state.settings.audio}" aria-label="${t('settings.audio')}">♪</button><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
+  }
+
+  function newsText(i) {
+    const vars = { weeks: i.weeks || 0, pick: i.detail && i.detail.overall, us: i.score ? i.score.join('–') : '', team: i.detail && i.detail.team || '' };
+    const key = 'inbox.' + i.type + (i.type === 'live' ? (i.won ? 'Won' : 'Lost') : '');
+    return t(key, vars);
+  }
+
+  function renderHome() {
+    if (!hasCareer()) return `<section class="card"><h2>${t('home.noCareer')}</h2><p class="muted">${t('home.noCareerDesc')}</p><button class="cta" data-action="boot-new">${t('boot.new')} ▶</button></section>`;
+    const c = state.career, s = c.summary, life = s.life || { counters: {}, press: [] };
+    const m = s.meters;
+    const guideStep = life.guideStep || 0;
+    let skipGuide = false; try { skipGuide = root.localStorage.getItem('caa.guideSkip.' + s.careerId) === '1'; } catch (_) {}
+    const guides = [['life', 'life'], ['live', 'career'], ['league', 'league'], ['train', 'career'], ['trophies', 'life']];
+    const guide = !skipGuide && guideStep < guides.length ? `<section class="card guide"><div class="guide-head"><span class="eyebrow">${t('guide.kicker', { n: guideStep + 1, total: guides.length })}</span><button class="link" data-action="guide-skip">${t('guide.skip')}</button></div>
+      <div class="steps" aria-hidden="true">${guides.map((_, i) => `<i class="${i <= guideStep ? 'on' : ''}"></i>`).join('')}</div>
+      <h3>${t('guide.' + guides[guideStep][0])}</h3><p>${t('guide.' + guides[guideStep][0] + 'Desc')}</p>
+      <div class="row">${guides[guideStep][1] !== 'career' ? `<button class="small-btn" data-tab-go="${guides[guideStep][1]}">${t('guide.go.' + guides[guideStep][1])}</button>` : ''}<button class="small-btn" data-action="life-guide-next">${t('guide.done')}</button></div></section>` : '';
+    const segs = 5, seg = Math.min(segs - 1, Math.floor(s.round / Math.max(1, s.totalRounds) * segs));
+    const season = `<section class="season"><div class="season-head"><h2>${t('home.season', { season: seasonLabel(s.year) })}</h2><span class="muted">${s.round >= s.totalRounds ? t('home.seasonEnd') : t('home.round', { n: s.round + 1, total: s.totalRounds })}</span></div>
+      <ol class="timeline" aria-label="${t('home.timeline')}">${Array.from({ length: segs }, (_, i) => `<li class="${i < seg ? 'done' : i === seg ? 'now' : ''}" ${i === seg ? 'aria-current="step"' : ''}>${t('home.seg' + i)}</li>`).join('')}</ol>
+      <div class="meters">${s.player ? meter(t('meter.form'), m.form) + meter(t('meter.morale'), m.morale) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.trust'), m.trust) + meter(t('meter.fans'), m.fans)
+        : meter(t('meter.morale'), m.morale) + meter(t('meter.board'), m.trust) + meter(t('meter.locker'), m.locker) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.fans'), m.fans)}</div></section>`;
+    const packs = CAA.Content.packs();
+    const pending = life.pendingEvent && packs.events.events.find(e => e.id === life.pendingEvent.id);
+    const chip = (k, v) => `<span class="chip ${v > 0 ? 'up' : 'down'}">${v > 0 ? '+' : ''}${v} ${t('effect.' + k)}</span>`;
+    const decision = pending ? `<section class="card decision"><div class="guide-head"><span class="tag led">● ${t('home.decision')}</span><span class="muted small">${esc(t('eventcat.' + pending.category))}</span></div>
+      <h3>${esc(loc(pending.title))}</h3><p>${esc(loc(pending.body))}</p>
+      <div class="stack">${pending.options.map(o => `<button class="option" data-action="life-event" data-option="${o.id}"><b>${esc(loc(o))}</b><span class="chips">${Object.entries(o.effects || {}).filter(([k]) => k !== 'xp').map(([k, v]) => chip(k, v)).join('')}</span></button>`).join('')}</div></section>` : '';
+    const next = s.next ? `<section class="card next"><span class="eyebrow">${t('home.next', { n: s.next.round })} · ${t(s.next.home ? 'home.home' : 'home.away')}</span>
+      <div class="versus">${crest(s.club)}<b>${esc(s.club.name)}</b><span class="muted">${s.club.wins}-${s.club.losses}</span><em>vs</em>${crest(s.next.opponent)}<b>${esc(s.next.opponent.name)}</b><span class="muted">${s.next.opponent.wins}-${s.next.opponent.losses}</span></div></section>` : '';
+    const recent = s.recent.length ? `<section class="card"><div class="guide-head"><h3>${t('home.lastGame')}</h3>${c.state.lastMatch ? `<button class="small-btn" data-action="career-watch">${t('career.watch')}</button>` : ''}</div>
+      <p class="result ${s.recent[0].won ? 'ok' : 'bad'}"><b>${t(s.recent[0].won ? 'home.win' : 'home.loss')}</b> ${s.recent[0].us}–${s.recent[0].them} ${t(s.recent[0].home ? 'home.vsHome' : 'home.vsAway', { team: s.recent[0].opponent })}</p>
+      <p class="form-strip" aria-label="${t('home.formStrip')}">${s.recent.map(r => `<span class="${r.won ? 'w' : 'l'}">${t(r.won ? 'home.w' : 'home.l')}</span>`).join('')}</p></section>` : '';
+    const week = s.player && !(c.state.live && c.state.live.week === c.state.week) && s.next ? `<section class="card"><h3>${t('home.week')}</h3><p class="muted small">${t('home.weekDesc')}</p>
+      <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button></div></section>` : '';
+    const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
+    const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
+    return `${guide}${renderLive(c)}${decision}${season}${next}${week}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+  }
+
+  function renderMe() {
+    if (!hasCareer()) return renderHome();
+    const s = state.career.summary, life = s.life || { achievements: [], owned: [], equipment: {}, counters: {}, press: [] };
+    const packs = CAA.Content.packs();
+    const p = s.player;
+    const potLow = p ? Math.max(p.ovr, p.potential - 4) : 0, potHigh = p ? Math.min(99, p.potential + 4) : 0;
+    const hero = `<section class="card me-hero">${avatarHtml()}<div><h2>${esc(p ? p.name : s.coach.name)}</h2>
+      ${p ? `<p class="muted">${t('pos.' + p.pos)} · ${t('career.archetype.' + p.archetype)} · ${t(p.handedness === 'left' ? 'career.left' : 'career.right')}</p>
+      <div class="kv"><span>${t('me.ovr')}</span><b>${p.ovr}</b><span>${t('me.pot')}</span><b>${potLow}–${potHigh}</b><span>${t('me.height')}</span><b>${p.height} cm</b><span>${t('me.wingspan')}</span><b>${p.wingspan} cm</b><span>${t('me.weight')}</span><b>${p.weight} kg</b><span>${t('career.nationality')}</span><b>${flag(p.nationality)} ${esc(nationName(p.nationality))}</b></div>`
+      : `<p class="muted">${t('cromo.coachRole')} · ${esc(s.club.name)}</p><div class="kv"><span>${t('meter.morale')}</span><b>${s.coach.morale}</b><span>${t('meter.board')}</span><b>${s.coach.trust}</b></div>`}</div></section>`;
+    const attrs = p ? `<section class="card"><h3>${t('me.attributes')}</h3><div class="attr-groups">${ATTR_GROUPS.map(([g, keys]) => `<div><h4 class="eyebrow">${t('attrg.' + g)}</h4>${keys.map(k => bar(t('attr.' + k), p.attrs[k])).join('')}</div>`).join('')}</div></section>` : '';
+    const st = p ? p.stats : null;
+    const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
+      <p class="muted small">${t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years })}</p></section>` : '';
+    const practice = `<section class="card"><h3>${t('me.practice')}</h3><p class="muted small">${t('me.practiceDesc')}</p>
+      <div class="pick-grid two"><button class="option" data-action="life-practice-start"><b>${t('life.practiceManual')}</b></button><button class="option" data-action="life-practice-auto"><b>${t('life.practiceAuto')}</b></button><button class="option" data-action="life-buzzer-start"><b>${t('life.buzzerManual')}</b></button><button class="option" data-action="life-buzzer-auto"><b>${t('life.buzzerAuto')}</b></button></div>
+      ${state.practice && state.practice.start != null ? `<button class="cta" data-action="life-practice-release">${t('life.release')}</button>` : ''}
+      ${life.pendingPractice ? `<p class="muted small">${t('life.pendingAttempt', { type: t(life.pendingPractice.type === 'buzzer' ? 'life.buzzerAuto' : 'life.practiceAuto'), id: life.pendingPractice.id })}</p><div class="row"><button class="small-btn" data-action="life-practice-resume">${t('life.resumeAttempt')}</button><button class="small-btn" data-action="life-practice-cancel">${t('life.cancelAttempt')}</button></div>` : ''}
+      ${state.practice && state.practice.result ? `<p class="${state.practice.result.made ? 'ok' : 'bad'}"><b>${state.practice.result.made ? t('life.made') : t('life.missed')}</b></p>` : ''}</section>`;
+    const shop = `<section class="card"><div class="guide-head"><h3>${t('life.shop')}</h3><span class="tag">${t('life.style')}: ${life.style} · ${t('life.cash')}: ${life.cash}</span></div><div class="shop">${packs.shop.items.map(i => {
+      const owned = life.owned.includes(i.id), equipped = (life.equipment || {})[i.slot] === i.id;
+      return `<div class="item"><span class="swatch" style="background:${esc(i.color)}" aria-hidden="true"></span><span><b>${esc(loc(i.name))}</b><small>${t('slot.' + i.slot)} · ${i.cost} ${t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="life-equip" data-item="${i.id}" ${equipped ? 'disabled' : ''}>${equipped ? t('me.equipped') : t('life.equip')}</button>` : `<button class="small-btn" data-action="life-buy" data-item="${i.id}">${t('life.buy')}</button>`}</div>`; }).join('')}</div></section>`;
+    const unlocked = life.achievements.length, all = packs.achievements.achievements;
+    const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b>${a.desc ? `<small>${esc(loc(a.desc))}</small>` : ''}</span></li>`; }).join('')}</ul></section>`;
+    const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
+    return hero + attrs + stats + practice + shop + trophies + press;
+  }
+
+  function renderLeague() {
+    if (!hasCareer()) return renderHome();
+    const s = state.career.summary;
+    const rows = s.table.map(r => `<tr class="${r.id === s.club.id ? 'me' : ''}"><td>${r.rank}</td><td>${esc(r.name)}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('');
+    return `<section class="card"><span class="eyebrow">${t('league.kicker', { season: seasonLabel(s.year) })}</span><h2>${esc(s.leagueName)}</h2>
+      <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('league.table')}"><table><caption class="muted">${t('league.table')}</caption><thead><tr><th>#</th><th>${t('league.team')}</th><th>${t('league.w')}</th><th>${t('league.l')}</th><th>${t('league.diff')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+      ${s.recent.length ? `<section class="card"><h3>${t('league.results')}</h3><ul class="news">${s.recent.map(r => `<li><span class="${r.won ? 'ok' : 'bad'}">${t(r.won ? 'home.w' : 'home.l')}</span> ${t('league.roundShort', { n: r.round })} · ${r.us}–${r.them} ${t(r.home ? 'home.vsHome' : 'home.vsAway', { team: r.opponent })}</li>`).join('')}</ul></section>` : ''}
+      <section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p><button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>`;
+  }
+
+  function renderMore() {
+    const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${ico}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
+    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
+      <button class="row-link" data-action="boot-menu"><span class="ico" aria-hidden="true">⌂</span><span><b>${t('more.menu')}</b><small>${t('more.menuSub')}</small></span><span aria-hidden="true">›</span></button></div></section>`;
+  }
+
+  function renderActionBar() {
+    if (!hasCareer() || state.tab !== 'career') return '';
+    const c = state.career;
+    const liveNow = c.state.live && c.state.live.week === c.state.week;
+    if (liveNow) return '';
+    const s = c.summary;
+    if (!s.next) return `<div class="actionbar"><button class="cta" data-action="career-play">${t('home.advance')} ▶</button></div>`;
+    return `<div class="actionbar"><button class="cta" data-action="live-start">${t('home.playLive', { team: s.next.opponent.name })} <span aria-hidden="true">▶</span></button><button class="sim-btn" data-action="career-play" aria-label="${t('home.simulateLabel')}">${t('home.simulate')}</button></div>`;
   }
 
   function renderSettings() {
@@ -266,15 +396,23 @@
     const focusAction = active && active.dataset.action;
     const focusData = active ? Object.assign({}, active.dataset) : {};
     const openDetails = Array.from(doc.querySelectorAll('details')).map(d => d.open);
-    const body = state.tab === 'world' ? renderWorld() : state.tab === 'match' ? renderMatch() : state.tab === 'career' ? renderCareer() : state.tab === 'life' ? renderLife() : state.tab === 'save' ? renderSave() : state.tab === 'lab' ? renderLab() : renderSettings();
     doc.documentElement.lang = CAA.I18N.getLocale();
-    doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a><header><div><h1>${t('app.title')}</h1><div class="muted">${t('app.subtitle')}</div></div><span class="badge">${t('offline.badge')}</span></header>
-    <nav role="tablist" aria-label="${t('a11y.sections')}">${tabs.map(tab => `<button id="tab-${tab}" role="tab" aria-controls="panel" aria-selected="${state.tab === tab}" tabindex="${state.tab === tab ? 0 : -1}" data-tab="${tab}">${t('nav.' + tab)}</button>`).join('')}</nav>
-    ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}
-    <div id="global-status" role="status" aria-live="polite" aria-atomic="true" class="${state.messageError ? 'bad' : 'muted'}">${esc(state.message || (state.busy ? t('status.working') : ''))}</div>
-    ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}
-    ${state.confirm ? `<section class="panel confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description"><h2 id="confirm-title">${t('confirm.title')}</h2><p id="confirm-description">${esc(state.confirm.text)}</p><div class="row"><button id="confirm-cancel" data-action="confirm-cancel">${t('confirm.cancel')}</button><button data-action="confirm-yes" class="danger">${t('confirm.yes')}</button></div></section>` : ''}
-    <main id="panel" role="tabpanel" aria-labelledby="tab-${state.tab}" tabindex="-1">${body}</main>`;
+    const status = `<div id="global-status" role="status" aria-live="polite" aria-atomic="true" class="${state.messageError ? 'bad' : 'muted'}">${esc(state.message || (state.busy ? t('status.working') : ''))}</div>`;
+    const confirm = state.confirm ? `<section class="panel confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description"><h2 id="confirm-title">${t('confirm.title')}</h2><p id="confirm-description">${esc(state.confirm.text)}</p><div class="row"><button id="confirm-cancel" data-action="confirm-cancel">${t('confirm.cancel')}</button><button data-action="confirm-yes" class="danger">${t('confirm.yes')}</button></div></section>` : '';
+    doc.body.dataset.screen = state.screen;
+    if (state.screen !== 'game') {
+      doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
+    } else {
+      const tab = state.tab;
+      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : renderSettings();
+      const sel = PRIMARY_TABS.includes(tab) ? tab : 'more';
+      const icons = { career: '⌂', life: '👕', league: '▤', more: '▦' };
+      doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
+      ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
+      ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
+      <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="more">‹ ${t('nav.more')}</button>` : ''}${body}</main>
+      <footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
+    }
     for (const child of doc.getElementById('app').children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
     doc.querySelectorAll('[data-action]').forEach(b => { b.disabled = state.busy || b.disabled || !!state.confirm; });
     if (state.confirm) doc.querySelectorAll('.confirm button').forEach(b => { b.disabled = false; });
@@ -282,14 +420,14 @@
     let restore = focusId && doc.getElementById(focusId);
     if (!restore && focusAction) restore = Array.from(doc.querySelectorAll('[data-action]')).find(b => b.dataset.action === focusAction && Object.keys(focusData).every(k => b.dataset[k] === focusData[k]));
     if (state.confirm) restore = doc.getElementById('confirm-cancel');
-    else if (focusAction === 'confirm-cancel' || focusAction === 'confirm-yes') restore = doc.getElementById('tab-' + state.tab);
+    else if (focusAction === 'confirm-cancel' || focusAction === 'confirm-yes') restore = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel');
     if (restore && !restore.disabled) restore.focus({ preventScroll: true });
     drawMatchFrame();
     drawAvatar();
   }
   function drawMatchFrame() {
     const m = state.match;
-    if (!m.result || state.tab !== 'match') return;
+    if (!m.result || state.tab !== 'match' || state.screen !== 'game') return;
     const events = m.result.state.events;
     m.frame = Math.max(0, Math.min(m.frame, events.length - 1));
     if (m.view === '3d') {
@@ -379,6 +517,28 @@
       state.confirmed = false;
       if (name === 'confirm-cancel') { state.confirm = null; }
       else if (name === 'confirm-yes') { const pending = state.confirm; state.confirm = null; state.confirmed = true; state.busy = false; await action(pending.name, pending.el); return; }
+      else if (name === 'boot-lang') { CAA.I18N.setLocale(el.dataset.locale === 'en' ? 'en' : 'es'); saveSettings(); state.screen = 'menu'; }
+      else if (name === 'boot-new') { state.screen = 'modes'; }
+      else if (name === 'boot-continue') { state.screen = 'game'; state.tab = 'career'; }
+      else if (name === 'boot-open') { state.screen = 'game'; state.tab = el.dataset.target || 'more'; }
+      else if (name === 'boot-menu' || name === 'boot-back') { state.screen = 'menu'; state.match.playing = false; }
+      else if (name === 'boot-mode') {
+        state.career.mode = el.dataset.mode === 'coach' ? 'coach' : 'player'; state.wizard = { step: 1 };
+        if (state.career.mode === 'coach' && state.career.route === 'na-undrafted') state.career.route = 'eu-academy';
+        state.screen = 'create'; ensureClubs(state.career.route);
+      } else if (name === 'wiz-next' || name === 'wiz-back' || name === 'wiz-cancel') {
+        const nameEl = doc.getElementById('career-name'); if (nameEl) state.career.name = nameEl.value;
+        const natEl = doc.getElementById('career-nationality'); if (natEl) state.career.nationality = natEl.value;
+        const seedEl = doc.getElementById('career-seed'); if (seedEl) state.career.seed = seedEl.value;
+        if (name === 'wiz-cancel') state.screen = 'modes'; else state.wizard.step = Math.max(1, state.wizard.step + (name === 'wiz-next' ? 1 : -1));
+      } else if (name === 'wiz-set') {
+        const field = el.dataset.field, value = el.dataset.value;
+        if (field === 'number') state.career.number = Number(value);
+        else if (field === 'route') { state.career.route = value; state.career.clubId = ''; state.busy = false; await ensureClubs(value); }
+        else if (['pos', 'archetype', 'handedness', 'talent', 'clubId'].includes(field)) state.career[field] = value;
+        if (audio) audio.play('click');
+      } else if (name === 'guide-skip') { try { root.localStorage.setItem('caa.guideSkip.' + state.career.summary.careerId, '1'); } catch (_) {} }
+      else if (name === 'toggle-audio') { state.settings.audio = !state.settings.audio; CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } saveSettings(); }
       else if (name === 'save-delete') {
         await storage.remove(state.slot); state.slots = await storage.list(); notify(t('save.deleted'));
       } else if (name === 'save-export' || name === 'save-export-current') {
@@ -441,20 +601,22 @@
       } else if (name === 'match-calibrate') {
         state.match.calibration = await worker.send('calibration.batch', { games: 200, seed: state.match.seed, ruleSetId: state.match.ruleSetId });
       } else if (name === 'career-create') {
-        const get = id => { const el = doc.getElementById(id); return el ? el.value : ''; };
+        const get = id => { const el = doc.getElementById(id); return el ? el.value : null; };
         state.career.mode = get('career-mode') || state.career.mode;
         state.career.route = get('career-route') || state.career.route;
-        state.career.nationality = (get('career-nationality') || 'ES').toUpperCase();
-        state.career.pos = get('career-pos') || 'SG';
+        state.career.nationality = (get('career-nationality') || state.career.nationality || 'ES').toUpperCase();
+        state.career.pos = get('career-pos') || state.career.pos || 'SG';
         state.career.clubId = get('career-club') || state.career.clubId;
         state.career.archetype = get('career-archetype') || state.career.archetype;
         state.career.handedness = get('career-handedness') || state.career.handedness;
-        state.career.name = (get('career-name') || '').trim();
-        state.career.seed = get('career-seed') || 'carrera-demo';
+        state.career.name = (get('career-name') != null ? get('career-name') : state.career.name || '').trim();
+        state.career.seed = get('career-seed') || state.career.seed || 'carrera-demo';
+        const quality = state.career.talent === 'mystery' ? 47 + (CAA.Hash.hashString(state.career.seed) % 16) : TALENT[state.career.talent] || 55;
         if (!state.career.clubId) throw new Error(t('career.clubRequired'));
-        const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined });
+        const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
         if (audio) audio.play('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
+        state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t('wiz.welcome'));
       } else if (name === 'career-play' || name === 'career-train' || name === 'career-rest') {
         if (!state.career.state) throw new Error(t('career.empty'));
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };
@@ -513,7 +675,8 @@
     doc.addEventListener('pointerdown', unlockAudio, { capture: true, passive: true });
     doc.addEventListener('keydown', unlockAudio, { capture: true });
     doc.getElementById('app').addEventListener('click', e => {
-      const tab = e.target.closest('[data-tab]'); if (tab) { state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus(); return; }
+      const go = e.target.closest('[data-tab-go]'); if (go) { state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
+      const tab = e.target.closest('[data-tab]'); if (tab) { state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
       const btn = e.target.closest('[data-action]'); if (btn) { if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
     });
     doc.getElementById('app').addEventListener('keydown', e => {
@@ -522,9 +685,9 @@
         if (e.key === 'Tab') { const buttons = Array.from(doc.querySelectorAll('.confirm button')); const i = buttons.indexOf(doc.activeElement); e.preventDefault(); buttons[(i + (e.shiftKey ? buttons.length - 1 : 1)) % buttons.length].focus(); }
         return;
       }
-      const tab = e.target.closest('[data-tab]'); if (!tab) return;
-      const next = CAA.A11Y.tabKey(e.key, tabs.indexOf(tab.dataset.tab), tabs.length); if (next == null) return;
-      e.preventDefault(); state.tab = tabs[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
+      const tab = e.target.closest('[role=tab][data-tab]'); if (!tab) return;
+      const next = CAA.A11Y.tabKey(e.key, PRIMARY_TABS.indexOf(tab.dataset.tab), PRIMARY_TABS.length); if (next == null) return;
+      e.preventDefault(); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
     });
     doc.getElementById('app').addEventListener('input', e => { if (e.target.id) state.drafts[e.target.id] = e.target.value; if (e.target.id === 'save-import') { state.importText = e.target.value; state.importPreview = null; const b = doc.querySelector('[data-action="save-import"]'); if (b) b.disabled = true; } });
     doc.getElementById('app').addEventListener('change', async e => {
@@ -568,7 +731,9 @@
     worker.start(); await worker.ready();
     await ensureClubs(state.career.route);
     const lastEnv = await storage.load(state.slot);
-    if (lastEnv && lastEnv.payload.career) { try { state.career.state = CAA.Career.resume(lastEnv.payload.career); state.career.summary = CAA.Career.summary(state.career.state); state.tab = 'career'; notify(t('career.loaded')); } catch (err) { notify(t('save.failed') + ': ' + err.message, true); } }
+    if (lastEnv && lastEnv.payload.career) { try { state.career.state = CAA.Career.resume(lastEnv.payload.career); state.career.summary = CAA.Career.summary(state.career.state); state.tab = 'career'; } catch (err) { notify(t('save.failed') + ': ' + err.message, true); } }
+    let storedLocale = null; try { storedLocale = root.localStorage.getItem('caa.locale'); } catch (_) {}
+    state.screen = storedLocale ? 'menu' : 'lang';
     bind(); render();
     const suspend = () => { state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); };
     doc.addEventListener('visibilitychange', () => { if (doc.hidden) suspend(); else { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); } });
@@ -576,7 +741,11 @@
     root.addEventListener('caa:native-pause', suspend);
     root.addEventListener('caa:native-resume', () => { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); });
     const motion = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)'); if (motion && motion.addEventListener) motion.addEventListener('change', () => { CAA.A11Y.apply(state.settings, doc); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; syncAnimation(); });
-    root.CAA_APP = { state, storage, worker, world, persistCareer, rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; } if (state.tab !== 'career') { state.tab = 'career'; state.match.playing = false; render(); syncAnimation(); return true; } return false; } };
+    root.CAA_APP = { state, storage, worker, world, persistCareer, rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
+      if (state.screen === 'create') { if (state.wizard.step > 1) state.wizard.step--; else state.screen = 'modes'; render(); return true; }
+      if (state.screen === 'modes') { state.screen = 'menu'; render(); return true; }
+      if (state.screen === 'game') { if (SECONDARY_TABS.includes(state.tab)) state.tab = 'more'; else if (state.tab !== 'career') state.tab = 'career'; else state.screen = 'menu'; state.match.playing = false; render(); syncAnimation(); return true; }
+      return false; } };
   }
   function start() { init().catch(err => { const el = doc.getElementById('app'); if (el) { el.textContent = 'No se pudo iniciar / Could not start: ' + err.message; el.setAttribute('role', 'alert'); } }); }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start); else start();

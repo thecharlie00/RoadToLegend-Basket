@@ -35,6 +35,8 @@
     };
     if (mode === 'player') {
       const p = Player.createPlayer({ seed: seed + ':myplayer', nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || 'shooter', handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
+      p.number = Number.isInteger(config.number) && config.number >= 0 && config.number <= 99 ? config.number : 7;
+      p.coachTrust = 55; p.confidence = 0;
       p.contract = Contracts.offerForPlayer(p, club, rng, Contracts.NA_ECONOMY_2026_27);
       club.roster.push(p);
       state.player = p;
@@ -295,13 +297,43 @@
     record(state, { type: 'sign', salary: offer.contract.salary });
     return state;
   }
+  const clamp100 = v => Math.max(0, Math.min(100, Math.round(v)));
+  function meters(state, club) {
+    const life = state.life || { counters: {} };
+    const gp = club.wins + club.losses;
+    const fans = clamp100(42 + (gp ? (club.wins / gp - 0.5) * 60 : 0) + Math.min(12, (life.counters.clutchMakes || 0) * 3) + Math.min(8, (life.style || 0) / 10));
+    if (state.player) {
+      const p = state.player;
+      return { form: clamp100(50 + (p.form || 0) * 5), morale: clamp100(p.morale == null ? 70 : p.morale), fitness: clamp100(p.injury ? 15 : 100 - (p.load || 0) * 0.8 - (p.fatigue || 0) * 20), trust: clamp100(p.coachTrust == null ? 60 : p.coachTrust), fans };
+    }
+    const roster = club.roster;
+    const locker = roster.reduce((a, p) => a + (p.morale == null ? 70 : p.morale), 0) / Math.max(1, roster.length);
+    return { morale: clamp100(state.coach.morale), trust: clamp100(state.coach.trust), locker: clamp100(locker), fitness: clamp100(100 - roster.reduce((a, p) => a + (p.load || 0), 0) / Math.max(1, roster.length) * 0.8), fans };
+  }
+  function fixtures(state) {
+    const s = state.season, id = state.clubId;
+    let next = null;
+    if (s.round < s.schedule.length) {
+      const g = s.schedule[s.round].games.find(x => x.home === id || x.away === id);
+      if (g) { const oppId = g.home === id ? g.away : g.home; const o = s.clubsById[oppId]; next = { round: s.round + 1, home: g.home === id, opponent: { id: o.id, name: o.name, wins: o.wins, losses: o.losses } }; }
+    }
+    const recent = s.results.filter(r => r.home === id || r.away === id).slice(-5).reverse().map(r => {
+      const home = r.home === id; const us = home ? r.score[0] : r.score[1], them = home ? r.score[1] : r.score[0];
+      const o = s.clubsById[home ? r.away : r.home];
+      return { round: r.round, home, opponent: o ? o.name : '', us, them, won: us > them };
+    });
+    return { next, recent };
+  }
   function summary(state) {
     const club = clubOf(state);
     const table = Season.standings(state.season.clubs);
+    const league = Season.LEAGUES[state.season.leagueId] || {};
+    const fx = fixtures(state);
     return {
+      leagueName: league.name || state.season.leagueId, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       leagueId: state.season.leagueId, round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
-      player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
+      player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
       coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
     };
   }
