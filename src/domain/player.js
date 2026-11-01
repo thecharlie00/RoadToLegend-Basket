@@ -71,6 +71,8 @@
     const attrs = Object.assign({}, p.attrs);
     // Confianza ganada (o perdida) en momentos clave del partido en directo: afecta al clutch real.
     if (p.confidence) attrs.clutch = clamp(attrs.clutch + p.confidence, 20, 99);
+    // Equipamiento: suma a los atributos efectivos del partido (ya con su tope), no a la media.
+    if (p.gearAttrs) for (const [k, v] of Object.entries(p.gearAttrs)) if (attrs[k] != null) attrs[k] = clamp(attrs[k] + v, 1, 99);
     return { id: p.id, name: p.name, pos: p.pos.includes('/') ? p.pos.split('/')[0] : p.pos, starter: !!starter, attrs, fatigue: p.fatigue || 0, fouls: 0, stats: null, onCourtTenths: 0 };
   }
   function develop(p, training, rng) {

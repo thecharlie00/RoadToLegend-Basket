@@ -110,6 +110,11 @@
       "worker": true
     },
     {
+      "id": "gear",
+      "path": "src/domain/gear.js",
+      "worker": true
+    },
+    {
       "id": "family",
       "path": "src/domain/family.js",
       "worker": true
@@ -122,6 +127,11 @@
     {
       "id": "arcade",
       "path": "src/match/arcade.js",
+      "worker": true
+    },
+    {
+      "id": "eras",
+      "path": "src/domain/eras.js",
       "worker": true
     },
     {

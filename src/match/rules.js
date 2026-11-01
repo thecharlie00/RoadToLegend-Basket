@@ -41,8 +41,23 @@
     }
   };
 
+  // Reglas de época codificadas en el propio id (se reconstruyen igual en el worker y al cargar):
+  // ERA|<base>|<periodos>x<minutos>|sc<reloj de posesión, 0 = sin reloj>|t<triple en cm, 0 = sin triple>|p<ritmo %>|m<acierto ±%>
+  function eraId(base, o) { return ['ERA', base, o.periods + 'x' + o.periodMinutes, 'sc' + (o.shotClock || 0), 't' + Math.round((o.three || 0) * 100), 'p' + Math.round((o.pace || 1) * 100), 'm' + Math.round((o.shootMod || 0) * 100), 'r' + Math.round((o.threeCap || 1) * 100)].join('|'); }
+  function eraProfile(id) {
+    const [, base, pm, sc, tp, pc, md, rc] = id.split('|');
+    const b = PROFILES[base]; if (!b) return null;
+    const [periods, periodMinutes] = pm.split('x').map(Number), shot = Number(sc.slice(2)), three = Number(tp.slice(1)) / 100;
+    const p = JSON.parse(JSON.stringify(b));
+    Object.assign(p, { id, periods, periodMinutes, era: true, pace: Number(pc.slice(1)) / 100, shootMod: Number(md.slice(1)) / 100, threeCap: rc ? Number(rc.slice(1)) / 100 : 1,
+      shotClock: shot || null, offensiveReboundReset: shot ? Math.min(shot, b.offensiveReboundReset) : null, frontcourtReset: shot ? Math.min(shot, b.frontcourtReset) : null,
+      three: three ? { arc: three, corner: Math.min(three, 6.6) } : null, teamFoulReset: periods === 2 ? 'half' : b.teamFoulReset });
+    if (periods === 2) { p.bonus = { type: 'quarter', threshold: 7, freeThrows: 2 }; p.otFoulsCarryFrom = 2; }
+    PROFILES[id] = p;
+    return p;
+  }
   function getProfile(id) {
-    const profile = PROFILES[id];
+    const profile = PROFILES[id] || (typeof id === 'string' && id.startsWith('ERA|') ? eraProfile(id) : null);
     if (!profile) throw new Error('unknown ruleSet: ' + id);
     return profile;
   }
@@ -77,12 +92,14 @@
     }
     return { freeThrows: teamFouls >= profile.bonus.threshold ? 2 : 0, oneAndOne: false };
   }
-  function newPossessionClock(profile) { return profile.shotClock * 10; }
-  function offensiveReboundClock(profile) { return profile.offensiveReboundReset * 10; }
-  function frontcourtResetClock(profile, remainingTenths) { return Math.max(remainingTenths, profile.frontcourtReset * 10); }
+  // Sin reloj de posesión (antes de 1954/1956): un valor que nunca llega a cero dentro de un periodo.
+  const NO_CLOCK = 99999;
+  function newPossessionClock(profile) { return profile.shotClock ? profile.shotClock * 10 : NO_CLOCK; }
+  function offensiveReboundClock(profile) { return profile.shotClock ? profile.offensiveReboundReset * 10 : NO_CLOCK; }
+  function frontcourtResetClock(profile, remainingTenths) { return profile.shotClock ? Math.max(remainingTenths, profile.frontcourtReset * 10) : NO_CLOCK; }
   function foulOut(profile, personalFouls) { return personalFouls >= profile.personalFoulLimit; }
-  function threePointDistance(profile, corner) { return corner ? profile.three.corner : profile.three.arc; }
+  function threePointDistance(profile, corner) { return !profile.three ? null : corner ? profile.three.corner : profile.three.arc; }
 
-  CAA.Rules = { PROFILES, getProfile, listProfiles, isOvertime, periodLabel, foulBucketKey, teamFoulBucket, bonusState, newPossessionClock, offensiveReboundClock, frontcourtResetClock, foulOut, threePointDistance };
+  CAA.Rules = { PROFILES, eraId, getProfile, listProfiles, isOvertime, periodLabel, foulBucketKey, teamFoulBucket, bonusState, newPossessionClock, offensiveReboundClock, frontcourtResetClock, foulOut, threePointDistance };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Rules;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

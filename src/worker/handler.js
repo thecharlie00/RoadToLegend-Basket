@@ -115,6 +115,12 @@
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), arcade };
           break;
         }
+        case 'career.gear': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const gear = CAA.Career.gearOp(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), gear };
+          break;
+        }
         case 'career.pet': {
           const state = CAA.Career.resume(msg.payload.state);
           const pet = CAA.Career.petOp(state, msg.payload.config || {});

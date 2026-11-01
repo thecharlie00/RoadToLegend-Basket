@@ -286,7 +286,8 @@
     const primary = chooseWeighted(state._rng, defPlayers, p => 1 + attr(p, zone === 'restricted' || zone === 'paint' ? 'defInterior' : 'defExterior') / 60);
     const contest = clamp(T.contestBase + (attr(primary, 'defExterior') + attr(primary, 'defInterior')) / 2 * T.contestDef + defense.tactic.help * T.contestHelp + state._rng.float() * T.contestRandom - (attr(shooter, 'manejo') - 50) * T.contestManejo, 0, 0.10);
     const blockChance = zone === 'restricted' ? clamp(T.blockRestricted + (attr(primary, 'tapon') - 50) * 0.0015, 0.02, 0.22) : zone === 'paint' ? clamp(T.blockPaint + (attr(primary, 'tapon') - 50) * 0.0012, 0.01, 0.18) : T.blockOther;
-    const actionTime = Math.round(T.actionBase + state._rng.float() * T.actionRandom + (zone === 'restricted' ? -6 : 6));
+    const prof = Rules.getProfile(state.ruleSetId);
+    const actionTime = Math.round((T.actionBase + state._rng.float() * T.actionRandom + (zone === 'restricted' ? -6 : 6)) / (prof.pace || 1));
     consume(state, actionTime);
     if (state.shotClock === 0 && state.gameClock > 0) {
       record(state, { type: 'shotClockViolation', team: off });
@@ -314,7 +315,7 @@
     const isThree = zone === 'corner3' || zone === 'above3';
     const skill = attr(shooter, ZONE_ATTR[zone]);
     const clutch = Math.abs(state.score[0] - state.score[1]) <= 5 && state.gameClock <= 1200 ? (attr(shooter, 'clutch') - 50) * 0.001 : 0;
-    const pMake = clamp(BASE[zone] + (skill - 50) * 0.005 - contest - shooter.fatigue * T.fatigueMake + clutch, 0.05, 0.95);
+    const pMake = clamp(BASE[zone] + (skill - 50) * 0.005 - contest - shooter.fatigue * T.fatigueMake + clutch + (prof.shootMod || 0), 0.05, 0.95);
     const roll = state._rng.float();
     // Tiro decidido por el minijuego (jugártela en la última posesión): el timing manda.
     const made = forced ? intent.outcome : roll < pMake;
@@ -375,7 +376,8 @@
   }
   function pickZone(state, offense) {
     const t = offense.tactic;
-    const three = clamp(t.threeRate, 0.15, 0.65);
+    const noThree = !Rules.getProfile(state.ruleSetId).three;
+    const three = noThree ? 0 : Math.min(clamp(t.threeRate, 0.15, 0.65), Rules.getProfile(state.ruleSetId).threeCap || 1);
     const inside = clamp(t.insideRate, 0.2, 0.65);
     const weights = {
       restricted: inside * 0.68,

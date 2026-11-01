@@ -39,6 +39,7 @@ async function newCareer(page, o = {}) {
   await click(page, 'boot-new');
   await page.locator(`[data-action="boot-mode"][data-mode="${o.mode || 'player'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
   if (o.name) await page.locator('#career-name').fill(o.name);
+  if (o.eraYear) { await page.locator(`[data-action="wiz-set"][data-field="eraYear"][data-value="${o.eraYear}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   if (o.gender) { await page.locator(`[data-action="wiz-set"][data-field="gender"][data-value="${o.gender}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   const set = async (field, value) => { await page.locator(`[data-action="wiz-set"][data-field="${field}"][data-value="${value}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); };
   while (!(await page.locator('[data-action="career-create"]').count())) {
@@ -307,6 +308,27 @@ try {
     const idx = await page.evaluate(() => CAA_APP.state.career.summary.market.findIndex(m => m.crossing));
     await page.locator(`[data-action="career-sign"][data-index="${idx}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.season.leagueId), 'au-austral-women');
+  });
+  await scenario('Eras, shop and look: 1930s career without three-point line, gear purchase and new hairstyle', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { seed: 'eras-browser', mode: 'eras', eraYear: 1932, leagueId: 'it-penisola-men' });
+    const st = await page.evaluate(() => ({ y: CAA_APP.state.career.state.year, rs: CAA_APP.state.career.state.season.ruleSet, legends: CAA_APP.state.career.state.era.legends.length, look: document.body.dataset.era }));
+    assert.equal(st.y, 1932); assert.match(st.rs, /^ERA\|FIBA-2026\|2x20\|sc0\|t0/); assert.equal(st.legends, 4); assert.equal(st.look, 'sepia');
+    await tab(page, 'league'); assert.match(await page.locator('main').textContent(), /sin línea de tres/);
+    const ea = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'eras-league', violations: ea.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await page.evaluate(async () => { CAA_APP.state.career.state.life.cash = 100000; CAA_APP.state.career.summary = CAA.Career.summary(CAA_APP.state.career.state); });
+    await tab(page, 'shop');
+    await page.locator('[data-action="gear-op"][data-op="buy"][data-item="sleeve-splash"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.life.gear.equipped.sleeve), 'sleeve-splash');
+    assert.ok(await page.evaluate(() => CAA_APP.state.career.state.player.gearAttrs.tiroTriple > 0));
+    const sa = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'shop', violations: sa.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await tab(page, 'look');
+    await page.locator('[data-action="look-set"][data-field="hair"][data-value="afro"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.life.look.hair), 'afro');
+    const la = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'look', violations: la.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
   });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');

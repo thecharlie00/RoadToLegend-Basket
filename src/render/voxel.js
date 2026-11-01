@@ -63,12 +63,14 @@
       line(side * (L / 2 - 2.95), -2.45, 5.9, 0.065); line(side * (L / 2 - 2.95), 2.45, 5.9, 0.065);
       line(side * (L / 2 - 5.9), 0, 0.065, 4.9);
       // Corner lines meet the arc at the published corner distance, not at an invented fixed x.
+      if (p.three) {
       const cz = p.three.corner;
       const joinX = hx - side * Math.sqrt(Math.max(0, p.three.arc ** 2 - cz ** 2));
       line((side * L / 2 + joinX) / 2, -cz, Math.abs(joinX - side * L / 2), 0.065);
       line((side * L / 2 + joinX) / 2, cz, Math.abs(joinX - side * L / 2), 0.065);
       const a = Math.acos(clamp((joinX - hx) * side / p.three.arc, -1, 1));
       ring(hx, 0, p.three.arc, side < 0 ? -a : Math.PI - a, side < 0 ? a : Math.PI + a, segments);
+      }
       add(side * (L / 2 - 1.2), 3.45, 0, 0.12, 1.05, 1.8, 'board');
       add(side * (L / 2 - 1.12), 3.25, 0, 0.06, 0.45, 0.6, 'line');
       add(hx, 3.05, 0, 0.46, 0.07, 0.46, 'rim');
@@ -142,11 +144,38 @@
     part(-0.17,0.12,0.08,0.25,0.2,0.42,'shoes'); part(0.17,0.12,0.08,0.25,0.2,0.42,'shoes');
     part(-0.17,0.5,0,0.23,0.58,0.25,'skinA'); part(0.17,0.5,0,0.23,0.58,0.25,'skinA');
     part(0,0.88,0,0.66,0.36,0.38,'jersey'); part(0,1.3,0,0.68,0.58,0.4,'jersey');
-    part(0,1.77,0,0.44,0.44,0.42,'skinA'); part(0,2,-0.02,0.46,0.12,0.44,'hair');
+    const lk = profile.look || null;
+    if (lk) {
+      colors.skinA = hex(lk.skin) || colors.skinA; colors.hair = hex(lk.hairColor) || colors.hair;
+      for (const k of ['band', 'sleeve', 'knee', 'socks', 'wrist', 'goggles', 'chain']) if (hex(lk[k])) colors['g_' + k] = hex(lk[k]);
+      if (hex(lk.shoes)) colors.shoes = hex(lk.shoes);
+      colors.eye = hex('#16191b');
+    }
+    part(0,1.77,0,0.44,0.44,0.42,'skinA');
+    const style = lk ? lk.hair : profile.women ? 'ponytail' : 'short';
+    if (style !== 'bald') {
+      if (style === 'buzz') part(0,1.985,-0.01,0.45,0.04,0.43,'hair');
+      else if (style === 'afro') { part(0,2.06,-0.02,0.62,0.26,0.58,'hair'); part(0,1.86,-0.2,0.6,0.3,0.2,'hair'); }
+      else part(0,2,-0.02,0.46,0.12,0.44,'hair');
+      if (style === 'ponytail') { part(0,1.9,-0.26,0.18,0.14,0.12,'hair'); part(0,1.66,-0.3,0.13,0.3,0.11,'hair'); }
+      if (style === 'bun') part(0,2.12,-0.12,0.2,0.16,0.2,'hair');
+      if (style === 'long') { part(0,1.72,-0.2,0.46,0.48,0.08,'hair'); part(-0.22,1.78,-0.05,0.04,0.34,0.3,'hair'); part(0.22,1.78,-0.05,0.04,0.34,0.3,'hair'); }
+      if (style === 'braids') for (const x of [-0.15, -0.05, 0.05, 0.15]) part(x,1.7,-0.22,0.06,0.42,0.06,'hair');
+    }
+    if (lk && lk.beard === 'full') part(0,1.62,0.18,0.38,0.14,0.1,'hair'); else if (lk && lk.beard === 'stubble') part(0,1.62,0.2,0.34,0.08,0.04,'hair');
     part(-0.46,1.28,0,0.21,0.58,0.23,'skinA'); part(0.46,1.28,0,0.21,0.58,0.23,'skinA');
-    part(-0.09,1.81,0.215,0.06,0.06,0.03,'hair'); part(0.09,1.81,0.215,0.06,0.06,0.03,'hair');
-    part(0,1.98,0,0.48,0.07,0.46,'accessory');
-    if (profile.women) { part(0,1.9,-0.26,0.18,0.14,0.12,'hair'); part(0,1.66,-0.3,0.13,0.3,0.11,'hair'); }
+    part(-0.09,1.81,0.215,0.06,0.06,0.03,lk ? 'eye' : 'hair'); part(0.09,1.81,0.215,0.06,0.06,0.03,lk ? 'eye' : 'hair');
+    if (!lk) part(0,1.98,0,0.48,0.07,0.46,'accessory');
+    if (lk) {
+      const arm = profile.handedness === 'left' ? -0.46 : 0.46;
+      if (colors.g_band) part(0,1.93,0,0.47,0.07,0.45,'g_band');
+      if (colors.g_sleeve) part(arm,1.26,0,0.23,0.5,0.25,'g_sleeve');
+      if (colors.g_wrist) { part(-0.46,1.02,0,0.23,0.08,0.25,'g_wrist'); part(0.46,1.02,0,0.23,0.08,0.25,'g_wrist'); }
+      if (colors.g_knee) { part(-0.17,0.5,0.02,0.25,0.14,0.27,'g_knee'); part(0.17,0.5,0.02,0.25,0.14,0.27,'g_knee'); }
+      if (colors.g_socks) { part(-0.17,0.27,0,0.24,0.16,0.26,'g_socks'); part(0.17,0.27,0,0.24,0.16,0.26,'g_socks'); }
+      if (colors.g_goggles) part(0,1.81,0.22,0.36,0.08,0.03,'g_goggles');
+      if (colors.g_chain) part(0,1.48,0.21,0.14,0.14,0.02,'g_chain');
+    }
     const hand = profile.handedness === 'left' ? -0.58 : 0.58;
     add(hand,1.02,0.28,0.24,0.24,0.24,'ball');
     if (profile.mode === 'coach') { colors.jersey = hex('#344d58') || colors.post; part(0,1.32,0.22,0.18,0.4,0.04,'line'); }
@@ -181,6 +210,7 @@
   function geometry(match, index, progress, options = {}) {
     const quality = options.quality === 'balanced' ? 'balanced' : 'low';
     const court = courtGeometry(match && match.ruleSetId, quality), f = frameAt(match, index, progress, options), colors = palette(options);
+    if (/^#[0-9a-f]{6}$/i.test(options.ball || '')) colors.ball = [parseInt(options.ball.slice(1, 3), 16) / 255, parseInt(options.ball.slice(3, 5), 16) / 255, parseInt(options.ball.slice(5, 7), 16) / 255];
     const cubes = court.cubes.slice();
     const add = (x, y, z, sx, sy, sz, color, yaw = 0) => { if (cubes.length < MAX_CUBES) cubes.push({ x, y, z, sx, sy, sz, color, yaw }); };
     for (const p of f.players) {

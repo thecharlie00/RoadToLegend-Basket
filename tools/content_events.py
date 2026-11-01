@@ -978,6 +978,104 @@ ev('legend-stands', 'legacy', P, ('{legend} en la grada', '{legend} in the stand
       ('Te dice una sola frase. Es justo la que necesitabas.', 'They tell you one sentence. Exactly the one you needed.'))],
    cond={'minGeneration': 2, 'minWeek': 8}, once=True)
 
+# ======================= MODO ÉPOCAS: MOMENTOS DE LA HISTORIA =======================
+# Hechos simplificados y verificables del baloncesto; los clubes y personas del juego siguen siendo ficticios.
+ev('era-outdoor-rain', 'era', A, ('Final al aire libre', 'Outdoor final'),
+   ('Como en los primeros torneos olímpicos, se juega en una pista de tierra al aire libre. Empieza a llover y el balón de cuero pesa el doble.',
+    'Like the early Olympic tournaments, the game is on an outdoor dirt court. It starts to rain and the leather ball weighs twice as much.'),
+   [O(('Pases cortos y paciencia', 'Short passes and patience'), ('Nada de botar en el barro.', 'No dribbling in the mud.'), {'attr': {'pase': 1}, 'morale': 2},
+      ('Ganáis con un marcador de otra época. Nadie se queja.', 'You win with a score from another age. Nobody complains.')),
+    U(('Tirar de lejos igualmente', 'Shoot from deep anyway'), ('Si entra, leyenda.', 'If it drops, legend.'), 0.35, {'fame': 5, 'confidence': 2}, ('Entra. La grada, empapada, enloquece.', 'It goes in. The soaked crowd goes wild.'), {'morale': -2}, ('El balón resbala. Se queda corto.', 'The ball slips. It falls short.'))],
+   cond={'era': True, 'maxYear': 1948}, once=True)
+ev('era-one-hand', 'era', A, ('El tiro a una mano', 'The one-handed shot'),
+   ('Todo el mundo tira con las dos manos desde el pecho. Has visto a un universitario tirar con una sola mano y en carrera. Tu entrenador lo llama "un capricho".',
+    'Everyone shoots two-handed from the chest. You saw a college kid shoot one-handed on the move. Your coach calls it "a fad".'),
+   [O(('Aprenderlo a escondidas', 'Learn it in secret'), ('El futuro llega antes a quien lo practica.', 'The future comes first to whoever practises it.'), {'attr': {'tiroMedia': 2}, 'xp': 4},
+      ('Al mes lo usas en un partido. El entrenador calla.', 'A month later you use it in a game. The coach says nothing.')),
+    O(('Respetar la escuela clásica', 'Respect the classic school'), ('Así se ha hecho siempre.', 'This is how it has always been done.'), {'trust': 3, 'attr': {'tiroLibre': 1}},
+      ('El entrenador te pone de ejemplo en el vestuario.', 'The coach holds you up as an example.'))],
+   cond={'era': True, 'minYear': 1932, 'maxYear': 1950}, once=True)
+ev('era-jump-shot', 'era', A, ('Saltar para tirar', 'Jumping to shoot'),
+   ('Los jóvenes ya no tiran con los pies en el suelo: saltan y sueltan arriba. Los veteranos dicen que eso no durará.',
+    'Youngsters no longer shoot with feet on the floor: they jump and release at the top. Veterans say it will not last.'),
+   [O(('Adoptar el tiro en suspensión', 'Adopt the jump shot'), ('Más difícil de tapar.', 'Harder to block.'), {'attr': {'tiroMedia': 1, 'salto': 1}},
+      ('Tu porcentaje sube. Los defensores llegan tarde.', 'Your percentage climbs. Defenders arrive late.')),
+    O(('Perfeccionar el juego cerca del aro', 'Polish your game near the rim'), ('Lo seguro.', 'The safe bet.'), {'attr': {'tiroCerca': 2}},
+      ('Nadie te para en la zona.', 'Nobody stops you in the paint.'))],
+   cond={'era': True, 'minYear': 1945, 'maxYear': 1962}, once=True)
+ev('era-shot-clock', 'era', A, ('El reloj que lo cambia todo', 'The clock that changes everything'),
+   ('Ha llegado el reloj de posesión: se acabó congelar el balón para proteger una ventaja. Los partidos van a ir mucho más rápido.',
+    'The shot clock has arrived: no more freezing the ball to protect a lead. Games are about to get much faster.'),
+   [O(('Entrenar el físico', 'Train your conditioning'), ('Habrá que correr.', 'There will be running.'), {'attr': {'resistencia': 2}},
+      ('En el último cuarto, eres el único que no jadea.', 'In the last quarter you are the only one not gasping.')),
+    O(('Trabajar la toma de decisiones', 'Work on decision-making'), ('Menos tiempo para pensar.', 'Less time to think.'), {'attr': {'lectura': 2}},
+      ('Lees las defensas antes de cruzar el medio campo.', 'You read defences before crossing half court.'))],
+   cond={'era': True, 'minYear': 1954, 'maxYear': 1958}, once=True)
+ev('era-orange-ball', 'era', A, ('Un balón naranja', 'An orange ball'),
+   ('La liga prueba un balón naranja, más visible para el público y para la televisión. Algunos jugadores dicen que bota raro.',
+    'The league is trying an orange ball, easier to see for fans and TV. Some players say it bounces funny.'),
+   [O(('Pedir uno para entrenar en casa', 'Ask for one to practise at home'), ('Mejor acostumbrarse.', 'Better get used to it.'), {'attr': {'manejo': 1}, 'xp': 2},
+      ('Al cabo de una semana ya no recuerdas el marrón.', 'After a week you no longer remember the brown one.')),
+    O(('Quejarte en la prensa', 'Complain to the press'), ('Polémica gratis.', 'Free controversy.'), {'fame': 3, 'trust': -2},
+      ('Tu queja sale en los periódicos. El balón naranja se queda.', 'Your complaint makes the papers. The orange ball stays.'))],
+   cond={'era': True, 'minYear': 1957, 'maxYear': 1966}, once=True)
+ev('era-first-tv', 'era', A, ('Partido televisado', 'Televised game'),
+   ('Por primera vez, la televisión retransmite un partido del {club}. Todo el país podrá verte.',
+    'For the first time, television is broadcasting a {club} game. The whole country can watch.'),
+   [O(('Jugar para la cámara', 'Play for the camera'), ('Espectáculo.', 'Showtime.'), {'fame': 6, 'fans': 4, 'trust': -1},
+      ('Un pase por la espalda acaba en todos los noticiarios.', 'A behind-the-back pass ends up on every newscast.')),
+    O(('Jugar como siempre', 'Play as always'), ('Lo importante es ganar.', 'Winning is what matters.'), {'trust': 2, 'morale': 2},
+      ('El comentarista elogia tu "baloncesto serio".', 'The commentator praises your "serious basketball".'))],
+   cond={'era': True, 'minYear': 1958, 'maxYear': 1975}, once=True)
+ev('era-women-olympics', 'era', A, ('El baloncesto femenino llega a los Juegos', 'Women\'s basketball reaches the Olympics'),
+   ('Este año el baloncesto femenino debuta en los Juegos Olímpicos. Todo el vestuario lo sigue por la radio.',
+    'This year women\'s basketball makes its Olympic debut. The whole locker room follows it on the radio.'),
+   [O(('Soñar con ir algún día', 'Dream of going one day'), ('Un objetivo nuevo.', 'A new goal.'), {'morale': 5, 'confidence': 1},
+      ('Pegas el recorte del periódico en tu taquilla.', 'You tape the newspaper clipping to your locker.')),
+    O(('Entrenar el doble esa semana', 'Train twice as hard that week'), ('Hay que estar preparada.', 'You have to be ready.'), {'attr': {'resistencia': 1, 'tiroLibre': 1}},
+      ('Nadie se va del pabellón antes que tú.', 'Nobody leaves the gym before you.'))],
+   cond={'era': True, 'gender': 'women', 'minYear': 1976, 'maxYear': 1977}, once=True)
+ev('era-three-na', 'era', A, ('Una línea nueva en la pista', 'A new line on the court'),
+   ('La liga estrena la línea de tres puntos. Muchos entrenadores la consideran un truco de feria.',
+    'The league debuts the three-point line. Many coaches consider it a sideshow gimmick.'),
+   [O(('Practicar triples cada día', 'Practise threes every day'), ('Ventaja de pioneros.', 'Pioneer\'s edge.'), {'attr': {'tiroTriple': 3}},
+      ('Tus compañeros se ríen... hasta que empiezas a meterlos.', 'Teammates laugh... until you start making them.')),
+    O(('Seguir atacando el aro', 'Keep attacking the rim'), ('Dos puntos seguros valen más.', 'Two sure points are worth more.'), {'attr': {'tiroCerca': 1, 'bandeja': 1}},
+      ('El entrenador asiente. De momento, tiene razón.', 'The coach nods. For now, he is right.'))],
+   cond={'era': True, 'region': 'NA', 'minYear': 1979, 'maxYear': 1981}, once=True)
+ev('era-three-fiba', 'era', A, ('Llega la línea de 6,25', 'The 6.25 m line arrives'),
+   ('FIBA ha aprobado la línea de tres puntos a 6,25 metros. El baloncesto internacional nunca volverá a ser igual.',
+    'FIBA has approved the three-point line at 6.25 metres. International basketball will never be the same.'),
+   [O(('Convertirte en especialista', 'Become a specialist'), ('Un arma nueva.', 'A new weapon.'), {'attr': {'tiroTriple': 3}},
+      ('Te llaman "el de la línea". Te encanta.', 'They call you "the line guy". You love it.')),
+    O(('Defender esa línea', 'Defend that line'), ('Alguien tendrá que hacerlo.', 'Someone has to.'), {'attr': {'defExterior': 2}},
+      ('Los tiradores rivales empiezan a odiarte.', 'Opposing shooters start to hate you.'))],
+   cond={'era': True, 'region': ['EU', 'WORLD'], 'minYear': 1984, 'maxYear': 1986}, once=True)
+ev('era-pros-olympics', 'era', A, ('Profesionales en los Juegos', 'Professionals at the Olympics'),
+   ('FIBA ha abierto los Juegos a los jugadores profesionales. Las selecciones van a cambiar para siempre.',
+    'FIBA has opened the Olympics to professional players. National teams are about to change forever.'),
+   [O(('Ponerte a disposición de tu país', 'Make yourself available to your country'), ('Un sueño.', 'A dream.'), {'fame': 5, 'morale': 4},
+      ('El seleccionador te llama esa misma semana.', 'The national coach calls you that same week.')),
+    O(('Centrarte en tu club', 'Focus on your club'), ('El verano es para descansar.', 'Summer is for resting.'), {'trust': 3},
+      ('El club agradece tu compromiso.', 'The club appreciates your commitment.'))],
+   cond={'era': True, 'minYear': 1989, 'maxYear': 1993}, once=True)
+ev('era-four-quarters', 'era', A, ('Cuatro cuartos y 24 segundos', 'Four quarters and 24 seconds'),
+   ('Se acabaron los dos tiempos de 20 minutos: llegan los cuartos de 10 y el reloj de 24 segundos.',
+    'Two 20-minute halves are over: 10-minute quarters and the 24-second clock are here.'),
+   [O(('Acelerar tu juego', 'Speed up your game'), ('Más posesiones.', 'More possessions.'), {'attr': {'velocidad': 1, 'aceleracion': 1}},
+      ('Corres la pista como nunca.', 'You run the floor like never before.')),
+    O(('Ser la pausa del equipo', 'Be the team\'s calm'), ('Alguien tiene que ordenar.', 'Someone has to organise.'), {'attr': {'vision': 1, 'pase': 1}},
+      ('Cuando el partido se vuelve loco, el balón te busca.', 'When the game goes crazy, the ball finds you.'))],
+   cond={'era': True, 'region': ['EU', 'WORLD'], 'minYear': 2000, 'maxYear': 2001}, once=True)
+ev('era-analytics', 'era', A, ('Los números mandan', 'Numbers rule'),
+   ('El club ha contratado analistas. Su conclusión: tiros libres, triples y bandejas; el tiro de media distancia "no sale a cuenta".',
+    'The club has hired analysts. Their verdict: free throws, threes and layups; the mid-range shot "doesn\'t pay".'),
+   [O(('Hacer caso a los datos', 'Follow the data'), ('Eficiencia.', 'Efficiency.'), {'attr': {'tiroTriple': 2}, 'trust': 2},
+      ('Tu eficiencia se dispara. Los analistas te adoran.', 'Your efficiency soars. The analysts love you.')),
+    O(('Defender tu media distancia', 'Defend your mid-range'), ('El arte no se mide.', 'Art cannot be measured.'), {'attr': {'tiroMedia': 2}, 'fans': 2},
+      ('Los puristas te convierten en su héroe.', 'The purists make you their hero.'))],
+   cond={'era': True, 'minYear': 2012, 'maxYear': 2019}, once=True)
+
 
 if __name__ == '__main__':
     print(len(EVENTS))

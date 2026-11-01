@@ -181,3 +181,18 @@ body[data-screen=game] #app{padding-bottom:calc(170px + env(safe-area-inset-bott
 /* Directo en tiempo real */
 .speeds{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.speeds .speed{min-width:48px;font-family:var(--ui);font-weight:700;letter-spacing:.04em}.speeds .speed.on{background:var(--accent);color:#120a02;border-color:var(--accent)}
 .feed li.mine{color:var(--accent2);font-weight:700}#pb-clock{font-family:var(--ui);font-weight:700;letter-spacing:.06em;color:var(--ink)}
+/* Tienda y aspecto */
+.gear-list{display:grid;gap:8px}.gear-item{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.gear-item.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}.gear-item.locked{border-style:dashed}.gear-item .swatch{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.25)}
+.gi-body{display:flex;flex-direction:column;gap:2px;min-width:0}.gi-body small{overflow-wrap:anywhere}.gi-act{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.tier{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:999px;border:1px solid var(--tier);color:var(--tier)}
+.tag.offer{background:var(--bad);color:#1a0306;border-color:var(--bad);font-weight:700}
+.pick-grid.swatches{display:flex;flex-wrap:wrap;gap:8px}.pick.color{width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;background:var(--sw);border:2px solid var(--line)}.pick.color[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:2px}
+/* Modo Épocas: la televisión de cada época */
+body[data-era="sepia"] .live3d canvas,body[data-era="sepia"] .avatar-wrap canvas,body[data-era="sepia"] #arcade3d{filter:sepia(.9) contrast(1.08) brightness(.92)}
+body[data-era="bw"] .live3d canvas,body[data-era="bw"] .avatar-wrap canvas,body[data-era="bw"] #arcade3d{filter:grayscale(1) contrast(1.15)}
+body[data-era="faded"] .live3d canvas,body[data-era="faded"] .avatar-wrap canvas,body[data-era="faded"] #arcade3d{filter:saturate(.62) sepia(.22) contrast(.96)}
+body[data-era="sd"] .live3d canvas{filter:saturate(.88) blur(.2px)}
+body[data-era="sepia"] .live3d,body[data-era="bw"] .live3d{position:relative}body[data-era="sepia"] .live3d::after,body[data-era="bw"] .live3d::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 60px rgba(0,0,0,.55)}
+.era-banner{border-left:4px solid var(--accent2)}
+.gi-body .tag,.gi-body .tier{align-self:flex-start;width:auto}

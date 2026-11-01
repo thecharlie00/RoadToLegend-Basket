@@ -7863,6 +7863,799 @@
           "id": "b"
         }
       ]
+    },
+    {
+      "id": "era-outdoor-rain",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "maxYear": 1948
+      },
+      "title": {
+        "es": "Final al aire libre",
+        "en": "Outdoor final"
+      },
+      "body": {
+        "es": "Como en los primeros torneos olímpicos, se juega en una pista de tierra al aire libre. Empieza a llover y el balón de cuero pesa el doble.",
+        "en": "Like the early Olympic tournaments, the game is on an outdoor dirt court. It starts to rain and the leather ball weighs twice as much."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Pases cortos y paciencia",
+            "en": "Short passes and patience"
+          },
+          "desc": {
+            "es": "Nada de botar en el barro.",
+            "en": "No dribbling in the mud."
+          },
+          "effects": {
+            "attr": {
+              "pase": 1
+            },
+            "morale": 2
+          },
+          "result": {
+            "es": "Ganáis con un marcador de otra época. Nadie se queja.",
+            "en": "You win with a score from another age. Nobody complains."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Tirar de lejos igualmente",
+            "en": "Shoot from deep anyway"
+          },
+          "desc": {
+            "es": "Si entra, leyenda.",
+            "en": "If it drops, legend."
+          },
+          "p": 0.35,
+          "ok": {
+            "effects": {
+              "fame": 5,
+              "confidence": 2
+            },
+            "result": {
+              "es": "Entra. La grada, empapada, enloquece.",
+              "en": "It goes in. The soaked crowd goes wild."
+            }
+          },
+          "ko": {
+            "effects": {
+              "morale": -2
+            },
+            "result": {
+              "es": "El balón resbala. Se queda corto.",
+              "en": "The ball slips. It falls short."
+            }
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-one-hand",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 1932,
+        "maxYear": 1950
+      },
+      "title": {
+        "es": "El tiro a una mano",
+        "en": "The one-handed shot"
+      },
+      "body": {
+        "es": "Todo el mundo tira con las dos manos desde el pecho. Has visto a un universitario tirar con una sola mano y en carrera. Tu entrenador lo llama \"un capricho\".",
+        "en": "Everyone shoots two-handed from the chest. You saw a college kid shoot one-handed on the move. Your coach calls it \"a fad\"."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Aprenderlo a escondidas",
+            "en": "Learn it in secret"
+          },
+          "desc": {
+            "es": "El futuro llega antes a quien lo practica.",
+            "en": "The future comes first to whoever practises it."
+          },
+          "effects": {
+            "attr": {
+              "tiroMedia": 2
+            },
+            "xp": 4
+          },
+          "result": {
+            "es": "Al mes lo usas en un partido. El entrenador calla.",
+            "en": "A month later you use it in a game. The coach says nothing."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Respetar la escuela clásica",
+            "en": "Respect the classic school"
+          },
+          "desc": {
+            "es": "Así se ha hecho siempre.",
+            "en": "This is how it has always been done."
+          },
+          "effects": {
+            "trust": 3,
+            "attr": {
+              "tiroLibre": 1
+            }
+          },
+          "result": {
+            "es": "El entrenador te pone de ejemplo en el vestuario.",
+            "en": "The coach holds you up as an example."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-jump-shot",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 1945,
+        "maxYear": 1962
+      },
+      "title": {
+        "es": "Saltar para tirar",
+        "en": "Jumping to shoot"
+      },
+      "body": {
+        "es": "Los jóvenes ya no tiran con los pies en el suelo: saltan y sueltan arriba. Los veteranos dicen que eso no durará.",
+        "en": "Youngsters no longer shoot with feet on the floor: they jump and release at the top. Veterans say it will not last."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Adoptar el tiro en suspensión",
+            "en": "Adopt the jump shot"
+          },
+          "desc": {
+            "es": "Más difícil de tapar.",
+            "en": "Harder to block."
+          },
+          "effects": {
+            "attr": {
+              "tiroMedia": 1,
+              "salto": 1
+            }
+          },
+          "result": {
+            "es": "Tu porcentaje sube. Los defensores llegan tarde.",
+            "en": "Your percentage climbs. Defenders arrive late."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Perfeccionar el juego cerca del aro",
+            "en": "Polish your game near the rim"
+          },
+          "desc": {
+            "es": "Lo seguro.",
+            "en": "The safe bet."
+          },
+          "effects": {
+            "attr": {
+              "tiroCerca": 2
+            }
+          },
+          "result": {
+            "es": "Nadie te para en la zona.",
+            "en": "Nobody stops you in the paint."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-shot-clock",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 1954,
+        "maxYear": 1958
+      },
+      "title": {
+        "es": "El reloj que lo cambia todo",
+        "en": "The clock that changes everything"
+      },
+      "body": {
+        "es": "Ha llegado el reloj de posesión: se acabó congelar el balón para proteger una ventaja. Los partidos van a ir mucho más rápido.",
+        "en": "The shot clock has arrived: no more freezing the ball to protect a lead. Games are about to get much faster."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Entrenar el físico",
+            "en": "Train your conditioning"
+          },
+          "desc": {
+            "es": "Habrá que correr.",
+            "en": "There will be running."
+          },
+          "effects": {
+            "attr": {
+              "resistencia": 2
+            }
+          },
+          "result": {
+            "es": "En el último cuarto, eres el único que no jadea.",
+            "en": "In the last quarter you are the only one not gasping."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Trabajar la toma de decisiones",
+            "en": "Work on decision-making"
+          },
+          "desc": {
+            "es": "Menos tiempo para pensar.",
+            "en": "Less time to think."
+          },
+          "effects": {
+            "attr": {
+              "lectura": 2
+            }
+          },
+          "result": {
+            "es": "Lees las defensas antes de cruzar el medio campo.",
+            "en": "You read defences before crossing half court."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-orange-ball",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 1957,
+        "maxYear": 1966
+      },
+      "title": {
+        "es": "Un balón naranja",
+        "en": "An orange ball"
+      },
+      "body": {
+        "es": "La liga prueba un balón naranja, más visible para el público y para la televisión. Algunos jugadores dicen que bota raro.",
+        "en": "The league is trying an orange ball, easier to see for fans and TV. Some players say it bounces funny."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Pedir uno para entrenar en casa",
+            "en": "Ask for one to practise at home"
+          },
+          "desc": {
+            "es": "Mejor acostumbrarse.",
+            "en": "Better get used to it."
+          },
+          "effects": {
+            "attr": {
+              "manejo": 1
+            },
+            "xp": 2
+          },
+          "result": {
+            "es": "Al cabo de una semana ya no recuerdas el marrón.",
+            "en": "After a week you no longer remember the brown one."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Quejarte en la prensa",
+            "en": "Complain to the press"
+          },
+          "desc": {
+            "es": "Polémica gratis.",
+            "en": "Free controversy."
+          },
+          "effects": {
+            "fame": 3,
+            "trust": -2
+          },
+          "result": {
+            "es": "Tu queja sale en los periódicos. El balón naranja se queda.",
+            "en": "Your complaint makes the papers. The orange ball stays."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-first-tv",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 1958,
+        "maxYear": 1975
+      },
+      "title": {
+        "es": "Partido televisado",
+        "en": "Televised game"
+      },
+      "body": {
+        "es": "Por primera vez, la televisión retransmite un partido del {club}. Todo el país podrá verte.",
+        "en": "For the first time, television is broadcasting a {club} game. The whole country can watch."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Jugar para la cámara",
+            "en": "Play for the camera"
+          },
+          "desc": {
+            "es": "Espectáculo.",
+            "en": "Showtime."
+          },
+          "effects": {
+            "fame": 6,
+            "fans": 4,
+            "trust": -1
+          },
+          "result": {
+            "es": "Un pase por la espalda acaba en todos los noticiarios.",
+            "en": "A behind-the-back pass ends up on every newscast."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Jugar como siempre",
+            "en": "Play as always"
+          },
+          "desc": {
+            "es": "Lo importante es ganar.",
+            "en": "Winning is what matters."
+          },
+          "effects": {
+            "trust": 2,
+            "morale": 2
+          },
+          "result": {
+            "es": "El comentarista elogia tu \"baloncesto serio\".",
+            "en": "The commentator praises your \"serious basketball\"."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-women-olympics",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "gender": "women",
+        "minYear": 1976,
+        "maxYear": 1977
+      },
+      "title": {
+        "es": "El baloncesto femenino llega a los Juegos",
+        "en": "Women's basketball reaches the Olympics"
+      },
+      "body": {
+        "es": "Este año el baloncesto femenino debuta en los Juegos Olímpicos. Todo el vestuario lo sigue por la radio.",
+        "en": "This year women's basketball makes its Olympic debut. The whole locker room follows it on the radio."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Soñar con ir algún día",
+            "en": "Dream of going one day"
+          },
+          "desc": {
+            "es": "Un objetivo nuevo.",
+            "en": "A new goal."
+          },
+          "effects": {
+            "morale": 5,
+            "confidence": 1
+          },
+          "result": {
+            "es": "Pegas el recorte del periódico en tu taquilla.",
+            "en": "You tape the newspaper clipping to your locker."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Entrenar el doble esa semana",
+            "en": "Train twice as hard that week"
+          },
+          "desc": {
+            "es": "Hay que estar preparada.",
+            "en": "You have to be ready."
+          },
+          "effects": {
+            "attr": {
+              "resistencia": 1,
+              "tiroLibre": 1
+            }
+          },
+          "result": {
+            "es": "Nadie se va del pabellón antes que tú.",
+            "en": "Nobody leaves the gym before you."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-three-na",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "region": "NA",
+        "minYear": 1979,
+        "maxYear": 1981
+      },
+      "title": {
+        "es": "Una línea nueva en la pista",
+        "en": "A new line on the court"
+      },
+      "body": {
+        "es": "La liga estrena la línea de tres puntos. Muchos entrenadores la consideran un truco de feria.",
+        "en": "The league debuts the three-point line. Many coaches consider it a sideshow gimmick."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Practicar triples cada día",
+            "en": "Practise threes every day"
+          },
+          "desc": {
+            "es": "Ventaja de pioneros.",
+            "en": "Pioneer's edge."
+          },
+          "effects": {
+            "attr": {
+              "tiroTriple": 3
+            }
+          },
+          "result": {
+            "es": "Tus compañeros se ríen... hasta que empiezas a meterlos.",
+            "en": "Teammates laugh... until you start making them."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Seguir atacando el aro",
+            "en": "Keep attacking the rim"
+          },
+          "desc": {
+            "es": "Dos puntos seguros valen más.",
+            "en": "Two sure points are worth more."
+          },
+          "effects": {
+            "attr": {
+              "tiroCerca": 1,
+              "bandeja": 1
+            }
+          },
+          "result": {
+            "es": "El entrenador asiente. De momento, tiene razón.",
+            "en": "The coach nods. For now, he is right."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-three-fiba",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "region": [
+          "EU",
+          "WORLD"
+        ],
+        "minYear": 1984,
+        "maxYear": 1986
+      },
+      "title": {
+        "es": "Llega la línea de 6,25",
+        "en": "The 6.25 m line arrives"
+      },
+      "body": {
+        "es": "FIBA ha aprobado la línea de tres puntos a 6,25 metros. El baloncesto internacional nunca volverá a ser igual.",
+        "en": "FIBA has approved the three-point line at 6.25 metres. International basketball will never be the same."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Convertirte en especialista",
+            "en": "Become a specialist"
+          },
+          "desc": {
+            "es": "Un arma nueva.",
+            "en": "A new weapon."
+          },
+          "effects": {
+            "attr": {
+              "tiroTriple": 3
+            }
+          },
+          "result": {
+            "es": "Te llaman \"el de la línea\". Te encanta.",
+            "en": "They call you \"the line guy\". You love it."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Defender esa línea",
+            "en": "Defend that line"
+          },
+          "desc": {
+            "es": "Alguien tendrá que hacerlo.",
+            "en": "Someone has to."
+          },
+          "effects": {
+            "attr": {
+              "defExterior": 2
+            }
+          },
+          "result": {
+            "es": "Los tiradores rivales empiezan a odiarte.",
+            "en": "Opposing shooters start to hate you."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-pros-olympics",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 1989,
+        "maxYear": 1993
+      },
+      "title": {
+        "es": "Profesionales en los Juegos",
+        "en": "Professionals at the Olympics"
+      },
+      "body": {
+        "es": "FIBA ha abierto los Juegos a los jugadores profesionales. Las selecciones van a cambiar para siempre.",
+        "en": "FIBA has opened the Olympics to professional players. National teams are about to change forever."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ponerte a disposición de tu país",
+            "en": "Make yourself available to your country"
+          },
+          "desc": {
+            "es": "Un sueño.",
+            "en": "A dream."
+          },
+          "effects": {
+            "fame": 5,
+            "morale": 4
+          },
+          "result": {
+            "es": "El seleccionador te llama esa misma semana.",
+            "en": "The national coach calls you that same week."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Centrarte en tu club",
+            "en": "Focus on your club"
+          },
+          "desc": {
+            "es": "El verano es para descansar.",
+            "en": "Summer is for resting."
+          },
+          "effects": {
+            "trust": 3
+          },
+          "result": {
+            "es": "El club agradece tu compromiso.",
+            "en": "The club appreciates your commitment."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-four-quarters",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "region": [
+          "EU",
+          "WORLD"
+        ],
+        "minYear": 2000,
+        "maxYear": 2001
+      },
+      "title": {
+        "es": "Cuatro cuartos y 24 segundos",
+        "en": "Four quarters and 24 seconds"
+      },
+      "body": {
+        "es": "Se acabaron los dos tiempos de 20 minutos: llegan los cuartos de 10 y el reloj de 24 segundos.",
+        "en": "Two 20-minute halves are over: 10-minute quarters and the 24-second clock are here."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Acelerar tu juego",
+            "en": "Speed up your game"
+          },
+          "desc": {
+            "es": "Más posesiones.",
+            "en": "More possessions."
+          },
+          "effects": {
+            "attr": {
+              "velocidad": 1,
+              "aceleracion": 1
+            }
+          },
+          "result": {
+            "es": "Corres la pista como nunca.",
+            "en": "You run the floor like never before."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Ser la pausa del equipo",
+            "en": "Be the team's calm"
+          },
+          "desc": {
+            "es": "Alguien tiene que ordenar.",
+            "en": "Someone has to organise."
+          },
+          "effects": {
+            "attr": {
+              "vision": 1,
+              "pase": 1
+            }
+          },
+          "result": {
+            "es": "Cuando el partido se vuelve loco, el balón te busca.",
+            "en": "When the game goes crazy, the ball finds you."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "era-analytics",
+      "category": "era",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "era": true,
+        "minYear": 2012,
+        "maxYear": 2019
+      },
+      "title": {
+        "es": "Los números mandan",
+        "en": "Numbers rule"
+      },
+      "body": {
+        "es": "El club ha contratado analistas. Su conclusión: tiros libres, triples y bandejas; el tiro de media distancia \"no sale a cuenta\".",
+        "en": "The club has hired analysts. Their verdict: free throws, threes and layups; the mid-range shot \"doesn't pay\"."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Hacer caso a los datos",
+            "en": "Follow the data"
+          },
+          "desc": {
+            "es": "Eficiencia.",
+            "en": "Efficiency."
+          },
+          "effects": {
+            "attr": {
+              "tiroTriple": 2
+            },
+            "trust": 2
+          },
+          "result": {
+            "es": "Tu eficiencia se dispara. Los analistas te adoran.",
+            "en": "Your efficiency soars. The analysts love you."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Defender tu media distancia",
+            "en": "Defend your mid-range"
+          },
+          "desc": {
+            "es": "El arte no se mide.",
+            "en": "Art cannot be measured."
+          },
+          "effects": {
+            "attr": {
+              "tiroMedia": 2
+            },
+            "fans": 2
+          },
+          "result": {
+            "es": "Los puristas te convierten en su héroe.",
+            "en": "The purists make you their hero."
+          },
+          "id": "b"
+        }
+      ]
     }
   ]
 }

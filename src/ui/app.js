@@ -13,6 +13,7 @@
   function notify(text, error = false) { state.message = text; state.messageError = error; }
   function draft(id, value) { return Object.prototype.hasOwnProperty.call(state.drafts, id) ? state.drafts[id] : value; }
 
+  function syncEraLook() { const s = hasCareer() && state.screen === 'game' ? state.career.summary : null; const v = s && s.era ? s.era.look : ''; if (doc.body.dataset.era !== v) doc.body.dataset.era = v; }
   function femOpts() {
     const c = state.career && state.career.state;
     if (!c || state.screen !== 'game') return null;
@@ -131,7 +132,7 @@
     const items = CAA.Content.packs().shop.items;
     const color = slot => { const item = items.find(i => i.id === (life.equipment || {})[slot]); return item ? item.color : null; };
     const p = s.player;
-    return { mode: s.mode, name: p ? p.name : s.coach.name, height: p ? p.height : 190, archetype: p ? p.archetype : null, handedness: p ? p.handedness : 'right', women: !!(s.league && s.league.gender === 'f'), equipment: { jersey: color('jersey'), shoes: color('shoes'), accessory: color('accessory') } };
+    return { mode: s.mode, name: p ? p.name : s.coach.name, height: p ? p.height : 190, archetype: p ? p.archetype : null, handedness: p ? p.handedness : 'right', women: !!(s.league && s.league.gender === 'f'), look: s.look || null, equipment: { jersey: color('jersey'), shoes: color('shoes'), accessory: color('accessory') } };
   }
   function avatarHtml() {
     const profile = avatarProfile();
@@ -198,7 +199,7 @@
       const reduced = CAA.A11Y.reduced(state.settings);
       const cycle = 2600, progress = reduced ? 1 : Math.min(1, ((ts - liveAnim.start) % cycle) / 1300);
       const diff = Math.abs(m.score[0] - m.score[1]), clutch = m.period >= 4 && m.gameClock <= 1800 && diff <= 8;
-      liveRenderer.draw(CAA.Voxel.geometry(m, idx, progress, { women: careerWomen(), quality: 'low', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : 0.25 }), 'broadcast');
+      liveRenderer.draw(CAA.Voxel.geometry(m, idx, progress, { ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: careerWomen(), quality: 'low', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : 0.25 }), 'broadcast');
       liveRaf = reduced ? null : root.requestAnimationFrame(drawLive3d);
     } catch (_) { state.liveViewOff = true; canvas.hidden = true; liveRaf = null; }
   }
@@ -313,7 +314,7 @@
   }
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
-  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history'];
+  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history', 'shop', 'look'];
   const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA', 'NG', 'SN', 'MX', 'PL', 'HR', 'CZ', 'BE', 'NL', 'PT', 'HU', 'UY', 'VE', 'PR', 'NZ', 'EG', 'MA', 'ID', 'TW', 'LB'];
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
   const TALENT = { promise: 50, gem: 55, chosen: 60 };
@@ -362,8 +363,8 @@
     if (state.screen === 'modes') {
       const card = (mode, ok) => `<button class="mode-card" data-action="boot-mode" data-mode="${mode}" ${ok ? '' : 'disabled'}><b>${t('modes.' + mode)}</b><span>${t('modes.' + mode + 'Desc')}</span>${ok ? '' : `<em>${t('modes.soon')}</em>`}</button>`;
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.new')}</p><h1 class="boot-title small">${t('modes.title')}</h1>
-        <div class="seg" role="group" aria-label="${t('modes.league')}"><button aria-pressed="true">${t('modes.men')}</button><button disabled aria-pressed="false">${t('modes.women')} · ${t('modes.soonShort')}</button></div>
-        ${card('player', true)}${card('coach', true)}${card('club', false)}${card('eras', false)}
+        <div class="seg" role="group" aria-label="${t('modes.league')}"><button data-action="mode-gender" data-gender="m" aria-pressed="${state.career.gender !== 'f'}">${t('modes.men')}</button><button data-action="mode-gender" data-gender="f" aria-pressed="${state.career.gender === 'f'}">${t('modes.women')}</button></div>
+        ${card('player', true)}${card('coach', true)}${card('club', false)}${card('eras', true)}
         <button class="ghost-btn" data-action="boot-back">${t('wiz.back')}</button></main>`;
     }
     return renderCreate();
@@ -372,12 +373,15 @@
   function renderCreate() {
     const c = state.career, w = state.wizard;
     const player = c.mode === 'player';
-    const total = player ? 4 : 2;
+    const era = !!c.eraYear;
+    const total = (player ? 4 : 2) + (era ? 1 : 0);
     const step = Math.min(w.step, total);
     const pick = (field, value, label, sub) => `<button class="pick" data-action="wiz-set" data-field="${field}" data-value="${esc(value)}" aria-pressed="${String(c[field]) === String(value)}"><b>${label}</b>${sub ? `<small>${sub}</small>` : ''}</button>`;
     let body = '';
-    const stepKey = player ? ['who', 'position', 'talent', 'club'][step - 1] : ['who', 'club'][step - 1];
-    if (stepKey === 'who') {
+    const stepKey = (era ? ['era'] : []).concat(player ? ['who', 'position', 'talent', 'club'] : ['who', 'club'])[step - 1];
+    if (stepKey === 'era') {
+      body = `<p class="muted">${t('era.intro')}</p><div class="pick-list">${CAA.Eras.DECADES.map(d => pick('eraYear', d.start, t('era.d.' + d.id), t('era.d.' + d.id + 'Desc'))).join('')}</div>`;
+    } else if (stepKey === 'who') {
       body = `<label for="career-name">${t(player ? 'wiz.name' : 'wiz.coachName')}<input id="career-name" value="${esc(draft('career-name', c.name))}" maxlength="40" autocomplete="off" placeholder="${t('career.namePlaceholder')}"></label>
         <h3 class="eyebrow">${t(player ? 'wiz.gender' : 'wiz.genderCoach')}</h3><div class="pick-grid two">${pick('gender', 'm', t(player ? 'wiz.genderM' : 'wiz.teamM'))}${pick('gender', 'f', t(player ? 'wiz.genderF' : 'wiz.teamF'))}</div>
         ${player ? `<label for="career-nationality">${t('career.nationality')}<select id="career-nationality">${NATIONS.map(n => `<option value="${n}" ${n === c.nationality ? 'selected' : ''}>${flag(n)} ${esc(nationName(n))}</option>`).join('')}</select></label>` : ''}`;
@@ -389,10 +393,10 @@
     } else if (stepKey === 'talent') {
       body = `<div class="pick-list">${['promise', 'gem', 'chosen', 'mystery'].map(k => pick('talent', k, t('talent.' + k), t('talent.' + k + 'Desc'))).join('')}</div>`;
     } else {
-      const routes = c.gender === 'f' ? ['world'] : player ? ['eu-academy', 'na-draft', 'na-undrafted', 'world'] : ['eu-academy', 'na-draft', 'world'];
+      const routes = c.gender === 'f' || era ? ['world'] : player ? ['eu-academy', 'na-draft', 'na-undrafted', 'world'] : ['eu-academy', 'na-draft', 'world'];
       const clubLeague = c.route === 'world' ? c.leagueId : c.route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
       body = `<h3 class="eyebrow">${t('wiz.path')}</h3><div class="pick-list">${routes.map(r => pick('route', r, t('route.' + r), t('route.' + r + 'Desc'))).join('')}</div>
-        ${c.route === 'world' ? `<label for="career-league">${t('wiz.league')}<select id="career-league">${leagueOptions(c.gender, c.leagueId)}</select></label>` : ''}
+        ${c.route === 'world' ? `<label for="career-league">${t('wiz.league')}<select id="career-league">${leagueOptions(c.gender, c.leagueId, null, c.eraYear)}</select></label>${era ? `<p class="muted small">${t('era.leaguesNote', { year: c.eraYear })}</p>` : ''}` : ''}
         <h3 class="eyebrow">${t(c.route === 'na-draft' ? 'wiz.preferredClub' : 'wiz.firstClub')}</h3>
         ${c.clubsLoading ? `<p class="muted">${t('status.working')}</p>` : `<div class="pick-list clubs">${c.clubs.map(x => `<button class="pick club" data-action="wiz-set" data-field="clubId" data-value="${esc(x.id)}" aria-pressed="${x.id === c.clubId}">${crest(x)}<b>${esc(x.name)}</b><small>${esc(c.route === 'world' ? leagueLabel(clubLeague) : t('league.' + clubLeague))}</small></button>`).join('')}</div>`}
         <p class="muted small">${t(c.route === 'na-draft' ? 'career.draftClubNote' : 'career.clubNote')}</p>
@@ -401,7 +405,7 @@
     const last = step === total;
     return `<main id="panel" class="boot create" tabindex="-1"><p class="eyebrow">${t('wiz.step', { n: step, total })}</p>
       <div class="steps" aria-hidden="true">${Array.from({ length: total }, (_, i) => `<i class="${i < step ? 'on' : ''}"></i>`).join('')}</div>
-      <h1 class="boot-title small">${t('wiz.' + stepKey + (player ? '' : 'Coach'))}</h1>${body}
+      <h1 class="boot-title small">${t('wiz.' + stepKey + (player || stepKey === 'era' ? '' : 'Coach'))}</h1>${body}
       <div class="wiz-nav"><button class="ghost-btn" data-action="${step === 1 ? 'wiz-cancel' : 'wiz-back'}">${t(step === 1 ? 'confirm.cancel' : 'wiz.back')}</button>
       ${last ? `<button class="cta" data-action="career-create" ${c.clubsLoading || !c.clubId ? 'disabled' : ''}>${t('wiz.start')} <span aria-hidden="true">▶</span></button>` : `<button class="cta" data-action="wiz-next">${t('wiz.next')}</button>`}</div></main>`;
   }
@@ -416,17 +420,24 @@
       <button class="iconbtn" data-action="toggle-audio" aria-pressed="${!!state.settings.audio}" aria-label="${t('settings.audio')}">♪</button><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
   }
 
+  function eraDefaultLeague() {
+    const c = state.career; if (!c.eraYear) return;
+    const L = CAA.Season.LEAGUES[c.leagueId];
+    if (!L || L.gender !== c.gender || !CAA.Eras.available(L, c.eraYear)) { const first = CAA.Season.leagueList(c.gender).find(l => CAA.Eras.available(CAA.Season.LEAGUES[l.id], c.eraYear)); c.leagueId = first ? first.id : c.leagueId; }
+    c.clubId = ''; c.clubsRoute = null;
+  }
   function careerWomen() { const s = state.career.summary; return !!(s && s.league && s.league.gender === 'f'); }
   function leagueName(id) { const L = CAA.Season.LEAGUES[id]; return L ? L.name : id; }
   function leagueLabel(id) { const L = CAA.Season.LEAGUES[id]; return L ? (L.country === 'AF' ? '🌍' : flag(L.country)) + ' ' + L.name : id; }
   const CONTINENTS = ['europe', 'americas', 'asia', 'oceania', 'africa'];
-  function leagueOptions(gender, selected, exclude) {
-    const list = CAA.Season.leagueList(gender).filter(l => !exclude || !exclude.includes(l.id));
+  function leagueOptions(gender, selected, exclude, year) {
+    const list = CAA.Season.leagueList(gender).filter(l => (!exclude || !exclude.includes(l.id)) && (!year || CAA.Eras.available(CAA.Season.LEAGUES[l.id], year)));
     return CONTINENTS.map(c => { const ls = list.filter(l => l.continent === c); return ls.length ? `<optgroup label="${t('continent.' + c)}">${ls.map(l => `<option value="${l.id}" ${l.id === selected ? 'selected' : ''}>${esc(leagueLabel(l.id))}${l.level === 2 ? ' · 2' : ''}</option>`).join('')}</optgroup>` : ''; }).join('');
   }
   function newsText(i) {
     const d = i.detail || {};
-    const vars = { weeks: i.weeks || 0, pick: d.overall, us: i.score ? i.score.join('–') : '', team: d.team || '', club: d.clubName || d.club || '', league: leagueName(d.targetLeague || d.leagueId || '') };
+    const vars = { weeks: i.weeks || 0, pick: d.overall, us: i.score ? i.score.join('–') : '', team: d.team || '', club: d.clubName || d.club || '', league: leagueName(d.targetLeague || d.leagueId || ''), n: d.value || '' };
+    if (i.type === 'eraRule') return t('inbox.eraRule.' + d.rule, vars);
     const key = 'inbox.' + i.type + (i.type === 'live' ? (i.won ? 'Won' : 'Lost') : '');
     return t(key, vars);
   }
@@ -507,7 +518,7 @@
       <p class="muted small">${t('coach.style', { pace: t('coach.pace.' + sc.pace), shooting: t('coach.focus.' + sc.shooting) })}</p><ul class="news">${sc.top.map(p => `<li><b>${esc(p.name)}</b> · ${esc(p.pos)} · ${p.ovr} <span class="muted small">${t('career.archetype.' + p.archetype)}</span></li>`).join('')}</ul></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${mk.crossing ? `<b>${esc(mk.crossing.clubName || '')}</b> <small class="muted">${esc(leagueLabel(mk.crossing.targetLeague))}</small><br>` : ''}${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
-    return `${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    return `${eraBanner(s)}${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   function renderMe() {
@@ -541,9 +552,10 @@
       ${state.practice && state.practice.start != null ? `<button class="cta" data-action="life-practice-release">${t('life.release')}</button>` : ''}
       ${life.pendingPractice ? `<p class="muted small">${t('life.pendingAttempt', { type: t(life.pendingPractice.type === 'buzzer' ? 'life.buzzerAuto' : 'life.practiceAuto'), id: life.pendingPractice.id })}</p><div class="row"><button class="small-btn" data-action="life-practice-resume">${t('life.resumeAttempt')}</button><button class="small-btn" data-action="life-practice-cancel">${t('life.cancelAttempt')}</button></div>` : ''}
       ${state.practice && state.practice.result ? `<p class="${state.practice.result.made ? 'ok' : 'bad'}"><b>${state.practice.result.made ? t('life.made') : t('life.missed')}</b></p>` : ''}</section>`;
-    const shop = `<section class="card"><div class="guide-head"><h3>${t('life.shop')}</h3><span class="tag">${t('life.style')}: ${life.style} · ${t('life.cash')}: ${life.cash}</span></div><div class="shop">${packs.shop.items.map(i => {
-      const owned = life.owned.includes(i.id), equipped = (life.equipment || {})[i.slot] === i.id;
-      return `<div class="item"><span class="swatch" style="background:${esc(i.color)}" aria-hidden="true"></span><span><b>${esc(loc(i.name))}</b><small>${t('slot.' + i.slot)} · ${i.cost} ${t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="life-equip" data-item="${i.id}" ${equipped ? 'disabled' : ''}>${equipped ? t('me.equipped') : t('life.equip')}</button>` : `<button class="small-btn" data-action="life-buy" data-item="${i.id}">${t('life.buy')}</button>`}</div>`; }).join('')}</div></section>`;
+    const g = s.gear;
+    const shop = g ? `<section class="card"><div class="guide-head"><h3>${t('me.gear')}</h3><span class="tag">${(g.cash || 0).toLocaleString(CAA.I18N.getLocale())} €</span></div>
+      <p class="small">${g.effective.total ? t('shop.effective', { stats: statText(g.effective.attrs) }) : t('shop.none')}</p>
+      <div class="row"><button class="small-btn primary" data-tab="shop">🛍 ${t('more.shop')}</button><button class="small-btn" data-tab="look">🎨 ${t('more.look')}</button></div></section>` : '';
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
@@ -585,16 +597,24 @@
     return `<section class="card"><span class="eyebrow">${t('league.kicker', { season: seasonLabel(s.year) })}</span><h2>${esc(s.leagueName)}</h2>
       <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('league.table')}"><table><caption class="muted">${t('league.table')}</caption><thead><tr><th>#</th><th>${t('league.team')}</th><th>${t('league.w')}</th><th>${t('league.l')}</th><th>${t('league.diff')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>
       ${s.recent.length ? `<section class="card"><h3>${t('league.results')}</h3><ul class="news">${s.recent.map(r => `<li><span class="${r.won ? 'ok' : 'bad'}">${t(r.won ? 'home.w' : 'home.l')}</span> ${t('league.roundShort', { n: r.round })} · ${r.us}–${r.them} ${t(r.home ? 'home.vsHome' : 'home.vsAway', { team: r.opponent })}</li>`).join('')}</ul></section>` : ''}
+      ${eraCard(s)}
       ${renderBracket()}
       ${s.awards ? `<section class="card"><h3>${t('sum.awards')}</h3><ul class="news">${s.awards.map(a => `<li><b>${t('award.' + a.award)}</b> · ${esc(a.player)} <span class="muted small">(${esc(a.club)})</span></li>`).join('')}</ul></section>` : ''}
       ${renderWorldNews(s)}
       ${s.player ? `<section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p>
         ${s.pendingMove ? `<p class="ok small">${t('league.pendingMove', { club: esc(clubLabel(s.pendingMove)), league: esc(leagueName(s.pendingMove.leagueId)) })}</p>` : ''}
-        <label for="crossing-league">${t('league.target')}<select id="crossing-league">${leagueOptions(s.league.gender, state.career.crossingLeague, [s.leagueId])}</select></label>
+        <label for="crossing-league">${t('league.target')}<select id="crossing-league">${leagueOptions(s.league.gender, state.career.crossingLeague, [s.leagueId], s.era ? s.year : null)}</select></label>
         <button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>` : ''}`;
   }
 
   function clubLabel(m) { const c = CAA.Season.clubCatalog(m.leagueId).find(x => x.id === m.clubId); return c ? c.name : m.clubId; }
+  function eraTraits(e) { const tr = e.traits; return [tr.shotClock ? t('era.clock', { n: tr.shotClock }) : t('era.noClock'), tr.three ? t('era.three') : t('era.noThree'), tr.quarters ? t('era.quarters') : t('era.halves')].join(' · '); }
+  function eraBanner(s) { return s.era ? `<section class="card era-banner"><span class="eyebrow">${t('era.kicker', { decade: s.era.decade })}</span><p class="small">${esc(eraTraits(s.era))}</p></section>` : ''; }
+  function eraCard(s) {
+    if (!s.era) return '';
+    return `<section class="card"><span class="eyebrow">${t('era.kicker', { decade: s.era.decade })}</span><h3>${t('era.d.' + s.era.decade)}</h3><p class="muted small">${t('era.d.' + s.era.decade + 'Desc')}</p><p class="small"><b>${esc(eraTraits(s.era))}</b></p>
+      ${s.era.legends && s.era.legends.length ? `<h4 class="eyebrow">${t('era.legends')}</h4><ul class="news">${s.era.legends.map(l => `<li>⭐ <b>${esc(l.name)}</b> ${flag(l.nationality)} · ${l.pos} · ${l.ovr} <small class="muted">${t('era.nick.' + l.nick)} · ${esc(l.club)}</small></li>`).join('')}</ul>` : ''}</section>`;
+  }
   function renderWorldNews(s) {
     if (!s.world || !s.world.champions.length) return `<section class="card"><h3>${t('world.leagues')}</h3><p class="muted small">${t('world.leaguesEmpty', { n: Object.keys(CAA.Season.LEAGUES).length })}</p></section>`;
     const by = CONTINENTS.map(c => { const rows = s.world.champions.filter(x => (CAA.Season.LEAGUES[x.leagueId] || {}).continent === c); return rows.length ? `<h4 class="eyebrow">${t('continent.' + c)}</h4><ul class="news">${rows.map(x => `<li>🏆 <b>${esc(x.club)}</b> <small class="muted">${esc(leagueLabel(x.leagueId))}</small></li>`).join('')}</ul>` : ''; }).join('');
@@ -660,9 +680,53 @@
       <section class="card"><h3>${t('hof.seasons')}</h3>${rows ? `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('hof.seasons')}"><table><thead><tr><th>${t('hof.season')}</th><th>${t('hof.league')}</th><th>#</th><th>${t('hof.result')}</th><th>${t('hof.champion')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<p class="muted">${t('hof.empty')}</p>`}</section>
       ${mine.length ? `<section class="card"><h3>${t('hof.myAwards')}</h3><ul class="news">${mine.map(a => `<li>🏆 <b>${t('award.' + a.award)}</b> · ${seasonLabel(a.year)}</li>`).join('')}</ul></section>` : ''}`;
   }
+  // ===== Tienda (adaptación de ui-shop del fútbol): escaparate semanal, ofertas, tiers, conjuntos y requisitos =====
+  function statText(stats) { return Object.entries(stats || {}).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${t('attr.' + k)}`).join(' · '); }
+  function reqText(req) { if (!req) return ''; const k = Object.keys(req)[0]; return t('shop.req.' + k, { n: req[k] }); }
+  function styleShopHtml() {
+    const s = state.career.summary, life = s.life || { owned: [], equipment: {}, style: 0, cash: 0 }, packs = CAA.Content.packs();
+    return `<section class="card"><div class="guide-head"><h3>${t('life.shop')}</h3><span class="tag">${t('life.style')}: ${life.style} · ${t('life.cash')}: ${life.cash}</span></div><div class="shop">${packs.shop.items.map(i => {
+      const owned = life.owned.includes(i.id), equipped = (life.equipment || {})[i.slot] === i.id;
+      return `<div class="item"><span class="swatch" style="background:${esc(i.color)}" aria-hidden="true"></span><span><b>${esc(loc(i.name))}</b><small>${t('slot.' + i.slot)} · ${i.cost} ${t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="life-equip" data-item="${i.id}" ${equipped ? 'disabled' : ''}>${equipped ? t('me.equipped') : t('life.equip')}</button>` : `<button class="small-btn" data-action="life-buy" data-item="${i.id}">${t('life.buy')}</button>`}</div>`; }).join('')}</div></section>`;
+  }
+  function renderShop() {
+    if (!hasCareer()) return renderHome();
+    const g = state.career.summary.gear; if (!g) return '';
+    const money = n => n.toLocaleString(CAA.I18N.getLocale()) + ' €';
+    const tier = k => CAA.Gear.TIERS[k];
+    const card = i => `<div class="gear-item${i.equipped ? ' on' : ''}${i.locked ? ' locked' : ''}"><span class="swatch" style="background:${esc(i.color)}" aria-hidden="true"></span>
+      <div class="gi-body"><b>${esc(loc(i.name))}</b>${i.owned ? ` <span class="tier" style="--tier:${tier(i.tier).c}">${t('tier.' + tier(i.tier).id)}</span>` : ''}${i.offer ? ` <span class="tag offer">-30 %</span>` : ''}
+      <small>${t('slot.' + i.slot)}${i.set ? ' · ' + t('set.' + i.set) : ''}</small><small class="ok">${esc(statText(i.stats))}${i.extra ? (Object.keys(i.stats).length ? ' · ' : '') + esc(statText(Object.fromEntries(Object.entries(i.extra).map(([k, v]) => ['x' + k, v])))) : ''}</small>
+      ${i.locked ? `<small class="muted">🔒 ${esc(reqText(i.req))}</small>` : ''}</div>
+      <div class="gi-act">${!i.owned ? `<button class="small-btn primary" data-action="gear-op" data-op="buy" data-item="${i.id}" ${i.locked || g.cash < i.price ? 'disabled' : ''}>${money(i.price)}</button>`
+        : `${i.equipped ? `<button class="small-btn" data-action="gear-op" data-op="unequip" data-item="${i.id}">${t('shop.unequip')}</button>` : `<button class="small-btn" data-action="gear-op" data-op="equip" data-item="${i.id}">${t('life.equip')}</button>`}
+           ${i.upgradeCost ? `<button class="small-btn" data-action="gear-op" data-op="upgrade" data-item="${i.id}" ${g.cash < i.upgradeCost ? 'disabled' : ''} aria-label="${t('shop.upgradeTo', { tier: t('tier.' + tier(i.tier + 1).id) })}">⬆ ${money(i.upgradeCost)}</button>` : ''}`}</div></div>`;
+    const featured = g.items.filter(i => i.featured || i.offer);
+    const bySlot = g.slots.map(sl => { const its = g.items.filter(i => i.slot === sl); return its.length ? `<h4 class="eyebrow">${t('slot.' + sl)}</h4><div class="gear-list">${its.map(card).join('')}</div>` : ''; }).join('');
+    const eff = g.effective;
+    return `<section class="card shop-head"><span class="eyebrow">${t('shop.kicker')}</span><h2>${t('more.shop')}</h2><p class="muted small">${t('shop.desc', { att: g.cap.att, total: g.cap.total })}</p>
+      <div class="statline"><span>${t('life.cash')}</span><b>${money(g.cash)}</b></div>
+      <p class="small">${eff.total ? t('shop.effective', { stats: statText(eff.attrs) }) : t('shop.none')}${eff.sets.length ? ' · ' + t('shop.sets', { sets: eff.sets.map(x => t('set.' + x)).join(', ') }) : ''}</p></section>
+      <section class="card"><h3>${t('shop.week')}</h3><div class="gear-list">${featured.map(card).join('')}</div></section>
+      <section class="card"><h3>${t('shop.catalog')}</h3>${bySlot}</section>${styleShopHtml()}`;
+  }
+  // ===== Aspecto (look56) =====
+  function renderLook() {
+    if (!hasCareer()) return renderHome();
+    const g = state.career.summary.gear; if (!g) return '';
+    const L = g.look, LK = CAA.Gear.LOOK;
+    const sw = (field, list, cur, isColor) => `<div class="pick-grid swatches" role="group" aria-label="${t('look.' + field)}">${list.map((v, i) => { const val = isColor ? i : v; const on = String(cur) === String(val); return `<button class="pick${isColor ? ' color' : ''}" data-action="look-set" data-field="${field}" data-value="${esc(String(val))}" aria-pressed="${on}" ${isColor ? `style="--sw:${v}" aria-label="${t('look.' + field)} ${i + 1}"` : ''}>${isColor ? '' : `<b>${t('look.' + field + '.' + v)}</b>`}</button>`; }).join('')}</div>`;
+    return `<section class="card"><span class="eyebrow">${t('look.kicker')}</span><h2>${t('more.look')}</h2>${avatarHtml()}
+      <h3 class="eyebrow">${t('look.skin')}</h3>${sw('skin', LK.skin, L.skin, true)}
+      <h3 class="eyebrow">${t('look.hair')}</h3>${sw('hair', LK.hair, L.hair)}
+      <h3 class="eyebrow">${t('look.hairColor')}</h3>${sw('hairColor', LK.hairColor, L.hairColor, true)}
+      <h3 class="eyebrow">${t('look.beard')}</h3>${sw('beard', LK.beard, L.beard)}
+      <h3 class="eyebrow">${t('look.celebration')}</h3>${sw('celebration', LK.celebration, L.celebration)}
+      <p class="muted small">${t('look.note')}</p><button class="small-btn" data-tab="shop">🛍 ${t('more.shop')}</button></section>`;
+  }
   function renderMore() {
     const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${ico}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
-    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${row('history', '🏛')}${row('guide', '📖')}${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
+    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${hasCareer() ? row('shop', '🛍') + row('look', '🎨') : ''}${row('history', '🏛')}${row('guide', '📖')}${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
       <button class="row-link" data-action="boot-menu"><span class="ico" aria-hidden="true">⌂</span><span><b>${t('more.menu')}</b><small>${t('more.menuSub')}</small></span><span aria-hidden="true">›</span></button></div></section>`;
   }
 
@@ -711,7 +775,7 @@
       doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
-      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : renderSettings();
+      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
       const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' ? 'life' : 'more';
       const icons = { career: '⌂', life: '👕', league: '▤', more: '▦' };
       doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
@@ -736,6 +800,7 @@
     if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
     if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
     if (doc.getElementById('live3d')) liveRaf = root.requestAnimationFrame(drawLive3d);
+    syncEraLook();
     { const lp = doc.getElementById('live-panel'); if (lp && !lp.dataset.caught && pb.speed) pbStart(); else pbStop(); }
   }
   function drawMatchFrame() {
@@ -917,8 +982,14 @@
       else if (name === 'boot-continue') { state.screen = 'game'; state.tab = 'career'; }
       else if (name === 'boot-open') { state.screen = 'game'; state.tab = el.dataset.target || 'more'; }
       else if (name === 'boot-menu' || name === 'boot-back') { state.screen = 'menu'; state.match.playing = false; }
-      else if (name === 'boot-mode') {
+      else if (name === 'mode-gender') {
+        const c = state.career; c.gender = el.dataset.gender === 'f' ? 'f' : 'm';
+        if (CAA.Season.LEAGUES[c.leagueId].gender !== c.gender) c.leagueId = c.gender === 'f' ? 'es-iberica-women' : 'fr-hexagone-men';
+        if (c.gender === 'f') c.route = 'world'; c.clubId = ''; c.clubsRoute = null;
+      } else if (name === 'boot-mode') {
+        state.career.eraYear = el.dataset.mode === 'eras' ? (state.career.eraYear || 1952) : null;
         state.career.mode = el.dataset.mode === 'coach' ? 'coach' : 'player'; state.wizard = { step: 1 };
+        if (state.career.eraYear) { state.career.route = 'world'; eraDefaultLeague(); }
         if (state.career.mode === 'coach' && state.career.route === 'na-undrafted') state.career.route = 'eu-academy';
         state.screen = 'create'; ensureClubs(state.career.route);
       } else if (name === 'wiz-next' || name === 'wiz-back' || name === 'wiz-cancel') {
@@ -930,11 +1001,12 @@
         const field = el.dataset.field, value = el.dataset.value;
         if (field === 'number') state.career.number = Number(value);
         else if (field === 'route') { state.career.route = value; state.career.clubId = ''; state.busy = false; await ensureClubs(value); }
+        else if (field === 'eraYear') { state.career.eraYear = Number(value); eraDefaultLeague(); state.busy = false; await ensureClubs('world'); }
         else if (field === 'gender') {
           const c = state.career; c.gender = value === 'f' ? 'f' : 'm';
           if (CAA.Season.LEAGUES[c.leagueId].gender !== c.gender) c.leagueId = c.gender === 'f' ? 'es-iberica-women' : 'fr-hexagone-men';
           if (c.gender === 'f') c.route = 'world';
-          c.clubId = ''; c.clubsRoute = null; state.busy = false; await ensureClubs(c.route);
+          c.clubId = ''; c.clubsRoute = null; eraDefaultLeague(); state.busy = false; await ensureClubs(c.route);
         }
         else if (['pos', 'archetype', 'handedness', 'talent', 'clubId'].includes(field)) state.career[field] = value;
         if (audio) audio.play('click');
@@ -1013,8 +1085,9 @@
         state.career.name = (get('career-name') != null ? get('career-name') : state.career.name || '').trim();
         state.career.seed = get('career-seed') || state.career.seed || 'carrera-demo';
         const quality = state.career.talent === 'mystery' ? 47 + (CAA.Hash.hashString(state.career.seed) % 16) : TALENT[state.career.talent] || 55;
+        if (!state.career.clubId && state.career.clubs.length && String(state.career.clubsRoute || '').endsWith(state.career.route === 'world' ? state.career.leagueId : state.career.route)) state.career.clubId = state.career.clubs[0].id;
         if (!state.career.clubId) throw new Error(t('career.clubRequired'));
-        const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
+        const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, eraYear: state.career.eraYear || undefined, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
         if (audio) audio.play('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
         state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t('wiz.welcome'));
@@ -1023,6 +1096,12 @@
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };
         const res = await worker.send('career.advance', { state: state.career.state, action });
         await acceptCareer(res);
+      } else if (name === 'gear-op' || name === 'look-set') {
+        const config = name === 'gear-op' ? { op: el.dataset.op, itemId: el.dataset.item } : { op: 'look', [el.dataset.field]: el.dataset.value };
+        const res = await worker.send('career.gear', { state: state.career.state, config });
+        await acceptCareer(res);
+        if (audio) audio.play(name === 'gear-op' && el.dataset.op !== 'unequip' ? 'success' : 'click');
+        if (name === 'gear-op') notify(t('shop.done.' + el.dataset.op));
       } else if (name === 'live-speed') { pb.speed = Number(el.dataset.speed) || 0;
       } else if (name === 'live-skip') { if (state.career.state && state.career.state.live) pbCatchUp(state.career.state.live);
       } else if (name === 'live-start' || name === 'live-next' || name === 'live-end' || name === 'live-choice') {
