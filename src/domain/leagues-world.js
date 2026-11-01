@@ -23,7 +23,6 @@
     'GB|europe|Liga de las Islas|50|46|Londres,Mánchester,Glasgow,Leicester,Sheffield,Newcastle,Bristol,Cardiff,Birmingham,Plymouth,Worcester,Surrey',
     'IS|europe|Liga de los Géiseres|43|38|Reikiavik,Kópavogur,Hafnarfjörður,Akureyri,Keflavík,Grindavík,Njarðvík,Garðabær',
     'IE|europe|Liga Esmeralda|43|40|Dublín,Cork,Limerick,Galway,Waterford,Killarney,Drogheda,Belfast',
-    'IL|europe|Liga del Mar Rojo|57|48|Tel Aviv,Jerusalén,Haifa,Holon,Rishon LeZion,Beer Sheva,Ashdod,Netanya,Herzliya,Eilat,Nahariya,Galil',
     'XK|europe|Liga de Dardania|44|0|Pristina,Prizren,Peja,Gjakova,Ferizaj,Gjilan,Mitrovica,Vushtrri',
     'LV|europe|Liga del Daugava|52|46|Riga,Daugavpils,Liepāja,Jelgava,Jūrmala,Ventspils,Valmiera,Ogre,Cēsis,Rēzekne',
     'LU|europe|Liga del Gran Ducado|42|38|Luxemburgo,Esch,Differdange,Dudelange,Ettelbruck,Diekirch,Mersch,Bertrange',
