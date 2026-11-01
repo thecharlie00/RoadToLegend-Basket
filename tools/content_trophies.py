@@ -200,6 +200,22 @@ T = [
  ('petBond', 100, 'any', 'Siempre a tu lado', 'Hachiko'),
  ('petContestsWon', 1, 'any', 'Mejor en el show', 'Best in Show'),
  ('petContestsWon', 3, 'any', 'Rey de la pista canina', 'Top Dog'),
+ # playoffs, títulos y premios
+ ('playoffApps', 1, 'any', 'Bienvenido a la fiesta', 'Welcome to the Party'),
+ ('playoffApps', 5, 'any', 'Abonado a mayo', 'May Regular'),
+ ('playoffWins', 1, 'any', 'Primera noche de playoffs', 'First Playoff Night'),
+ ('playoffWins', 10, 'any', 'Modo playoffs', 'Playoff Mode'),
+ ('playoffWins', 25, 'any', 'Mr. Mayo', 'Mr. May'),
+ ('finals', 1, 'any', 'La gran final', 'The Big Dance'),
+ ('titles', 1, 'any', 'Campeón', 'Champion'),
+ ('titles', 3, 'any', 'Three-peat', 'Three-Peat'),
+ ('titles', 5, 'any', 'The Last Dance', 'The Last Dance'),
+ ('awards', 1, 'any', 'Discurso de agradecimiento', 'Acceptance Speech'),
+ ('awards', 5, 'any', 'Vitrina llena', 'Full Trophy Case'),
+ ('mvps', 1, 'player', 'El más valioso', 'Most Valuable'),
+ ('mvps', 3, 'player', 'Rey del norte', 'King in the North'),
+ ('allLeague', 1, 'player', 'Quinteto de gala', 'First Team'),
+ ('allLeague', 5, 'player', 'Habitual del cartel', 'Mainstay'),
 ]
 
 if __name__ == '__main__':

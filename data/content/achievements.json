@@ -2189,9 +2189,189 @@
       "rewardStyle": 10
     },
     {
+      "id": "playoffApps-1",
+      "metric": "playoffApps",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Bienvenido a la fiesta",
+        "en": "Welcome to the Party"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "playoffApps-5",
+      "metric": "playoffApps",
+      "threshold": 5,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Abonado a mayo",
+        "en": "May Regular"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "playoffWins-1",
+      "metric": "playoffWins",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Primera noche de playoffs",
+        "en": "First Playoff Night"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "playoffWins-10",
+      "metric": "playoffWins",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Modo playoffs",
+        "en": "Playoff Mode"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "playoffWins-25",
+      "metric": "playoffWins",
+      "threshold": 25,
+      "mode": "any",
+      "tier": 3,
+      "title": {
+        "es": "Mr. Mayo",
+        "en": "Mr. May"
+      },
+      "rewardStyle": 13
+    },
+    {
+      "id": "finals-1",
+      "metric": "finals",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "La gran final",
+        "en": "The Big Dance"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "titles-1",
+      "metric": "titles",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Campeón",
+        "en": "Champion"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "titles-3",
+      "metric": "titles",
+      "threshold": 3,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Three-peat",
+        "en": "Three-Peat"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "titles-5",
+      "metric": "titles",
+      "threshold": 5,
+      "mode": "any",
+      "tier": 3,
+      "title": {
+        "es": "The Last Dance",
+        "en": "The Last Dance"
+      },
+      "rewardStyle": 13
+    },
+    {
+      "id": "awards-1",
+      "metric": "awards",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Discurso de agradecimiento",
+        "en": "Acceptance Speech"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "awards-5",
+      "metric": "awards",
+      "threshold": 5,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Vitrina llena",
+        "en": "Full Trophy Case"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "mvps-1",
+      "metric": "mvps",
+      "threshold": 1,
+      "mode": "player",
+      "tier": 1,
+      "title": {
+        "es": "El más valioso",
+        "en": "Most Valuable"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "mvps-3",
+      "metric": "mvps",
+      "threshold": 3,
+      "mode": "player",
+      "tier": 2,
+      "title": {
+        "es": "Rey del norte",
+        "en": "King in the North"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "allLeague-1",
+      "metric": "allLeague",
+      "threshold": 1,
+      "mode": "player",
+      "tier": 1,
+      "title": {
+        "es": "Quinteto de gala",
+        "en": "First Team"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "allLeague-5",
+      "metric": "allLeague",
+      "threshold": 5,
+      "mode": "player",
+      "tier": 2,
+      "title": {
+        "es": "Habitual del cartel",
+        "en": "Mainstay"
+      },
+      "rewardStyle": 10
+    },
+    {
       "id": "platinum-player",
       "metric": "achievements",
-      "threshold": 172,
+      "threshold": 187,
       "mode": "player",
       "tier": 99,
       "platinum": true,
@@ -2204,7 +2384,7 @@
     {
       "id": "platinum-coach",
       "metric": "achievements",
-      "threshold": 102,
+      "threshold": 113,
       "mode": "coach",
       "tier": 99,
       "platinum": true,

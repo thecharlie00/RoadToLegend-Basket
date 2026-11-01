@@ -193,3 +193,55 @@ test('pet: adopt, weekly care limit, deterministic tricks, contests, items and r
   const owners = [95, 10].map(h => { const s = Career.createCareer({ seed: 'pet-mood', mode: 'player' }); Career.petOp(s, { op: 'adopt', species: 'cat' }); s.pet.happiness = h; s.pet.hunger = 100; s.pet.hygiene = 100; Career.advanceWeek(s, { type: 'rest' }); return s.player.morale; });
   assert.equal(owners[0] - owners[1], 3, 'happy pet +1 morale, sad pet -2');
 });
+
+const Playoffs = require('../src/domain/playoffs.js');
+const Season = require('../src/domain/season.js');
+
+test('playoff formats: NA play-in + two conferences best-of-7; EU top 8; EU promotion playoff', () => {
+  const na = Season.createSeason('na-boreal-men', 'po-na'); Season.playRegularSeason(na, 'po-na');
+  na.playoffs = Playoffs.create(na); Playoffs.playAll(na, 'po-na-x');
+  const names = na.playoffs.rounds.map(r => r.name);
+  assert.deepEqual(names, ['playin1', 'playin2', 'r1', 'r2', 'cf', 'final']);
+  assert.equal(na.playoffs.rounds[2].series.length, 8);
+  for (const s of na.playoffs.rounds[2].series) assert.equal(Math.max(s.winsA, s.winsB), 4);
+  assert.ok(na.playoffs.champion && na.playoffs.done);
+  const east = new Set(na.clubs.filter(c => Playoffs.conferenceOf(c) === 'east').map(c => c.id));
+  const cf = na.playoffs.rounds[4].series;
+  assert.ok(cf.some(s => east.has(s.a) && east.has(s.b)) && cf.some(s => !east.has(s.a) && !east.has(s.b)), 'conference finals stay within conferences');
+  const top = Season.createSeason('es-iberica-men', 'po-top'); Season.playRegularSeason(top, 'po-top');
+  top.playoffs = Playoffs.create(top); Playoffs.playAll(top, 'x');
+  assert.deepEqual(top.playoffs.rounds.map(r => r.series[0].bestOf), [3, 5, 5]);
+  const sec = Season.createSeason('es-ascenso-iberico', 'po-sec'); Season.playRegularSeason(sec, 'po-sec');
+  sec.playoffs = Playoffs.create(sec); Playoffs.playAll(sec, 'x');
+  assert.equal(sec.playoffs.promoted.length, 2);
+  assert.equal(sec.playoffs.promoted[0], Season.standings(sec.clubs)[0].id);
+  assert.deepEqual(Season.euPromotionRelegation(top, sec).promoted, sec.playoffs.promoted);
+  const aw = Playoffs.awards(na, 82);
+  for (const k of ['mvp', 'dpoy', 'roy', 'sixth', 'mip']) assert.ok(aw.some(a => a.award === k), 'missing award ' + k);
+  assert.equal(aw.filter(a => a.award === 'allLeague').length, 5);
+});
+
+test('career plays playoffs week by week (live-capable), records awards, summary and history', () => {
+  const s = Career.createCareer({ seed: 'po-career', mode: 'coach', route: 'na-draft' });
+  let guard = 0, playoffLive = 0;
+  while (s.year < 2027 && guard++ < 200) {
+    if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
+    const sm = Career.summary(s);
+    if (sm.playoffs && !sm.playoffs.done && sm.playoffs.series && playoffLive < 1) {
+      const live = Career.liveStart(s); assert.equal(live.playoff, true); Career.liveAdvance(s, { toEnd: true }); playoffLive++;
+      const gid = live.gameId, score = live.match.score.slice();
+      Career.advanceWeek(s, { type: 'play' });
+      const g = s.season.playoffs ? s.season.playoffs.rounds.flatMap(r => r.series).flatMap(x => x.games).find(x => x.id === gid) : s.history[0] && null;
+      if (g) assert.deepEqual(g.score, score);
+      continue;
+    }
+    Career.advanceWeek(s, { type: sm.playoffs && !sm.playoffs.done && !['playing', 'waiting'].includes(sm.playoffs.status) ? 'skipPlayoffs' : 'play' });
+  }
+  assert.equal(s.year, 2027);
+  assert.equal(playoffLive, 1, 'a playoff game must have been played live');
+  const h = s.history[0];
+  assert.ok(h.championName && h.awards.length >= 8 && h.result);
+  assert.ok(s.lastSeasonSummary && !s.lastSeasonSummary.dismissed);
+  Career.dismissSummary(s); assert.equal(Career.summary(s).lastSeason, null);
+  assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
+});

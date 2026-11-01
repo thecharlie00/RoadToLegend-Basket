@@ -59,7 +59,7 @@ test('crossing offer includes buyout and draft-and-stash possibility', () => {
 
 test('long career save survives two seasons and resume', () => {
   const c = Career.createCareer({ seed: 'long-career', mode: 'player', route: 'eu-academy' });
-  for (let i = 0; i < 70; i++) Career.advanceWeek(c, { type: i % 5 === 0 ? 'rest' : 'play' });
+  for (let i = 0; i < 160 && c.year < 2028; i++) Career.advanceWeek(c, { type: i % 5 === 0 ? 'rest' : 'play' });
   assert.ok(c.year >= 2028);
   const env = Save.createEnvelope('slot-2', { career: Career.serialize(c) }, { seed: 'long-career', rngCounters: c.rng });
   const resumed = Career.resume(Save.parseEnvelope(JSON.stringify(env)).payload.career);

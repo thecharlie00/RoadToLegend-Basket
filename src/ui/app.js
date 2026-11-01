@@ -322,8 +322,8 @@
       <div class="steps" aria-hidden="true">${guides.map((_, i) => `<i class="${i <= guideStep ? 'on' : ''}"></i>`).join('')}</div>
       <h3>${t('guide.' + guides[guideStep][0])}</h3><p>${t('guide.' + guides[guideStep][0] + 'Desc')}</p>
       <div class="row">${guides[guideStep][1] !== 'career' ? `<button class="small-btn" data-tab-go="${guides[guideStep][1]}">${t('guide.go.' + guides[guideStep][1])}</button>` : ''}<button class="small-btn" data-action="life-guide-next">${t('guide.done')}</button></div></section>` : '';
-    const segs = 5, seg = Math.min(segs - 1, Math.floor(s.round / Math.max(1, s.totalRounds) * segs));
-    const season = `<section class="season"><div class="season-head"><h2>${t('home.season', { season: seasonLabel(s.year) })}</h2><span class="muted">${s.round >= s.totalRounds ? t('home.seasonEnd') : t('home.round', { n: s.round + 1, total: s.totalRounds })}</span></div>
+    const segs = 5, seg = s.playoffs ? 4 : Math.min(segs - 2, Math.floor(s.round / Math.max(1, s.totalRounds) * (segs - 1)));
+    const season = `<section class="season"><div class="season-head"><h2>${t('home.season', { season: seasonLabel(s.year) })}</h2><span class="muted">${s.playoffs ? t('po.kicker') : t('home.round', { n: s.round + 1, total: s.totalRounds })}</span></div>
       <ol class="timeline" aria-label="${t('home.timeline')}">${Array.from({ length: segs }, (_, i) => `<li class="${i < seg ? 'done' : i === seg ? 'now' : ''}" ${i === seg ? 'aria-current="step"' : ''}>${t('home.seg' + i)}</li>`).join('')}</ol>
       <div class="meters">${s.player ? meter(t('meter.form'), m.form) + meter(t('meter.morale'), m.morale) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.trust'), m.trust) + meter(t('meter.fans'), m.fans)
         : meter(t('meter.morale'), m.morale) + meter(t('meter.board'), m.trust) + meter(t('meter.locker'), m.locker) + meter(t('meter.fitness'), m.fitness) + meter(t('meter.fans'), m.fans)}</div></section>`;
@@ -335,7 +335,11 @@
         <span class="chips">${o.p == null ? chips(o.effects) : `<span class="chip-label">${t('odds.ifGood')}</span>${chips(o.ok)}<span class="chip-label">${t('odds.ifBad')}</span>${chips(o.ko)}`}</span></button>`).join('')}</div></section>` : '';
     const lo = life.lastOutcome;
     const outcome = lo && !ev ? `<section class="card outcome ${lo.uncertain ? (lo.good ? 'good' : 'bad') : ''}"><span class="eyebrow">${esc(L(lo.title))} · ${esc(L(lo.label))}</span><p><b>${esc(L(lo.result))}</b></p><span class="chips">${chips(lo.effects)}</span></section>` : '';
-    const next = s.next ? `<section class="card next"><span class="eyebrow">${t('home.next', { n: s.next.round })} · ${t(s.next.home ? 'home.home' : 'home.away')}</span>
+    const po = s.playoffs;
+    const seasonCard = s.lastSeason ? renderSeasonSummary(s.lastSeason) : '';
+    const poCard = po && !po.done ? `<section class="card playoffs"><span class="eyebrow">${t('po.kicker')} · ${t('po.round.' + po.round)}</span>
+      ${po.series ? `<h3>${t('po.series', { w: po.series.wins, l: po.series.losses })}</h3><p class="muted small">${t('po.bestOf', { n: po.series.bestOf })}</p>` : po.status === 'waiting' ? `<h3>${t('po.waiting')}</h3><p class="muted small">${t('po.waitingDesc')}</p>` : `<h3>${t(po.status === 'missed' ? 'po.missed' : po.status === 'promoted' ? 'po.promoted' : 'po.out')}</h3><p class="muted small">${t('po.skipDesc')}</p><button class="small-btn" data-action="career-skip">${t('po.skip')}</button>`}</section>` : '';
+    const next = s.next ? `<section class="card next"><span class="eyebrow">${s.next.playoff ? t('po.game', { round: t('po.round.' + s.next.roundName), n: s.next.game }) : t('home.next', { n: s.next.round })} · ${t(s.next.home ? 'home.home' : 'home.away')}</span>
       <div class="versus">${crest(s.club)}<b>${esc(s.club.name)}</b><span class="muted">${s.club.wins}-${s.club.losses}</span><em>vs</em>${crest(s.next.opponent)}<b>${esc(s.next.opponent.name)}</b><span class="muted">${s.next.opponent.wins}-${s.next.opponent.losses}</span></div></section>` : '';
     const recent = s.recent.length ? `<section class="card"><div class="guide-head"><h3>${t('home.lastGame')}</h3>${c.state.lastMatch ? `<button class="small-btn" data-action="career-watch">${t('career.watch')}</button>` : ''}</div>
       <p class="result ${s.recent[0].won ? 'ok' : 'bad'}"><b>${t(s.recent[0].won ? 'home.win' : 'home.loss')}</b> ${s.recent[0].us}–${s.recent[0].them} ${t(s.recent[0].home ? 'home.vsHome' : 'home.vsAway', { team: s.recent[0].opponent })}</p>
@@ -344,7 +348,7 @@
       <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button></div></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
-    return `${guide}${renderLive(c)}${decision}${outcome}${season}${next}${week}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    return `${seasonCard}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   function renderMe() {
@@ -381,6 +385,22 @@
     return hero + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
   }
 
+  function renderSeasonSummary(ls) {
+    const resKey = ls.myChampion ? 'champion' : ls.promoted ? 'promoted' : (ls.result || 'none');
+    const st = ls.stats;
+    return `<section class="card season-summary ${ls.myChampion || ls.promoted ? 'gold' : ''}"><span class="eyebrow">${t('sum.kicker', { season: seasonLabel(ls.year) })}</span>
+      <h2>${t('sum.result.' + resKey)}</h2><p class="muted">${t('sum.line', { rank: ls.rank, teams: ls.teams, w: ls.record.wins, l: ls.record.losses, champ: ls.champion })}</p>
+      ${st ? `<div class="statline"><div><b>${(st.pts / Math.max(1, st.gp)).toFixed(1)}</b><small>${t('stat.pts')}</small></div><div><b>${(st.reb / Math.max(1, st.gp)).toFixed(1)}</b><small>${t('stat.reb')}</small></div><div><b>${(st.ast / Math.max(1, st.gp)).toFixed(1)}</b><small>${t('stat.ast')}</small></div><div><b>${st.ovrStart}→${st.ovr}</b><small>${t('me.ovr')}</small></div></div>` : ''}
+      <h3>${t('sum.awards')}</h3><ul class="news">${ls.awards.map(a => `<li class="${a.mine ? 'mine' : ''}">${a.mine ? '🏆 ' : ''}<b>${t('award.' + a.award)}</b> · ${esc(a.player || a.club)}${a.player ? ` <span class="muted small">(${esc(a.club)})</span>` : ''}</li>`).join('')}</ul>
+      <button class="cta" data-action="summary-dismiss">${t('sum.continue')}</button></section>`;
+  }
+  function renderBracket() {
+    const st = state.career.state, b = st.season.playoffs;
+    if (!b) return '';
+    const name = id => { const c = st.season.clubsById[id]; return c ? c.name : '—'; };
+    return `<section class="card"><h3>${t('po.bracket')}</h3>${b.rounds.map(r => `<h4 class="eyebrow">${t('po.round.' + r.name)}</h4><ul class="bracket">${r.series.map(x => `<li class="${x.a === st.clubId || x.b === st.clubId ? 'me' : ''}"><span class="${x.winner === x.a ? 'won' : ''}">${esc(name(x.a))}</span><b>${x.winsA}–${x.winsB}</b><span class="${x.winner === x.b ? 'won' : ''}">${esc(name(x.b))}</span></li>`).join('')}</ul>`).join('')}
+      ${b.champion ? `<p class="ok"><b>🏆 ${esc(name(b.champion))}</b></p>` : ''}</section>`;
+  }
   function renderLeague() {
     if (!hasCareer()) return renderHome();
     const s = state.career.summary;
@@ -388,6 +408,8 @@
     return `<section class="card"><span class="eyebrow">${t('league.kicker', { season: seasonLabel(s.year) })}</span><h2>${esc(s.leagueName)}</h2>
       <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('league.table')}"><table><caption class="muted">${t('league.table')}</caption><thead><tr><th>#</th><th>${t('league.team')}</th><th>${t('league.w')}</th><th>${t('league.l')}</th><th>${t('league.diff')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>
       ${s.recent.length ? `<section class="card"><h3>${t('league.results')}</h3><ul class="news">${s.recent.map(r => `<li><span class="${r.won ? 'ok' : 'bad'}">${t(r.won ? 'home.w' : 'home.l')}</span> ${t('league.roundShort', { n: r.round })} · ${r.us}–${r.them} ${t(r.home ? 'home.vsHome' : 'home.vsAway', { team: r.opponent })}</li>`).join('')}</ul></section>` : ''}
+      ${renderBracket()}
+      ${s.awards ? `<section class="card"><h3>${t('sum.awards')}</h3><ul class="news">${s.awards.map(a => `<li><b>${t('award.' + a.award)}</b> · ${esc(a.player)} <span class="muted small">(${esc(a.club)})</span></li>`).join('')}</ul></section>` : ''}
       <section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p><button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>`;
   }
 
@@ -446,6 +468,7 @@
     const liveNow = c.state.live && c.state.live.week === c.state.week;
     if (liveNow) return '';
     const s = c.summary;
+    if (!s.next && s.playoffs && !s.playoffs.done && !['playing', 'waiting'].includes(s.playoffs.status)) return `<div class="actionbar"><button class="cta" data-action="career-skip">${t('po.skip')} ▶</button></div>`;
     if (!s.next) return `<div class="actionbar"><button class="cta" data-action="career-play">${t('home.advance')} ▶</button></div>`;
     return `<div class="actionbar"><button class="cta" data-action="live-start">${t('home.playLive', { team: s.next.opponent.name })} <span aria-hidden="true">▶</span></button><button class="sim-btn" data-action="career-play" aria-label="${t('home.simulateLabel')}">${t('home.simulate')}</button></div>`;
   }
@@ -808,6 +831,10 @@
       } else if (name === 'arcade-release') { state.busy = false; arcadeRelease(); return;
       } else if (name === 'arcade-cancel') {
         const res = await worker.send('career.arcade', { state: state.career.state, cancel: true }); await acceptCareer(res); state.arcade = null; if (state.tab === 'arcade') state.tab = 'life';
+      } else if (name === 'career-skip') {
+        const res = await worker.send('career.advance', { state: state.career.state, action: { type: 'skipPlayoffs' } }); await acceptCareer(res);
+      } else if (name === 'summary-dismiss') {
+        const res = await worker.send('career.dismissSummary', { state: state.career.state }); await acceptCareer(res);
       } else if (name === 'career-sign') {
         const index = state.career.signIndex || 0;
         const res = await worker.send('career.sign', { state: state.career.state, index });

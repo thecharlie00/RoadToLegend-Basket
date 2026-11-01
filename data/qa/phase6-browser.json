@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T00:58:54.191Z",
+  "date": "2026-11-01T01:18:09.469Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -186,14 +186,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T00:59:08.314Z",
+    "measuredAt": "2026-11-01T01:18:24.184Z",
     "frames": 180,
     "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
     "meanFps": 60,
-    "framesOver16_67Ms": 115,
+    "framesOver16_67Ms": 110,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -208,7 +208,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 50400000
+    "jsHeapUsedBytes": 29400000
   },
   "voxel": {
     "version": "voxel-1",
@@ -222,14 +222,14 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T00:59:27.538Z",
+    "measuredAt": "2026-11-01T01:18:43.370Z",
     "frames": 180,
     "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
     "meanFps": 60,
-    "framesOver16_67Ms": 111,
+    "framesOver16_67Ms": 113,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -244,7 +244,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 14300000
+    "jsHeapUsedBytes": 20500000
   },
   "avatar": {
     "version": "voxel-1",
@@ -278,9 +278,9 @@
       108
     ]
   },
-  "arcade": 4,
+  "arcade": 5,
   "locales": {
-    "es": 765,
-    "en": 765
+    "es": 817,
+    "en": 817
   }
 }

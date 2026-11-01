@@ -85,6 +85,11 @@
       "worker": true
     },
     {
+      "id": "playoffs",
+      "path": "src/domain/playoffs.js",
+      "worker": true
+    },
+    {
       "id": "content",
       "path": "src/domain/content.js",
       "worker": true

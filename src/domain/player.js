@@ -76,8 +76,11 @@
     if (p.career.retired) return p;
     const growth = p.age <= 23 ? 1.25 : p.age <= 27 ? 0.7 : p.age <= 31 ? 0.15 : -0.6;
     const focus = training && training.focus ? training.focus : null;
+    // Ritmo semanal calibrado: un joven con margen gana unos 4 puntos por atributo y temporada
+    // (escala = 34 / jornadas de su liga, para que 82 partidos no desarrollen más que 34).
+    const scale = 0.22 * (training && training.scale ? training.scale : 1);
     for (const k of Match.ATTRS) {
-      let delta = growth * (0.2 + rng.float() * 0.5);
+      let delta = growth * (0.2 + rng.float() * 0.5) * scale;
       if (focus === k) delta *= 1.8;
       if (p.ovr >= p.potential && delta > 0) delta *= 0.15;
       p.attrs[k] = clamp(Math.round((p.attrs[k] + delta) * 10) / 10, 20, 99);

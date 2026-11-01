@@ -11,6 +11,7 @@
     if (!CAA.Live) require('../match/live.js');
     if (!CAA.Arcade) require('../match/arcade.js');
     if (!CAA.Pet) require('../domain/pet.js');
+    if (!CAA.Playoffs) require('../domain/playoffs.js');
     if (!CAA.Calibration) require('../match/calibration.js');
     if (!CAA.Names) require('../domain/names.js');
     if (!CAA.Player) require('../domain/player.js');
@@ -116,6 +117,12 @@
           const state = CAA.Career.resume(msg.payload.state);
           const pet = CAA.Career.petOp(state, msg.payload.config || {});
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), pet };
+          break;
+        }
+        case 'career.dismissSummary': {
+          const state = CAA.Career.resume(msg.payload.state);
+          CAA.Career.dismissSummary(state);
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
           break;
         }
         case 'career.summary':

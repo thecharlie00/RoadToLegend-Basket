@@ -141,7 +141,7 @@
     if (!league) throw new Error('unknown league ' + leagueId);
     const list = clubs || defaultClubs(leagueId);
     const byId = {};
-    for (const c of list) byId[c.id] = c;
+    for (const c of list) { byId[c.id] = c; for (const p of c.roster) p.ovrStart = p.ovr; }
     return { leagueId, season: '2026-27', ruleSet: league.ruleSet, round: 0, clubs: list, clubsById: byId, schedule: createSchedule(leagueId, list.map(c => c.id), seed), results: [], champion: null, playoffs: null };
   }
   function playRound(season, seed, overrides) {
@@ -165,7 +165,8 @@
     const topTable = standings(top.clubs);
     const secondTable = standings(second.clubs);
     const relegated = topTable.slice(-2).map(r => r.id);
-    const promoted = secondTable.slice(0, 2).map(r => r.id);
+    // Con playoff de ascenso: el 1.º sube directo y el ganador del playoff, también.
+    const promoted = second.playoffs && second.playoffs.done && second.playoffs.promoted.length === 2 ? second.playoffs.promoted.slice() : secondTable.slice(0, 2).map(r => r.id);
     return { relegated, promoted };
   }
   function naPlayoffSeeds(season) {
