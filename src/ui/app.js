@@ -162,7 +162,8 @@
     const m = v.moment;
     const vars = m ? { player: m.playerName || '', pts: m.pts || 0, fouls: m.fouls || 0, diff: Math.abs(m.diff || 0) } : {};
     const momentHtml = m ? `<div class="moment" role="group" aria-labelledby="moment-title"><h4 id="moment-title">${t('live.moment.' + m.type)}</h4><p>${esc(t('live.momentText.' + m.type + (m.type === 'lastShot' && !m.diff ? 'Tie' : ''), vars))}</p>
-      <div class="row">${m.options.map(o => `<button data-action="live-choice" data-choice="${esc(o)}" class="${o === CAA.Live.MOMENTS[m.type].fallback ? '' : 'primary'}">${t('live.opt.' + m.type + '.' + o + (m.type === 'lastShot' && v.mode === 'coach' && o !== 'auto' ? 'Coach' : ''))}</button>`).join('')}</div></div>` : '';
+      ${state.heroShot ? `<canvas id="hero-canvas" width="640" height="420" role="img" aria-label="${t('live.heroCanvas')}" aria-describedby="hero-help"></canvas><p id="hero-help" class="muted small">${t('arcade.help.jump')}</p><button class="cta shoot" data-action="live-hero-release">${t('arcade.shoot')}</button>` : ''}
+      <div class="row" ${state.heroShot ? 'hidden' : ''}>${m.options.map(o => `<button data-action="${m.type === 'lastShot' && o === 'hero' && v.mode === 'player' ? 'live-hero' : 'live-choice'}" data-choice="${esc(o)}" class="${o === CAA.Live.MOMENTS[m.type].fallback ? '' : 'primary'}">${t('live.opt.' + m.type + '.' + o + (m.type === 'lastShot' && v.mode === 'coach' && o !== 'auto' ? 'Coach' : ''))}</button>`).join('')}</div></div>` : '';
     const o = v.outcome;
     const outcomeHtml = v.finished && o ? `<div class="moment"><h4 class="${o.won ? 'ok' : 'bad'}">${t(o.won ? 'live.won' : 'live.lost')}</h4>
       <p>${t('live.consequences', { morale: (o.morale > 0 ? '+' : '') + o.morale, trust: (o.trust > 0 ? '+' : '') + o.trust, confidence: (o.confidence > 0 ? '+' : '') + o.confidence })}</p>
@@ -179,7 +180,7 @@
   }
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
-  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings'];
+  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade'];
   const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA'];
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
   const TALENT = { promise: 50, gem: 55, chosen: 60 };
@@ -350,6 +351,9 @@
     const st = p ? p.stats : null;
     const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
       <p class="muted small">${t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years })}</p></section>` : '';
+    const best = (life.arcade && life.arcade.best) || {};
+    const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div><div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
+      ${life.pendingArcade ? `<p class="muted small">${t('arcade.pending', { game: t('arcade.' + life.pendingArcade.type) })}</p><div class="row"><button class="small-btn" data-action="arcade-resume">${t('arcade.resume')}</button><button class="small-btn" data-action="arcade-cancel">${t('arcade.abandon')}</button></div>` : ''}</section>`;
     const practice = `<section class="card"><h3>${t('me.practice')}</h3><p class="muted small">${t('me.practiceDesc')}</p>
       <div class="pick-grid two"><button class="option" data-action="life-practice-start"><b>${t('life.practiceManual')}</b></button><button class="option" data-action="life-practice-auto"><b>${t('life.practiceAuto')}</b></button><button class="option" data-action="life-buzzer-start"><b>${t('life.buzzerManual')}</b></button><button class="option" data-action="life-buzzer-auto"><b>${t('life.buzzerAuto')}</b></button></div>
       ${state.practice && state.practice.start != null ? `<button class="cta" data-action="life-practice-release">${t('life.release')}</button>` : ''}
@@ -361,7 +365,7 @@
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
-    return hero + offcourt + attrs + stats + practice + shop + trophies + press;
+    return hero + offcourt + minis + attrs + stats + practice + shop + trophies + press;
   }
 
   function renderLeague() {
@@ -374,6 +378,24 @@
       <section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p><button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>`;
   }
 
+  function renderArcade() {
+    const a = state.arcade;
+    if (!a) return `<section class="card"><p class="muted">${t('arcade.none')}</p></section>`;
+    const g = CAA.Arcade.GAMES[a.type];
+    const done = a.final;
+    const scoreTxt = a.type === 'street' ? `${a.live.score} – ${a.live.opponent}` : a.type === 'dunk' ? a.live.score.toFixed(1) : a.live.score;
+    const summary = done ? `<section class="card outcome ${done.record ? 'good' : ''}"><span class="eyebrow">${t('arcade.final')}</span><h2>${a.type === 'street' ? t(done.won ? 'arcade.streetWon' : 'arcade.streetLost', { a: done.score, b: done.opponent }) : t('arcade.score', { n: done.score })}</h2>
+      ${done.record ? `<p class="ok"><b>${t('arcade.newRecord')}</b></p>` : done.previous != null ? `<p class="muted">${t('arcade.best', { n: done.previous })}</p>` : ''}
+      <p class="muted small">${done.auto ? t('arcade.autoNote') : t('arcade.perfects', { n: done.perfects, streak: done.bestStreak })}</p>
+      <span class="chips"><span class="chip up">+${done.rewards.style} ${t('effect.style')}</span><span class="chip up">+${done.rewards.xp} XP</span>${done.rewards.form ? `<span class="chip up">+1 ${t('effect.form')}</span>` : ''}</span>
+      <div class="row"><button class="cta" data-action="arcade-start" data-game="${a.type}">${t('arcade.again')}</button><button class="small-btn" data-tab="life">${t('arcade.back')}</button></div></section>` : '';
+    return `<section class="card arcade"><div class="guide-head"><div><span class="eyebrow">${t('arcade.round', { n: Math.min(a.round + 1, g.rounds), total: g.rounds })}</span><h2>${t('arcade.' + a.type)}</h2></div><div class="arcade-score"><b>${scoreTxt}</b><small>${t('arcade.streak', { n: a.streak })}</small></div></div>
+      <canvas id="arcade-canvas" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas>
+      <p id="arcade-help" class="muted small">${t('arcade.help.' + g.meter)}</p>
+      <p class="sr-only" role="status" aria-live="polite">${esc(a.lastText || '')}</p>
+      ${done ? '' : `<button class="cta shoot" data-action="arcade-release" ${a.phase !== 'aim' ? 'disabled' : ''}>${t(a.type === 'defense' || (a.type === 'street' && a.round % 2 === 1) ? 'arcade.defend' : a.type === 'dunk' ? 'arcade.beat' : 'arcade.shoot')}</button>`}
+      </section>${summary}`;
+  }
   function renderMore() {
     const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${ico}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
     return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
@@ -421,13 +443,13 @@
       doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
-      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : renderSettings();
-      const sel = PRIMARY_TABS.includes(tab) ? tab : 'more';
+      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : renderSettings();
+      const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' ? 'life' : 'more';
       const icons = { career: '⌂', life: '👕', league: '▤', more: '▦' };
       doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
       ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
-      <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="more">‹ ${t('nav.more')}</button>` : ''}${body}</main>
+      <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="${tab === 'arcade' ? 'life' : 'more'}">‹ ${t(tab === 'arcade' ? 'nav.life' : 'nav.more')}</button>` : ''}${body}</main>
       <footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
     }
     for (const child of doc.getElementById('app').children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
@@ -441,6 +463,8 @@
     if (restore && !restore.disabled) restore.focus({ preventScroll: true });
     drawMatchFrame();
     drawAvatar();
+    if (state.arcade && state.tab === 'arcade' && arcadeRaf == null) arcadeSync();
+    if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
   }
   function drawMatchFrame() {
     const m = state.match;
@@ -508,6 +532,77 @@
   }
   function syncAnimation() { playStarted = 0; if (animationId != null) root.cancelAnimationFrame(animationId); animationId = null; if (state.match.playing && state.tab === 'match' && !doc.hidden && !CAA.A11Y.reduced(state.settings)) animationId = root.requestAnimationFrame(animate); }
 
+  // ===== Minijuegos: bucle de juego (el resultado lo decide CAA.Arcade con el tick de suelta) =====
+  let arcadeRaf = null;
+  function arcadeAttrs() { return state.career.state && state.career.state.player ? state.career.state.player.attrs : {}; }
+  function arcadeBegin(pending) {
+    state.arcade = { type: pending.type, seed: pending.seed, round: 0, ticks: [], results: [], streak: 0, phase: 'aim', aimStart: root.performance.now(), anim: null, final: null, label: '', flash: 0,
+      live: { score: 0, opponent: 0 } };
+    state.tab = 'arcade';
+  }
+  function arcadeSpec() { const a = state.arcade; return CAA.Arcade.roundSpec(a.type, a.seed, a.round, a.streak); }
+  function arcadeRelease() {
+    const a = state.arcade; if (!a || a.phase !== 'aim') return;
+    const tick = Math.round((root.performance.now() - a.aimStart) / 1000 * CAA.Arcade.HZ);
+    const r = CAA.Arcade.resolveRound(a.type, a.seed, a.round, tick, arcadeAttrs(), a.streak);
+    a.ticks.push(tick); a.results.push(r);
+    const tally = CAA.Arcade.play(a.type, a.seed, a.ticks, arcadeAttrs());
+    a.live = { score: tally.score, opponent: tally.opponent || 0 };
+    a.streak = r.made ? a.streak + 1 : 0;
+    const def = a.type === 'defense' || (a.type === 'street' && !r.offense);
+    a.label = a.type === 'dunk' ? r.judge.toFixed(1) : r.made ? t(def ? (a.type === 'defense' ? 'arcade.stop' : 'arcade.stopStreet') : r.perfect ? 'arcade.perfect' : 'arcade.made') : t(def ? 'arcade.beaten' : 'arcade.miss');
+    a.labelGood = a.type === 'dunk' ? r.judge >= 8 : r.made;
+    a.lastText = a.label;
+    a.anim = { start: root.performance.now(), made: r.made, perfect: r.perfect };
+    a.phase = 'flight'; a.flash = r.perfect || (a.type === 'dunk' && r.judge >= 9) ? 1 : 0;
+    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim');
+    a.done = tally.complete;
+    render(); arcadeSync();
+    const wait = CAA.A11Y.reduced(state.settings) ? 350 : 900;
+    root.setTimeout(() => arcadeNext(), wait);
+  }
+  async function arcadeNext() {
+    const a = state.arcade; if (!a || a.phase !== 'flight') return;
+    a.anim = null; a.label = ''; a.flash = 0;
+    if (a.done) {
+      a.phase = 'finishing'; render();
+      try { const res = await worker.send('career.arcade', { state: state.career.state, ticks: a.ticks }); await acceptCareer(res); a.final = res.arcade; a.phase = 'done'; if (audio) audio.play(res.arcade.record ? 'success' : 'buzzer'); }
+      catch (err) { notify(t('status.error') + ': ' + err.message, true); a.phase = 'done'; }
+    } else { a.round++; a.phase = 'aim'; a.aimStart = root.performance.now(); }
+    render(); arcadeSync();
+  }
+  function arcadeDraw(ts) {
+    const a = state.arcade, canvas = doc.getElementById('arcade-canvas');
+    if (!a || !canvas || state.tab !== 'arcade' || state.screen !== 'game') { arcadeRaf = null; return; }
+    const ctx = canvas.getContext('2d');
+    const spec = arcadeSpec();
+    const tick = a.phase === 'aim' ? Math.round((ts - a.aimStart) / 1000 * CAA.Arcade.HZ) : 0;
+    const anim = a.anim ? { t: Math.min(1, (ts - a.anim.start) / (CAA.A11Y.reduced(state.settings) ? 1 : 700)), made: a.anim.made } : null;
+    const s = state.career.summary, eq = s && s.life && s.life.equipment;
+    const jerseyItem = eq && eq.jersey && CAA.Content.packs().shop.items.find(i => i.id === eq.jersey);
+    CAA.Arcade2D.draw(ctx, canvas.width, canvas.height, { type: a.type, round: a.round, phase: a.phase, spec, cursor: a.phase === 'aim' ? CAA.Arcade.cursorAt(spec, tick) : spec.center, meterType: CAA.Arcade.GAMES[a.type].meter,
+      anim, now: ts, label: a.label, labelGood: a.labelGood, flash: a.flash ? Math.max(0, 1 - (ts - (a.anim ? a.anim.start : ts)) / 250) : 0, netKick: anim && anim.made && anim.t > 0.7 ? 1 - (anim.t - 0.7) / 0.3 : 0, hype: Math.min(1, a.streak / 4) },
+      { colorMode: state.settings.colorMode, jersey: jerseyItem ? jerseyItem.color : null });
+    if (a.phase === 'aim' || a.phase === 'flight') arcadeRaf = root.requestAnimationFrame(arcadeDraw); else arcadeRaf = null;
+  }
+  function arcadeSync() { if (arcadeRaf != null) root.cancelAnimationFrame(arcadeRaf); arcadeRaf = null; if (state.arcade && state.tab === 'arcade' && !doc.hidden) arcadeRaf = root.requestAnimationFrame(arcadeDraw); }
+  let heroRaf = null;
+  function heroSpec() { return CAA.Arcade.roundSpec('buzzer', 'hero-view', 0, 0); }
+  async function heroRelease() {
+    const h = state.heroShot; if (!h || h.sent) return;
+    h.sent = true;
+    const tick = Math.round((root.performance.now() - h.aimStart) / 1000 * CAA.Arcade.HZ);
+    if (heroRaf != null) root.cancelAnimationFrame(heroRaf); heroRaf = null;
+    state.heroShot = null;
+    await action('live-choice', { dataset: { choice: 'hero', release: String(tick) } });
+  }
+  function heroDraw(ts) {
+    const h = state.heroShot, canvas = doc.getElementById('hero-canvas');
+    if (!h || !canvas) { heroRaf = null; return; }
+    const spec = heroSpec(), tick = Math.round((ts - h.aimStart) / 1000 * CAA.Arcade.HZ);
+    CAA.Arcade2D.draw(canvas.getContext('2d'), canvas.width, canvas.height, { type: 'buzzer', round: 0, phase: 'aim', spec, cursor: CAA.Arcade.cursorAt(spec, tick), meterType: 'jump', anim: null, now: ts, label: '', flash: 0, netKick: 0, hype: 1 }, { colorMode: state.settings.colorMode });
+    heroRaf = root.requestAnimationFrame(heroDraw);
+  }
   async function persistCareer() {
     if (!state.career.state) return;
     state.saveState = 'saving';
@@ -641,11 +736,27 @@
         await acceptCareer(res);
       } else if (name === 'live-start' || name === 'live-next' || name === 'live-end' || name === 'live-choice') {
         if (!state.career.state) throw new Error(t('career.empty'));
-        const payloadLive = { state: state.career.state, start: name === 'live-start', toEnd: name === 'live-end', choice: name === 'live-choice' ? el.dataset.choice : undefined };
+        const payloadLive = { state: state.career.state, start: name === 'live-start', toEnd: name === 'live-end', choice: name === 'live-choice' ? el.dataset.choice : undefined, release: el && el.dataset && el.dataset.release != null ? Number(el.dataset.release) : undefined };
+        state.heroShot = null;
         const res = await worker.send('career.live', payloadLive);
         await acceptCareer(res);
         if (audio) audio.play(res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : res.live.moment ? 'whistle' : 'click');
         notify(res.live.finished ? t(res.live.outcome.won ? 'live.won' : 'live.lost') : res.live.moment ? t('live.moment.' + res.live.moment.type) : t('live.started'));
+      } else if (name === 'live-hero') {
+        state.heroShot = { aimStart: root.performance.now() }; if (audio) audio.play('whistle');
+      } else if (name === 'arcade-start' || name === 'arcade-resume') {
+        if (!state.career.state) throw new Error(t('career.empty'));
+        const res = await worker.send('career.arcade', { state: state.career.state, start: true, type: el.dataset.game || (state.career.state.life.pendingArcade || {}).type });
+        await acceptCareer(res); arcadeBegin(res.arcade.pending);
+      } else if (name === 'arcade-auto') {
+        if (!state.career.state) throw new Error(t('career.empty'));
+        if (!state.career.state.life.pendingArcade) { const st = await worker.send('career.arcade', { state: state.career.state, start: true, type: el.dataset.game }); await acceptCareer(st); }
+        const pend = state.career.state.life.pendingArcade;
+        const res = await worker.send('career.arcade', { state: state.career.state, auto: true });
+        await acceptCareer(res); arcadeBegin(pend); state.arcade.final = res.arcade; state.arcade.phase = 'done'; state.arcade.round = CAA.Arcade.GAMES[pend.type].rounds - 1; state.arcade.live = { score: res.arcade.score, opponent: res.arcade.opponent || 0 };
+      } else if (name === 'arcade-release') { state.busy = false; arcadeRelease(); return;
+      } else if (name === 'arcade-cancel') {
+        const res = await worker.send('career.arcade', { state: state.career.state, cancel: true }); await acceptCareer(res); state.arcade = null; if (state.tab === 'arcade') state.tab = 'life';
       } else if (name === 'career-sign') {
         const index = state.career.signIndex || 0;
         const res = await worker.send('career.sign', { state: state.career.state, index });
@@ -692,6 +803,8 @@
     doc.addEventListener('pointerdown', unlockAudio, { capture: true, passive: true });
     doc.addEventListener('keydown', unlockAudio, { capture: true });
     doc.getElementById('app').addEventListener('click', e => {
+      if (state.heroShot && (e.target.id === 'hero-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'live-hero-release'))) { heroRelease(); return; }
+      if (e.target.id === 'arcade-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'arcade-release')) { arcadeRelease(); return; }
       const go = e.target.closest('[data-tab-go]'); if (go) { state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
       const tab = e.target.closest('[data-tab]'); if (tab) { state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
       const btn = e.target.closest('[data-action]'); if (btn) { if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
@@ -752,7 +865,7 @@
     let storedLocale = null; try { storedLocale = root.localStorage.getItem('caa.locale'); } catch (_) {}
     state.screen = storedLocale ? 'menu' : 'lang';
     bind(); render();
-    const suspend = () => { state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); };
+    const suspend = () => { if (state.arcade && state.arcade.phase === 'aim') state.arcade.aimStart = root.performance.now(); state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); };
     doc.addEventListener('visibilitychange', () => { if (doc.hidden) suspend(); else { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); } });
     root.addEventListener('pagehide', suspend);
     root.addEventListener('caa:native-pause', suspend);

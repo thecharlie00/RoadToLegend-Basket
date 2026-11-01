@@ -7,6 +7,7 @@
   const CAA = root.CAA = root.CAA || {};
   const Match = CAA.Match || (typeof require === 'function' ? require('./engine.js') : null);
   const Rules = CAA.Rules || (typeof require === 'function' ? require('./rules.js') : null);
+  const Arcade = CAA.Arcade || (typeof require === 'function' ? require('./arcade.js') : null);
 
   const MOMENTS = {
     run:         { modes: ['coach'],           options: ['timeout', 'press', 'keep'],             fallback: 'keep' },
@@ -97,7 +98,7 @@
     return players.slice().sort((a, b) => (attr(b, k) + attr(b, 'clutch')) - (attr(a, k) + attr(a, 'clutch')) || a.id.localeCompare(b.id))[0];
   }
 
-  function apply(live, state, moment, choice) {
+  function apply(live, state, moment, choice, release) {
     const me = live.userTeam;
     const mine = team(state, me);
     const hooks = mine.live;
@@ -128,6 +129,12 @@
         else shooter = bestShooter(five.filter(p => p.id !== live.myPlayerId && (live.mode === 'player' || p !== bestShooter(five, zone))), zone) || bestShooter(five, zone);
         hooks.intent = { zone, shooter: shooter ? shooter.id : null };
         entry.shooter = shooter ? shooter.id : null;
+        // Jugador: "jugártela" se decide con el minijuego de tiro final (timing a 60 Hz, determinista).
+        if (choice === 'hero' && live.mode === 'player' && Number.isFinite(release) && shooter) {
+          const shot = Arcade.resolveRound('buzzer', state.matchId + ':hero:' + state.events.length, 0, release, Object.assign({}, shooter.attrs, { tiroTriple: shooter.attrs[zone === 'above3' ? 'tiroTriple' : 'tiroCerca'] }), 0);
+          hooks.intent.outcome = shot.made;
+          entry.minigame = { tick: shot.tick, quality: shot.quality, made: shot.made };
+        }
         break;
       }
       case 'foulGame:foul': hooks.foulNow = true; break;
@@ -156,7 +163,7 @@
     if (live.moment) {
       const allowedChoices = options(live, state, live.moment);
       const choice = allowedChoices.includes(opts.choice) ? opts.choice : MOMENTS[live.moment.type].fallback;
-      apply(live, state, live.moment, choice);
+      apply(live, state, live.moment, choice, opts.release);
       live.moment = null;
     }
     let guard = 0;

@@ -9,6 +9,7 @@
     if (!CAA.Rules) require('../match/rules.js');
     if (!CAA.Match) require('../match/engine.js');
     if (!CAA.Live) require('../match/live.js');
+    if (!CAA.Arcade) require('../match/arcade.js');
     if (!CAA.Calibration) require('../match/calibration.js');
     if (!CAA.Names) require('../domain/names.js');
     if (!CAA.Player) require('../domain/player.js');
@@ -96,8 +97,18 @@
         case 'career.live': {
           const state = CAA.Career.resume(msg.payload.state);
           const p = msg.payload || {};
-          const live = p.start ? CAA.Career.liveStart(state) : CAA.Career.liveAdvance(state, { choice: p.choice, toEnd: !!p.toEnd });
+          const live = p.start ? CAA.Career.liveStart(state) : CAA.Career.liveAdvance(state, { choice: p.choice, toEnd: !!p.toEnd, release: Number.isFinite(p.release) ? p.release : undefined });
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), live: CAA.Live.view(live) };
+          break;
+        }
+        case 'career.arcade': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const p = msg.payload || {};
+          let arcade = null;
+          if (p.start) arcade = { pending: CAA.Career.arcadeStart(state, { type: p.type }) };
+          else if (p.cancel) { CAA.Career.arcadeCancel(state); arcade = { cancelled: true }; }
+          else arcade = CAA.Career.arcadeFinish(state, { ticks: p.ticks, auto: !!p.auto });
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), arcade };
           break;
         }
         case 'career.summary':

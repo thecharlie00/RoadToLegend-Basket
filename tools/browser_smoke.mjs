@@ -221,6 +221,26 @@ try {
     report.live = { moments, score: live.score };
   });
 
+  await scenario('Minigames: committed session, manual play, record, auto and a11y', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { seed: 'arcade-browser' });
+    await tab(page, 'life');
+    await page.locator('[data-action="arcade-start"][data-game="freeThrow"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy && CAA_APP.state.arcade);
+    const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'arcade', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    let n = 0;
+    while (n++ < 30 && !(await page.evaluate(() => CAA_APP.state.arcade.phase === 'done'))) {
+      await page.waitForFunction(() => ['aim', 'done'].includes(CAA_APP.state.arcade.phase));
+      if (await page.evaluate(() => CAA_APP.state.arcade.phase === 'done')) break;
+      await page.waitForTimeout(250); await page.locator('[data-action="arcade-release"]').click();
+    }
+    const done = await page.evaluate(() => ({ final: CAA_APP.state.arcade.final, best: CAA_APP.state.career.state.life.arcade.best.freeThrow, pending: CAA_APP.state.career.state.life.pendingArcade }));
+    assert.ok(done.final && done.final.complete); assert.equal(done.best, done.final.score); assert.equal(done.pending, null);
+    await page.locator('#arcade-canvas').screenshot({ path: 'data/qa/phase8-arcade-screen.png' });
+    await tab(page, 'life'); await page.locator('[data-action="arcade-auto"][data-game="three"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.ok(await page.evaluate(() => CAA_APP.state.arcade.final.auto && CAA_APP.state.career.state.life.arcade.best.three > 0));
+    report.arcade = done.final.score;
+  });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');
     await page.evaluate(() => { const original = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function(type, ...args) { return type === 'webgl' ? null : original.call(this, type, ...args); }; });

@@ -95,6 +95,11 @@
       "worker": true
     },
     {
+      "id": "arcade",
+      "path": "src/match/arcade.js",
+      "worker": true
+    },
+    {
       "id": "career",
       "path": "src/domain/career.js",
       "worker": true
@@ -147,6 +152,11 @@
     {
       "id": "voxel",
       "path": "src/render/voxel.js",
+      "worker": false
+    },
+    {
+      "id": "arcade2d",
+      "path": "src/render/arcade2d.js",
       "worker": false
     },
     {

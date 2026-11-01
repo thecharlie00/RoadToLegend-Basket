@@ -240,7 +240,8 @@
     const handler = chooseWeighted(state._rng, offPlayers, p => 1 + attr(p, 'manejo') / 50 + (p.pos === 'PG' ? 0.8 : 0));
     const defender = chooseWeighted(state._rng, defPlayers, p => 1 + attr(p, 'defExterior') / 60);
     const tovChance = clamp(T.tovBase + defense.tactic.press * T.tovPress + handler.fatigue * T.tovFatigue - (attr(handler, 'manejo') - 50) * T.tovManejo - (attr(handler, 'lectura') - 50) * T.tovLectura, 0.05, 0.20);
-    if (state._rng.float() < tovChance) {
+    const forced = intent && typeof intent.outcome === 'boolean';
+    if (state._rng.float() < tovChance && !forced) {
       const steal = state._rng.float() < T.stealShare;
       handler.stats.tov++; offense.stats.tov++;
       if (steal) { defender.stats.stl++; defense.stats.stl++; }
@@ -252,7 +253,7 @@
       return state;
     }
     const foulChance = clamp(T.foulBase + offense.tactic.insideRate * T.foulInside + defense.tactic.press * T.foulPress, 0.08, 0.26);
-    if (state._rng.float() < foulChance) {
+    if (state._rng.float() < foulChance && !forced) {
       const fouler = chooseWeighted(state._rng, defPlayers, p => 1 + (100 - attr(p, 'defInterior')) / 100);
       fouler.fouls++; fouler.stats.pf++; defense.stats.pf++;
       const bucket = Rules.foulBucketKey(profile, state.period);
@@ -300,7 +301,7 @@
       state.rng = state._rng.serialize();
       return state;
     }
-    if (state._rng.float() < blockChance) {
+    if (state._rng.float() < blockChance && !forced) {
       primary.stats.blk++; defense.stats.blk++;
       record(state, { type: 'block', team: def, player: primary.id, shooter: shooter.id, zone });
       shooter.stats.fga++; offense.stats.fga++;
@@ -314,7 +315,9 @@
     const skill = attr(shooter, ZONE_ATTR[zone]);
     const clutch = Math.abs(state.score[0] - state.score[1]) <= 5 && state.gameClock <= 1200 ? (attr(shooter, 'clutch') - 50) * 0.001 : 0;
     const pMake = clamp(BASE[zone] + (skill - 50) * 0.005 - contest - shooter.fatigue * T.fatigueMake + clutch, 0.05, 0.95);
-    const made = state._rng.float() < pMake;
+    const roll = state._rng.float();
+    // Tiro decidido por el minijuego (jugártela en la última posesión): el timing manda.
+    const made = forced ? intent.outcome : roll < pMake;
     shooter.stats.fga++; offense.stats.fga++;
     if (isThree) { shooter.stats['3pa']++; offense.stats['3pa']++; } else { shooter.stats['2pa']++; offense.stats['2pa']++; }
     consume(state, T.flight);

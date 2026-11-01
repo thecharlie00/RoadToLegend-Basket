@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T00:36:32.365Z",
+  "date": "2026-11-01T00:50:52.438Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -30,6 +30,11 @@
     },
     {
       "name": "Phase 7 live match: key moments, decisions, official result and a11y",
+      "ok": true,
+      "missingTranslations": []
+    },
+    {
+      "name": "Minigames: committed session, manual play, record, auto and a11y",
       "ok": true,
       "missingTranslations": []
     },
@@ -166,18 +171,23 @@
     {
       "name": "phase7-live-moment",
       "violations": []
+    },
+    {
+      "locale": "es",
+      "tab": "arcade",
+      "violations": []
     }
   ],
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T00:36:46.217Z",
+    "measuredAt": "2026-11-01T00:51:06.900Z",
     "frames": 180,
-    "meanFrameMs": 16.665,
+    "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
-    "meanFps": 60.01,
+    "meanFps": 60,
     "framesOver16_67Ms": 112,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
@@ -207,15 +217,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T00:37:05.353Z",
+    "measuredAt": "2026-11-01T00:51:26.101Z",
     "frames": 180,
-    "meanFrameMs": 16.574,
+    "meanFrameMs": 16.758,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.7,
-    "maxFrameMs": 16.8,
-    "meanFps": 60.34,
-    "framesOver16_67Ms": 110,
-    "framesOver33_34Ms": 0,
+    "p95FrameMs": 16.8,
+    "maxFrameMs": 33.4,
+    "meanFps": 59.67,
+    "framesOver16_67Ms": 108,
+    "framesOver33_34Ms": 1,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -229,7 +239,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 13400000
+    "jsHeapUsedBytes": 56800000
   },
   "avatar": {
     "version": "voxel-1",
@@ -263,8 +273,9 @@
       108
     ]
   },
+  "arcade": 5,
   "locales": {
-    "es": 629,
-    "en": 629
+    "es": 685,
+    "en": 685
   }
 }

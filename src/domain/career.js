@@ -11,6 +11,7 @@
   const Content = CAA.Content || (typeof require === 'function' ? require('./content.js') : null);
   const Minigames = CAA.Minigames || (typeof require === 'function' ? require('../match/minigames.js') : null);
   const Live = CAA.Live || (typeof require === 'function' ? require('../match/live.js') : null);
+  const Arcade = CAA.Arcade || (typeof require === 'function' ? require('../match/arcade.js') : null);
 
   const MODES = ['player', 'coach'];
   const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted'];
@@ -280,6 +281,48 @@
     if (life.pendingPractice) { record(state, { type: 'practiceCancel', id: life.pendingPractice.id }); life.pendingPractice = null; }
     return state;
   }
+  // Minijuegos arcade: la sesión (semilla) se compromete al empezar; cerrar la app no permite repetir.
+  function arcadeAttrs(state) { return state.player ? state.player.attrs : {}; }
+  function arcadeStart(state, config = {}) {
+    const life = Content.ensureLife(state);
+    if (life.pendingArcade) return life.pendingArcade;
+    if (!Arcade.GAMES[config.type]) throw new Error('unknown minigame');
+    life.arcadeSeq = (life.arcadeSeq || 0) + 1;
+    life.pendingArcade = { type: config.type, seed: state.seed + ':arcade:' + life.arcadeSeq, week: state.week, seq: life.arcadeSeq };
+    record(state, { type: 'arcadeCommit', minigame: config.type, seq: life.arcadeSeq });
+    return life.pendingArcade;
+  }
+  function arcadeFinish(state, config = {}) {
+    const life = Content.ensureLife(state);
+    const pend = life.pendingArcade;
+    if (!pend) throw new Error('no committed minigame');
+    const attrs = arcadeAttrs(state);
+    const ticks = config.auto ? Arcade.autoTicks(pend.type, pend.seed, attrs) : config.ticks;
+    const res = Arcade.play(pend.type, pend.seed, ticks, attrs);
+    if (!res.complete) throw new Error('minigame not complete');
+    const rw = Arcade.rewards(pend.type, res);
+    life.style += rw.style; life.xp += rw.xp;
+    if (state.player) { state.player.form = Math.max(-10, Math.min(10, (state.player.form || 0) + rw.form)); state.player.load = Math.min(100, (state.player.load || 0) + 2); }
+    life.arcade = life.arcade || { best: {}, plays: {} };
+    const prev = life.arcade.best[pend.type];
+    const record_ = prev == null || res.score > prev;
+    if (record_) life.arcade.best[pend.type] = res.score;
+    life.arcade.plays[pend.type] = (life.arcade.plays[pend.type] || 0) + 1;
+    const c = life.counters;
+    c.arcadePlays = (c.arcadePlays || 0) + 1;
+    c['best_' + pend.type] = Math.max(c['best_' + pend.type] || 0, res.score);
+    if (pend.type === 'street' && res.won) c.streetWins = (c.streetWins || 0) + 1;
+    c.perfects = (c.perfects || 0) + res.perfects;
+    life.pendingArcade = null;
+    Content.evaluateAchievements(state);
+    record(state, { type: 'arcade', minigame: pend.type, score: res.score, hash: res.hash });
+    return Object.assign({ rewards: rw, record: record_, previous: prev == null ? null : prev, auto: !!config.auto }, res);
+  }
+  function arcadeCancel(state) {
+    const life = Content.ensureLife(state);
+    if (life.pendingArcade) { record(state, { type: 'arcadeCancel', seq: life.pendingArcade.seq }); life.pendingArcade = null; }
+    return state;
+  }
   function practice(state, config = {}) { beginPractice(state, config); return resolvePractice(state, config); }
   function nextGuide(state) {
     const life = Content.ensureLife(state);
@@ -422,6 +465,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, arcadeStart, arcadeFinish, arcadeCancel, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

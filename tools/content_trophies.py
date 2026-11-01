@@ -174,6 +174,21 @@ T = [
  ('tacticalFouls', 10, 'coach', 'El fin justifica los medios', 'The Ends Justify the Means'),
  ('trust', 75, 'any', 'Hombre de confianza', 'Trusted Man'),
  ('trust', 90, 'any', 'Intocable', 'Untouchable'),
+ # minijuegos
+ ('arcadePlays', 1, 'any', 'Insert coin', 'Insert Coin'),
+ ('arcadePlays', 10, 'any', 'Sala recreativa', 'Arcade Rat'),
+ ('arcadePlays', 50, 'any', 'Game over nunca', 'No Game Over'),
+ ('best_freeThrow', 8, 'any', 'Rutina sagrada', 'Sacred Routine'),
+ ('best_freeThrow', 10, 'any', 'Diez de diez desde la línea', 'Perfect From the Line'),
+ ('best_three', 18, 'any', 'Lluvia de triples', 'Raining Threes'),
+ ('best_three', 25, 'any', 'Splash Brother', 'Splash Brother'),
+ ('best_buzzer', 9, 'any', 'Al sonar la bocina', 'At the Horn'),
+ ('best_dunk', 50, 'any', 'Despegue', 'Liftoff'),
+ ('best_dunk', 56, 'any', 'Space Jam', 'Space Jam'),
+ ('best_defense', 6, 'any', 'Candado', 'Lockdown'),
+ ('streetWins', 1, 'any', 'Rey de la pista callejera', 'King of the Court'),
+ ('streetWins', 5, 'any', 'Leyenda del asfalto', 'Asphalt Legend'),
+ ('perfects', 25, 'any', 'Perfeccionista', 'Perfectionist'),
 ]
 
 if __name__ == '__main__':

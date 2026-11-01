@@ -98,3 +98,63 @@ test('lifetime totals accumulate across seasons for trophies', () => {
   assert.ok(t.gp > 0 && t.pts >= s.player.stats.pts);
   assert.equal(s.life.counters.points, t.pts);
 });
+
+const Arcade = require('../src/match/arcade.js');
+const Match = require('../src/match/engine.js');
+const Live = require('../src/match/live.js');
+
+test('arcade minigames are deterministic, reward timing and keep auto below a perfect run', () => {
+  const attrs = { tiroLibre: 60, tiroTriple: 60, clutch: 60, mate: 60, salto: 60, robo: 60, tapon: 60, defExterior: 60, manejo: 60, tiroMedia: 60 };
+  for (const type of Arcade.TYPES) {
+    const auto = Arcade.autoTicks(type, 'det-' + type, attrs);
+    const a = Arcade.play(type, 'det-' + type, auto, attrs), b = Arcade.play(type, 'det-' + type, auto, attrs);
+    assert.deepEqual(a, b);
+    assert.ok(a.complete, type + ' auto run must complete');
+    const perfect = []; let streak = 0;
+    for (let i = 0; i < Arcade.GAMES[type].rounds; i++) { const spec = Arcade.roundSpec(type, 'det-' + type, i, streak); perfect.push(Arcade.centerTick(spec)); const r = Arcade.resolveRound(type, 'det-' + type, i, perfect[i], attrs, streak); streak = r.made ? streak + 1 : 0; }
+    const best = Arcade.play(type, 'det-' + type, perfect, attrs);
+    assert.ok(best.results.every(r => r.quality >= 0.7), type + ' center ticks are near perfect');
+    assert.ok(best.perfects > a.perfects, type + ' good timing beats auto');
+    assert.ok(a.results.every(r => r.quality < 0.85), type + ' auto never perfect');
+  }
+});
+
+test('career minigame sessions are committed (no reroll), pay rewards and track records', () => {
+  const s = Career.createCareer({ seed: 'arcade-career', mode: 'player' });
+  const pend = Career.arcadeStart(s, { type: 'three' });
+  assert.equal(Career.arcadeStart(s, { type: 'freeThrow' }).seq, pend.seq, 'pending session is reused');
+  const resumed = Career.resume(Career.serialize(s));
+  assert.equal(resumed.life.pendingArcade.seed, pend.seed);
+  const style = resumed.life.style;
+  assert.throws(() => Career.arcadeFinish(resumed, { ticks: [1, 2, 3] }), /not complete/);
+  const res = Career.arcadeFinish(resumed, { auto: true });
+  assert.equal(res.type, 'three'); assert.equal(res.record, true);
+  assert.ok(resumed.life.style > style);
+  assert.equal(resumed.life.arcade.best.three, res.score);
+  assert.equal(resumed.life.pendingArcade, null);
+  assert.ok(resumed.life.achievements.includes('arcadePlays-1'));
+  assert.ok(Career.validate(resumed).ok);
+});
+
+test('hero last shot in the live match is decided by the buzzer minigame timing', () => {
+  let checked = 0;
+  for (let s = 0; s < 300 && checked < 2; s++) {
+    const teams = Match.neutralTeams(50); const me = teams[0].players[0].id;
+    const live = Live.create({ seed: 'heroMini' + s, ruleSetId: 'FIBA-2026', teams, mode: 'player', userTeam: 0, myPlayerId: me });
+    let guard = 0;
+    while (!live.finished && guard++ < 100) {
+      if (live.moment && live.moment.type === 'lastShot') {
+        const copy = JSON.parse(JSON.stringify(live));
+        Live.advance(live, { choice: 'hero', release: 18 });  // cima del salto: calidad máxima
+        Live.advance(copy, { choice: 'hero', release: 2000 }); // fuera de tiempo
+        const good = live.decisions.find(d => d.type === 'lastShot'), bad = copy.decisions.find(d => d.type === 'lastShot');
+        assert.ok(good.minigame && bad.minigame);
+        assert.ok(good.minigame.quality > bad.minigame.quality);
+        if (good.result === 'made' || good.result === 'missed') assert.equal(good.result === 'made', good.minigame.made);
+        checked++; break;
+      }
+      Live.advance(live, { choice: live.moment ? live.moment.options[live.moment.options.length - 1] : undefined });
+    }
+  }
+  assert.ok(checked >= 1, 'no last-shot moment found');
+});

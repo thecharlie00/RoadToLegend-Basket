@@ -1901,9 +1901,177 @@
       "rewardStyle": 10
     },
     {
+      "id": "arcadePlays-1",
+      "metric": "arcadePlays",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Insert coin",
+        "en": "Insert Coin"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "arcadePlays-10",
+      "metric": "arcadePlays",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Sala recreativa",
+        "en": "Arcade Rat"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "arcadePlays-50",
+      "metric": "arcadePlays",
+      "threshold": 50,
+      "mode": "any",
+      "tier": 3,
+      "title": {
+        "es": "Game over nunca",
+        "en": "No Game Over"
+      },
+      "rewardStyle": 13
+    },
+    {
+      "id": "best_freeThrow-8",
+      "metric": "best_freeThrow",
+      "threshold": 8,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Rutina sagrada",
+        "en": "Sacred Routine"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "best_freeThrow-10",
+      "metric": "best_freeThrow",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Diez de diez desde la línea",
+        "en": "Perfect From the Line"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "best_three-18",
+      "metric": "best_three",
+      "threshold": 18,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Lluvia de triples",
+        "en": "Raining Threes"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "best_three-25",
+      "metric": "best_three",
+      "threshold": 25,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Splash Brother",
+        "en": "Splash Brother"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "best_buzzer-9",
+      "metric": "best_buzzer",
+      "threshold": 9,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Al sonar la bocina",
+        "en": "At the Horn"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "best_dunk-50",
+      "metric": "best_dunk",
+      "threshold": 50,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Despegue",
+        "en": "Liftoff"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "best_dunk-56",
+      "metric": "best_dunk",
+      "threshold": 56,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Space Jam",
+        "en": "Space Jam"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "best_defense-6",
+      "metric": "best_defense",
+      "threshold": 6,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Candado",
+        "en": "Lockdown"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "streetWins-1",
+      "metric": "streetWins",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Rey de la pista callejera",
+        "en": "King of the Court"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "streetWins-5",
+      "metric": "streetWins",
+      "threshold": 5,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Leyenda del asfalto",
+        "en": "Asphalt Legend"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "perfects-25",
+      "metric": "perfects",
+      "threshold": 25,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Perfeccionista",
+        "en": "Perfectionist"
+      },
+      "rewardStyle": 7
+    },
+    {
       "id": "platinum-player",
       "metric": "achievements",
-      "threshold": 148,
+      "threshold": 162,
       "mode": "player",
       "tier": 99,
       "platinum": true,
@@ -1916,7 +2084,7 @@
     {
       "id": "platinum-coach",
       "metric": "achievements",
-      "threshold": 78,
+      "threshold": 92,
       "mode": "coach",
       "tier": 99,
       "platinum": true,
