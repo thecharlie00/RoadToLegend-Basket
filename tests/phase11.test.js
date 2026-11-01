@@ -65,3 +65,19 @@ test('a new national league and a college league play a full season', () => {
     assert.ok(s.history[0].champion, id);
   }
 });
+
+test('coach market: sign, release and staff with real cash; staff costs each week', () => {
+  let s = Career.createCareer({ seed: 'mk-t', mode: 'coach', route: 'eu-academy' });
+  const v = Career.summary(s).transfers, cash0 = s.clubFin.cash, n0 = v.roster.length;
+  assert.ok(v.open && v.list.length >= 5);
+  const it = v.list.find(x => x.fee <= cash0);
+  Career.marketOp(s, { op: 'sign', id: it.id });
+  assert.equal(s.season.clubsById[s.clubId].roster.length, n0 + 1);
+  assert.throws(() => Career.marketOp(s, { op: 'sign', id: it.id }), /already signed|not available/);
+  Career.marketOp(s, { op: 'staff', role: 'scout', level: 2 });
+  assert.equal(Career.summary(s).transfers.list.length, 9, 'scout widens the list');
+  Career.marketOp(s, { op: 'release', id: it.id });
+  s = Career.resume(Career.serialize(s));
+  assert.equal(s.mkt.staff.scout, 2); assert.ok(s.clubFin.cash < cash0);
+  assert.throws(() => Career.marketOp(s, { op: 'staff', role: 'chef', level: 1 }), /bad role/);
+});

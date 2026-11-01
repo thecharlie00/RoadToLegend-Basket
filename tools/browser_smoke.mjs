@@ -355,6 +355,30 @@ try {
     const na = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     report.accessibility.push({ locale: 'es', tab: 'national', violations: na.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
   });
+  await scenario('Market and staff, social feed, history records and a historic moment', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { seed: 'mkt-browser', mode: 'coach' });
+    await tab(page, 'market');
+    const n0 = await page.evaluate(() => CAA_APP.state.career.summary.transfers.roster.length);
+    await page.locator('[data-action="mkt-op"][data-op="sign"]:not([disabled])').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.transfers.roster.length), n0 + 1);
+    await page.locator('[data-action="mkt-op"][data-op="staff"][data-role="physio"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.mkt.staff.physio), 1);
+    const ma = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'market', violations: ma.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await tab(page, 'more'); await page.locator('[data-action="sim-season"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy, null, { timeout: 120000 });
+    await tab(page, 'career');
+    assert.ok(await page.locator('.posts li').count() > 0, 'social feed on home');
+    await tab(page, 'history');
+    const ha = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'history', violations: ha.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await tab(page, 'moments');
+    await page.locator('[data-action="moment-open"]').first().click();
+    await page.locator('[data-action="moment-play"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy, null, { timeout: 60000 });
+    assert.ok(await page.evaluate(() => !!CAA_APP.state.moment && CAA_APP.state.moment.result), "moment played");
+    const mo = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'moments', violations: mo.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    assert.deepEqual(await page.evaluate(() => CAA.I18N.missingKeys()), []);
+  });
   for (const lang of ['fr', 'de', 'it']) await scenario('Locale ' + lang + ': boot, career, shop and league without missing texts', { viewport: { width: 390, height: 844 } }, async page => {
     await click(page, `boot-lang"][data-locale="${lang}`);
     assert.equal(await page.evaluate(() => document.documentElement.lang), lang);

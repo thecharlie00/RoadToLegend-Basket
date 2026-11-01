@@ -133,6 +133,12 @@
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), club };
           break;
         }
+        case 'career.market': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const market = CAA.Career.marketOp(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), market };
+          break;
+        }
         case 'career.gear': {
           const state = CAA.Career.resume(msg.payload.state);
           const gear = CAA.Career.gearOp(state, msg.payload.config || {});

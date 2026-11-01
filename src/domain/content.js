@@ -11,7 +11,7 @@
     return null;
   }
   function packs() { return { events: load('events', 'events'), achievements: load('achievements', 'achievements'), shop: load('shop', 'shop'), press: load('press', 'press'), guide: load('guide', 'guide') }; }
-  const EFFECT_KEYS = ['morale', 'load', 'fatigue', 'chemistry', 'form', 'trust', 'confidence', 'cash', 'style', 'xp', 'fame', 'fans', 'salary', 'agent', 'sponsor', 'flag', 'unflag', 'attr', 'injuryWeeks', 'board', 'locker', 'partnerHappiness', 'childBond', 'familyStatus', 'baby'];
+  const EFFECT_KEYS = ['morale', 'load', 'fatigue', 'chemistry', 'form', 'trust', 'confidence', 'cash', 'style', 'xp', 'fame', 'fans', 'salary', 'agent', 'sponsor', 'flag', 'unflag', 'attr', 'injuryWeeks', 'board', 'locker', 'partnerHappiness', 'childBond', 'familyStatus', 'baby', 'injure'];
   const AGENTS = { star: { commission: 0.10, offer: 1.12 }, family: { commission: 0.05, offer: 1.0 }, self: { commission: 0, offer: 0.92 } };
 
   function validate() {
@@ -86,6 +86,7 @@
       else if (p && k === 'confidence') p.confidence = clamp((p.confidence || 0) + v, -8, 8);
       else if (p && k === 'salary' && p.contract) p.contract.salary = Math.round(p.contract.salary * v);
       else if (p && k === 'attr') for (const [a, d] of Object.entries(v)) { if (p.attrs[a] != null) p.attrs[a] = clamp(Math.round((p.attrs[a] + d) * 10) / 10, 20, 99); }
+      else if (p && k === 'injure' && !p.injury) p.injury = { type: 'ankle', weeksRemaining: v, gamesMissed: 0 };
       else if (p && k === 'injuryWeeks' && p.injury) p.injury.weeksRemaining = Math.max(0, p.injury.weeksRemaining + v);
       else if (state.coach && (k === 'morale')) state.coach.morale = clamp(state.coach.morale + v, 0, 100);
       else if (state.coach && (k === 'trust' || k === 'board')) state.coach.trust = clamp(state.coach.trust + v, 0, 100);

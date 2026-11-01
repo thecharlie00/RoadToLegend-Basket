@@ -1077,5 +1077,10 @@ ev('era-analytics', 'era', A, ('Los números mandan', 'Numbers rule'),
    cond={'era': True, 'minYear': 2012, 'maxYear': 2019}, once=True)
 
 
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import content_events_more as _more
+_more.register(ev, O, U)
+
 if __name__ == '__main__':
     print(len(EVENTS))

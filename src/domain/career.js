@@ -17,9 +17,11 @@
   const Family = CAA.Family || (typeof require === 'function' ? require('./family.js') : null);
   const Gear = CAA.Gear || (typeof require === 'function' ? require('./gear.js') : null);
   const Eras = CAA.Eras || (typeof require === 'function' ? require('./eras.js') : null);
+  const Market = CAA.Market || (typeof require === 'function' ? require('./market.js') : null);
   const Finance = CAA.Finance || (typeof require === 'function' ? require('./finance.js') : null);
   const National = CAA.National || (typeof require === 'function' ? require('./national.js') : null);
   const Cup = CAA.Cup || (typeof require === 'function' ? require('./cup.js') : null);
+  const Social = CAA.Social || (typeof require === 'function' ? require('./social.js') : null);
 
   const MODES = ['player', 'coach'];
   const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted', 'world'];
@@ -163,7 +165,7 @@
       const played = Season.playRound(season, state.seed + ':w' + state.week, overrides);
       if (live) { applyLiveOutcome(state, live); state.live = null; }
       afterGames(state, rng, played, club);
-      if (state.mode === 'coach') Finance.weekTick(state, played, rng);
+      if (state.mode === 'coach') { Finance.weekTick(state, played, rng); Market.weekTick(state, rng); }
       if (Cup.due(season)) {
         const cup = Cup.play(season, state.seed + ':' + state.year, state.clubId, state.player && state.player.id);
         state.inbox.push({ type: 'cup', week: state.week, detail: { club: cup.championName, mine: cup.mine } });
@@ -193,6 +195,45 @@
     state.rng = rng.serialize();
     return state;
   }
+  // Rivalidades, récords, diario y red social (chal32 + social-data del fútbol).
+  function chronicle(state, played, mine) {
+    const life = Content.ensureLife(state);
+    life.records = life.records || { league: {}, career: {} };
+    life.rivals = life.rivals || {};
+    life.diary = life.diary || [];
+    const rec = (scope, key, v, name, extra) => { const r = life.records[scope]; if (!r[key] || v > r[key].v) { r[key] = Object.assign({ v, name, year: state.year, week: state.week }, extra || {}); return true; } return false; };
+    for (const m of played || []) for (const t of m.teams) for (const p of t.players) if (p.stats) {
+      rec('league', 'gamePts', p.stats.pts, p.name, { club: t.name });
+      rec('league', 'gameReb', p.stats.orb + p.stats.drb, p.name, { club: t.name });
+      rec('league', 'gameAst', p.stats.ast, p.name, { club: t.name });
+    }
+    const info = {};
+    if (mine) {
+      const side = mine.teams.findIndex(t => t.id === state.clubId), opp = mine.teams[1 - side];
+      info.us = mine.score[side]; info.them = mine.score[1 - side]; info.opponent = opp.name;
+      const r = life.rivals[opp.id] = life.rivals[opp.id] || { name: opp.name, g: 0, w: 0, l: 0, close: 0 };
+      r.g++; if (info.us > info.them) r.w++; else r.l++; if (Math.abs(info.us - info.them) <= 6) r.close++;
+      if (state.player) {
+        const me = mine.teams[side].players.find(p => p.id === state.player.id);
+        if (me && me.stats) {
+          info.pts = me.stats.pts;
+          const reb = me.stats.orb + me.stats.drb;
+          if (rec('career', 'gamePts', me.stats.pts, me.name) && me.stats.pts >= 20) life.diary.push({ year: state.year, week: state.week, key: 'careerHigh', v: me.stats.pts, opp: opp.name });
+          rec('career', 'gameReb', reb, me.name); rec('career', 'gameAst', me.stats.ast, me.name);
+          if (lcFirst(life)) life.diary.push({ year: state.year, week: state.week, key: 'debut', opp: opp.name });
+        }
+        if (state.player.injury && state.player.injury.weeksRemaining > 0 && !state.player.injury.logged) { state.player.injury.logged = true; info.injuryWeeks = state.player.injury.weeksRemaining; life.diary.push({ year: state.year, week: state.week, key: 'injury', v: info.injuryWeeks }); }
+      }
+    }
+    Social.push(state, Social.weekly(state, info));
+    if (life.diary.length > 60) life.diary.splice(0, life.diary.length - 60);
+  }
+  function lcFirst(life) { if (life.debutLogged) return false; life.debutLogged = true; return true; }
+  function rivalOf(state) {
+    const rv = state.life && state.life.rivals; if (!rv) return null;
+    let best = null; for (const [id, r] of Object.entries(rv)) if (r.g >= 2 && (!best || r.close * 2 + r.g > best.close * 2 + best.g)) best = Object.assign({ id }, r);
+    return best;
+  }
   function afterGames(state, rng, played, club) {
     const mine = played && played.find(m => m.teams.some(t => t.id === state.clubId));
     if (mine) state.lastMatch = Match.replay(mine, { week: state.week + 1, year: state.year, clubId: state.clubId, source: 'career', playoff: !!state.season.playoffs });
@@ -202,6 +243,7 @@
     const lc = Content.ensureLife(state).counters;
     if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) { lc.totalWins = (lc.totalWins || 0) + 1; if (state.season.playoffs) lc.playoffWins = (lc.playoffWins || 0) + 1; } }
     if (state.coach && mine) lc.coachGames = (lc.coachGames || 0) + 1;
+    chronicle(state, played, mine);
     if (state.coach) coachWeek(state, rng);
     Content.weeklyIncome(state);
     const petWeek = Pet.weekTick(state);
@@ -221,6 +263,7 @@
     const b = season.playoffs, id = state.clubId;
     const qualified = b.format === 'na' ? ['east', 'west'].some(c => b.seeds[c].indexOf(id) >= 0 && b.seeds[c].indexOf(id) < 10) : (b.seeds.all.includes(id) || b.promoted.includes(id));
     state.inbox.push({ type: qualified ? 'playoffs-in' : 'playoffs-out', week: state.week, detail: { direct: b.promoted.includes(id) } });
+    if (qualified) Social.special(state, 'playoffs');
     record(state, { type: 'playoffsStart', format: b.format, qualified });
   }
   // Partido de esta semana para el club del usuario (temporada regular o serie de playoffs).
@@ -308,7 +351,9 @@
     lc.allLeague = (lc.allLeague || 0) + myAwards.filter(a => a === 'allLeague').length;
     if (myResult && myResult !== 'missed') lc.playoffApps = (lc.playoffApps || 0) + 1;
     if (myResult === 'final' || myResult === 'champion') lc.finals = (lc.finals || 0) + 1;
-    if (season.champion === state.clubId) lc.titles = (lc.titles || 0) + 1;
+    if (season.champion === state.clubId) { lc.titles = (lc.titles || 0) + 1; Social.special(state, 'title'); }
+    { const life = Content.ensureLife(state); life.diary = life.diary || []; life.diary.push({ year: state.year, week: state.week, key: 'season', rank: myRank, result: myResult || null, champion: season.champion === state.clubId });
+      if (state.player && state.player.stats) { const sp = state.player.stats.pts; life.records = life.records || { league: {}, career: {} }; const r = life.records.career; if (!r.seasonPts || sp > r.seasonPts.v) r.seasonPts = { v: sp, name: state.player.name, year: state.year }; } }
     const pl = state.player;
     state.lastSeasonSummary = { year: state.year, leagueId: season.leagueId, champion: season.clubsById[season.champion].name, myChampion: season.champion === state.clubId, result: myResult, rank: myRank, teams: table.length,
       record: { wins: clubOf(state).wins, losses: clubOf(state).losses }, promoted: !!(b && b.promoted.includes(state.clubId)),
@@ -499,6 +544,12 @@
     record(state, { type: 'club', op: config.op, key: config.key || null });
     Content.evaluateAchievements(state);
     return Finance.view(state);
+  }
+  function marketOp(state, config = {}) {
+    Market.op(state, config);
+    record(state, { type: 'market', op: config.op, role: config.role || null });
+    Content.evaluateAchievements(state);
+    return Market.view(state);
   }
   function gearOp(state, config = {}) {
     Content.ensureLife(state);
@@ -819,10 +870,11 @@
       leagueName: (state.ed && state.ed.leagues[state.season.leagueId]) || league.name || state.season.leagueId, edits: state.ed || null, challenge: state.challenge || null, quick: state.quick || null, quickEnd: !!state.quickEnd, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       era: state.era ? { start: state.era.start, decade: Eras.decadeOf(state.year), legends: state.era.legends, look: Eras.look(state.year), ball: Eras.ballColor(state.year), traits: Eras.traits(state.year, league) } : null,
+      rival: rivalOf(state), social: state.life && state.life.social ? state.life.social.slice(-6).reverse() : [], records: state.life ? state.life.records || null : null, diary: state.life && state.life.diary ? state.life.diary.slice(-30).reverse() : [],
       leagueId: state.season.leagueId, league: { country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
       round: state.season.round, club: { id: club.id, name: club.name, custom: club.custom || null, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
-      gear: state.life ? Gear.view(state) : null, clubFin: state.mode === 'coach' ? Finance.view(state) : null, national: state.player ? National.view(state) : null, cup: state.season.cup || null, look: state.life ? Gear.avatarLook(state) : null,
+      gear: state.life ? Gear.view(state) : null, clubFin: state.mode === 'coach' ? Finance.view(state) : null, transfers: state.mode === 'coach' && state.clubFin ? Market.view(state) : null, national: state.player ? National.view(state) : null, cup: state.season.cup || null, look: state.life ? Gear.avatarLook(state) : null,
       event: Content.pendingView(state), pet: state.pet || null, family: state.family || null, retirement: state.retirement || null, careerOver: !!state.careerOver, lastSeason: state.lastSeasonSummary && !state.lastSeasonSummary.dismissed ? state.lastSeasonSummary : null,
       playoffs: state.season.playoffs ? { format: state.season.playoffs.format, round: Playoffs.current(state.season.playoffs).name, done: state.season.playoffs.done, series: Playoffs.seriesOf(state.season.playoffs, state.clubId), status: Playoffs.status(state.season.playoffs, state.clubId), result: Playoffs.resultOf(state.season.playoffs, state.clubId) } : null,
       awards: state.season.awards || null, coach: state.coach,
@@ -903,6 +955,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, CHALLENGES, gearOp, clubOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, CHALLENGES, gearOp, clubOp, marketOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

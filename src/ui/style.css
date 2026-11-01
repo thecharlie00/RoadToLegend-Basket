@@ -199,3 +199,7 @@ body[data-era="sepia"] .live3d,body[data-era="bw"] .live3d{position:relative}bod
 .swatch.lvl{display:grid;place-items:center;font-family:var(--ui);font-weight:700;color:var(--ink);background:var(--raise)}.pick-grid.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
 .medals{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--ui);font-weight:700}
 .ed-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+/* Red social */
+.posts{list-style:none;padding:0;margin:0;display:grid;gap:10px}.posts li{display:grid;grid-template-columns:36px 1fr;gap:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.posts .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--raise);font-size:1.1rem}.posts p{margin:4px 0}.posts .ver{color:var(--accent2)}.posts li>div{min-width:0;overflow-wrap:anywhere}
+.news.mkt li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.news.mkt li .small-btn{margin-left:auto}.gi-act{display:flex;gap:6px}

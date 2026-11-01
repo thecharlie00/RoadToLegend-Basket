@@ -148,6 +148,11 @@
       "worker": true
     },
     {
+      "id": "market",
+      "path": "src/domain/market.js",
+      "worker": true
+    },
+    {
       "id": "national",
       "path": "src/domain/national.js",
       "worker": true
@@ -155,6 +160,16 @@
     {
       "id": "cup",
       "path": "src/domain/cup.js",
+      "worker": true
+    },
+    {
+      "id": "moments",
+      "path": "src/domain/moments.js",
+      "worker": true
+    },
+    {
+      "id": "social",
+      "path": "src/domain/social.js",
       "worker": true
     },
     {
