@@ -214,8 +214,14 @@ try {
     await tab(page, 'career');
     await click(page, 'live-start');
     assert.equal(await page.locator('.scoreboard strong').textContent(), '0 – 0');
+    // Tiempo real: el reloj corre solo y el marcador va llegando jugada a jugada.
+    const clock0 = await page.locator('#pb-clock').textContent();
+    await page.locator('[data-action="live-speed"][data-speed="4"]').click();
+    await page.waitForFunction(c => document.getElementById('pb-clock') && document.getElementById('pb-clock').textContent !== c, clock0, { timeout: 8000 });
+    assert.equal(await page.locator('[data-action="live-choice"]').count(), 0, 'decision waits for the clock');
     let moments = 0, guard = 0;
-    while (guard++ < 40 && !(await page.evaluate(() => CAA_APP.state.career.state.live.finished))) {
+    while (guard++ < 60 && !(await page.evaluate(() => CAA_APP.state.career.state.live.finished && document.querySelector('#live-panel[data-caught]')))) {
+      if (await page.locator('[data-action="live-skip"]').count()) { await click(page, 'live-skip'); continue; }
       if (await page.locator('[data-action="live-choice"]').count()) {
         moments++;
         if (moments === 1) {

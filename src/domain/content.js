@@ -42,6 +42,13 @@
     return { ok: !errors.length, errors };
   }
 
+  // Región narrativa: la Liga Boreal masculina (draft, franquicias), Europa, o el resto del mundo.
+  function regionOf(s) {
+    if (!s) return 'EU';
+    if (s.leagueId === 'na-boreal-men') return 'NA';
+    const L = CAA.Season && CAA.Season.LEAGUES ? CAA.Season.LEAGUES[s.leagueId] : null;
+    return !L || L.continent === 'europe' ? 'EU' : 'WORLD';
+  }
   function ensureLife(state) {
     if (!state.life) state.life = { cash: 0, style: 0, xp: 0, achievements: [], equipment: {}, owned: [], appliedBonuses: [], eventHistory: [], pendingEvent: null, press: [], guideStep: 0, counters: { games: 0, points: 0, wins: 0, seasons: 0, ovr: 0, cash: 0, style: 0, events: 0, train: 0, signs: 0, practice: 0 } };
     const life = state.life;
@@ -109,7 +116,7 @@
       contractYears: p && p.contract ? p.contract.years : 0, injured: !!(p && p.injury), injuryWeeks: p && p.injury ? p.injury.weeksRemaining : 0,
       trust: p ? (p.coachTrust == null ? 60 : p.coachTrust) : (state.coach ? state.coach.trust : 60), morale: p ? p.morale : (state.coach ? state.coach.morale : 70),
       load: p ? p.load || 0 : 0, fame: life.fame, route: state.route, mode: state.mode, week: state.week, rounds: s ? s.schedule.length : 0,
-      region: s && s.leagueId === 'na-boreal-men' ? 'NA' : 'EU',
+      region: regionOf(s), gender: p ? p.gender || 'men' : (s && CAA.Season && CAA.Season.genderOf ? CAA.Season.genderOf(s.leagueId) : 'men'), year: state.year, era: !!state.era, femTeam: !!(s && CAA.Season && CAA.Season.genderOf && CAA.Season.genderOf(s.leagueId) === 'women'), femSelf: !!(p && p.gender === 'women'),
       partner: state.family && state.family.partner ? state.family.partner.name : '', child: state.family && state.family.children.length ? state.family.children[state.family.children.length - 1].name : '',
       legend: state.family && state.family.legends.length ? state.family.legends[state.family.legends.length - 1].name : '', familyStatus: state.family ? state.family.status : 'single',
       children: state.family ? state.family.children.length : 0, oldestChild: state.family && state.family.children.length ? Math.max(...state.family.children.map(c => state.year - c.bornYear)) : 0,
@@ -117,14 +124,23 @@
     };
   }
   function fill(text, ctx) { return String(text).replace(/\{(\w+)\}/g, (_, k) => ctx[k] == null || ctx[k] === '' ? '—' : String(ctx[k])); }
-  function fillPair(pair, ctx) { return pair ? { es: fill(pair.es, ctx), en: fill(pair.en, ctx) } : null; }
+  function fillPair(pair, ctx) {
+    if (!pair) return null;
+    const out = { es: fill(pair.es, ctx), en: fill(pair.en, ctx) };
+    const F = CAA.Fem || (typeof require === 'function' ? require('../core/fem.js') : null);
+    return F ? F.pair(out, F.opts(ctx.femTeam, ctx.femSelf, ctx.eventId)) : out;
+  }
 
   function eligible(e, state, ctx, life) {
     const c = e.conditions || {};
     if (c.mode && c.mode !== 'any' && c.mode !== state.mode) return false;
     if (e.once && life.eventHistory.some(h => h.id === e.id)) return false;
     if (c.route && !c.route.includes(state.route)) return false;
-    if (c.region && c.region !== ctx.region) return false;
+    if (c.region && (Array.isArray(c.region) ? !c.region.includes(ctx.region) : c.region !== ctx.region)) return false;
+    if (c.minYear != null && state.year < c.minYear) return false;
+    if (c.maxYear != null && state.year > c.maxYear) return false;
+    if (c.era != null && c.era !== !!state.era) return false;
+    if (c.gender && c.gender !== ctx.gender) return false;
     if (c.minWeek != null && state.week < c.minWeek) return false;
     if (c.maxWeek != null && state.week > c.maxWeek) return false;
     if (c.injured != null && c.injured !== ctx.injured) return false;
@@ -182,7 +198,7 @@
     if (!life.pendingEvent || !p.events) return null;
     const e = p.events.events.find(x => x.id === life.pendingEvent.id);
     if (!e) return null;
-    const ctx = context(state);
+    const ctx = context(state); ctx.eventId = e.id;
     return { id: e.id, category: e.category, story: !!e.story, title: fillPair(e.title, ctx), body: fillPair(e.body, ctx),
       options: e.options.map(o => ({ id: o.id, label: fillPair(o.label, ctx), desc: fillPair(o.desc, ctx), p: o.p == null ? null : o.p,
         effects: o.p == null ? Object.assign({}, o.effects || {}) : null, ok: o.p == null ? null : Object.assign({}, o.ok.effects || {}), ko: o.p == null ? null : Object.assign({}, o.ko.effects || {}) })) };
@@ -193,7 +209,7 @@
     const ev = p.events.events.find(e => e.id === life.pendingEvent.id);
     const opt = ev && ev.options.find(o => o.id === optionId);
     if (!opt) throw new Error('invalid option');
-    const ctx = context(state);
+    const ctx = context(state); ctx.eventId = ev.id;
     let good = true, out = opt;
     if (opt.p != null) {
       const rng = rngIn || RNG.create(state.seed + ':event:' + state.year + ':' + state.week + ':' + ev.id);

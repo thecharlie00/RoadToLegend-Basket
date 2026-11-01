@@ -83,7 +83,7 @@ test('dynasty: a daughter takes over in a women league of the same country', () 
   s = run(s);
   Career.afterRetirement(s, { choice: 'heir', pos: 'SF' });
   assert.equal(s.player.gender, 'women');
-  assert.equal(s.season.leagueId, 'es-iberica-women');
-  assert.equal(s.topSeason, null);
+  assert.equal(s.season.leagueId, 'es-ascenso-women');
+  assert.equal(s.topSeason.leagueId, 'es-iberica-women');
   assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
 });

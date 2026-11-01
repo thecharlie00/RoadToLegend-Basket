@@ -13,7 +13,13 @@
   function notify(text, error = false) { state.message = text; state.messageError = error; }
   function draft(id, value) { return Object.prototype.hasOwnProperty.call(state.drafts, id) ? state.drafts[id] : value; }
 
-  function t(key, vars) { return CAA.I18N.t(key, vars); }
+  function femOpts() {
+    const c = state.career && state.career.state;
+    if (!c || state.screen !== 'game') return null;
+    const team = CAA.Season.genderOf(c.season.leagueId) === 'women', self = !!(c.player && c.player.gender === 'women');
+    return team || self ? CAA.Fem.opts(team, self, null) : null;
+  }
+  function t(key, vars) { const s = CAA.I18N.t(key, vars), o = femOpts(); return o ? CAA.Fem.apply(s, CAA.I18N.getLocale(), o) : s; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
   function loadSettings() {
@@ -103,7 +109,7 @@
     <button data-action="match-simulate">${t('match.simulate')}</button><button data-action="match-calibrate">${t('match.calibrate')}</button></div>${body}${cal}</section>`;
   }
 
-  function loc(obj) { return obj ? (obj[CAA.I18N.getLocale()] || obj.es || obj.en || '') : ''; }
+  function loc(obj) { const v = obj ? (obj[CAA.I18N.getLocale()] || obj.es || obj.en || '') : ''; const o = femOpts(); return o && v ? CAA.Fem.apply(v, CAA.I18N.getLocale(), o) : v; }
   async function ensureClubs(route) {
     const c = state.career;
     const key = route === 'world' ? 'world:' + c.leagueId : route;
@@ -168,12 +174,12 @@
     return t('live.feed.' + e.type, v);
   }
   // Última jugada destacada del directo para la vista 3D (canasta, triple, tapón, robo o adicional).
-  function liveKeyIndex(m) {
-    for (let i = m.events.length - 1; i >= 0; i--) { const e = m.events[i]; if ((e.type === 'shot' && e.made) || e.type === 'block' || (e.type === 'turnover' && e.steal) || (e.type === 'ft' && e.made && e.reason === 'andOne')) return i; }
+  function liveKeyIndex(m, limit) {
+    for (let i = Math.min(m.events.length, limit == null ? m.events.length : limit) - 1; i >= 0; i--) { const e = m.events[i]; if ((e.type === 'shot' && e.made) || e.type === 'block' || (e.type === 'turnover' && e.steal) || (e.type === 'ft' && e.made && e.reason === 'andOne')) return i; }
     return 0;
   }
   function live3dCaption(raw) {
-    const m = raw.match, i = liveKeyIndex(m), e = m.events[i];
+    const m = raw.match, i = liveKeyIndex(m, pbSeq(raw)), e = m.events[i];
     if (!e || e.type === 'start') return t('live.view3dWaiting');
     const team = m.teams[e.team] ? m.teams[e.team].name : '';
     const who = (m.teams[e.team] && m.teams[e.team].players.find(p => p.id === e.player)) || {};
@@ -187,7 +193,7 @@
     if (!canvas || !raw || state.screen !== 'game' || state.tab !== 'career' || state.liveViewOff) { liveRaf = null; return; }
     try {
       if (!liveRenderer || liveCanvas !== canvas) { liveCanvas = canvas; liveRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { state.liveViewOff = true; liveRenderer = null; } }); }
-      const m = raw.match, idx = liveKeyIndex(m), key = m.matchId + ':' + idx;
+      const m = raw.match, idx = liveKeyIndex(m, pbSeq(raw)), key = m.matchId + ':' + idx;
       if (liveAnim.key !== key) liveAnim = { key, start: ts };
       const reduced = CAA.A11Y.reduced(state.settings);
       const cycle = 2600, progress = reduced ? 1 : Math.min(1, ((ts - liveAnim.start) % cycle) / 1300);
@@ -196,10 +202,92 @@
       liveRaf = reduced ? null : root.requestAnimationFrame(drawLive3d);
     } catch (_) { state.liveViewOff = true; canvas.hidden = true; liveRaf = null; }
   }
+  // ===== Directo en tiempo real (como el fútbol): el motor ya ha calculado hasta el próximo momento clave;
+  // la interfaz lo reproduce con el reloj corriendo (⏸ ▶ ▶▶ ▶▶▶) y solo enseña la decisión al llegar a ella. =====
+  const PB_RATE = { 1: 200, 2: 420, 4: 900 }; // décimas de partido por segundo real (×1 ≈ un minuto cada 3 s)
+  let pb = { key: null, seq: 0, cursor: 0, speed: 1, hold: 0 }, pbTimer = null, pbLast = 0, pbFetching = false;
+  function pbProfile(m) { return CAA.Rules.getProfile(m.ruleSetId); }
+  function evAbs(prof, period, clock) {
+    const P = prof.periods, pl = prof.periodMinutes * 600, ol = prof.overtimeMinutes * 600, p = period || 1;
+    const before = p <= P ? (p - 1) * pl : P * pl + (p - P - 1) * ol, len = p <= P ? pl : ol;
+    return before + (len - (clock == null ? len : Math.min(len, clock)));
+  }
+  function absToClock(prof, abs) {
+    const P = prof.periods, pl = prof.periodMinutes * 600, ol = prof.overtimeMinutes * 600;
+    if (abs < P * pl) { const p = Math.floor(abs / pl) + 1; return { period: Math.min(P, p), clock: Math.max(0, pl * Math.min(P, p) - abs) }; }
+    const r = abs - P * pl, p = P + Math.floor(r / ol) + 1; return { period: p, clock: Math.max(0, ol - (r % ol || 0)) };
+  }
+  function pbSync(raw) {
+    const m = raw.match;
+    if (pb.key !== m.matchId) pb = { key: m.matchId, seq: 0, cursor: 0, speed: pb.speed || 1, hold: 0 };
+    if (pb.seq > m.events.length) pb.seq = m.events.length;
+    return pb;
+  }
+  function pbSeq(raw) { if (!raw || !raw.match) return null; const p = pbSync(raw); return p.seq; }
+  function pbCaught(raw) { return pbSync(raw).seq >= raw.match.events.length; }
+  function pbCatchUp(raw) { const p = pbSync(raw), m = raw.match, prof = pbProfile(m); p.seq = m.events.length; const e = m.events[m.events.length - 1]; if (e) p.cursor = Math.max(p.cursor, evAbs(prof, e.period, e.clock)); p.hold = 0; }
+  // Marcador, reloj, crónica y estadísticas con solo lo ya "emitido".
+  function pbView(raw) {
+    const v = CAA.Live.view(raw, 400), m = raw.match, prof = pbProfile(m), p = pbSync(raw), me = raw.userTeam;
+    const shown = m.events.slice(0, p.seq), score = [0, 0], box = {};
+    const b = id => box[id] || (box[id] = { pts: 0, reb: 0, ast: 0, pf: 0 });
+    for (const e of shown) {
+      if (e.type === 'shot' && e.made) { score[e.team] += e.points || 2; if (e.team === me) { b(e.player).pts += e.points || 2; if (e.assist) b(e.assist).ast++; } }
+      else if (e.type === 'ft' && e.made) { score[e.team] += 1; if (e.team === me) b(e.player).pts += 1; }
+      else if (e.type === 'rebound' && e.team === me) b(e.player).reb++;
+      else if (e.type === 'foul' && e.team === me && e.player) b(e.player).pf++;
+    }
+    const caught = p.seq >= m.events.length && !!(raw.moment || raw.finished);
+    const clk = caught ? { period: m.period, clock: m.gameClock } : absToClock(prof, Math.min(p.cursor, m.events.length ? evAbs(prof, m.events[m.events.length - 1].period, m.events[m.events.length - 1].clock) : 0));
+    const seqs = new Set(shown.map(e => e.seq));
+    const feed = v.feed.filter(e => seqs.has(e.seq)).slice(0, 12);
+    const mine = m.teams[me];
+    const top = mine.players.map(pl => Object.assign({ id: pl.id, name: pl.name, me: pl.id === raw.myPlayerId, onCourt: mine.onCourt.includes(pl.id) }, b(pl.id)))
+      .sort((a, c) => c.pts - a.pts || a.id.localeCompare(c.id)).slice(0, 5);
+    return Object.assign({}, v, { score: caught ? m.score.slice() : score, period: clk.period, clock: clk.clock, periodLabel: CAA.Rules.periodLabel(prof, clk.period), feed, top, caught,
+      moment: caught ? v.moment : null, finished: caught && v.finished, myName: raw.myPlayerId ? (mine.players.find(x => x.id === raw.myPlayerId) || {}).name : null });
+  }
+  function pbTick() {
+    const raw = state.career.state && state.career.state.live;
+    const panel = doc.getElementById('live-panel');
+    if (!raw || !panel || state.screen !== 'game' || state.tab !== 'career' || doc.hidden) { pbStop(); return; }
+    const p = pbSync(raw), now = root.performance.now(), dt = Math.min(250, now - (pbLast || now)); pbLast = now;
+    if (pbCaught(raw)) {
+      if (raw.moment || raw.finished) { if (!panel.dataset.caught) { pbStop(); render(); } return; }
+      // Sin decisión pendiente: se pide al motor el siguiente tramo sin parar el reloj.
+      if (p.speed && !state.busy && !pbFetching) { pbFetching = true; action('live-next', { dataset: {} }).finally(() => { pbFetching = false; }); }
+      return;
+    }
+    if (!p.speed) return;
+    if (p.hold > 0) { p.hold -= dt; return; }
+    const m = raw.match, prof = pbProfile(m);
+    p.cursor += dt / 1000 * PB_RATE[p.speed];
+    let changed = false;
+    while (p.seq < m.events.length) {
+      const e = m.events[p.seq];
+      if (evAbs(prof, e.period, e.clock) > p.cursor) break;
+      p.seq++; changed = true;
+      if (e.type === 'periodEnd') { p.hold = 1400 / p.speed; if (audio) audio.play('buzzer'); break; }
+      if (e.type === 'shot' && e.made && audio && e.team === raw.userTeam) audio.play('click');
+    }
+    if (p.seq >= m.events.length && (raw.moment || raw.finished)) { pbStop(); render(); return; }
+    pbPaint(raw, changed);
+  }
+  function pbPaint(raw, full) {
+    const v = pbView(raw), me = v.userTeam, opp = 1 - me;
+    const set = (id, html) => { const el = doc.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; };
+    set('pb-score', `${v.score[me]} – ${v.score[opp]}`);
+    set('pb-clock', `${esc(v.periodLabel)} · ${clockText(v.clock)}`);
+    if (full) { set('pb-feed', liveFeedHtml(v)); set('pb-top', liveTopHtml(v)); const cap = doc.getElementById('live3d-cap'); if (cap) cap.textContent = live3dCaption(raw); }
+  }
+  function pbStart() { if (pbTimer == null) { pbLast = root.performance.now(); pbTimer = root.setInterval(pbTick, 100); } }
+  function pbStop() { if (pbTimer != null) { root.clearInterval(pbTimer); pbTimer = null; } }
+  function liveFeedHtml(v) { return v.feed.map(e => `<li${v.myName && e.player === v.myName ? ' class="mine"' : ''}><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`).join(''); }
+  function liveTopHtml(v) { return v.top.map(p => `<tr${p.me ? ' class="me"' : ''}><td>${esc(p.name)}${p.onCourt ? ' •' : ''}</td><td>${p.pts}</td><td>${p.reb}</td><td>${p.ast}</td><td>${p.pf}</td></tr>`).join(''); }
   function renderLive(c) {
     const raw = c.state && c.state.live;
     if (!raw || raw.week !== c.state.week) return '';
-    const v = CAA.Live.view(raw);
+    const v = pbView(raw);
     const me = v.userTeam, opp = 1 - me;
     const m = v.moment;
     const vars = m ? { player: m.playerName || '', pts: m.pts || 0, fouls: m.fouls || 0, diff: Math.abs(m.diff || 0) } : {};
@@ -210,21 +298,23 @@
     const outcomeHtml = v.finished && o ? `<div class="moment"><h4 class="${o.won ? 'ok' : 'bad'}">${t(o.won ? 'live.won' : 'live.lost')}</h4>
       <p>${t('live.consequences', { morale: (o.morale > 0 ? '+' : '') + o.morale, trust: (o.trust > 0 ? '+' : '') + o.trust, confidence: (o.confidence > 0 ? '+' : '') + o.confidence })}</p>
       <div class="row"><button data-action="career-play" class="primary">${t('live.closeWeek')}</button></div></div>` : '';
-    const controls = v.finished ? '' : `<div class="row">${m ? '' : `<button data-action="live-next" class="primary">${t('live.next')}</button>`}<button data-action="live-end">${t('live.toEnd')}</button></div>`;
-    const feed = v.feed.map(e => `<li><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`).join('');
-    const top = v.top.map(p => `<tr${p.me ? ' class="me"' : ''}><td>${esc(p.name)}${p.onCourt ? ' •' : ''}</td><td>${p.pts}</td><td>${p.reb}</td><td>${p.ast}</td><td>${p.pf}</td></tr>`).join('');
-    return `<section class="panel live" aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
-      <div class="scoreboard" role="status" aria-live="polite" aria-atomic="true"><span>${esc(v.teams[me])}</span><strong>${v.score[me]} – ${v.score[opp]}</strong><span>${esc(v.teams[opp])}</span>
-      <span class="muted">${esc(v.periodLabel)} · ${clockText(v.clock)} · ${t('live.timeouts')}: ${v.timeouts}</span></div>
+    const sp = pb.speed;
+    const speedBtn = (n, label, aria) => `<button class="speed${sp === n ? ' on' : ''}" data-action="live-speed" data-speed="${n}" aria-pressed="${sp === n}" aria-label="${aria}">${label}</button>`;
+    const controls = v.finished ? '' : v.caught
+      ? `<div class="row"><button data-action="live-end">${t('live.toEnd')}</button></div>`
+      : `<div class="row speeds" role="group" aria-label="${t('live.speed')}">${speedBtn(0, '⏸', t('live.pause'))}${speedBtn(1, '▶', t('live.speedN', { n: 1 }))}${speedBtn(2, '▶▶', t('live.speedN', { n: 2 }))}${speedBtn(4, '▶▶▶', t('live.speedN', { n: 4 }))}<button data-action="live-skip">${t('live.skip')}</button><button data-action="live-end">${t('live.toEnd')}</button></div>`;
+    return `<section class="panel live" id="live-panel" ${v.caught ? 'data-caught="1"' : ''} aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
+      <div class="scoreboard"><span>${esc(v.teams[me])}</span><strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong><span>${esc(v.teams[opp])}</span>
+      <span class="muted"><span id="pb-clock">${esc(v.periodLabel)} · ${clockText(v.clock)}</span> · ${t('live.timeouts')}: ${v.timeouts}</span></div>
       <div class="live3d"><canvas id="live3d" role="img" aria-label="${t('live.view3d')}" aria-describedby="live3d-cap"></canvas><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p></div>
-      ${momentHtml}${outcomeHtml}${controls}
-      <div class="grid"><div><h4 id="live-feed-title">${t('live.feed.title')}</h4><ol class="feed" reversed tabindex="0" aria-labelledby="live-feed-title">${feed}</ol></div>
-      <div class="table-scroll" tabindex="0"><table><caption class="muted">${t('live.top')}</caption><thead><tr><th>${t('live.col.player')}</th><th>PTS</th><th>REB</th><th>AST</th><th>PF</th></tr></thead><tbody>${top}</tbody></table></div></div></section>`;
+      ${controls}${momentHtml}${outcomeHtml}
+      <div class="grid"><div><h4 id="live-feed-title">${t('live.feed.title')}</h4><ol class="feed" id="pb-feed" reversed tabindex="0" aria-labelledby="live-feed-title">${liveFeedHtml(v)}</ol></div>
+      <div class="table-scroll" tabindex="0"><table><caption class="muted">${t('live.top')}</caption><thead><tr><th>${t('live.col.player')}</th><th>PTS</th><th>REB</th><th>AST</th><th>PF</th></tr></thead><tbody id="pb-top">${liveTopHtml(v)}</tbody></table></div></div></section>`;
   }
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
   const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history'];
-  const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA'];
+  const NATIONS = ['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA', 'NG', 'SN', 'MX', 'PL', 'HR', 'CZ', 'BE', 'NL', 'PT', 'HU', 'UY', 'VE', 'PR', 'NZ', 'EG', 'MA', 'ID', 'TW', 'LB'];
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
   const TALENT = { promise: 50, gem: 55, chosen: 60 };
   const ATTR_GROUPS = [
@@ -646,6 +736,7 @@
     if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
     if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
     if (doc.getElementById('live3d')) liveRaf = root.requestAnimationFrame(drawLive3d);
+    { const lp = doc.getElementById('live-panel'); if (lp && !lp.dataset.caught && pb.speed) pbStart(); else pbStop(); }
   }
   function drawMatchFrame() {
     const m = state.match;
@@ -932,14 +1023,19 @@
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };
         const res = await worker.send('career.advance', { state: state.career.state, action });
         await acceptCareer(res);
+      } else if (name === 'live-speed') { pb.speed = Number(el.dataset.speed) || 0;
+      } else if (name === 'live-skip') { if (state.career.state && state.career.state.live) pbCatchUp(state.career.state.live);
       } else if (name === 'live-start' || name === 'live-next' || name === 'live-end' || name === 'live-choice') {
         if (!state.career.state) throw new Error(t('career.empty'));
         const payloadLive = { state: state.career.state, start: name === 'live-start', toEnd: name === 'live-end', choice: name === 'live-choice' ? el.dataset.choice : undefined, release: el && el.dataset && el.dataset.release != null ? Number(el.dataset.release) : undefined };
         state.heroShot = null;
         const res = await worker.send('career.live', payloadLive);
         await acceptCareer(res);
-        if (audio) audio.play(res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : res.live.moment ? 'whistle' : 'click');
-        notify(res.live.finished ? t(res.live.outcome.won ? 'live.won' : 'live.lost') : res.live.moment ? t('live.moment.' + res.live.moment.type) : t('live.started'));
+        if (name === 'live-end') pbCatchUp(state.career.state.live);
+        if (name === 'live-start' && !pb.speed) pb.speed = 1;
+        const caught = pbCaught(state.career.state.live);
+        if (audio && name !== 'live-next') audio.play(caught && res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : 'whistle');
+        if (name === 'live-start') notify(t('live.started')); else if (caught && res.live.finished) notify(t(res.live.outcome.won ? 'live.won' : 'live.lost'));
       } else if (name === 'pet-species') { state.petSpecies = el.dataset.species;
       } else if (name.startsWith('pet-')) {
         if (!state.career.state) throw new Error(t('career.empty'));

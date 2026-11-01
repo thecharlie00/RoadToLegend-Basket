@@ -74,6 +74,22 @@
     NG: { first: ['Chinedu','Emeka','Ikenna','Kelechi','Obinna','Olumide','Tunde','Uche','Yusuf','Femi','Ade','Chuka'], last: ['Adeyemi','Balogun','Eze','Nwosu','Okafor','Okeke','Oladipo','Onuoha','Uzoma','Ibekwe'] },
     SN: { first: ['Abdou','Cheikh','Gorgui','Ibrahima','Mamadou','Moustapha','Ousmane','Pape','Serigne','Tacko','Youssou','Babacar'], last: ['Ba','Cissé','Diallo','Diop','Fall','Faye','Gueye','Ndiaye','Sarr','Seck','Sow','Thiam'] },
     MX: { first: ['Alejandro','Diego','Emiliano','Gael','Iván','Jorge','Leonardo','Manuel','Rodrigo','Santiago','Uriel','Ximeno'], last: ['Aguilar','Castañeda','Domínguez','Escobedo','Garza','Hernández','Ibarra','Mendoza','Ramírez','Sandoval','Treviño','Villalobos'] },
+    PL: { first: ['Adam', 'Bartosz', 'Damian', 'Filip', 'Igor', 'Jakub', 'Kacper', 'Mateusz', 'Michał', 'Piotr', 'Szymon', 'Tomasz'], last: ['Kowalski', 'Nowak', 'Wiśniewski', 'Wójcik', 'Kamiński', 'Lewandowski', 'Zieliński', 'Szymański', 'Dąbrowski', 'Kozłowski', 'Mazur', 'Krawczyk'] },
+    HR: { first: ['Ante', 'Dario', 'Ivan', 'Josip', 'Luka', 'Marko', 'Mario', 'Nikola', 'Roko', 'Toni', 'Zvonimir', 'Bojan'], last: ['Babić', 'Barić', 'Jurić', 'Knežević', 'Kovačić', 'Marić', 'Novak', 'Pavić', 'Perić', 'Radić', 'Šimić', 'Vuković'] },
+    CZ: { first: ['Adam', 'David', 'Filip', 'Jakub', 'Jan', 'Lukáš', 'Martin', 'Ondřej', 'Petr', 'Tomáš', 'Vojtěch', 'Matěj'], last: ['Novák', 'Svoboda', 'Dvořák', 'Černý', 'Procházka', 'Kučera', 'Veselý', 'Horák', 'Němec', 'Pokorný', 'Marek', 'Pospíšil'] },
+    BE: { first: ['Arne', 'Bram', 'Cédric', 'Dries', 'Emiel', 'Florent', 'Jonas', 'Loïc', 'Maxime', 'Pieter', 'Thibault', 'Wout'], last: ['Claes', 'Dubois', 'Janssens', 'Lambert', 'Maes', 'Mertens', 'Peeters', 'Renard', 'Simon', 'Vermeulen', 'Willems', 'Wouters'] },
+    NL: { first: ['Bas', 'Daan', 'Jesse', 'Joost', 'Lars', 'Luuk', 'Milan', 'Niels', 'Ruben', 'Sem', 'Stijn', 'Thijs'], last: ['Bakker', 'de Boer', 'de Jong', 'de Vries', 'Jansen', 'Kok', 'Meijer', 'Mulder', 'Smit', 'van Dijk', 'Visser', 'Vos'] },
+    PT: { first: ['André', 'Bernardo', 'Diogo', 'Duarte', 'Gonçalo', 'João', 'Miguel', 'Nuno', 'Rafael', 'Rodrigo', 'Rui', 'Tiago'], last: ['Almeida', 'Carvalho', 'Costa', 'Ferreira', 'Gomes', 'Lopes', 'Martins', 'Pereira', 'Ribeiro', 'Rodrigues', 'Santos', 'Silva'] },
+    HU: { first: ['Ádám', 'Balázs', 'Bence', 'Dániel', 'Gergő', 'Levente', 'Márk', 'Máté', 'Norbert', 'Péter', 'Tamás', 'Zoltán'], last: ['Balogh', 'Farkas', 'Horváth', 'Kiss', 'Kovács', 'Molnár', 'Nagy', 'Németh', 'Szabó', 'Takács', 'Tóth', 'Varga'] },
+    UY: { first: ['Agustín', 'Bruno', 'Diego', 'Emiliano', 'Facundo', 'Gastón', 'Joaquín', 'Martín', 'Nicolás', 'Rodrigo', 'Santiago', 'Sebastián'], last: ['Acosta', 'Cabrera', 'Fernández', 'García', 'González', 'Martínez', 'Olivera', 'Pereira', 'Rodríguez', 'Silva', 'Sosa', 'Suárez'] },
+    VE: { first: ['Andrés', 'Carlos', 'Daniel', 'Gregory', 'Héctor', 'Jesús', 'José', 'Luis', 'Néstor', 'Óscar', 'Ricardo', 'Yohan'], last: ['Blanco', 'Díaz', 'Flores', 'García', 'Hernández', 'López', 'Marcano', 'Mendoza', 'Pérez', 'Rojas', 'Torres', 'Vásquez'] },
+    PR: { first: ['Ángel', 'Carlos', 'Christian', 'Eddie', 'Gabriel', 'Ismael', 'Javier', 'José', 'Luis', 'Ramón', 'Ricky', 'Yaniel'], last: ['Ayala', 'Colón', 'Cruz', 'Díaz', 'Figueroa', 'López', 'Morales', 'Ortiz', 'Rivera', 'Rodríguez', 'Santiago', 'Vega'] },
+    NZ: { first: ['Blake', 'Corey', 'Finn', 'Hamish', 'Isaac', 'Kahu', 'Liam', 'Mika', 'Nikau', 'Reuben', 'Tama', 'Wiremu'], last: ['Anderson', 'Brown', 'Clarke', 'Harris', 'Henare', 'Ngata', 'Parata', 'Smith', 'Taylor', 'Tipene', 'Walker', 'Wilson'] },
+    EG: { first: ['Ahmed', 'Amr', 'Hassan', 'Karim', 'Khaled', 'Mahmoud', 'Mohamed', 'Mostafa', 'Omar', 'Tarek', 'Youssef', 'Ziad'], last: ['Abdelrahman', 'Farouk', 'Gamal', 'Hamdy', 'Hassan', 'Ibrahim', 'Mansour', 'Mostafa', 'Saad', 'Salah', 'Shaker', 'Zaki'] },
+    MA: { first: ['Adam', 'Amine', 'Anas', 'Ayoub', 'Hamza', 'Ilyas', 'Karim', 'Mehdi', 'Othmane', 'Rayan', 'Yassine', 'Zakaria'], last: ['Alaoui', 'Amrani', 'Benali', 'Bennani', 'Berrada', 'Chraibi', 'El Idrissi', 'Fassi', 'Lahlou', 'Mansouri', 'Tazi', 'Ziani'] },
+    ID: { first: ['Abraham', 'Agus', 'Arki', 'Bagas', 'Dimas', 'Fajar', 'Hardianus', 'Kevin', 'Rizky', 'Surliyadin', 'Widi', 'Yudha'], last: ['Aditya', 'Dwi', 'Halim', 'Kurniawan', 'Nugroho', 'Pratama', 'Putra', 'Santoso', 'Saputra', 'Setiawan', 'Susanto', 'Wijaya'] },
+    TW: { first: ['Chen-yu', 'Chih-hao', 'Chun-chieh', 'Hsin-yi', 'Jia-hao', 'Kai-wen', 'Po-han', 'Tzu-yang', 'Wei-lun', 'Yu-ting', 'Zhi-wei', 'Cheng-en'], last: ['Chang', 'Chen', 'Huang', 'Hsu', 'Kuo', 'Lai', 'Lin', 'Liu', 'Tsai', 'Wang', 'Wu', 'Yang'] },
+    LB: { first: ['Ali', 'Elie', 'Fadi', 'Georges', 'Hadi', 'Jad', 'Karim', 'Marc', 'Nadim', 'Rami', 'Wael', 'Ziad'], last: ['Abboud', 'Fakhoury', 'Haddad', 'Khalil', 'Khoury', 'Mansour', 'Nasr', 'Rizk', 'Saad', 'Saliba', 'Tannous', 'Zein'] },
     DEFAULT: { first: ['Alex','Blair','Casey','Drew','Emery','Finley','Gray','Harper','Indigo','Jules','Kai','Lane','Morgan','Noel','Oakley','Parker','Reese','Sage'], last: ['Arden','Brook','Cedar','Dale','Ember','Field','Glen','Hollow','Ives','Jordan','Keel','Lark','Marsh','North','Orchard','Pike','Quill','Rowan'] }
   };
 
@@ -100,10 +116,28 @@
     NG: ['Adaora','Amarachi','Chioma','Ezinne','Ifeoma','Ngozi','Oluchi','Temitope'],
     SN: ['Aminata','Astou','Awa','Fatou','Khady','Mame','Ndèye','Yacine'],
     MX: ['Ana','Daniela','Fernanda','Guadalupe','Itzel','Jimena','Mariana','Regina','Valeria','Ximena'],
+    PL: ['Agata', 'Aleksandra', 'Julia', 'Karolina', 'Magdalena', 'Natalia', 'Weronika', 'Zuzanna'],
+    HR: ['Ana', 'Ema', 'Ivana', 'Lana', 'Lucija', 'Marija', 'Petra', 'Sara'],
+    CZ: ['Adéla', 'Eliška', 'Kateřina', 'Lucie', 'Markéta', 'Petra', 'Tereza', 'Veronika'],
+    BE: ['Ann', 'Elise', 'Emma', 'Julie', 'Kim', 'Laura', 'Marjorie', 'Sara'],
+    NL: ['Anouk', 'Emma', 'Fleur', 'Lotte', 'Noor', 'Sanne', 'Sophie', 'Zoë'],
+    PT: ['Ana', 'Beatriz', 'Carolina', 'Inês', 'Joana', 'Leonor', 'Mariana', 'Sofia'],
+    HU: ['Anna', 'Dóra', 'Eszter', 'Fanni', 'Kitti', 'Lilla', 'Petra', 'Zsófia'],
+    UY: ['Camila', 'Florencia', 'Lucía', 'Mariana', 'Martina', 'Sofía', 'Valentina', 'Victoria'],
+    VE: ['Andrea', 'Daniela', 'Gabriela', 'Isabel', 'María', 'Mariana', 'Valentina', 'Yulimar'],
+    PR: ['Adriana', 'Arella', 'Isalys', 'Jennifer', 'Pamela', 'Tayra', 'Yolanda', 'Zuleika'],
+    NZ: ['Aroha', 'Charlotte', 'Kalani', 'Mia', 'Ruby', 'Stella', 'Tia', 'Toni'],
+    EG: ['Aya', 'Farida', 'Hana', 'Malak', 'Mariam', 'Nour', 'Salma', 'Yasmine'],
+    MA: ['Amina', 'Hiba', 'Imane', 'Khadija', 'Meryem', 'Nadia', 'Salma', 'Yasmina'],
+    ID: ['Dewi', 'Indah', 'Kadek', 'Maya', 'Putri', 'Rani', 'Sari', 'Wulan'],
+    TW: ['Hsin-yi', 'Mei-ling', 'Pei-shan', 'Shu-fen', 'Ya-ting', 'Yi-chen', 'Yu-chen', 'Wan-ting'],
+    LB: ['Joelle', 'Lara', 'Maya', 'Nour', 'Rana', 'Rita', 'Sara', 'Yara'],
     DEFAULT: ['Alex','Blair','Casey','Drew','Emery','Harper','Jules','Morgan','Reese','Sage']
   };
   function femaleLast(last, nationality) {
     if (nationality === 'LT') return last.replace(/(as|is|ys|us)$/, m => ({ as: 'aitė', is: 'ytė', ys: 'ytė', us: 'utė' })[m]);
+    if (nationality === 'PL') return last.replace(/(ski|cki|dzki)$/, m => m.slice(0, -1) + 'a');
+    if (nationality === 'CZ') return /ý$/.test(last) ? last.replace(/ý$/, 'á') : /ek$/.test(last) ? last.replace(/ek$/, 'ková') : /ec$/.test(last) ? last.replace(/ec$/, 'cová') : last + 'ová';
     if (nationality === 'GR') return last.replace(/(os|as|is)$/, m => ({ os: 'ou', as: 'a', is: 'i' })[m]);
     return last;
   }

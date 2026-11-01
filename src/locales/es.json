@@ -965,5 +965,9 @@
   "league.target": "Liga de destino",
   "league.pendingMove": "Fichaje cerrado: {club} ({league}) a partir del verano.",
   "inbox.foreignOffer": "Oferta del extranjero: {club} ({league}).",
-  "inbox.moved": "Nuevo club: {club} ({league})."
+  "inbox.moved": "Nuevo club: {club} ({league}).",
+  "live.speed": "Velocidad del partido",
+  "live.pause": "Pausa",
+  "live.speedN": "Velocidad ×{n}",
+  "live.skip": "Saltar al momento clave"
 }

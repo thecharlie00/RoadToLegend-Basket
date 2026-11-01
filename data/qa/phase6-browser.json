@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T09:26:43.850Z",
+  "date": "2026-11-01T09:55:04.470Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -221,14 +221,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T09:27:07.132Z",
+    "measuredAt": "2026-11-01T09:55:26.460Z",
     "frames": 180,
-    "meanFrameMs": 16.759,
+    "meanFrameMs": 16.758,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.7,
-    "maxFrameMs": 33.368,
+    "p95FrameMs": 16.8,
+    "maxFrameMs": 33.4,
     "meanFps": 59.67,
-    "framesOver16_67Ms": 113,
+    "framesOver16_67Ms": 107,
     "framesOver33_34Ms": 1,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -243,7 +243,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 29400000
+    "jsHeapUsedBytes": 50400000
   },
   "voxel": {
     "version": "voxel-1",
@@ -257,15 +257,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T09:27:58.117Z",
+    "measuredAt": "2026-11-01T09:56:17.122Z",
     "frames": 180,
-    "meanFrameMs": 78.793,
+    "meanFrameMs": 75.09,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 283.3,
-    "maxFrameMs": 383.4,
-    "meanFps": 12.69,
-    "framesOver16_67Ms": 137,
-    "framesOver33_34Ms": 75,
+    "p95FrameMs": 250,
+    "maxFrameMs": 366.6,
+    "meanFps": 13.32,
+    "framesOver16_67Ms": 140,
+    "framesOver33_34Ms": 71,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -278,10 +278,10 @@
       "workload": "voxel-balanced"
     },
     "longTasks": [
-      55
+      81
     ],
     "stopped": false,
-    "jsHeapUsedBytes": 42100000
+    "jsHeapUsedBytes": 44700000
   },
   "avatar": {
     "version": "voxel-1",
@@ -315,9 +315,9 @@
       85
     ]
   },
-  "arcade": 6,
+  "arcade": 5,
   "locales": {
-    "es": 967,
-    "en": 967
+    "es": 971,
+    "en": 971
   }
 }

@@ -30,6 +30,11 @@
       "worker": true
     },
     {
+      "id": "fem",
+      "path": "src/core/fem.js",
+      "worker": true
+    },
+    {
       "id": "clock",
       "path": "src/core/clock.js",
       "worker": true

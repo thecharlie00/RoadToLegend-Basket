@@ -965,5 +965,9 @@
   "league.target": "Target league",
   "league.pendingMove": "Deal done: {club} ({league}) from the summer.",
   "inbox.foreignOffer": "Offer from abroad: {club} ({league}).",
-  "inbox.moved": "New club: {club} ({league})."
+  "inbox.moved": "New club: {club} ({league}).",
+  "live.speed": "Match speed",
+  "live.pause": "Pause",
+  "live.speedN": "Speed ×{n}",
+  "live.skip": "Skip to key moment"
 }
