@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T01:18:09.469Z",
+  "date": "2026-11-01T01:23:28.520Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -169,6 +169,11 @@
       "violations": []
     },
     {
+      "locale": "es",
+      "tab": "coach-squad",
+      "violations": []
+    },
+    {
       "name": "phase7-live-moment",
       "violations": []
     },
@@ -186,14 +191,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T01:18:24.184Z",
+    "measuredAt": "2026-11-01T01:23:41.888Z",
     "frames": 180,
     "meanFrameMs": 16.666,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
     "meanFps": 60,
-    "framesOver16_67Ms": 110,
+    "framesOver16_67Ms": 111,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -208,7 +213,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 29400000
+    "jsHeapUsedBytes": 50400000
   },
   "voxel": {
     "version": "voxel-1",
@@ -222,13 +227,13 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T01:18:43.370Z",
+    "measuredAt": "2026-11-01T01:24:00.689Z",
     "frames": 180,
-    "meanFrameMs": 16.666,
+    "meanFrameMs": 16.574,
     "medianFrameMs": 16.7,
     "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
-    "meanFps": 60,
+    "meanFps": 60.34,
     "framesOver16_67Ms": 113,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
@@ -244,7 +249,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 20500000
+    "jsHeapUsedBytes": 53500000
   },
   "avatar": {
     "version": "voxel-1",
@@ -272,15 +277,15 @@
     "ok": true
   },
   "live": {
-    "moments": 3,
+    "moments": 1,
     "score": [
-      85,
-      108
+      94,
+      85
     ]
   },
   "arcade": 5,
   "locales": {
-    "es": 817,
-    "en": 817
+    "es": 851,
+    "en": 851
   }
 }

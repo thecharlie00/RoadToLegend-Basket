@@ -85,7 +85,8 @@
       const extra = club.roster.filter(p => p.injury).sort((a, b) => (a.injury.weeksRemaining || 0) - (b.injury.weeksRemaining || 0));
       roster = roster.concat(extra).slice(0, Math.max(5, roster.length));
     }
-    const starters = starterIds || roster.slice(0, 5).map(p => p.id);
+    const chosen = !starterIds && Array.isArray(club.starters) ? club.starters.filter(id => roster.some(p => p.id === id && !p.injury)) : null;
+    const starters = starterIds || (chosen && chosen.length === 5 ? chosen.slice() : roster.slice(0, 5).map(p => p.id));
     // Con la confianza plena del entrenador, el jugador entra en el quinteto inicial.
     if (!starterIds) { const trusted = roster.find(p => (p.coachTrust || 0) >= 75 && !starters.includes(p.id)); if (trusted) starters[4] = trusted.id; }
     return {

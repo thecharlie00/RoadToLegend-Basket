@@ -145,6 +145,7 @@
     const lc = Content.ensureLife(state).counters;
     if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) { lc.totalWins = (lc.totalWins || 0) + 1; if (state.season.playoffs) lc.playoffWins = (lc.playoffWins || 0) + 1; } }
     if (state.coach && mine) lc.coachGames = (lc.coachGames || 0) + 1;
+    if (state.coach) coachWeek(state, rng);
     Content.weeklyIncome(state);
     const petWeek = Pet.weekTick(state);
     if (petWeek && petWeek.mood) Content.applyEffects(state, { morale: petWeek.mood });
@@ -374,6 +375,44 @@
     record(state, { type: 'pet', op: config.op, action: config.action || null, trick: config.trick || null, item: config.item || null });
     return out;
   }
+  // Entrenador: quinteto, táctica y carga semanal (paridad con alineación/tácticas/week29 del fútbol).
+  const TACTICS = {
+    pace: { slow: 0.25, normal: 0.5, fast: 0.8 },
+    focus: { inside: { insideRate: 0.55, threeRate: 0.3 }, balanced: { insideRate: 0.42, threeRate: 0.415 }, outside: { insideRate: 0.3, threeRate: 0.55 } },
+    defense: { man: { press: 0.2, help: 0.5 }, press: { press: 0.55, help: 0.45 }, help: { press: 0.1, help: 0.8 } }
+  };
+  function coachSet(state, config = {}) {
+    if (state.mode !== 'coach') throw new Error('coach only');
+    const club = clubOf(state);
+    if (config.starters) {
+      const ids = Array.from(new Set(config.starters));
+      if (ids.length !== 5 || !ids.every(id => club.roster.some(p => p.id === id))) throw new Error('need five players from the roster');
+      club.starters = ids;
+    }
+    if (config.tactic) {
+      const t = club.tacticChoice || { pace: 'normal', focus: 'balanced', defense: 'man' };
+      for (const k of ['pace', 'focus', 'defense']) if (config.tactic[k] && TACTICS[k][config.tactic[k]] != null) t[k] = config.tactic[k];
+      club.tacticChoice = t;
+      club.tactic = Object.assign({}, Match.DEFAULT_TACTIC, { pace: TACTICS.pace[t.pace] }, TACTICS.focus[t.focus], TACTICS.defense[t.defense]);
+    }
+    if (config.training) { if (!['light', 'normal', 'hard'].includes(config.training)) throw new Error('unknown training'); club.training = config.training; }
+    record(state, { type: 'coachSet', starters: club.starters || null, tactic: club.tacticChoice || null, training: club.training || null });
+    return club;
+  }
+  function coachWeek(state, rng) {
+    const club = clubOf(state); const level = club.training || 'normal';
+    for (const p of club.roster) {
+      if (level === 'hard') { p.load = Math.min(100, (p.load || 0) + 8); p.morale = Math.max(0, (p.morale == null ? 70 : p.morale) - 1); if (p.age <= 24 && !p.injury) Player.develop(p, { focus: null, scale: 0.6 * 34 / Math.max(1, state.season.schedule.length) }, rng); }
+      else if (level === 'light') { p.load = Math.max(0, (p.load || 0) - 10); p.morale = Math.min(100, (p.morale == null ? 70 : p.morale) + 1); }
+    }
+  }
+  function scouting(state) {
+    const g = currentGame(state); if (!g) return null;
+    const opp = state.season.clubsById[g.home === state.clubId ? g.away : g.home];
+    const t = opp.tactic || Match.DEFAULT_TACTIC;
+    return { name: opp.name, wins: opp.wins, losses: opp.losses, top: opp.roster.slice().sort((a, b) => b.ovr - a.ovr).slice(0, 3).map(p => ({ name: p.name, pos: p.pos, ovr: p.ovr, archetype: p.archetype })),
+      pace: t.pace >= 0.65 ? 'fast' : t.pace <= 0.35 ? 'slow' : 'normal', shooting: t.threeRate >= 0.5 ? 'outside' : t.insideRate >= 0.5 ? 'inside' : 'balanced', avgOvr: Math.round(opp.roster.slice(0, 8).reduce((a, p) => a + p.ovr, 0) / Math.min(8, opp.roster.length)) };
+  }
   function dismissSummary(state) { if (state.lastSeasonSummary) state.lastSeasonSummary.dismissed = true; return state; }
   function arcadeAttrs(state) { return state.player ? state.player.attrs : {}; }
   function arcadeStart(state, config = {}) {
@@ -490,7 +529,10 @@
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
       event: Content.pendingView(state), pet: state.pet || null, lastSeason: state.lastSeasonSummary && !state.lastSeasonSummary.dismissed ? state.lastSeasonSummary : null,
       playoffs: state.season.playoffs ? { format: state.season.playoffs.format, round: Playoffs.current(state.season.playoffs).name, done: state.season.playoffs.done, series: Playoffs.seriesOf(state.season.playoffs, state.clubId), status: Playoffs.status(state.season.playoffs, state.clubId), result: Playoffs.resultOf(state.season.playoffs, state.clubId) } : null,
-      awards: state.season.awards || null, coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
+      awards: state.season.awards || null, coach: state.coach,
+      squad: state.mode === 'coach' ? (() => { const c = clubOf(state); const starters = Season.clubToMatchTeam(c).players.filter(p => p.starter).map(p => p.id); return { starters, tactic: c.tacticChoice || { pace: 'normal', focus: 'balanced', defense: 'man' }, training: c.training || 'normal',
+        roster: c.roster.map(p => ({ id: p.id, name: p.name, pos: p.pos, ovr: p.ovr, age: p.age, morale: p.morale == null ? 70 : p.morale, load: Math.round(p.load || 0), injury: p.injury ? p.injury.weeksRemaining : 0, archetype: p.archetype, pts: p.stats ? p.stats.pts : 0, gp: p.stats ? p.stats.gp : 0 })) }; })() : null,
+      scouting: scouting(state), hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
     };
   }
   function validate(state) {
@@ -564,6 +606,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

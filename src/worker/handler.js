@@ -125,6 +125,12 @@
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
           break;
         }
+        case 'career.coach': {
+          const state = CAA.Career.resume(msg.payload.state);
+          CAA.Career.coachSet(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
+          break;
+        }
         case 'career.summary':
           result = CAA.Career.summary(CAA.Career.resume(msg.payload.state));
           break;

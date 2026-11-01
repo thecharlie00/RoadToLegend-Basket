@@ -346,9 +346,14 @@
       <p class="form-strip" aria-label="${t('home.formStrip')}">${s.recent.map(r => `<span class="${r.won ? 'w' : 'l'}">${t(r.won ? 'home.w' : 'home.l')}</span>`).join('')}</p></section>` : '';
     const week = s.player && !(c.state.live && c.state.live.week === c.state.week) && s.next ? `<section class="card"><h3>${t('home.week')}</h3><p class="muted small">${t('home.weekDesc')}</p>
       <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button></div></section>` : '';
+    const sq = s.squad;
+    const coachWeek = sq && s.next ? `<section class="card"><h3>${t('coach.week')}</h3><p class="muted small">${t('coach.weekDesc')}</p><div class="seg" role="group" aria-label="${t('coach.week')}">${['light', 'normal', 'hard'].map(v => `<button data-action="coach-training" data-v="${v}" aria-pressed="${sq.training === v}">${t('coach.training.' + v)}</button>`).join('')}</div><p class="muted small">${t('coach.trainingDesc.' + sq.training)}</p></section>` : '';
+    const sc = s.scouting;
+    const scout = sc ? `<section class="card"><span class="eyebrow">${t('coach.scout')}</span><h3>${esc(sc.name)} <span class="muted small">${sc.wins}-${sc.losses} · ${t('coach.avg', { n: sc.avgOvr })}</span></h3>
+      <p class="muted small">${t('coach.style', { pace: t('coach.pace.' + sc.pace), shooting: t('coach.focus.' + sc.shooting) })}</p><ul class="news">${sc.top.map(p => `<li><b>${esc(p.name)}</b> · ${esc(p.pos)} · ${p.ovr} <span class="muted small">${t('career.archetype.' + p.archetype)}</span></li>`).join('')}</ul></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(CAA.I18N.getLocale() === 'en' ? p.en : p.es)}</li>`)).slice(0, 8).join('');
-    return `${seasonCard}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    return `${seasonCard}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   function renderMe() {
@@ -368,6 +373,7 @@
     const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
       <p class="muted small">${t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years })}</p></section>` : '';
     const petCard = renderPet(s);
+    const coachCards = s.squad ? renderSquad(s) : '';
     const best = (life.arcade && life.arcade.best) || {};
     const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div><div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
       ${life.pendingArcade ? `<p class="muted small">${t('arcade.pending', { game: t('arcade.' + life.pendingArcade.type) })}</p><div class="row"><button class="small-btn" data-action="arcade-resume">${t('arcade.resume')}</button><button class="small-btn" data-action="arcade-cancel">${t('arcade.abandon')}</button></div>` : ''}</section>`;
@@ -382,9 +388,21 @@
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
+    if (s.squad) return hero + coachCards + petCard + offcourt + minis + shop + trophies + press;
     return hero + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
   }
 
+  function renderSquad(s) {
+    const sq = s.squad;
+    const pick = state.coachPick && state.coachPick.career === s.careerId ? state.coachPick.ids : sq.starters;
+    const rows = sq.roster.map(p => { const on = pick.includes(p.id); return `<tr class="${on ? 'me' : ''}"><td><button class="starter ${on ? 'on' : ''}" data-action="coach-starter" data-id="${esc(p.id)}" aria-pressed="${on}" aria-label="${t(on ? 'coach.removeStarter' : 'coach.addStarter', { name: esc(p.name) })}">${on ? '★' : '☆'}</button></td><td>${esc(p.name)}${p.injury ? ` <span class="bad small">+${p.injury}</span>` : ''}</td><td>${esc(p.pos)}</td><td>${p.ovr}</td><td>${p.age}</td><td class="${p.morale < 40 ? 'bad' : ''}">${p.morale}</td><td class="${p.load > 60 ? 'bad' : ''}">${p.load}</td></tr>`; }).join('');
+    const changed = JSON.stringify(pick.slice().sort()) !== JSON.stringify(sq.starters.slice().sort());
+    const tac = (k, vals) => `<div class="seg" role="group" aria-label="${t('coach.' + k)}">${vals.map(v => `<button data-action="coach-tactic" data-k="${k}" data-v="${v}" aria-pressed="${sq.tactic[k] === v}">${t('coach.' + k + '.' + v)}</button>`).join('')}</div>`;
+    return `<section class="card"><div class="guide-head"><h3>${t('coach.squad')}</h3><span class="tag ${pick.length === 5 ? 'led' : ''}">${t('coach.starters', { n: pick.length })}</span></div>
+      <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('coach.squad')}"><table><thead><tr><th><span class="sr-only">${t('coach.starter')}</span></th><th>${t('live.col.player')}</th><th>POS</th><th>${t('me.ovr')}</th><th>${t('coach.age')}</th><th>${t('meter.morale')}</th><th>${t('effect.load')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${changed ? `<div class="row"><button class="cta" data-action="coach-save-starters" ${pick.length !== 5 ? 'disabled' : ''}>${t('coach.saveStarters')}</button></div>` : ''}</section>
+      <section class="card"><h3>${t('coach.tactics')}</h3><h4 class="eyebrow">${t('coach.pace')}</h4>${tac('pace', ['slow', 'normal', 'fast'])}<h4 class="eyebrow">${t('coach.focus')}</h4>${tac('focus', ['inside', 'balanced', 'outside'])}<h4 class="eyebrow">${t('coach.defense')}</h4>${tac('defense', ['man', 'press', 'help'])}<p class="muted small">${t('coach.tacticsDesc')}</p></section>`;
+  }
   function renderSeasonSummary(ls) {
     const resKey = ls.myChampion ? 'champion' : ls.promoted ? 'promoted' : (ls.result || 'none');
     const st = ls.stats;
@@ -831,6 +849,15 @@
       } else if (name === 'arcade-release') { state.busy = false; arcadeRelease(); return;
       } else if (name === 'arcade-cancel') {
         const res = await worker.send('career.arcade', { state: state.career.state, cancel: true }); await acceptCareer(res); state.arcade = null; if (state.tab === 'arcade') state.tab = 'life';
+      } else if (name === 'coach-starter') {
+        const sm = state.career.summary; const cur = state.coachPick && state.coachPick.career === sm.careerId ? state.coachPick.ids.slice() : sm.squad.starters.slice();
+        const id = el.dataset.id; const i = cur.indexOf(id);
+        if (i >= 0) cur.splice(i, 1); else if (cur.length < 5) cur.push(id); else notify(t('coach.fiveMax'), true);
+        state.coachPick = { career: sm.careerId, ids: cur };
+      } else if (name === 'coach-save-starters' || name === 'coach-tactic' || name === 'coach-training') {
+        const config = name === 'coach-save-starters' ? { starters: state.coachPick.ids } : name === 'coach-tactic' ? { tactic: { [el.dataset.k]: el.dataset.v } } : { training: el.dataset.v };
+        const res = await worker.send('career.coach', { state: state.career.state, config }); await acceptCareer(res);
+        if (name === 'coach-save-starters') { state.coachPick = null; notify(t('coach.saved')); }
       } else if (name === 'career-skip') {
         const res = await worker.send('career.advance', { state: state.career.state, action: { type: 'skipPlayoffs' } }); await acceptCareer(res);
       } else if (name === 'summary-dismiss') {

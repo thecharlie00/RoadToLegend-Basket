@@ -245,3 +245,29 @@ test('career plays playoffs week by week (live-capable), records awards, summary
   Career.dismissSummary(s); assert.equal(Career.summary(s).lastSeason, null);
   assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
 });
+
+test('coach: chosen starters start, tactics really change the engine, training load and scouting', () => {
+  const s = Career.createCareer({ seed: 'coach-tools', mode: 'coach', route: 'eu-academy' });
+  const club = s.season.clubsById[s.clubId];
+  const bench = club.roster.slice(-5).map(p => p.id);
+  Career.coachSet(s, { starters: bench });
+  assert.deepEqual(Season.clubToMatchTeam(club).players.filter(p => p.starter).map(p => p.id).sort(), bench.slice().sort());
+  assert.throws(() => Career.coachSet(s, { starters: bench.slice(0, 4) }), /five/);
+  const sample = (tactic) => { let poss = 0, threes = 0, fga = 0; const t = Object.assign({}, Match.DEFAULT_TACTIC, tactic);
+    for (let i = 0; i < 40; i++) { const teams = Match.neutralTeams(52); teams[0].tactic = t; const m = Match.simulateMatch({ seed: 'tac' + i, teams }); poss += m.possessions[0]; threes += m.teams[0].stats['3pa']; fga += m.teams[0].stats.fga; }
+    return { poss: poss / 40, threeShare: threes / fga }; };
+  const fast = sample({ pace: Career.TACTICS.pace.fast }), slow = sample({ pace: Career.TACTICS.pace.slow });
+  assert.ok(fast.poss > slow.poss + 4, `pace must matter (${fast.poss} vs ${slow.poss})`);
+  const out = sample(Career.TACTICS.focus.outside), ins = sample(Career.TACTICS.focus.inside);
+  assert.ok(out.threeShare > ins.threeShare + 0.12, 'shot mix must follow focus');
+  Career.coachSet(s, { tactic: { pace: 'fast', focus: 'outside', defense: 'press' }, training: 'hard' });
+  assert.equal(club.tactic.press, 0.55);
+  const load0 = club.roster.reduce((a, p) => a + (p.load || 0), 0);
+  if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
+  Career.advanceWeek(s, { type: 'play' });
+  const sm = Career.summary(s);
+  assert.equal(sm.squad.training, 'hard');
+  assert.ok(sm.scouting && sm.scouting.top.length === 3);
+  assert.ok(club.roster.reduce((a, p) => a + (p.load || 0), 0) > load0);
+  assert.ok(Career.validate(Career.resume(Career.serialize(s))).ok);
+});

@@ -198,6 +198,18 @@ try {
   await scenario('Phase 7 live match: key moments, decisions, official result and a11y', { viewport: { width: 390, height: 844 } }, async page => {
     await newCareer(page, { mode: 'coach', seed: 'phase7-browser' });
     await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
+    await tab(page, 'life');
+    await page.locator('[data-action="coach-tactic"][data-k="pace"][data-v="fast"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.squad.tactic.pace), 'fast');
+    const first = await page.evaluate(() => CAA_APP.state.career.summary.squad.starters[0]);
+    const benchId = await page.evaluate(() => CAA_APP.state.career.summary.squad.roster.find(p => !CAA_APP.state.career.summary.squad.starters.includes(p.id)).id);
+    await page.locator(`[data-action="coach-starter"][data-id="${first}"]`).click(); await page.locator(`[data-action="coach-starter"][data-id="${benchId}"]`).click();
+    await click(page, 'coach-save-starters');
+    assert.ok(await page.evaluate(id => CAA_APP.state.career.summary.squad.starters.includes(id), benchId));
+    const cr = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'coach-squad', violations: cr.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await tab(page, 'career');
     await click(page, 'live-start');
     assert.equal(await page.locator('.scoreboard strong').textContent(), '0 – 0');
     let moments = 0, guard = 0;
