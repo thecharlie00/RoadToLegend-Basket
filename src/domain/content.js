@@ -124,10 +124,12 @@
       partnerHappiness: state.family && state.family.partner ? state.family.partner.happiness : 100, generation: state.family ? state.family.generation : 1, agent: life.agent, sponsor: life.sponsor, live: life.counters.live || 0
     };
   }
+  const XL = ['fr', 'de', 'it'];
   function fill(text, ctx) { return String(text).replace(/\{(\w+)\}/g, (_, k) => ctx[k] == null || ctx[k] === '' ? '—' : String(ctx[k])); }
   function fillPair(pair, ctx) {
     if (!pair) return null;
     const out = { es: fill(pair.es, ctx), en: fill(pair.en, ctx) };
+    for (const l of XL) if (pair[l]) out[l] = fill(pair[l], ctx);
     const F = CAA.Fem || (typeof require === 'function' ? require('../core/fem.js') : null);
     return F ? F.pair(out, F.opts(ctx.femTeam, ctx.femSelf, ctx.eventId)) : out;
   }
@@ -312,6 +314,7 @@
     const t = matching.find(x => !recent.has(x.id)) || matching[0] || p.press.templates[p.press.templates.length - 1];
     const fillT = txt => txt.replace(/\{(\w+)\}/g, (_, k) => ctx[k] == null ? '' : ctx[k]);
     const line = { id: t.id, week: state.week, es: fillT(t.es), en: fillT(t.en) };
+    for (const l of XL) if (t[l]) line[l] = fillT(t[l]);
     if (life.press[0] && life.press[0].es === line.es) return life.press[0];
     life.press.unshift(line); life.press = life.press.slice(0, 12);
     return line;

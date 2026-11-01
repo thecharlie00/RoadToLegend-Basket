@@ -10,10 +10,15 @@
   - Fichar se paga con la caja del club. Cortar a un jugador cuesta el 30 % de su sueldo. La plantilla va de 10 a 15 jugadores.
   - Puedes contratar asistente, fisioterapeuta y ojeador con niveles 0-3. Tienen sueldo semanal y efectos reales: ánimo, progreso de los jóvenes, lesiones más cortas y un mercado más amplio.
 
+## Traducción completa a francés, alemán e italiano
+- 2.499 frases por idioma: 304 decisiones con sus opciones y resultados, 220 trofeos, prensa, guía, tienda, red social, momentos históricos y equipamiento.
+- Los diccionarios viven en `tools/i18n/{fr,de,it}.json` (frase inglesa → traducción). `tools/content_i18n.py` las inyecta en `data/content/*.json` y genera `src/domain/content-i18n.js` para los textos definidos en código; `content_v2.py` lo ejecuta al final, así que regenerar el contenido conserva las traducciones.
+- `tools/i18n/check.py` valida que cada traducción mantiene los marcadores (`{club}`, `{opponent}`…).
+
 ## Verificación
-- `npm test`: 124/124.
+- `npm test`: 125/125 (incluye una prueba de que todo el contenido existe en fr/de/it).
 - `npm run test:browser`: 21/21 escenarios. El nuevo cubre mercado, staff, red social, Historia y un momento histórico. Axe da 0 violaciones.
 
 ## Pendiente
-- La narrativa (eventos, prensa, red social) en francés, alemán e italiano sigue cayendo al inglés; la interfaz sí está traducida.
+- En francés, alemán e italiano el texto narrativo usa el masculino genérico; el femenino automático (jugadora o liga femenina) solo existe en español e inglés.
 - GOAT Ladder (aplazado por decisión del autor). AAB sin compilar.

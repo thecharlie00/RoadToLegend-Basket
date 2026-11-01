@@ -7,103 +7,154 @@
       "id": "injury-0",
       "condition": "injury",
       "es": "El parte médico aleja a {player} de la pista: el {club} cuenta los días.",
-      "en": "The injury report keeps {player} off the court: {club} counts the days."
+      "en": "The injury report keeps {player} off the court: {club} counts the days.",
+      "fr": "Le bulletin médical tient {player} éloigné des terrains : {club} compte les jours.",
+      "de": "Der Verletzungsbericht hält {player} vom Feld fern: {club} zählt die Tage.",
+      "it": "Il bollettino medico tiene {player} lontano dal campo: {club} conta i giorni."
     },
     {
       "id": "my-big-1",
       "condition": "my-big",
       "es": "{player} firma {myPts} puntos ante {opponent} y se gana los titulares.",
-      "en": "{player} drops {myPts} on {opponent} and grabs the headlines."
+      "en": "{player} drops {myPts} on {opponent} and grabs the headlines.",
+      "fr": "{player} plante {myPts} points à {opponent} et fait les gros titres.",
+      "de": "{player} legt {myPts} Punkte gegen {opponent} auf und beherrscht die Schlagzeilen.",
+      "it": "{player} rifila {myPts} punti a {opponent} e si prende i titoli."
     },
     {
       "id": "my-big-2",
       "condition": "my-big",
       "es": "Noche de {player}: {myPts} puntos y el pabellón en pie.",
-      "en": "{player}'s night: {myPts} points and the arena on its feet."
+      "en": "{player}'s night: {myPts} points and the arena on its feet.",
+      "fr": "La soirée de {player} : {myPts} points et la salle debout.",
+      "de": "Die Nacht von {player}: {myPts} Punkte und die Halle steht.",
+      "it": "La notte di {player}: {myPts} punti e il palazzetto in piedi."
     },
     {
       "id": "win-close-3",
       "condition": "win-close",
       "es": "Final de infarto: el {club} gana {us}-{them} a {opponent} en el último suspiro.",
-      "en": "Heart-stopper: {club} beats {opponent} {us}-{them} at the death."
+      "en": "Heart-stopper: {club} beats {opponent} {us}-{them} at the death.",
+      "fr": "Suspense fou : {club} bat {opponent} {us}-{them} sur le fil.",
+      "de": "Herzschlagfinale: {club} schlägt {opponent} {us}:{them} in letzter Sekunde.",
+      "it": "Da infarto: {club} batte {opponent} {us}-{them} sul filo."
     },
     {
       "id": "win-close-4",
       "condition": "win-close",
       "es": "{us}-{them}: el {club} sobrevive a {opponent} con el corazón en la mano.",
-      "en": "{us}-{them}: {club} survives {opponent} with hearts in mouths."
+      "en": "{us}-{them}: {club} survives {opponent} with hearts in mouths.",
+      "fr": "{us}-{them} : {club} survit face à {opponent}, le cœur au bord des lèvres.",
+      "de": "{us}:{them}: {club} übersteht {opponent} mit Herzklopfen.",
+      "it": "{us}-{them}: {club} sopravvive a {opponent} col cuore in gola."
     },
     {
       "id": "win-big-5",
       "condition": "win-big",
       "es": "Exhibición del {club}: {us}-{them} a {opponent}, sin discusión.",
-      "en": "{club} clinic: {us}-{them} over {opponent}, no debate."
+      "en": "{club} clinic: {us}-{them} over {opponent}, no debate.",
+      "fr": "Démonstration de {club} : {us}-{them} contre {opponent}, sans discussion.",
+      "de": "Lehrstunde von {club}: {us}:{them} gegen {opponent}, keine Diskussion.",
+      "it": "Lezione di {club}: {us}-{them} su {opponent}, senza discussioni."
     },
     {
       "id": "win-big-6",
       "condition": "win-big",
       "es": "El {club} pasa por encima de {opponent} ({us}-{them}).",
-      "en": "{club} rolls over {opponent} ({us}-{them})."
+      "en": "{club} rolls over {opponent} ({us}-{them}).",
+      "fr": "{club} écrase {opponent} ({us}-{them}).",
+      "de": "{club} überrollt {opponent} ({us}:{them}).",
+      "it": "{club} travolge {opponent} ({us}-{them})."
     },
     {
       "id": "loss-close-7",
       "condition": "loss-close",
       "es": "El {club} cae {us}-{them} ante {opponent} por un suspiro y sale con dudas.",
-      "en": "{club} falls {us}-{them} to {opponent} by a whisker and leaves with doubts."
+      "en": "{club} falls {us}-{them} to {opponent} by a whisker and leaves with doubts.",
+      "fr": "{club} s'incline {us}-{them} face à {opponent} d'un rien et repart avec des doutes.",
+      "de": "{club} unterliegt {opponent} knapp mit {us}:{them} und geht mit Zweifeln.",
+      "it": "{club} cade {us}-{them} contro {opponent} per un soffio e se ne va con dei dubbi."
     },
     {
       "id": "loss-big-8",
       "condition": "loss-big",
       "es": "Noche para olvidar: {opponent} arrolla al {club} ({them}-{us}).",
-      "en": "A night to forget: {opponent} crushes {club} ({them}-{us})."
+      "en": "A night to forget: {opponent} crushes {club} ({them}-{us}).",
+      "fr": "Une soirée à oublier : {opponent} écrase {club} ({them}-{us}).",
+      "de": "Eine Nacht zum Vergessen: {opponent} fegt {club} weg ({them}:{us}).",
+      "it": "Una serata da dimenticare: {opponent} travolge {club} ({them}-{us})."
     },
     {
       "id": "streak-win-9",
       "condition": "streak-win",
       "es": "El {club} encadena {streak} victorias y ya mira a la parte alta.",
-      "en": "{club} strings together {streak} wins and looks upward."
+      "en": "{club} strings together {streak} wins and looks upward.",
+      "fr": "{club} enchaîne {streak} victoires et regarde vers le haut.",
+      "de": "{club} reiht {streak} Siege aneinander und schaut nach oben.",
+      "it": "{club} infila {streak} vittorie e guarda in alto."
     },
     {
       "id": "streak-loss-10",
       "condition": "streak-loss",
       "es": "Alarma en el {club}: {streakAbs} derrotas seguidas y el banquillo, en el foco.",
-      "en": "Alarm at {club}: {streakAbs} straight losses and the bench under fire."
+      "en": "Alarm at {club}: {streakAbs} straight losses and the bench under fire.",
+      "fr": "Alerte à {club} : {streakAbs} défaites d'affilée et le banc sur la sellette.",
+      "de": "Alarm bei {club}: {streakAbs} Niederlagen in Folge und die Bank in der Kritik.",
+      "it": "Allarme a {club}: {streakAbs} sconfitte di fila e la panchina sotto accusa."
     },
     {
       "id": "top-11",
       "condition": "top",
       "es": "El {club} es {rank}.º y se lo cree: la ciudad empieza a ilusionarse.",
-      "en": "{club} sits {rank}th and believes: the city starts to dream."
+      "en": "{club} sits {rank}th and believes: the city starts to dream.",
+      "fr": "{club} est {rank}e et y croit : la ville commence à rêver.",
+      "de": "{club} ist {rank}. und glaubt daran: Die Stadt beginnt zu träumen.",
+      "it": "{club} è {rank}° e ci crede: la città comincia a sognare."
     },
     {
       "id": "bottom-12",
       "condition": "bottom",
       "es": "El {club}, {rank}.º, necesita reaccionar antes de que sea tarde.",
-      "en": "{club}, {rank}th, needs to react before it is too late."
+      "en": "{club}, {rank}th, needs to react before it is too late.",
+      "fr": "{club}, {rank}e, doit réagir avant qu'il ne soit trop tard.",
+      "de": "{club}, {rank}., muss reagieren, bevor es zu spät ist.",
+      "it": "{club}, {rank}°, deve reagire prima che sia troppo tardi."
     },
     {
       "id": "my-quiet-13",
       "condition": "my-quiet",
       "es": "Partido gris de {player} ante {opponent}: la grada espera más.",
-      "en": "A grey night for {player} against {opponent}: the crowd expects more."
+      "en": "A grey night for {player} against {opponent}: the crowd expects more.",
+      "fr": "Soirée terne pour {player} contre {opponent} : le public attend plus.",
+      "de": "Ein grauer Abend für {player} gegen {opponent}: Das Publikum erwartet mehr.",
+      "it": "Serata grigia per {player} contro {opponent}: il pubblico si aspetta di più."
     },
     {
       "id": "win-14",
       "condition": "win",
       "es": "Victoria del {club} ante {opponent} ({us}-{them}). Trabajo hecho.",
-      "en": "{club} beats {opponent} ({us}-{them}). Job done."
+      "en": "{club} beats {opponent} ({us}-{them}). Job done.",
+      "fr": "{club} bat {opponent} ({us}-{them}). Mission accomplie.",
+      "de": "{club} schlägt {opponent} ({us}:{them}). Auftrag erfüllt.",
+      "it": "{club} batte {opponent} ({us}-{them}). Compito svolto."
     },
     {
       "id": "loss-15",
       "condition": "loss",
       "es": "Derrota del {club} ante {opponent} ({us}-{them}). Toca mirar el vídeo.",
-      "en": "{club} loses to {opponent} ({us}-{them}). Time to watch the film."
+      "en": "{club} loses to {opponent} ({us}-{them}). Time to watch the film.",
+      "fr": "{club} perd contre {opponent} ({us}-{them}). Place à la vidéo.",
+      "de": "{club} verliert gegen {opponent} ({us}:{them}). Zeit fürs Video.",
+      "it": "{club} perde contro {opponent} ({us}-{them}). Si va al video."
     },
     {
       "id": "always-16",
       "condition": "always",
       "es": "Semana de trabajo en el {club} antes de medirse a {next}.",
-      "en": "Work week at {club} ahead of {next}."
+      "en": "Work week at {club} ahead of {next}.",
+      "fr": "Semaine de travail à {club} avant {next}.",
+      "de": "Arbeitswoche bei {club} vor {next}.",
+      "it": "Settimana di lavoro a {club} in vista di {next}."
     }
   ]
 }

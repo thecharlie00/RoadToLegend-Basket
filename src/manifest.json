@@ -168,6 +168,11 @@
       "worker": true
     },
     {
+      "id": "content-i18n",
+      "path": "src/domain/content-i18n.js",
+      "worker": true
+    },
+    {
       "id": "social",
       "path": "src/domain/social.js",
       "worker": true

@@ -12,7 +12,10 @@
       "tier": 1,
       "title": {
         "es": "Bautismo de fuego",
-        "en": "Baptism of Fire"
+        "en": "Baptism of Fire",
+        "fr": "Baptême du feu",
+        "de": "Feuertaufe",
+        "it": "Battesimo del fuoco"
       },
       "rewardStyle": 7
     },
@@ -24,7 +27,10 @@
       "tier": 2,
       "title": {
         "es": "Hola, mundo",
-        "en": "Hello, World"
+        "en": "Hello, World",
+        "fr": "Hello, World",
+        "de": "Hallo, Welt",
+        "it": "Ciao, mondo"
       },
       "rewardStyle": 10
     },
@@ -36,7 +42,10 @@
       "tier": 3,
       "title": {
         "es": "Cincuenta sombras de aro",
-        "en": "Fifty Shades of Rim"
+        "en": "Fifty Shades of Rim",
+        "fr": "Cinquante nuances de cercle",
+        "de": "Fifty Shades of Ring",
+        "it": "Cinquanta sfumature di ferro"
       },
       "rewardStyle": 13
     },
@@ -48,7 +57,10 @@
       "tier": 4,
       "title": {
         "es": "Los 100",
-        "en": "The 100"
+        "en": "The 100",
+        "fr": "Les 100",
+        "de": "Die 100",
+        "it": "I 100"
       },
       "rewardStyle": 16
     },
@@ -60,7 +72,10 @@
       "tier": 5,
       "title": {
         "es": "Puntos suspensivos",
-        "en": "Point Break"
+        "en": "Point Break",
+        "fr": "Point Break",
+        "de": "Gefährliche Brandung",
+        "it": "Point Break"
       },
       "rewardStyle": 19
     },
@@ -72,7 +87,10 @@
       "tier": 6,
       "title": {
         "es": "Quinientos días juntos",
-        "en": "(500) Days of Buckets"
+        "en": "(500) Days of Buckets",
+        "fr": "(500) jours de paniers",
+        "de": "(500) Tage Körbe",
+        "it": "(500) giorni di canestri"
       },
       "rewardStyle": 22
     },
@@ -84,7 +102,10 @@
       "tier": 7,
       "title": {
         "es": "Mil y una noches",
-        "en": "A Thousand and One Nights"
+        "en": "A Thousand and One Nights",
+        "fr": "Les Mille et Une Nuits",
+        "de": "Tausendundeine Nacht",
+        "it": "Le mille e una notte"
       },
       "rewardStyle": 25
     },
@@ -96,7 +117,10 @@
       "tier": 8,
       "title": {
         "es": "Odisea en el aro",
-        "en": "A Hoop Odyssey"
+        "en": "A Hoop Odyssey",
+        "fr": "L'Odyssée du cercle",
+        "de": "Odyssee im Korb",
+        "it": "Odissea nel canestro"
       },
       "rewardStyle": 28
     },
@@ -108,7 +132,10 @@
       "tier": 9,
       "title": {
         "es": "El método",
-        "en": "Breaking Rim"
+        "en": "Breaking Rim",
+        "fr": "Breaking Rim",
+        "de": "Breaking Rim",
+        "it": "Breaking Rim"
       },
       "rewardStyle": 31
     },
@@ -120,7 +147,10 @@
       "tier": 10,
       "title": {
         "es": "Cinco mil maneras de anotar",
-        "en": "Bucket List"
+        "en": "Bucket List",
+        "fr": "Sans plus attendre",
+        "de": "Löffelliste",
+        "it": "Lista dei desideri"
       },
       "rewardStyle": 34
     },
@@ -132,7 +162,10 @@
       "tier": 11,
       "title": {
         "es": "La máquina del tiempo",
-        "en": "Back to the Hoop"
+        "en": "Back to the Hoop",
+        "fr": "Retour vers le panier",
+        "de": "Zurück zum Korb",
+        "it": "Ritorno al canestro"
       },
       "rewardStyle": 37
     },
@@ -144,7 +177,10 @@
       "tier": 12,
       "title": {
         "es": "Diez mil razones",
-        "en": "Ten Thousand Reasons"
+        "en": "Ten Thousand Reasons",
+        "fr": "Dix mille raisons",
+        "de": "Zehntausend Gründe",
+        "it": "Diecimila ragioni"
       },
       "rewardStyle": 40
     },
@@ -156,7 +192,10 @@
       "tier": 13,
       "title": {
         "es": "Leyenda urbana",
-        "en": "Urban Legend"
+        "en": "Urban Legend",
+        "fr": "Légende urbaine",
+        "de": "Urbane Legende",
+        "it": "Leggenda metropolitana"
       },
       "rewardStyle": 40
     },
@@ -168,7 +207,10 @@
       "tier": 14,
       "title": {
         "es": "Más allá del infinito",
-        "en": "To Infinity and the Rim"
+        "en": "To Infinity and the Rim",
+        "fr": "Vers l'infini et le cercle",
+        "de": "Bis zur Unendlichkeit und zum Ring",
+        "it": "Verso l'infinito e il ferro"
       },
       "rewardStyle": 40
     },
@@ -180,7 +222,10 @@
       "tier": 1,
       "title": {
         "es": "Primer rechace",
-        "en": "First Board"
+        "en": "First Board",
+        "fr": "Premier rebond",
+        "de": "Erster Rebound",
+        "it": "Primo rimbalzo"
       },
       "rewardStyle": 7
     },
@@ -192,7 +237,10 @@
       "tier": 2,
       "title": {
         "es": "Jurassic Board",
-        "en": "Jurassic Board"
+        "en": "Jurassic Board",
+        "fr": "Jurassic Rebond",
+        "de": "Jurassic Rebound",
+        "it": "Jurassic Rimbalzo"
       },
       "rewardStyle": 10
     },
@@ -204,7 +252,10 @@
       "tier": 3,
       "title": {
         "es": "Dueño del cristal",
-        "en": "Lord of the Glass"
+        "en": "Lord of the Glass",
+        "fr": "Le Seigneur de la planche",
+        "de": "Herr des Bretts",
+        "it": "Il signore del tabellone"
       },
       "rewardStyle": 13
     },
@@ -216,7 +267,10 @@
       "tier": 4,
       "title": {
         "es": "Gravedad",
-        "en": "Gravity"
+        "en": "Gravity",
+        "fr": "Gravity",
+        "de": "Gravity",
+        "it": "Gravity"
       },
       "rewardStyle": 16
     },
@@ -228,7 +282,10 @@
       "tier": 5,
       "title": {
         "es": "El rebote infinito",
-        "en": "The Neverending Board"
+        "en": "The Neverending Board",
+        "fr": "L'Histoire sans fin du rebond",
+        "de": "Der unendliche Rebound",
+        "it": "Il rimbalzo infinito"
       },
       "rewardStyle": 19
     },
@@ -240,7 +297,10 @@
       "tier": 6,
       "title": {
         "es": "Cristalería fina",
-        "en": "Glass Menagerie"
+        "en": "Glass Menagerie",
+        "fr": "La Ménagerie de verre",
+        "de": "Die Glasmenagerie",
+        "it": "Lo zoo di vetro"
       },
       "rewardStyle": 22
     },
@@ -252,7 +312,10 @@
       "tier": 7,
       "title": {
         "es": "El señor de los rebotes",
-        "en": "The Lord of the Boards"
+        "en": "The Lord of the Boards",
+        "fr": "Le Seigneur des rebonds",
+        "de": "Der Herr der Rebounds",
+        "it": "Il Signore dei rimbalzi"
       },
       "rewardStyle": 25
     },
@@ -264,7 +327,10 @@
       "tier": 8,
       "title": {
         "es": "Imperio del cristal",
-        "en": "The Glass Strikes Back"
+        "en": "The Glass Strikes Back",
+        "fr": "La planche contre-attaque",
+        "de": "Das Brett schlägt zurück",
+        "it": "Il tabellone colpisce ancora"
       },
       "rewardStyle": 28
     },
@@ -276,7 +342,10 @@
       "tier": 1,
       "title": {
         "es": "Compartir es vivir",
-        "en": "Sharing Is Caring"
+        "en": "Sharing Is Caring",
+        "fr": "Partager, c'est aimer",
+        "de": "Teilen ist Liebe",
+        "it": "Condividere è amare"
       },
       "rewardStyle": 7
     },
@@ -288,7 +357,10 @@
       "tier": 2,
       "title": {
         "es": "El pase de las estrellas",
-        "en": "Star Pass"
+        "en": "Star Pass",
+        "fr": "Passe étoilée",
+        "de": "Sternenpass",
+        "it": "Passaggio stellare"
       },
       "rewardStyle": 10
     },
@@ -300,7 +372,10 @@
       "tier": 3,
       "title": {
         "es": "Cupido",
-        "en": "Cupid"
+        "en": "Cupid",
+        "fr": "Cupidon",
+        "de": "Amor",
+        "it": "Cupido"
       },
       "rewardStyle": 13
     },
@@ -312,7 +387,10 @@
       "tier": 4,
       "title": {
         "es": "Ojos en la nuca",
-        "en": "Eyes in the Back of My Head"
+        "en": "Eyes in the Back of My Head",
+        "fr": "Des yeux dans le dos",
+        "de": "Augen im Hinterkopf",
+        "it": "Occhi dietro la testa"
       },
       "rewardStyle": 16
     },
@@ -324,7 +402,10 @@
       "tier": 5,
       "title": {
         "es": "El gran truco",
-        "en": "The Prestige Pass"
+        "en": "The Prestige Pass",
+        "fr": "Le Prestige de la passe",
+        "de": "Prestige-Pass",
+        "it": "The Prestige del passaggio"
       },
       "rewardStyle": 19
     },
@@ -336,7 +417,10 @@
       "tier": 6,
       "title": {
         "es": "Mil regalos",
-        "en": "A Thousand Gifts"
+        "en": "A Thousand Gifts",
+        "fr": "Mille cadeaux",
+        "de": "Tausend Geschenke",
+        "it": "Mille regali"
       },
       "rewardStyle": 22
     },
@@ -348,7 +432,10 @@
       "tier": 7,
       "title": {
         "es": "Telepatía",
-        "en": "Telepathy"
+        "en": "Telepathy",
+        "fr": "Télépathie",
+        "de": "Telepathie",
+        "it": "Telepatia"
       },
       "rewardStyle": 25
     },
@@ -360,7 +447,10 @@
       "tier": 8,
       "title": {
         "es": "El arquitecto",
-        "en": "The Architect"
+        "en": "The Architect",
+        "fr": "L'Architecte",
+        "de": "Der Architekt",
+        "it": "L'architetto"
       },
       "rewardStyle": 28
     },
@@ -372,7 +462,10 @@
       "tier": 1,
       "title": {
         "es": "Manos rápidas",
-        "en": "Quick Hands"
+        "en": "Quick Hands",
+        "fr": "Mains rapides",
+        "de": "Schnelle Hände",
+        "it": "Mani veloci"
       },
       "rewardStyle": 7
     },
@@ -384,7 +477,10 @@
       "tier": 2,
       "title": {
         "es": "Ocean's Ten",
-        "en": "Ocean's Ten"
+        "en": "Ocean's Ten",
+        "fr": "Ocean's Ten",
+        "de": "Ocean's Ten",
+        "it": "Ocean's Ten"
       },
       "rewardStyle": 10
     },
@@ -396,7 +492,10 @@
       "tier": 3,
       "title": {
         "es": "La casa del robo",
-        "en": "Money Heist"
+        "en": "Money Heist",
+        "fr": "La Casa de Papel",
+        "de": "Haus des Geldes",
+        "it": "La casa di carta"
       },
       "rewardStyle": 13
     },
@@ -408,7 +507,10 @@
       "tier": 4,
       "title": {
         "es": "Atrápame si puedes",
-        "en": "Catch Me If You Can"
+        "en": "Catch Me If You Can",
+        "fr": "Arrête-moi si tu peux",
+        "de": "Catch Me If You Can",
+        "it": "Prova a prendermi"
       },
       "rewardStyle": 16
     },
@@ -420,7 +522,10 @@
       "tier": 5,
       "title": {
         "es": "Ladrón de guante blanco",
-        "en": "White Collar"
+        "en": "White Collar",
+        "fr": "FBI : Duo très spécial",
+        "de": "White Collar",
+        "it": "White Collar"
       },
       "rewardStyle": 19
     },
@@ -432,7 +537,10 @@
       "tier": 6,
       "title": {
         "es": "El golpe perfecto",
-        "en": "The Perfect Heist"
+        "en": "The Perfect Heist",
+        "fr": "Le Casse parfait",
+        "de": "Der perfekte Coup",
+        "it": "Il colpo perfetto"
       },
       "rewardStyle": 22
     },
@@ -444,7 +552,10 @@
       "tier": 1,
       "title": {
         "es": "Aquí no",
-        "en": "Not In My House"
+        "en": "Not In My House",
+        "fr": "Pas chez moi",
+        "de": "Nicht in meinem Haus",
+        "it": "Non a casa mia"
       },
       "rewardStyle": 7
     },
@@ -456,7 +567,10 @@
       "tier": 2,
       "title": {
         "es": "No pasarás",
-        "en": "You Shall Not Pass"
+        "en": "You Shall Not Pass",
+        "fr": "Vous ne passerez pas",
+        "de": "Du kommst nicht vorbei",
+        "it": "Tu non puoi passare"
       },
       "rewardStyle": 10
     },
@@ -468,7 +582,10 @@
       "tier": 3,
       "title": {
         "es": "Muro de hielo",
-        "en": "The Wall"
+        "en": "The Wall",
+        "fr": "Le Mur",
+        "de": "Die Mauer",
+        "it": "Il muro"
       },
       "rewardStyle": 13
     },
@@ -480,7 +597,10 @@
       "tier": 4,
       "title": {
         "es": "Cazafantasmas",
-        "en": "Shotbusters"
+        "en": "Shotbusters",
+        "fr": "Contreurs de tirs",
+        "de": "Wurfjäger",
+        "it": "Acchiappatiri"
       },
       "rewardStyle": 16
     },
@@ -492,7 +612,10 @@
       "tier": 5,
       "title": {
         "es": "Devuélvelo al remitente",
-        "en": "Return to Sender"
+        "en": "Return to Sender",
+        "fr": "Retour à l'envoyeur",
+        "de": "Zurück an den Absender",
+        "it": "Rispedito al mittente"
       },
       "rewardStyle": 19
     },
@@ -504,7 +627,10 @@
       "tier": 6,
       "title": {
         "es": "Prohibido el paso",
-        "en": "Restricted Area"
+        "en": "Restricted Area",
+        "fr": "Zone restrictive",
+        "de": "Zone",
+        "it": "Area riservata"
       },
       "rewardStyle": 22
     },
@@ -516,7 +642,10 @@
       "tier": 1,
       "title": {
         "es": "Debut",
-        "en": "Debut"
+        "en": "Debut",
+        "fr": "Débuts",
+        "de": "Debüt",
+        "it": "Debutto"
       },
       "rewardStyle": 7
     },
@@ -528,7 +657,10 @@
       "tier": 2,
       "title": {
         "es": "Diez de diez",
-        "en": "Ten Out of Ten"
+        "en": "Ten Out of Ten",
+        "fr": "Dix sur dix",
+        "de": "Zehn von zehn",
+        "it": "Dieci su dieci"
       },
       "rewardStyle": 10
     },
@@ -540,7 +672,10 @@
       "tier": 3,
       "title": {
         "es": "Temporada completa",
-        "en": "Full Season"
+        "en": "Full Season",
+        "fr": "Saison complète",
+        "de": "Ganze Saison",
+        "it": "Stagione completa"
       },
       "rewardStyle": 13
     },
@@ -552,7 +687,10 @@
       "tier": 4,
       "title": {
         "es": "Medio centenar",
-        "en": "Half a Hundred"
+        "en": "Half a Hundred",
+        "fr": "Cinquantaine",
+        "de": "Ein halbes Hundert",
+        "it": "Mezzo centinaio"
       },
       "rewardStyle": 16
     },
@@ -564,7 +702,10 @@
       "tier": 5,
       "title": {
         "es": "Ochenta y dos noches",
-        "en": "82 Nights"
+        "en": "82 Nights",
+        "fr": "82 nuits",
+        "de": "82 Nächte",
+        "it": "82 notti"
       },
       "rewardStyle": 19
     },
@@ -576,7 +717,10 @@
       "tier": 6,
       "title": {
         "es": "Cien años de baloncesto",
-        "en": "One Hundred Years of Hoops"
+        "en": "One Hundred Years of Hoops",
+        "fr": "Cent ans de basket",
+        "de": "Hundert Jahre Basketball",
+        "it": "Cent'anni di basket"
       },
       "rewardStyle": 22
     },
@@ -588,7 +732,10 @@
       "tier": 7,
       "title": {
         "es": "Kilómetros en las piernas",
-        "en": "Mileage"
+        "en": "Mileage",
+        "fr": "Kilométrage",
+        "de": "Kilometerstand",
+        "it": "Chilometraggio"
       },
       "rewardStyle": 25
     },
@@ -600,7 +747,10 @@
       "tier": 8,
       "title": {
         "es": "Esto es Esparta",
-        "en": "This Is Sparta"
+        "en": "This Is Sparta",
+        "fr": "C'est Sparte",
+        "de": "Das ist Sparta",
+        "it": "Questa è Sparta"
       },
       "rewardStyle": 28
     },
@@ -612,7 +762,10 @@
       "tier": 9,
       "title": {
         "es": "Hombre de hierro",
-        "en": "Iron Man"
+        "en": "Iron Man",
+        "fr": "Iron Man",
+        "de": "Iron Man",
+        "it": "Iron Man"
       },
       "rewardStyle": 31
     },
@@ -624,7 +777,10 @@
       "tier": 10,
       "title": {
         "es": "Ochocientos y pico",
-        "en": "Still Standing"
+        "en": "Still Standing",
+        "fr": "Toujours debout",
+        "de": "Immer noch da",
+        "it": "Ancora in piedi"
       },
       "rewardStyle": 34
     },
@@ -636,7 +792,10 @@
       "tier": 11,
       "title": {
         "es": "El club de los mil",
-        "en": "The Thousand Club"
+        "en": "The Thousand Club",
+        "fr": "Le club des mille",
+        "de": "Der Tausenderclub",
+        "it": "Il club dei mille"
       },
       "rewardStyle": 37
     },
@@ -648,7 +807,10 @@
       "tier": 1,
       "title": {
         "es": "Primera alegría",
-        "en": "First Joy"
+        "en": "First Joy",
+        "fr": "Première joie",
+        "de": "Erste Freude",
+        "it": "Prima gioia"
       },
       "rewardStyle": 7
     },
@@ -660,7 +822,10 @@
       "tier": 2,
       "title": {
         "es": "Cinco estrellas",
-        "en": "Five Stars"
+        "en": "Five Stars",
+        "fr": "Cinq étoiles",
+        "de": "Fünf Sterne",
+        "it": "Cinque stelle"
       },
       "rewardStyle": 10
     },
@@ -672,7 +837,10 @@
       "tier": 3,
       "title": {
         "es": "Diez de oros",
-        "en": "Ten of Diamonds"
+        "en": "Ten of Diamonds",
+        "fr": "Dix de carreau",
+        "de": "Karo-Zehn",
+        "it": "Dieci di quadri"
       },
       "rewardStyle": 13
     },
@@ -684,7 +852,10 @@
       "tier": 4,
       "title": {
         "es": "Bodas de plata",
-        "en": "Silver Anniversary"
+        "en": "Silver Anniversary",
+        "fr": "Noces d'argent",
+        "de": "Silberhochzeit",
+        "it": "Nozze d'argento"
       },
       "rewardStyle": 16
     },
@@ -696,7 +867,10 @@
       "tier": 5,
       "title": {
         "es": "Medio siglo",
-        "en": "Half Century"
+        "en": "Half Century",
+        "fr": "Demi-siècle",
+        "de": "Halbes Jahrhundert",
+        "it": "Mezzo secolo"
       },
       "rewardStyle": 19
     },
@@ -708,7 +882,10 @@
       "tier": 6,
       "title": {
         "es": "Cien motivos",
-        "en": "A Hundred Reasons"
+        "en": "A Hundred Reasons",
+        "fr": "Cent raisons",
+        "de": "Hundert Gründe",
+        "it": "Cento ragioni"
       },
       "rewardStyle": 22
     },
@@ -720,7 +897,10 @@
       "tier": 7,
       "title": {
         "es": "Doscientas sonrisas",
-        "en": "Two Hundred Smiles"
+        "en": "Two Hundred Smiles",
+        "fr": "Deux cents sourires",
+        "de": "Zweihundert Lächeln",
+        "it": "Duecento sorrisi"
       },
       "rewardStyle": 25
     },
@@ -732,7 +912,10 @@
       "tier": 8,
       "title": {
         "es": "Trescientos",
-        "en": "300"
+        "en": "300",
+        "fr": "300",
+        "de": "300",
+        "it": "300"
       },
       "rewardStyle": 28
     },
@@ -744,7 +927,10 @@
       "tier": 9,
       "title": {
         "es": "Dinastía",
-        "en": "Dynasty"
+        "en": "Dynasty",
+        "fr": "Dynastie",
+        "de": "Dynastie",
+        "it": "Dinastia"
       },
       "rewardStyle": 31
     },
@@ -756,7 +942,10 @@
       "tier": 1,
       "title": {
         "es": "Temporada 1, episodio 1",
-        "en": "Season 1, Episode 1"
+        "en": "Season 1, Episode 1",
+        "fr": "Saison 1, épisode 1",
+        "de": "Staffel 1, Folge 1",
+        "it": "Stagione 1, episodio 1"
       },
       "rewardStyle": 7
     },
@@ -768,7 +957,10 @@
       "tier": 2,
       "title": {
         "es": "Segunda temporada",
-        "en": "Season Two"
+        "en": "Season Two",
+        "fr": "Saison deux",
+        "de": "Staffel zwei",
+        "it": "Stagione due"
       },
       "rewardStyle": 10
     },
@@ -780,7 +972,10 @@
       "tier": 3,
       "title": {
         "es": "Trilogía",
-        "en": "Trilogy"
+        "en": "Trilogy",
+        "fr": "Trilogie",
+        "de": "Trilogie",
+        "it": "Trilogia"
       },
       "rewardStyle": 13
     },
@@ -792,7 +987,10 @@
       "tier": 4,
       "title": {
         "es": "Lustro",
-        "en": "Five-Year Plan"
+        "en": "Five-Year Plan",
+        "fr": "Plan quinquennal",
+        "de": "Fünfjahresplan",
+        "it": "Piano quinquennale"
       },
       "rewardStyle": 16
     },
@@ -804,7 +1002,10 @@
       "tier": 5,
       "title": {
         "es": "Ocho apellidos",
-        "en": "Eight Seasons"
+        "en": "Eight Seasons",
+        "fr": "Huit saisons",
+        "de": "Acht Spielzeiten",
+        "it": "Otto stagioni"
       },
       "rewardStyle": 19
     },
@@ -816,7 +1017,10 @@
       "tier": 6,
       "title": {
         "es": "Una década prodigiosa",
-        "en": "The Decade"
+        "en": "The Decade",
+        "fr": "La décennie",
+        "de": "Das Jahrzehnt",
+        "it": "Il decennio"
       },
       "rewardStyle": 22
     },
@@ -828,7 +1032,10 @@
       "tier": 7,
       "title": {
         "es": "Veterano de guerra",
-        "en": "War Veteran"
+        "en": "War Veteran",
+        "fr": "Vétéran de guerre",
+        "de": "Kriegsveteran",
+        "it": "Veterano di guerra"
       },
       "rewardStyle": 25
     },
@@ -840,7 +1047,10 @@
       "tier": 8,
       "title": {
         "es": "Inmortal",
-        "en": "Highlander"
+        "en": "Highlander",
+        "fr": "Highlander",
+        "de": "Highlander",
+        "it": "Highlander"
       },
       "rewardStyle": 28
     },
@@ -852,7 +1062,10 @@
       "tier": 1,
       "title": {
         "es": "Diamante en bruto",
-        "en": "Diamond in the Rough"
+        "en": "Diamond in the Rough",
+        "fr": "Diamant brut",
+        "de": "Rohdiamant",
+        "it": "Diamante grezzo"
       },
       "rewardStyle": 7
     },
@@ -864,7 +1077,10 @@
       "tier": 2,
       "title": {
         "es": "Subiendo de nivel",
-        "en": "Level Up"
+        "en": "Level Up",
+        "fr": "Level up",
+        "de": "Level-up",
+        "it": "Level up"
       },
       "rewardStyle": 10
     },
@@ -876,7 +1092,10 @@
       "tier": 3,
       "title": {
         "es": "Titular indiscutible",
-        "en": "Starter Pack"
+        "en": "Starter Pack",
+        "fr": "Pack de départ",
+        "de": "Starterpaket",
+        "it": "Pacchetto iniziale"
       },
       "rewardStyle": 13
     },
@@ -888,7 +1107,10 @@
       "tier": 4,
       "title": {
         "es": "All-Star",
-        "en": "All-Star"
+        "en": "All-Star",
+        "fr": "All-Star",
+        "de": "All-Star",
+        "it": "All-Star"
       },
       "rewardStyle": 16
     },
@@ -900,7 +1122,10 @@
       "tier": 5,
       "title": {
         "es": "Superestrella",
-        "en": "Superstar"
+        "en": "Superstar",
+        "fr": "Superstar",
+        "de": "Superstar",
+        "it": "Superstar"
       },
       "rewardStyle": 19
     },
@@ -912,7 +1137,10 @@
       "tier": 6,
       "title": {
         "es": "Modo dios",
-        "en": "God Mode"
+        "en": "God Mode",
+        "fr": "Mode Dieu",
+        "de": "Gottmodus",
+        "it": "Modalità Dio"
       },
       "rewardStyle": 22
     },
@@ -924,7 +1152,10 @@
       "tier": 7,
       "title": {
         "es": "El elegido",
-        "en": "The Chosen One"
+        "en": "The Chosen One",
+        "fr": "L'Élu",
+        "de": "Der Auserwählte",
+        "it": "Il prescelto"
       },
       "rewardStyle": 25
     },
@@ -936,7 +1167,10 @@
       "tier": 8,
       "title": {
         "es": "Más allá de Matrix",
-        "en": "Beyond the Matrix"
+        "en": "Beyond the Matrix",
+        "fr": "Au-delà de la Matrice",
+        "de": "Jenseits der Matrix",
+        "it": "Oltre Matrix"
       },
       "rewardStyle": 28
     },
@@ -948,7 +1182,10 @@
       "tier": 9,
       "title": {
         "es": "Fuera de este mundo",
-        "en": "Out of This World"
+        "en": "Out of This World",
+        "fr": "Hors de ce monde",
+        "de": "Nicht von dieser Welt",
+        "it": "Fuori dal mondo"
       },
       "rewardStyle": 31
     },
@@ -960,7 +1197,10 @@
       "tier": 1,
       "title": {
         "es": "Primer sueldo",
-        "en": "First Paycheck"
+        "en": "First Paycheck",
+        "fr": "Premier salaire",
+        "de": "Erster Gehaltsscheck",
+        "it": "Primo stipendio"
       },
       "rewardStyle": 7
     },
@@ -972,7 +1212,10 @@
       "tier": 2,
       "title": {
         "es": "Hucha llena",
-        "en": "Piggy Bank"
+        "en": "Piggy Bank",
+        "fr": "Tirelire",
+        "de": "Sparschwein",
+        "it": "Salvadanaio"
       },
       "rewardStyle": 10
     },
@@ -984,7 +1227,10 @@
       "tier": 3,
       "title": {
         "es": "El lobo del parqué",
-        "en": "The Wolf of Hardwood"
+        "en": "The Wolf of Hardwood",
+        "fr": "Le Loup du parquet",
+        "de": "Der Wolf vom Parkett",
+        "it": "Il lupo del parquet"
       },
       "rewardStyle": 13
     },
@@ -996,7 +1242,10 @@
       "tier": 4,
       "title": {
         "es": "Pato rico",
-        "en": "Scrooge Mode"
+        "en": "Scrooge Mode",
+        "fr": "Mode Picsou",
+        "de": "Dagobert-Modus",
+        "it": "Modalità Paperone"
       },
       "rewardStyle": 16
     },
@@ -1008,7 +1257,10 @@
       "tier": 5,
       "title": {
         "es": "Gran Gatsby",
-        "en": "The Great Gatsby"
+        "en": "The Great Gatsby",
+        "fr": "Gatsby le Magnifique",
+        "de": "Der große Gatsby",
+        "it": "Il grande Gatsby"
       },
       "rewardStyle": 19
     },
@@ -1020,7 +1272,10 @@
       "tier": 6,
       "title": {
         "es": "Bruce Wayne",
-        "en": "Bruce Wayne"
+        "en": "Bruce Wayne",
+        "fr": "Bruce Wayne",
+        "de": "Bruce Wayne",
+        "it": "Bruce Wayne"
       },
       "rewardStyle": 22
     },
@@ -1032,7 +1287,10 @@
       "tier": 7,
       "title": {
         "es": "El club del millón",
-        "en": "Millionaire"
+        "en": "Millionaire",
+        "fr": "Millionnaire",
+        "de": "Millionär",
+        "it": "Milionario"
       },
       "rewardStyle": 25
     },
@@ -1044,7 +1302,10 @@
       "tier": 1,
       "title": {
         "es": "Con estilo",
-        "en": "Stylish"
+        "en": "Stylish",
+        "fr": "Stylé",
+        "de": "Stilvoll",
+        "it": "Con stile"
       },
       "rewardStyle": 7
     },
@@ -1056,7 +1317,10 @@
       "tier": 2,
       "title": {
         "es": "El diablo viste zapatillas",
-        "en": "The Devil Wears Sneakers"
+        "en": "The Devil Wears Sneakers",
+        "fr": "Le diable s'habille en baskets",
+        "de": "Der Teufel trägt Sneaker",
+        "it": "Il diavolo veste sneakers"
       },
       "rewardStyle": 10
     },
@@ -1068,7 +1332,10 @@
       "tier": 3,
       "title": {
         "es": "Icono",
-        "en": "Icon"
+        "en": "Icon",
+        "fr": "Icône",
+        "de": "Ikone",
+        "it": "Icona"
       },
       "rewardStyle": 13
     },
@@ -1080,7 +1347,10 @@
       "tier": 4,
       "title": {
         "es": "Pasarela",
-        "en": "Runway"
+        "en": "Runway",
+        "fr": "Défilé",
+        "de": "Laufsteg",
+        "it": "Passerella"
       },
       "rewardStyle": 16
     },
@@ -1092,7 +1362,10 @@
       "tier": 5,
       "title": {
         "es": "Leyenda del estilo",
-        "en": "Fresh Prince"
+        "en": "Fresh Prince",
+        "fr": "Le Prince de Bel-Air",
+        "de": "Der Prinz von Bel-Air",
+        "it": "Willy, il principe di Bel-Air"
       },
       "rewardStyle": 19
     },
@@ -1104,7 +1377,10 @@
       "tier": 1,
       "title": {
         "es": "Alguien te conoce",
-        "en": "Someone Knows You"
+        "en": "Someone Knows You",
+        "fr": "Quelqu'un te connaît",
+        "de": "Jemand kennt dich",
+        "it": "Qualcuno ti conosce"
       },
       "rewardStyle": 7
     },
@@ -1116,7 +1392,10 @@
       "tier": 2,
       "title": {
         "es": "Quince minutos de fama",
-        "en": "Fifteen Minutes of Fame"
+        "en": "Fifteen Minutes of Fame",
+        "fr": "Quinze minutes de gloire",
+        "de": "Fünfzehn Minuten Ruhm",
+        "it": "Quindici minuti di fama"
       },
       "rewardStyle": 10
     },
@@ -1128,7 +1407,10 @@
       "tier": 3,
       "title": {
         "es": "Trending topic",
-        "en": "Trending Topic"
+        "en": "Trending Topic",
+        "fr": "Tendance",
+        "de": "Trending Topic",
+        "it": "Trending topic"
       },
       "rewardStyle": 13
     },
@@ -1140,7 +1422,10 @@
       "tier": 4,
       "title": {
         "es": "El show de Truman",
-        "en": "The Truman Show"
+        "en": "The Truman Show",
+        "fr": "The Truman Show",
+        "de": "Die Truman Show",
+        "it": "The Truman Show"
       },
       "rewardStyle": 16
     },
@@ -1152,7 +1437,10 @@
       "tier": 5,
       "title": {
         "es": "Estrella de Hollywood",
-        "en": "Walk of Fame"
+        "en": "Walk of Fame",
+        "fr": "Walk of Fame",
+        "de": "Walk of Fame",
+        "it": "Walk of Fame"
       },
       "rewardStyle": 19
     },
@@ -1164,7 +1452,10 @@
       "tier": 6,
       "title": {
         "es": "Leyenda viva",
-        "en": "Living Legend"
+        "en": "Living Legend",
+        "fr": "Légende vivante",
+        "de": "Lebende Legende",
+        "it": "Leggenda vivente"
       },
       "rewardStyle": 22
     },
@@ -1176,7 +1467,10 @@
       "tier": 1,
       "title": {
         "es": "Elige tu propia aventura",
-        "en": "Choose Your Own Adventure"
+        "en": "Choose Your Own Adventure",
+        "fr": "Le livre dont tu es le héros",
+        "de": "Wähle dein Abenteuer",
+        "it": "Scegli la tua avventura"
       },
       "rewardStyle": 7
     },
@@ -1188,7 +1482,10 @@
       "tier": 2,
       "title": {
         "es": "Efecto mariposa",
-        "en": "Butterfly Effect"
+        "en": "Butterfly Effect",
+        "fr": "L'Effet papillon",
+        "de": "Schmetterlingseffekt",
+        "it": "Effetto farfalla"
       },
       "rewardStyle": 10
     },
@@ -1200,7 +1497,10 @@
       "tier": 3,
       "title": {
         "es": "Pastilla roja o azul",
-        "en": "Red Pill or Blue Pill"
+        "en": "Red Pill or Blue Pill",
+        "fr": "Pilule rouge ou pilule bleue",
+        "de": "Rote oder blaue Pille",
+        "it": "Pillola rossa o pillola blu"
       },
       "rewardStyle": 13
     },
@@ -1212,7 +1512,10 @@
       "tier": 4,
       "title": {
         "es": "Multiverso",
-        "en": "Multiverse"
+        "en": "Multiverse",
+        "fr": "Multivers",
+        "de": "Multiversum",
+        "it": "Multiverso"
       },
       "rewardStyle": 16
     },
@@ -1224,7 +1527,10 @@
       "tier": 5,
       "title": {
         "es": "Tú decides",
-        "en": "Bandersnatch"
+        "en": "Bandersnatch",
+        "fr": "Bandersnatch",
+        "de": "Bandersnatch",
+        "it": "Bandersnatch"
       },
       "rewardStyle": 19
     },
@@ -1236,7 +1542,10 @@
       "tier": 1,
       "title": {
         "es": "Golpe de suerte",
-        "en": "Lucky Break"
+        "en": "Lucky Break",
+        "fr": "Coup de chance",
+        "de": "Glücksfall",
+        "it": "Colpo di fortuna"
       },
       "rewardStyle": 7
     },
@@ -1248,7 +1557,10 @@
       "tier": 2,
       "title": {
         "es": "Casino Royale",
-        "en": "Casino Royale"
+        "en": "Casino Royale",
+        "fr": "Casino Royale",
+        "de": "Casino Royale",
+        "it": "Casino Royale"
       },
       "rewardStyle": 10
     },
@@ -1260,7 +1572,10 @@
       "tier": 3,
       "title": {
         "es": "Ocean's Fifteen",
-        "en": "Ocean's Fifteen"
+        "en": "Ocean's Fifteen",
+        "fr": "Ocean's Fifteen",
+        "de": "Ocean's Fifteen",
+        "it": "Ocean's Fifteen"
       },
       "rewardStyle": 13
     },
@@ -1272,7 +1587,10 @@
       "tier": 1,
       "title": {
         "es": "Houston, tenemos un problema",
-        "en": "Houston, We Have a Problem"
+        "en": "Houston, We Have a Problem",
+        "fr": "Houston, on a un problème",
+        "de": "Houston, wir haben ein Problem",
+        "it": "Houston, abbiamo un problema"
       },
       "rewardStyle": 7
     },
@@ -1284,7 +1602,10 @@
       "tier": 2,
       "title": {
         "es": "Destino final",
-        "en": "Final Destination"
+        "en": "Final Destination",
+        "fr": "Destination finale",
+        "de": "Final Destination",
+        "it": "Final Destination"
       },
       "rewardStyle": 10
     },
@@ -1296,7 +1617,10 @@
       "tier": 3,
       "title": {
         "es": "Atrapado en el tiempo",
-        "en": "Groundhog Day"
+        "en": "Groundhog Day",
+        "fr": "Un jour sans fin",
+        "de": "Und täglich grüßt das Murmeltier",
+        "it": "Ricomincio da capo"
       },
       "rewardStyle": 13
     },
@@ -1308,7 +1632,10 @@
       "tier": 1,
       "title": {
         "es": "Show me the money",
-        "en": "Show Me the Money"
+        "en": "Show Me the Money",
+        "fr": "Montre-moi l'argent",
+        "de": "Zeig mir das Geld",
+        "it": "Mostrami i soldi"
       },
       "rewardStyle": 7
     },
@@ -1320,7 +1647,10 @@
       "tier": 1,
       "title": {
         "es": "Zapatillero",
-        "en": "Sneakerhead"
+        "en": "Sneakerhead",
+        "fr": "Sneakerhead",
+        "de": "Sneakerhead",
+        "it": "Sneakerhead"
       },
       "rewardStyle": 7
     },
@@ -1332,7 +1662,10 @@
       "tier": 1,
       "title": {
         "es": "Firma aquí",
-        "en": "Sign Here"
+        "en": "Sign Here",
+        "fr": "Signe ici",
+        "de": "Hier unterschreiben",
+        "it": "Firma qui"
       },
       "rewardStyle": 7
     },
@@ -1344,7 +1677,10 @@
       "tier": 2,
       "title": {
         "es": "Trotamundos",
-        "en": "Globetrotter"
+        "en": "Globetrotter",
+        "fr": "Globe-trotter",
+        "de": "Weltenbummler",
+        "it": "Giramondo"
       },
       "rewardStyle": 10
     },
@@ -1356,7 +1692,10 @@
       "tier": 1,
       "title": {
         "es": "Nómina a nómina",
-        "en": "Paycheck to Paycheck"
+        "en": "Paycheck to Paycheck",
+        "fr": "Fins de mois difficiles",
+        "de": "Von Gehalt zu Gehalt",
+        "it": "Arrivare a fine mese"
       },
       "rewardStyle": 7
     },
@@ -1368,7 +1707,10 @@
       "tier": 2,
       "title": {
         "es": "Seis cifras",
-        "en": "Six Figures"
+        "en": "Six Figures",
+        "fr": "Six chiffres",
+        "de": "Sechsstellig",
+        "it": "Sei cifre"
       },
       "rewardStyle": 10
     },
@@ -1380,7 +1722,10 @@
       "tier": 3,
       "title": {
         "es": "El precio del éxito",
-        "en": "The Price of Success"
+        "en": "The Price of Success",
+        "fr": "Le prix du succès",
+        "de": "Der Preis des Erfolgs",
+        "it": "Il prezzo del successo"
       },
       "rewardStyle": 13
     },
@@ -1392,7 +1737,10 @@
       "tier": 1,
       "title": {
         "es": "Eye of the tiger",
-        "en": "Eye of the Tiger"
+        "en": "Eye of the Tiger",
+        "fr": "L'Œil du tigre",
+        "de": "Eye of the Tiger",
+        "it": "L'occhio della tigre"
       },
       "rewardStyle": 7
     },
@@ -1404,7 +1752,10 @@
       "tier": 2,
       "title": {
         "es": "Montaje de entrenamiento",
-        "en": "Training Montage"
+        "en": "Training Montage",
+        "fr": "Montage d'entraînement",
+        "de": "Trainingsmontage",
+        "it": "Montaggio di allenamento"
       },
       "rewardStyle": 10
     },
@@ -1416,7 +1767,10 @@
       "tier": 3,
       "title": {
         "es": "Dar cera, pulir cera",
-        "en": "Wax On, Wax Off"
+        "en": "Wax On, Wax Off",
+        "fr": "Passer la cire, enlever la cire",
+        "de": "Auftragen, polieren",
+        "it": "Dai la cera, togli la cera"
       },
       "rewardStyle": 13
     },
@@ -1428,7 +1782,10 @@
       "tier": 4,
       "title": {
         "es": "Rocky",
-        "en": "Rocky"
+        "en": "Rocky",
+        "fr": "Rocky",
+        "de": "Rocky",
+        "it": "Rocky"
       },
       "rewardStyle": 16
     },
@@ -1440,7 +1797,10 @@
       "tier": 1,
       "title": {
         "es": "Modo avión",
-        "en": "Airplane Mode"
+        "en": "Airplane Mode",
+        "fr": "Mode avion",
+        "de": "Flugmodus",
+        "it": "Modalità aereo"
       },
       "rewardStyle": 7
     },
@@ -1452,7 +1812,10 @@
       "tier": 2,
       "title": {
         "es": "El gran Lebowski",
-        "en": "The Big Lebowski"
+        "en": "The Big Lebowski",
+        "fr": "The Big Lebowski",
+        "de": "The Big Lebowski",
+        "it": "Il grande Lebowski"
       },
       "rewardStyle": 10
     },
@@ -1464,7 +1827,10 @@
       "tier": 3,
       "title": {
         "es": "Siesta olímpica",
-        "en": "Olympic Nap"
+        "en": "Olympic Nap",
+        "fr": "Sieste olympique",
+        "de": "Olympisches Nickerchen",
+        "it": "Pisolino olimpico"
       },
       "rewardStyle": 13
     },
@@ -1476,7 +1842,10 @@
       "tier": 1,
       "title": {
         "es": "Hay que mojarse",
-        "en": "Splash"
+        "en": "Splash",
+        "fr": "Splash",
+        "de": "Splash",
+        "it": "Splash"
       },
       "rewardStyle": 7
     },
@@ -1488,7 +1857,10 @@
       "tier": 2,
       "title": {
         "es": "Tiro libre, mente libre",
-        "en": "Free Throw, Free Mind"
+        "en": "Free Throw, Free Mind",
+        "fr": "Lancer franc, esprit libre",
+        "de": "Freiwurf, freier Kopf",
+        "it": "Tiro libero, mente libera"
       },
       "rewardStyle": 10
     },
@@ -1500,7 +1872,10 @@
       "tier": 3,
       "title": {
         "es": "El gimnasio vacío",
-        "en": "Empty Gym"
+        "en": "Empty Gym",
+        "fr": "Salle vide",
+        "de": "Leere Halle",
+        "it": "Palestra vuota"
       },
       "rewardStyle": 13
     },
@@ -1512,7 +1887,10 @@
       "tier": 4,
       "title": {
         "es": "Diez mil horas",
-        "en": "Ten Thousand Hours"
+        "en": "Ten Thousand Hours",
+        "fr": "Dix mille heures",
+        "de": "Zehntausend Stunden",
+        "it": "Diecimila ore"
       },
       "rewardStyle": 16
     },
@@ -1524,7 +1902,10 @@
       "tier": 1,
       "title": {
         "es": "En directo y sin red",
-        "en": "Live Without a Net"
+        "en": "Live Without a Net",
+        "fr": "Sans filet",
+        "de": "Ohne Netz",
+        "it": "Senza rete"
       },
       "rewardStyle": 7
     },
@@ -1536,7 +1917,10 @@
       "tier": 2,
       "title": {
         "es": "Al filo del mañana",
-        "en": "Edge of Tomorrow"
+        "en": "Edge of Tomorrow",
+        "fr": "Edge of Tomorrow",
+        "de": "Edge of Tomorrow",
+        "it": "Edge of Tomorrow"
       },
       "rewardStyle": 10
     },
@@ -1548,7 +1932,10 @@
       "tier": 3,
       "title": {
         "es": "Pulso de acero",
-        "en": "Steady Hands"
+        "en": "Steady Hands",
+        "fr": "Mains sûres",
+        "de": "Ruhige Hände",
+        "it": "Mani ferme"
       },
       "rewardStyle": 13
     },
@@ -1560,7 +1947,10 @@
       "tier": 4,
       "title": {
         "es": "Prime time",
-        "en": "Prime Time"
+        "en": "Prime Time",
+        "fr": "Prime time",
+        "de": "Primetime",
+        "it": "Prima serata"
       },
       "rewardStyle": 16
     },
@@ -1572,7 +1962,10 @@
       "tier": 5,
       "title": {
         "es": "Ni un partido sin mirar",
-        "en": "Must-See TV"
+        "en": "Must-See TV",
+        "fr": "À ne pas manquer",
+        "de": "Pflichtprogramm",
+        "it": "Da non perdere"
       },
       "rewardStyle": 19
     },
@@ -1584,7 +1977,10 @@
       "tier": 6,
       "title": {
         "es": "Cien finales",
-        "en": "A Hundred Finals"
+        "en": "A Hundred Finals",
+        "fr": "Cent finales",
+        "de": "Hundert Finals",
+        "it": "Cento finali"
       },
       "rewardStyle": 22
     },
@@ -1596,7 +1992,10 @@
       "tier": 1,
       "title": {
         "es": "Victoria en directo",
-        "en": "Live Win"
+        "en": "Live Win",
+        "fr": "Victoire en direct",
+        "de": "Live-Sieg",
+        "it": "Vittoria in diretta"
       },
       "rewardStyle": 7
     },
@@ -1608,7 +2007,10 @@
       "tier": 2,
       "title": {
         "es": "Showtime",
-        "en": "Showtime"
+        "en": "Showtime",
+        "fr": "Showtime",
+        "de": "Showtime",
+        "it": "Showtime"
       },
       "rewardStyle": 10
     },
@@ -1620,7 +2022,10 @@
       "tier": 3,
       "title": {
         "es": "Así se gana",
-        "en": "That's How It's Done"
+        "en": "That's How It's Done",
+        "fr": "C'est comme ça qu'on fait",
+        "de": "So wird's gemacht",
+        "it": "Si fa così"
       },
       "rewardStyle": 13
     },
@@ -1632,7 +2037,10 @@
       "tier": 4,
       "title": {
         "es": "Rey del directo",
-        "en": "King of Live"
+        "en": "King of Live",
+        "fr": "Roi du direct",
+        "de": "König der Liveübertragung",
+        "it": "Re della diretta"
       },
       "rewardStyle": 16
     },
@@ -1644,7 +2052,10 @@
       "tier": 1,
       "title": {
         "es": "Primera decisión",
-        "en": "First Call"
+        "en": "First Call",
+        "fr": "Première convocation",
+        "de": "Erste Nominierung",
+        "it": "Prima convocazione"
       },
       "rewardStyle": 7
     },
@@ -1656,7 +2067,10 @@
       "tier": 2,
       "title": {
         "es": "Cerebro de pizarra",
-        "en": "Whiteboard Brain"
+        "en": "Whiteboard Brain",
+        "fr": "Cerveau tableau blanc",
+        "de": "Taktiktafel im Kopf",
+        "it": "Cervello da lavagna"
       },
       "rewardStyle": 10
     },
@@ -1668,7 +2082,10 @@
       "tier": 3,
       "title": {
         "es": "Ajedrez en la pista",
-        "en": "The Queen's Gambit"
+        "en": "The Queen's Gambit",
+        "fr": "Le Jeu de la dame",
+        "de": "Das Damengambit",
+        "it": "La regina degli scacchi"
       },
       "rewardStyle": 13
     },
@@ -1680,7 +2097,10 @@
       "tier": 1,
       "title": {
         "es": "Bang",
-        "en": "Bang"
+        "en": "Bang",
+        "fr": "Bang",
+        "de": "Bang",
+        "it": "Bang"
       },
       "rewardStyle": 7
     },
@@ -1692,7 +2112,10 @@
       "tier": 2,
       "title": {
         "es": "Agente secreto en la bocina",
-        "en": "Licence to Clutch"
+        "en": "Licence to Clutch",
+        "fr": "Permis de clutch",
+        "de": "Lizenz zum Clutch",
+        "it": "Licenza di clutch"
       },
       "rewardStyle": 10
     },
@@ -1704,7 +2127,10 @@
       "tier": 3,
       "title": {
         "es": "Sangre fría",
-        "en": "Ice in the Veins"
+        "en": "Ice in the Veins",
+        "fr": "Sang-froid",
+        "de": "Eis in den Adern",
+        "it": "Ghiaccio nelle vene"
       },
       "rewardStyle": 13
     },
@@ -1716,7 +2142,10 @@
       "tier": 4,
       "title": {
         "es": "Míster Clutch",
-        "en": "Mr. Clutch"
+        "en": "Mr. Clutch",
+        "fr": "Monsieur Clutch",
+        "de": "Mr. Clutch",
+        "it": "Mister Clutch"
       },
       "rewardStyle": 16
     },
@@ -1728,7 +2157,10 @@
       "tier": 1,
       "title": {
         "es": "Que la fuerza te acompañe",
-        "en": "May the Force Be With You"
+        "en": "May the Force Be With You",
+        "fr": "Que la Force soit avec toi",
+        "de": "Möge die Macht mit dir sein",
+        "it": "Che la Forza sia con te"
       },
       "rewardStyle": 7
     },
@@ -1740,7 +2172,10 @@
       "tier": 2,
       "title": {
         "es": "Héroe sin capa",
-        "en": "Hero Without a Cape"
+        "en": "Hero Without a Cape",
+        "fr": "Héros sans cape",
+        "de": "Held ohne Umhang",
+        "it": "Eroe senza mantello"
       },
       "rewardStyle": 10
     },
@@ -1752,7 +2187,10 @@
       "tier": 3,
       "title": {
         "es": "El último tiro es mío",
-        "en": "Last Shot Is Mine"
+        "en": "Last Shot Is Mine",
+        "fr": "Le dernier tir est pour moi",
+        "de": "Der letzte Wurf gehört mir",
+        "it": "L'ultimo tiro è mio"
       },
       "rewardStyle": 13
     },
@@ -1764,7 +2202,10 @@
       "tier": 1,
       "title": {
         "es": "Primera pizarra",
-        "en": "First Whiteboard"
+        "en": "First Whiteboard",
+        "fr": "Premier tableau",
+        "de": "Erste Taktiktafel",
+        "it": "Prima lavagna"
       },
       "rewardStyle": 7
     },
@@ -1776,7 +2217,10 @@
       "tier": 2,
       "title": {
         "es": "Temporada en el banquillo",
-        "en": "Season on the Bench"
+        "en": "Season on the Bench",
+        "fr": "Une saison sur le banc",
+        "de": "Eine Saison an der Seitenlinie",
+        "it": "Una stagione in panchina"
       },
       "rewardStyle": 10
     },
@@ -1788,7 +2232,10 @@
       "tier": 3,
       "title": {
         "es": "Ochenta y dos corbatas",
-        "en": "82 Ties"
+        "en": "82 Ties",
+        "fr": "82 cravates",
+        "de": "82 Krawatten",
+        "it": "82 cravatte"
       },
       "rewardStyle": 13
     },
@@ -1800,7 +2247,10 @@
       "tier": 4,
       "title": {
         "es": "Pelo blanco",
-        "en": "Grey Hairs"
+        "en": "Grey Hairs",
+        "fr": "Cheveux gris",
+        "de": "Graue Haare",
+        "it": "Capelli grigi"
       },
       "rewardStyle": 16
     },
@@ -1812,7 +2262,10 @@
       "tier": 5,
       "title": {
         "es": "El profesor",
-        "en": "The Professor"
+        "en": "The Professor",
+        "fr": "Le Professeur",
+        "de": "Der Professor",
+        "it": "Il professore"
       },
       "rewardStyle": 19
     },
@@ -1824,7 +2277,10 @@
       "tier": 1,
       "title": {
         "es": "Tiempo, árbitro",
-        "en": "Timeout, Ref"
+        "en": "Timeout, Ref",
+        "fr": "Temps mort, arbitre",
+        "de": "Auszeit, Schiri",
+        "it": "Time-out, arbitro"
       },
       "rewardStyle": 7
     },
@@ -1836,7 +2292,10 @@
       "tier": 2,
       "title": {
         "es": "Parar el tiempo",
-        "en": "Stop the Clock"
+        "en": "Stop the Clock",
+        "fr": "Arrêtez la montre",
+        "de": "Stoppt die Uhr",
+        "it": "Fermate il cronometro"
       },
       "rewardStyle": 10
     },
@@ -1848,7 +2307,10 @@
       "tier": 3,
       "title": {
         "es": "Señor del tiempo",
-        "en": "Time Lord"
+        "en": "Time Lord",
+        "fr": "Seigneur du temps",
+        "de": "Herr der Zeit",
+        "it": "Signore del tempo"
       },
       "rewardStyle": 13
     },
@@ -1860,7 +2322,10 @@
       "tier": 1,
       "title": {
         "es": "Hack-a-algo",
-        "en": "Hack-a-Something"
+        "en": "Hack-a-Something",
+        "fr": "Hack-a-quelque chose",
+        "de": "Hack-a-Irgendwas",
+        "it": "Hack-a-qualcosa"
       },
       "rewardStyle": 7
     },
@@ -1872,7 +2337,10 @@
       "tier": 2,
       "title": {
         "es": "El fin justifica los medios",
-        "en": "The Ends Justify the Means"
+        "en": "The Ends Justify the Means",
+        "fr": "La fin justifie les moyens",
+        "de": "Der Zweck heiligt die Mittel",
+        "it": "Il fine giustifica i mezzi"
       },
       "rewardStyle": 10
     },
@@ -1884,7 +2352,10 @@
       "tier": 1,
       "title": {
         "es": "Hombre de confianza",
-        "en": "Trusted Man"
+        "en": "Trusted Man",
+        "fr": "Homme de confiance",
+        "de": "Vertrauensmann",
+        "it": "Uomo di fiducia"
       },
       "rewardStyle": 7
     },
@@ -1896,7 +2367,10 @@
       "tier": 2,
       "title": {
         "es": "Intocable",
-        "en": "Untouchable"
+        "en": "Untouchable",
+        "fr": "Les Incorruptibles",
+        "de": "Die Unbestechlichen",
+        "it": "Gli intoccabili"
       },
       "rewardStyle": 10
     },
@@ -1908,7 +2382,10 @@
       "tier": 1,
       "title": {
         "es": "Insert coin",
-        "en": "Insert Coin"
+        "en": "Insert Coin",
+        "fr": "Insérez une pièce",
+        "de": "Münze einwerfen",
+        "it": "Inserisci la moneta"
       },
       "rewardStyle": 7
     },
@@ -1920,7 +2397,10 @@
       "tier": 2,
       "title": {
         "es": "Sala recreativa",
-        "en": "Arcade Rat"
+        "en": "Arcade Rat",
+        "fr": "Accro aux bornes",
+        "de": "Arcade-Junkie",
+        "it": "Topo da sala giochi"
       },
       "rewardStyle": 10
     },
@@ -1932,7 +2412,10 @@
       "tier": 3,
       "title": {
         "es": "Game over nunca",
-        "en": "No Game Over"
+        "en": "No Game Over",
+        "fr": "Pas de game over",
+        "de": "Kein Game Over",
+        "it": "Niente game over"
       },
       "rewardStyle": 13
     },
@@ -1944,7 +2427,10 @@
       "tier": 1,
       "title": {
         "es": "Rutina sagrada",
-        "en": "Sacred Routine"
+        "en": "Sacred Routine",
+        "fr": "Routine sacrée",
+        "de": "Heilige Routine",
+        "it": "Routine sacra"
       },
       "rewardStyle": 7
     },
@@ -1956,7 +2442,10 @@
       "tier": 2,
       "title": {
         "es": "Diez de diez desde la línea",
-        "en": "Perfect From the Line"
+        "en": "Perfect From the Line",
+        "fr": "Parfait aux lancers",
+        "de": "Perfekt von der Linie",
+        "it": "Perfetto in lunetta"
       },
       "rewardStyle": 10
     },
@@ -1968,7 +2457,10 @@
       "tier": 1,
       "title": {
         "es": "Lluvia de triples",
-        "en": "Raining Threes"
+        "en": "Raining Threes",
+        "fr": "Pluie de trois points",
+        "de": "Dreierregen",
+        "it": "Pioggia di triple"
       },
       "rewardStyle": 7
     },
@@ -1980,7 +2472,10 @@
       "tier": 2,
       "title": {
         "es": "Splash Brother",
-        "en": "Splash Brother"
+        "en": "Splash Brother",
+        "fr": "Splash Brother",
+        "de": "Splash Brother",
+        "it": "Splash Brother"
       },
       "rewardStyle": 10
     },
@@ -1992,7 +2487,10 @@
       "tier": 1,
       "title": {
         "es": "Al sonar la bocina",
-        "en": "At the Horn"
+        "en": "At the Horn",
+        "fr": "Au buzzer",
+        "de": "Mit der Sirene",
+        "it": "Sulla sirena"
       },
       "rewardStyle": 7
     },
@@ -2004,7 +2502,10 @@
       "tier": 1,
       "title": {
         "es": "Despegue",
-        "en": "Liftoff"
+        "en": "Liftoff",
+        "fr": "Décollage",
+        "de": "Abheben",
+        "it": "Decollo"
       },
       "rewardStyle": 7
     },
@@ -2016,7 +2517,10 @@
       "tier": 2,
       "title": {
         "es": "Space Jam",
-        "en": "Space Jam"
+        "en": "Space Jam",
+        "fr": "Space Jam",
+        "de": "Space Jam",
+        "it": "Space Jam"
       },
       "rewardStyle": 10
     },
@@ -2028,7 +2532,10 @@
       "tier": 1,
       "title": {
         "es": "Candado",
-        "en": "Lockdown"
+        "en": "Lockdown",
+        "fr": "Verrouillage",
+        "de": "Abriegeln",
+        "it": "Chiusura totale"
       },
       "rewardStyle": 7
     },
@@ -2040,7 +2547,10 @@
       "tier": 1,
       "title": {
         "es": "Rey de la pista callejera",
-        "en": "King of the Court"
+        "en": "King of the Court",
+        "fr": "Roi du terrain",
+        "de": "König des Courts",
+        "it": "Re del campo"
       },
       "rewardStyle": 7
     },
@@ -2052,7 +2562,10 @@
       "tier": 2,
       "title": {
         "es": "Leyenda del asfalto",
-        "en": "Asphalt Legend"
+        "en": "Asphalt Legend",
+        "fr": "Légende du bitume",
+        "de": "Legende des Asphalts",
+        "it": "Leggenda dell'asfalto"
       },
       "rewardStyle": 10
     },
@@ -2064,7 +2577,10 @@
       "tier": 1,
       "title": {
         "es": "Perfeccionista",
-        "en": "Perfectionist"
+        "en": "Perfectionist",
+        "fr": "Perfectionniste",
+        "de": "Perfektionist",
+        "it": "Perfezionista"
       },
       "rewardStyle": 7
     },
@@ -2076,7 +2592,10 @@
       "tier": 1,
       "title": {
         "es": "Mi mejor amigo",
-        "en": "Man's Best Friend"
+        "en": "Man's Best Friend",
+        "fr": "Le meilleur ami de l'homme",
+        "de": "Der beste Freund des Menschen",
+        "it": "Il migliore amico dell'uomo"
       },
       "rewardStyle": 7
     },
@@ -2088,7 +2607,10 @@
       "tier": 1,
       "title": {
         "es": "Sit, Ubu, sit",
-        "en": "Sit, Ubu, Sit"
+        "en": "Sit, Ubu, Sit",
+        "fr": "Assis, Ubu, assis",
+        "de": "Sitz, Ubu, sitz",
+        "it": "Seduto, Ubu, seduto"
       },
       "rewardStyle": 7
     },
@@ -2100,7 +2622,10 @@
       "tier": 2,
       "title": {
         "es": "Truco o trato",
-        "en": "Trick or Treat"
+        "en": "Trick or Treat",
+        "fr": "Des bonbons ou un sort",
+        "de": "Süßes oder Saures",
+        "it": "Dolcetto o scherzetto"
       },
       "rewardStyle": 10
     },
@@ -2112,7 +2637,10 @@
       "tier": 3,
       "title": {
         "es": "Air Bud",
-        "en": "Air Bud"
+        "en": "Air Bud",
+        "fr": "Air Bud",
+        "de": "Air Bud",
+        "it": "Air Bud"
       },
       "rewardStyle": 13
     },
@@ -2124,7 +2652,10 @@
       "tier": 1,
       "title": {
         "es": "Paseo por el parque",
-        "en": "Walk in the Park"
+        "en": "Walk in the Park",
+        "fr": "Promenade de santé",
+        "de": "Spaziergang im Park",
+        "it": "Una passeggiata"
       },
       "rewardStyle": 7
     },
@@ -2136,7 +2667,10 @@
       "tier": 2,
       "title": {
         "es": "Cien paseos de amor",
-        "en": "A Dog's Journey"
+        "en": "A Dog's Journey",
+        "fr": "Mes autres vies de chien",
+        "de": "Bailey – Ein Hund kehrt zurück",
+        "it": "Qua la zampa 2"
       },
       "rewardStyle": 10
     },
@@ -2148,7 +2682,10 @@
       "tier": 1,
       "title": {
         "es": "Uña y carne",
-        "en": "Two Peas in a Pod"
+        "en": "Two Peas in a Pod",
+        "fr": "Inséparables",
+        "de": "Ein Herz und eine Seele",
+        "it": "Due gocce d'acqua"
       },
       "rewardStyle": 7
     },
@@ -2160,7 +2697,10 @@
       "tier": 2,
       "title": {
         "es": "Siempre a tu lado",
-        "en": "Hachiko"
+        "en": "Hachiko",
+        "fr": "Hachiko",
+        "de": "Hachiko",
+        "it": "Hachiko"
       },
       "rewardStyle": 10
     },
@@ -2172,7 +2712,10 @@
       "tier": 1,
       "title": {
         "es": "Mejor en el show",
-        "en": "Best in Show"
+        "en": "Best in Show",
+        "fr": "Meilleur du concours",
+        "de": "Best in Show",
+        "it": "Best in Show"
       },
       "rewardStyle": 7
     },
@@ -2184,7 +2727,10 @@
       "tier": 2,
       "title": {
         "es": "Rey de la pista canina",
-        "en": "Top Dog"
+        "en": "Top Dog",
+        "fr": "Chien dominant",
+        "de": "Platzhirsch",
+        "it": "Cane alfa"
       },
       "rewardStyle": 10
     },
@@ -2196,7 +2742,10 @@
       "tier": 1,
       "title": {
         "es": "Bienvenido a la fiesta",
-        "en": "Welcome to the Party"
+        "en": "Welcome to the Party",
+        "fr": "Bienvenue à la fête",
+        "de": "Willkommen auf der Party",
+        "it": "Benvenuto alla festa"
       },
       "rewardStyle": 7
     },
@@ -2208,7 +2757,10 @@
       "tier": 2,
       "title": {
         "es": "Abonado a mayo",
-        "en": "May Regular"
+        "en": "May Regular",
+        "fr": "Habitué de mai",
+        "de": "Stammgast im Mai",
+        "it": "Abituale di maggio"
       },
       "rewardStyle": 10
     },
@@ -2220,7 +2772,10 @@
       "tier": 1,
       "title": {
         "es": "Primera noche de playoffs",
-        "en": "First Playoff Night"
+        "en": "First Playoff Night",
+        "fr": "Première nuit de playoffs",
+        "de": "Erste Playoff-Nacht",
+        "it": "Prima notte di playoff"
       },
       "rewardStyle": 7
     },
@@ -2232,7 +2787,10 @@
       "tier": 2,
       "title": {
         "es": "Modo playoffs",
-        "en": "Playoff Mode"
+        "en": "Playoff Mode",
+        "fr": "Mode playoffs",
+        "de": "Playoff-Modus",
+        "it": "Modalità playoff"
       },
       "rewardStyle": 10
     },
@@ -2244,7 +2802,10 @@
       "tier": 3,
       "title": {
         "es": "Mr. Mayo",
-        "en": "Mr. May"
+        "en": "Mr. May",
+        "fr": "Monsieur Mai",
+        "de": "Mr. Mai",
+        "it": "Mister Maggio"
       },
       "rewardStyle": 13
     },
@@ -2256,7 +2817,10 @@
       "tier": 1,
       "title": {
         "es": "La gran final",
-        "en": "The Big Dance"
+        "en": "The Big Dance",
+        "fr": "Le grand bal",
+        "de": "Der große Tanz",
+        "it": "Il grande ballo"
       },
       "rewardStyle": 7
     },
@@ -2268,7 +2832,10 @@
       "tier": 1,
       "title": {
         "es": "Campeón",
-        "en": "Champion"
+        "en": "Champion",
+        "fr": "Champion",
+        "de": "Meister",
+        "it": "Campione"
       },
       "rewardStyle": 7
     },
@@ -2280,7 +2847,10 @@
       "tier": 2,
       "title": {
         "es": "Three-peat",
-        "en": "Three-Peat"
+        "en": "Three-Peat",
+        "fr": "Triplé",
+        "de": "Three-Peat",
+        "it": "Three-peat"
       },
       "rewardStyle": 10
     },
@@ -2292,7 +2862,10 @@
       "tier": 3,
       "title": {
         "es": "The Last Dance",
-        "en": "The Last Dance"
+        "en": "The Last Dance",
+        "fr": "The Last Dance",
+        "de": "The Last Dance",
+        "it": "The Last Dance"
       },
       "rewardStyle": 13
     },
@@ -2304,7 +2877,10 @@
       "tier": 1,
       "title": {
         "es": "Discurso de agradecimiento",
-        "en": "Acceptance Speech"
+        "en": "Acceptance Speech",
+        "fr": "Discours de remerciement",
+        "de": "Dankesrede",
+        "it": "Discorso di ringraziamento"
       },
       "rewardStyle": 7
     },
@@ -2316,7 +2892,10 @@
       "tier": 2,
       "title": {
         "es": "Vitrina llena",
-        "en": "Full Trophy Case"
+        "en": "Full Trophy Case",
+        "fr": "Vitrine pleine",
+        "de": "Volle Vitrine",
+        "it": "Bacheca piena"
       },
       "rewardStyle": 10
     },
@@ -2328,7 +2907,10 @@
       "tier": 1,
       "title": {
         "es": "El más valioso",
-        "en": "Most Valuable"
+        "en": "Most Valuable",
+        "fr": "Le plus précieux",
+        "de": "Der Wertvollste",
+        "it": "Il più prezioso"
       },
       "rewardStyle": 7
     },
@@ -2340,7 +2922,10 @@
       "tier": 2,
       "title": {
         "es": "Rey del norte",
-        "en": "King in the North"
+        "en": "King in the North",
+        "fr": "Roi du Nord",
+        "de": "König des Nordens",
+        "it": "Re del Nord"
       },
       "rewardStyle": 10
     },
@@ -2352,7 +2937,10 @@
       "tier": 1,
       "title": {
         "es": "Quinteto de gala",
-        "en": "First Team"
+        "en": "First Team",
+        "fr": "Première équipe",
+        "de": "Erstes Team",
+        "it": "Primo quintetto"
       },
       "rewardStyle": 7
     },
@@ -2364,7 +2952,10 @@
       "tier": 2,
       "title": {
         "es": "Habitual del cartel",
-        "en": "Mainstay"
+        "en": "Mainstay",
+        "fr": "Pilier",
+        "de": "Stütze",
+        "it": "Colonna"
       },
       "rewardStyle": 10
     },
@@ -2376,7 +2967,10 @@
       "tier": 1,
       "title": {
         "es": "Cómo conocí a tu madre",
-        "en": "How I Met Your Mother"
+        "en": "How I Met Your Mother",
+        "fr": "How I Met Your Mother",
+        "de": "How I Met Your Mother",
+        "it": "How I Met Your Mother"
       },
       "rewardStyle": 7
     },
@@ -2388,7 +2982,10 @@
       "tier": 1,
       "title": {
         "es": "Cuatro bodas y un triple",
-        "en": "Four Weddings and a Three"
+        "en": "Four Weddings and a Three",
+        "fr": "Quatre mariages et un trois-points",
+        "de": "Vier Hochzeiten und ein Dreier",
+        "it": "Quattro matrimoni e una tripla"
       },
       "rewardStyle": 7
     },
@@ -2400,7 +2997,10 @@
       "tier": 1,
       "title": {
         "es": "Mira quién bota",
-        "en": "Look Who's Dribbling"
+        "en": "Look Who's Dribbling",
+        "fr": "Allô maman, ici dribble",
+        "de": "Kuck mal, wer da dribbelt",
+        "it": "Senti chi dribbla"
       },
       "rewardStyle": 7
     },
@@ -2412,7 +3012,10 @@
       "tier": 2,
       "title": {
         "es": "Los Increíbles",
-        "en": "The Incredibles"
+        "en": "The Incredibles",
+        "fr": "Les Indestructibles",
+        "de": "Die Unglaublichen",
+        "it": "Gli Incredibili"
       },
       "rewardStyle": 10
     },
@@ -2424,7 +3027,10 @@
       "tier": 1,
       "title": {
         "es": "Padre de familia",
-        "en": "Family Guy"
+        "en": "Family Guy",
+        "fr": "Family Guy",
+        "de": "Family Guy",
+        "it": "I Griffin"
       },
       "rewardStyle": 7
     },
@@ -2436,7 +3042,10 @@
       "tier": 1,
       "title": {
         "es": "Leyenda del club",
-        "en": "Club Legend"
+        "en": "Club Legend",
+        "fr": "Légende du club",
+        "de": "Vereinslegende",
+        "it": "Leggenda del club"
       },
       "rewardStyle": 7
     },
@@ -2448,7 +3057,10 @@
       "tier": 1,
       "title": {
         "es": "De tal palo…",
-        "en": "Like Father, Like Son"
+        "en": "Like Father, Like Son",
+        "fr": "Tel père, tel fils",
+        "de": "Wie der Vater, so der Sohn",
+        "it": "Tale padre, tale figlio"
       },
       "rewardStyle": 7
     },
@@ -2460,7 +3072,10 @@
       "tier": 2,
       "title": {
         "es": "Dinastía Skywalker",
-        "en": "The Skywalker Saga"
+        "en": "The Skywalker Saga",
+        "fr": "La saga Skywalker",
+        "de": "Die Skywalker-Saga",
+        "it": "La saga degli Skywalker"
       },
       "rewardStyle": 10
     },
@@ -2472,7 +3087,10 @@
       "tier": 1,
       "title": {
         "es": "Fin de semana perfecto",
-        "en": "Perfect Weekend"
+        "en": "Perfect Weekend",
+        "fr": "Week-end parfait",
+        "de": "Perfektes Wochenende",
+        "it": "Weekend perfetto"
       },
       "rewardStyle": 7
     },
@@ -2484,7 +3102,10 @@
       "tier": 2,
       "title": {
         "es": "Coleccionista de copas",
-        "en": "Cup Collector"
+        "en": "Cup Collector",
+        "fr": "Collectionneur de coupes",
+        "de": "Pokalsammler",
+        "it": "Collezionista di coppe"
       },
       "rewardStyle": 10
     },
@@ -2496,7 +3117,10 @@
       "tier": 1,
       "title": {
         "es": "Podio con tu país",
-        "en": "Podium for Your Country"
+        "en": "Podium for Your Country",
+        "fr": "Podium pour ton pays",
+        "de": "Podium für dein Land",
+        "it": "Podio per il tuo paese"
       },
       "rewardStyle": 7
     },
@@ -2508,7 +3132,10 @@
       "tier": 1,
       "title": {
         "es": "Oro que no se oxida",
-        "en": "Gold That Never Rusts"
+        "en": "Gold That Never Rusts",
+        "fr": "L'or qui ne rouille pas",
+        "de": "Gold, das nie rostet",
+        "it": "L'oro che non arrugginisce"
       },
       "rewardStyle": 7
     },
@@ -2520,7 +3147,10 @@
       "tier": 2,
       "title": {
         "es": "Medallero",
-        "en": "Medal Table"
+        "en": "Medal Table",
+        "fr": "Tableau des médailles",
+        "de": "Medaillenspiegel",
+        "it": "Medagliere"
       },
       "rewardStyle": 10
     },
@@ -2532,7 +3162,10 @@
       "tier": 1,
       "title": {
         "es": "Primera piedra",
-        "en": "First Stone"
+        "en": "First Stone",
+        "fr": "Première pierre",
+        "de": "Grundstein",
+        "it": "Prima pietra"
       },
       "rewardStyle": 7
     },
@@ -2544,7 +3177,10 @@
       "tier": 2,
       "title": {
         "es": "El club de tus sueños",
-        "en": "Field of Dreams"
+        "en": "Field of Dreams",
+        "fr": "Jusqu'au bout du rêve",
+        "de": "Feld der Träume",
+        "it": "L'uomo dei sogni"
       },
       "rewardStyle": 10
     },
@@ -2556,7 +3192,10 @@
       "tier": 1,
       "title": {
         "es": "Reto superado",
-        "en": "Challenge Accepted"
+        "en": "Challenge Accepted",
+        "fr": "Défi accepté",
+        "de": "Herausforderung angenommen",
+        "it": "Sfida accettata"
       },
       "rewardStyle": 7
     },
@@ -2568,7 +3207,10 @@
       "tier": 1,
       "title": {
         "es": "Misión cumplida",
-        "en": "Mission Accomplished"
+        "en": "Mission Accomplished",
+        "fr": "Mission accomplie",
+        "de": "Mission erfüllt",
+        "it": "Missione compiuta"
       },
       "rewardStyle": 7
     },
@@ -2580,7 +3222,10 @@
       "tier": 1,
       "title": {
         "es": "De estreno",
-        "en": "Fresh Out of the Box"
+        "en": "Fresh Out of the Box",
+        "fr": "Tout juste sorti de la boîte",
+        "de": "Frisch aus der Schachtel",
+        "it": "Appena uscito dalla scatola"
       },
       "rewardStyle": 7
     },
@@ -2592,7 +3237,10 @@
       "tier": 2,
       "title": {
         "es": "Fondo de armario",
-        "en": "Full Wardrobe"
+        "en": "Full Wardrobe",
+        "fr": "Garde-robe complète",
+        "de": "Voller Kleiderschrank",
+        "it": "Guardaroba completo"
       },
       "rewardStyle": 10
     },
@@ -2604,7 +3252,10 @@
       "tier": 1,
       "title": {
         "es": "Oro puro",
-        "en": "Pure Gold"
+        "en": "Pure Gold",
+        "fr": "Or pur",
+        "de": "Pures Gold",
+        "it": "Oro puro"
       },
       "rewardStyle": 7
     },
@@ -2616,7 +3267,10 @@
       "tier": 2,
       "title": {
         "es": "Equipado para la leyenda",
-        "en": "Legendary Kit"
+        "en": "Legendary Kit",
+        "fr": "Tenue légendaire",
+        "de": "Legendäre Ausrüstung",
+        "it": "Divisa leggendaria"
       },
       "rewardStyle": 10
     },
@@ -2629,7 +3283,10 @@
       "platinum": true,
       "title": {
         "es": "Platino: el camino completo",
-        "en": "Platinum: The Whole Road"
+        "en": "Platinum: The Whole Road",
+        "fr": "Platine : toute la route",
+        "de": "Platin: der ganze Weg",
+        "it": "Platino: tutta la strada"
       },
       "rewardStyle": 100
     },
@@ -2642,7 +3299,10 @@
       "platinum": true,
       "title": {
         "es": "Platino: el banquillo eterno",
-        "en": "Platinum: The Eternal Bench"
+        "en": "Platinum: The Eternal Bench",
+        "fr": "Platine : le banc éternel",
+        "de": "Platin: die ewige Bank",
+        "it": "Platino: la panchina eterna"
       },
       "rewardStyle": 100
     }

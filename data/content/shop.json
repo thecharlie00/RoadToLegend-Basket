@@ -8,7 +8,10 @@
       "slot": "shoes",
       "name": {
         "es": "AroWear Uno",
-        "en": "AroWear One"
+        "en": "AroWear One",
+        "fr": "AroWear One",
+        "de": "AroWear One",
+        "it": "AroWear One"
       },
       "cost": 20,
       "color": "#ffb547",
@@ -22,7 +25,10 @@
       "slot": "shoes",
       "name": {
         "es": "Parquet Lab Air",
-        "en": "Parquet Lab Air"
+        "en": "Parquet Lab Air",
+        "fr": "Parquet Lab Air",
+        "de": "Parquet Lab Air",
+        "it": "Parquet Lab Air"
       },
       "cost": 45,
       "color": "#59d18c",
@@ -36,7 +42,10 @@
       "slot": "shoes",
       "name": {
         "es": "Skyline Hoops Pro",
-        "en": "Skyline Hoops Pro"
+        "en": "Skyline Hoops Pro",
+        "fr": "Skyline Hoops Pro",
+        "de": "Skyline Hoops Pro",
+        "it": "Skyline Hoops Pro"
       },
       "cost": 80,
       "color": "#5aa9ff",
@@ -50,7 +59,10 @@
       "slot": "jersey",
       "name": {
         "es": "Local Clásica",
-        "en": "Local Classic"
+        "en": "Local Classic",
+        "fr": "Classique local",
+        "de": "Lokaler Klassiker",
+        "it": "Classico locale"
       },
       "cost": 15,
       "color": "#eef6f4",
@@ -64,7 +76,10 @@
       "slot": "jersey",
       "name": {
         "es": "Local Noche",
-        "en": "Local Night"
+        "en": "Local Night",
+        "fr": "Nuit locale",
+        "de": "Lokale Nacht",
+        "it": "Notte locale"
       },
       "cost": 35,
       "color": "#122126",
@@ -78,7 +93,10 @@
       "slot": "jersey",
       "name": {
         "es": "Local Retro",
-        "en": "Local Retro"
+        "en": "Local Retro",
+        "fr": "Rétro local",
+        "de": "Lokales Retro",
+        "it": "Rétro locale"
       },
       "cost": 60,
       "color": "#ff7a6b",
@@ -92,7 +110,10 @@
       "slot": "accessory",
       "name": {
         "es": "Muñeca Barrio",
-        "en": "Neighborhood Wristband"
+        "en": "Neighborhood Wristband",
+        "fr": "Poignet du quartier",
+        "de": "Schweißband des Viertels",
+        "it": "Polsino del quartiere"
       },
       "cost": 10,
       "color": "#ffb547",
@@ -106,7 +127,10 @@
       "slot": "accessory",
       "name": {
         "es": "Cinta Capitán",
-        "en": "Captain Headband"
+        "en": "Captain Headband",
+        "fr": "Bandeau de capitaine",
+        "de": "Kapitänsstirnband",
+        "it": "Fascia da capitano"
       },
       "cost": 30,
       "color": "#59d18c",
@@ -120,7 +144,10 @@
       "slot": "accessory",
       "name": {
         "es": "Manga Tiro",
-        "en": "Shooting Sleeve"
+        "en": "Shooting Sleeve",
+        "fr": "Manchon de tir",
+        "de": "Wurfärmel",
+        "it": "Manicotto da tiro"
       },
       "cost": 50,
       "color": "#5aa9ff",
@@ -134,7 +161,10 @@
       "slot": "background",
       "name": {
         "es": "Cancha Barrio",
-        "en": "Neighborhood Court"
+        "en": "Neighborhood Court",
+        "fr": "Terrain du quartier",
+        "de": "Platz im Viertel",
+        "it": "Campetto del quartiere"
       },
       "cost": 25,
       "color": "#24424a",
@@ -148,7 +178,10 @@
       "slot": "background",
       "name": {
         "es": "Pabellón Local",
-        "en": "Local Arena"
+        "en": "Local Arena",
+        "fr": "Salle locale",
+        "de": "Lokale Halle",
+        "it": "Palazzetto locale"
       },
       "cost": 55,
       "color": "#0b1417",
@@ -162,7 +195,10 @@
       "slot": "background",
       "name": {
         "es": "Atardecer Urbano",
-        "en": "Urban Sunset"
+        "en": "Urban Sunset",
+        "fr": "Coucher de soleil urbain",
+        "de": "Urbaner Sonnenuntergang",
+        "it": "Tramonto urbano"
       },
       "cost": 90,
       "color": "#ff9f43",

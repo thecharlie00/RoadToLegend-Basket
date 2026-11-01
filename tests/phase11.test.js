@@ -81,3 +81,17 @@ test('coach market: sign, release and staff with real cash; staff costs each wee
   assert.equal(s.mkt.staff.scout, 2); assert.ok(s.clubFin.cash < cash0);
   assert.throws(() => Career.marketOp(s, { op: 'staff', role: 'chef', level: 1 }), /bad role/);
 });
+
+const ContentI18n = require('../src/domain/content-i18n.js');
+const Social = require('../src/domain/social.js');
+test('narrative content ships in French, German and Italian', () => {
+  for (const f of ['events', 'achievements', 'press', 'guide', 'shop']) {
+    const raw = JSON.stringify(require('../data/content/' + f + '.json'));
+    const pairs = raw.match(/"en":"[^"]/g).length;
+    for (const l of ['fr', 'de', 'it']) assert.equal((raw.match(new RegExp('"' + l + '":', 'g')) || []).length, pairs, f + ' ' + l);
+  }
+  const s = Career.createCareer({ seed: 'i18n-t', mode: 'player', route: 'eu-academy' });
+  const posts = Social.weekly(s, { us: 80, them: 70, opponent: 'Rivales', pts: 30 });
+  assert.ok(posts.every(p => p.text.fr && p.text.de && p.text.it && !/\{\w+\}/.test(p.text.de)));
+  assert.equal(ContentI18n.tr('it', 'Spain'), 'Spagna');
+});

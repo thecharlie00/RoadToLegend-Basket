@@ -4,6 +4,7 @@
   // Cada semana se publican 2-3 mensajes según lo que pasa: resultado, tu partido, rachas, lesiones, rumores, playoffs.
   const CAA = root.CAA = root.CAA || {};
   const RNG = CAA.RNG || (typeof require === 'function' ? require('../core/rng.js') : null);
+  const CI = () => CAA.ContentI18n || (typeof require === 'function' ? require('./content-i18n.js') : null);
   const ACCOUNTS = [
     { id: 'insider', name: 'Rumores del Parqué', handle: 'rumoresparque', av: '🚨', verified: true },
     { id: 'pundit', name: 'La Pizarra', handle: 'lapizarra_tv', av: '📋', verified: true },
@@ -40,7 +41,7 @@
     const list = T[key]; if (!list) return null;
     const [acc, es, en] = list[rng.int(0, list.length - 1)];
     const a = ACCOUNTS.find(x => x.id === acc);
-    return { acc, name: fill(a.name, v), handle: a.handle === 'oficial' ? String(v.club || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15) : a.handle, av: a.av, verified: a.verified, text: { es: fill(es, v), en: fill(en, v) }, week, likes: Math.round(40 + rng.float() * (key === 'title' ? 9000 : 1800)) };
+    return { acc, name: fill(a.name, v), handle: a.handle === 'oficial' ? String(v.club || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15) : a.handle, av: a.av, verified: a.verified, text: Object.assign({ es: fill(es, v), en: fill(en, v) }, ...['fr', 'de', 'it'].map(l => { const tr = CI() && CI().tr(l, en); return tr ? { [l]: fill(tr, v) } : {}; })), week, likes: Math.round(40 + rng.float() * (key === 'title' ? 9000 : 1800)) };
   }
   // Mensajes de la semana a partir del último partido y del contexto de la carrera.
   function weekly(state, info) {

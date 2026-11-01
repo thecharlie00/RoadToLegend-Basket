@@ -6,42 +6,66 @@
     {
       "id": "create",
       "es": "Crea jugador o entrenador y elige ruta.",
-      "en": "Create a player or coach and choose a route."
+      "en": "Create a player or coach and choose a route.",
+      "fr": "Crée un joueur ou un coach et choisis une voie.",
+      "de": "Erstelle einen Spieler oder Coach und wähle einen Weg.",
+      "it": "Crea un giocatore o un allenatore e scegli un percorso."
     },
     {
       "id": "week",
       "es": "Juega una semana; el motor resuelve el partido sin red.",
-      "en": "Play a week; the engine resolves the match offline."
+      "en": "Play a week; the engine resolves the match offline.",
+      "fr": "Joue une semaine ; le moteur résout le match hors ligne.",
+      "de": "Spiele eine Woche; die Engine berechnet das Spiel offline.",
+      "it": "Gioca una settimana; il motore risolve la partita offline."
     },
     {
       "id": "load",
       "es": "Vigila carga y lesiones; descansar también progresa.",
-      "en": "Watch load and injuries; resting also progresses."
+      "en": "Watch load and injuries; resting also progresses.",
+      "fr": "Surveille la charge et les blessures ; se reposer fait aussi progresser.",
+      "de": "Achte auf Belastung und Verletzungen; auch Ruhe bringt Fortschritt.",
+      "it": "Tieni d'occhio carico e infortuni; anche il riposo fa progredire."
     },
     {
       "id": "event",
       "es": "Resuelve eventos breves con consecuencias visibles.",
-      "en": "Resolve short events with visible consequences."
+      "en": "Resolve short events with visible consequences.",
+      "fr": "Résous de courts événements aux conséquences visibles.",
+      "de": "Entscheide kurze Ereignisse mit sichtbaren Folgen.",
+      "it": "Risolvi brevi eventi con conseguenze visibili."
     },
     {
       "id": "market",
       "es": "Firma ofertas y explora cruces entre Europa y NA.",
-      "en": "Sign offers and explore crossings between Europe and NA."
+      "en": "Sign offers and explore crossings between Europe and NA.",
+      "fr": "Signe des offres et explore les passerelles entre l'Europe et la NA.",
+      "de": "Unterschreibe Angebote und erkunde Wechsel zwischen Europa und NA.",
+      "it": "Firma offerte ed esplora i passaggi tra Europa e NA."
     },
     {
       "id": "style",
       "es": "Gana estilo con logros y equipa a tu Me 2D.",
-      "en": "Earn style from achievements and equip your 2D Me."
+      "en": "Earn style from achievements and equip your 2D Me.",
+      "fr": "Gagne du style grâce aux succès et équipe ton Moi 2D.",
+      "de": "Verdiene Stil durch Erfolge und rüste dein 2D-Ich aus.",
+      "it": "Guadagna stile con i traguardi ed equipaggia il tuo Io 2D."
     },
     {
       "id": "save",
       "es": "Guarda en cualquier semana; exporta/importa JSON.",
-      "en": "Save any week; export/import JSON."
+      "en": "Save any week; export/import JSON.",
+      "fr": "Sauvegarde n'importe quelle semaine ; exporte/importe en JSON.",
+      "de": "Speichere jede Woche; exportiere/importiere JSON.",
+      "it": "Salva qualsiasi settimana; esporta/importa JSON."
     },
     {
       "id": "access",
       "es": "Ajusta texto, color, movimiento y alternativa automática.",
-      "en": "Adjust text, color, motion and automatic alternative."
+      "en": "Adjust text, color, motion and automatic alternative.",
+      "fr": "Ajuste le texte, la couleur, les animations et l'alternative automatique.",
+      "de": "Passe Text, Farbe, Bewegung und automatische Alternative an.",
+      "it": "Regola testo, colore, animazioni e alternativa automatica."
     }
   ]
 }

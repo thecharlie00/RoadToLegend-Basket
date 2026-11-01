@@ -44,3 +44,7 @@ PRESS = [
 ]
 dump('press.json', {'schemaVersion': 2, 'packId': 'baloncesto-prensa', 'version': '2.0.0', 'templates': [{'id': f'{c}-{i}', 'condition': c, 'es': es, 'en': en} for i, (c, es, en) in enumerate(PRESS)]})
 print(len(events), 'events ·', len(ach), 'trophies ·', len(PRESS), 'press')
+
+# Traducciones fr/de/it del contenido narrativo (tools/i18n).
+import runpy as _rp, pathlib as _pl
+_rp.run_path(str(_pl.Path(__file__).with_name('content_i18n.py')))

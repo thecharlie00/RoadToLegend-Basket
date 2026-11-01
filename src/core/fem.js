@@ -63,7 +63,7 @@
     if (!o || !(o.team || o.self || o.scope)) return text;
     return locale === 'en' ? en(text, o) : es(text, o);
   }
-  function pair(p, o) { return p && o && (o.team || o.self || o.scope) ? { es: es(p.es, o), en: en(p.en, o) } : p; }
+  function pair(p, o) { return p && o && (o.team || o.self || o.scope) ? Object.assign({}, p, { es: es(p.es, o), en: en(p.en, o) }) : p; }
   function opts(team, self, eventId) { return { team: !!team, self: !!self, scope: !!team && SCOPED.has(eventId) }; }
   CAA.Fem = { apply, pair, opts, SCOPED };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Fem;
