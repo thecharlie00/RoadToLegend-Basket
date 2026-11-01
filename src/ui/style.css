@@ -196,3 +196,6 @@ body[data-era="sd"] .live3d canvas{filter:saturate(.88) blur(.2px)}
 body[data-era="sepia"] .live3d,body[data-era="bw"] .live3d{position:relative}body[data-era="sepia"] .live3d::after,body[data-era="bw"] .live3d::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 60px rgba(0,0,0,.55)}
 .era-banner{border-left:4px solid var(--accent2)}
 .gi-body .tag,.gi-body .tier{align-self:flex-start;width:auto}
+.swatch.lvl{display:grid;place-items:center;font-family:var(--ui);font-weight:700;color:var(--ink);background:var(--raise)}.pick-grid.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.medals{display:flex;flex-wrap:wrap;gap:8px;font-family:var(--ui);font-weight:700}
+.ed-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}

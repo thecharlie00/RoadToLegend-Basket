@@ -2465,9 +2465,165 @@
       "rewardStyle": 10
     },
     {
+      "id": "cups-1",
+      "metric": "cups",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Fin de semana perfecto",
+        "en": "Perfect Weekend"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "cups-3",
+      "metric": "cups",
+      "threshold": 3,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Coleccionista de copas",
+        "en": "Cup Collector"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "medals-1",
+      "metric": "medals",
+      "threshold": 1,
+      "mode": "player",
+      "tier": 1,
+      "title": {
+        "es": "Podio con tu país",
+        "en": "Podium for Your Country"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "golds-1",
+      "metric": "golds",
+      "threshold": 1,
+      "mode": "player",
+      "tier": 1,
+      "title": {
+        "es": "Oro que no se oxida",
+        "en": "Gold That Never Rusts"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "medals-3",
+      "metric": "medals",
+      "threshold": 3,
+      "mode": "player",
+      "tier": 2,
+      "title": {
+        "es": "Medallero",
+        "en": "Medal Table"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "facilityUpgrades-1",
+      "metric": "facilityUpgrades",
+      "threshold": 1,
+      "mode": "coach",
+      "tier": 1,
+      "title": {
+        "es": "Primera piedra",
+        "en": "First Stone"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "facilityUpgrades-8",
+      "metric": "facilityUpgrades",
+      "threshold": 8,
+      "mode": "coach",
+      "tier": 2,
+      "title": {
+        "es": "El club de tus sueños",
+        "en": "Field of Dreams"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "challengeMedals-1",
+      "metric": "challengeMedals",
+      "threshold": 1,
+      "mode": "coach",
+      "tier": 1,
+      "title": {
+        "es": "Reto superado",
+        "en": "Challenge Accepted"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "challengeGolds-1",
+      "metric": "challengeGolds",
+      "threshold": 1,
+      "mode": "coach",
+      "tier": 1,
+      "title": {
+        "es": "Misión cumplida",
+        "en": "Mission Accomplished"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "gearBought-1",
+      "metric": "gearBought",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "De estreno",
+        "en": "Fresh Out of the Box"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "gearBought-8",
+      "metric": "gearBought",
+      "threshold": 8,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Fondo de armario",
+        "en": "Full Wardrobe"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "gearTier-3",
+      "metric": "gearTier",
+      "threshold": 3,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Oro puro",
+        "en": "Pure Gold"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "gearTier-5",
+      "metric": "gearTier",
+      "threshold": 5,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Equipado para la leyenda",
+        "en": "Legendary Kit"
+      },
+      "rewardStyle": 10
+    },
+    {
       "id": "platinum-player",
       "metric": "achievements",
-      "threshold": 195,
+      "threshold": 204,
       "mode": "player",
       "tier": 99,
       "platinum": true,
@@ -2480,7 +2636,7 @@
     {
       "id": "platinum-coach",
       "metric": "achievements",
-      "threshold": 121,
+      "threshold": 131,
       "mode": "coach",
       "tier": 99,
       "platinum": true,

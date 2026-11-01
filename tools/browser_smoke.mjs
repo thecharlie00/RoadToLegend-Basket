@@ -39,6 +39,7 @@ async function newCareer(page, o = {}) {
   await click(page, 'boot-new');
   await page.locator(`[data-action="boot-mode"][data-mode="${o.mode || 'player'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
   if (o.name) await page.locator('#career-name').fill(o.name);
+  if (o.nationality) await page.locator('#career-nationality').selectOption(o.nationality);
   if (o.eraYear) { await page.locator(`[data-action="wiz-set"][data-field="eraYear"][data-value="${o.eraYear}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   if (o.gender) { await page.locator(`[data-action="wiz-set"][data-field="gender"][data-value="${o.gender}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   const set = async (field, value) => { await page.locator(`[data-action="wiz-set"][data-field="${field}"][data-value="${value}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); };
@@ -329,6 +330,30 @@ try {
     const la = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     report.accessibility.push({ locale: 'es', tab: 'look', violations: la.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  });
+  await scenario('Club mode, challenge, editor, simulated season with cup and national team', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { seed: 'club-browser', mode: 'club' });
+    assert.ok(await page.evaluate(() => CAA_APP.state.career.state.founder && CAA_APP.state.career.state.mode === 'coach'));
+    await tab(page, 'club');
+    await page.locator('[data-action="club-op"][data-op="ticket"][data-value="0"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.clubFin.ticket), 0);
+    const ca = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'club', violations: ca.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await tab(page, 'editor');
+    await page.locator('#ed-c0').fill('Equipo Editado'); await page.locator('[data-action="ed-save"][data-input="ed-c0"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.ok(await page.evaluate(() => CAA_APP.state.career.summary.table.some(r => r.name === 'Equipo Editado')));
+    const eda = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'editor', violations: eda.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await tab(page, 'more'); await page.locator('[data-action="sim-season"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy, null, { timeout: 120000 });
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.year), 2027);
+    assert.ok(await page.evaluate(() => !!CAA_APP.state.career.state.history[0].cup));
+    await newCareer(page, { seed: 'chal-browser', mode: 'challenge' });
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.challenge.id), 'save');
+    await newCareer(page, { seed: 'nat-browser', nationality: 'ID' });
+    await tab(page, 'national');
+    assert.match(await page.locator('main').textContent(), /Indonesia/);
+    const na = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'national', violations: na.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
   });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');

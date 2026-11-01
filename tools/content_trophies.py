@@ -225,6 +225,20 @@ T = [
  ('legends', 1, 'any', 'Leyenda del club', 'Club Legend'),
  ('generation', 2, 'any', 'De tal palo…', 'Like Father, Like Son'),
  ('generation', 3, 'any', 'Dinastía Skywalker', 'The Skywalker Saga'),
+ # copa, selección, club, desafíos y tienda
+ ('cups', 1, 'any', 'Fin de semana perfecto', 'Perfect Weekend'),
+ ('cups', 3, 'any', 'Coleccionista de copas', 'Cup Collector'),
+ ('medals', 1, 'player', 'Podio con tu país', 'Podium for Your Country'),
+ ('golds', 1, 'player', 'Oro que no se oxida', 'Gold That Never Rusts'),
+ ('medals', 3, 'player', 'Medallero', 'Medal Table'),
+ ('facilityUpgrades', 1, 'coach', 'Primera piedra', 'First Stone'),
+ ('facilityUpgrades', 8, 'coach', 'El club de tus sueños', 'Field of Dreams'),
+ ('challengeMedals', 1, 'coach', 'Reto superado', 'Challenge Accepted'),
+ ('challengeGolds', 1, 'coach', 'Misión cumplida', 'Mission Accomplished'),
+ ('gearBought', 1, 'any', 'De estreno', 'Fresh Out of the Box'),
+ ('gearBought', 8, 'any', 'Fondo de armario', 'Full Wardrobe'),
+ ('gearTier', 3, 'any', 'Oro puro', 'Pure Gold'),
+ ('gearTier', 5, 'any', 'Equipado para la leyenda', 'Legendary Kit'),
 ]
 
 if __name__ == '__main__':

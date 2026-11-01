@@ -17,11 +17,37 @@
   const Family = CAA.Family || (typeof require === 'function' ? require('./family.js') : null);
   const Gear = CAA.Gear || (typeof require === 'function' ? require('./gear.js') : null);
   const Eras = CAA.Eras || (typeof require === 'function' ? require('./eras.js') : null);
+  const Finance = CAA.Finance || (typeof require === 'function' ? require('./finance.js') : null);
+  const National = CAA.National || (typeof require === 'function' ? require('./national.js') : null);
+  const Cup = CAA.Cup || (typeof require === 'function' ? require('./cup.js') : null);
 
   const MODES = ['player', 'coach'];
   const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted', 'world'];
 
+  // Desafíos de entrenador (chal32): club y situación de partida predefinidos, medalla según el resultado.
+  const CHALLENGES = {
+    save: { league: 'es-iberica-men', pick: 'weakest' },
+    crisis: { league: 'fr-hexagone-men', pick: 'strongest', trust: 30, morale: 40 },
+    promoted: { league: 'it-penisola-men', pick: 'second-weakest' },
+    nostar: { league: 'tr-bosforo-men', pick: 'middle', removeStars: 2 }
+  };
+  function challengeMedal(id, rank, n, result) {
+    const go = (b, si, g) => g ? 'gold' : si ? 'silver' : b ? 'bronze' : null;
+    if (id === 'save') return go(rank <= n - 2, rank <= Math.ceil(n / 2), rank <= 6);
+    if (id === 'crisis') return go(rank <= 8 || result != null && result !== 'missed', result === 'final' || result === 'champion', result === 'champion');
+    if (id === 'promoted') return go(rank <= Math.ceil(n / 2), rank <= 8, rank <= 4);
+    return go(rank <= 8, rank <= 4, result === 'champion');
+  }
   function createCareer(config = {}) {
+    if (config.challenge) {
+      const ch = CHALLENGES[config.challenge];
+      if (!ch) throw new Error('unknown challenge');
+      const tmp = Season.createSeason(ch.league, (config.seed == null ? 'career' : config.seed) + ':season');
+      const avg = c => c.roster.slice(0, 8).reduce((a, p) => a + p.ovr, 0);
+      const order = tmp.clubs.slice().sort((a, b) => avg(a) - avg(b));
+      const pick = ch.pick === 'weakest' ? order[0] : ch.pick === 'second-weakest' ? order[1] : ch.pick === 'strongest' ? order[order.length - 1] : order[Math.floor(order.length / 2)];
+      config = Object.assign({}, config, { mode: 'coach', route: 'world', leagueId: ch.league, clubId: pick.id });
+    }
     const mode = config.mode || 'player';
     if (!MODES.includes(mode)) throw new Error('unknown mode');
     if (config.archetype && !Player.ARCHETYPES.includes(config.archetype)) throw new Error('unknown archetype');
@@ -89,6 +115,16 @@
     Content.press(state);
     { const evRng = RNG.create(seed + ':story0'); Content.maybeEvent(state, evRng); }
     record(state, { type: 'create', mode, route, clubId: state.clubId, startingClubId: club.id, archetype: state.player ? state.player.archetype : null, handedness: state.player ? state.player.handedness : null });
+    if (mode === 'coach') { Finance.ensure(state); if (config.newClub) Finance.found(state, config.newClub); }
+    if (config.challenge) {
+      const ch = CHALLENGES[config.challenge];
+      state.challenge = { id: config.challenge, medal: null, year: state.year };
+      if (ch.trust) state.coach.trust = ch.trust;
+      if (ch.morale) { state.coach.morale = ch.morale; for (const p of club.roster) p.morale = ch.morale; }
+      if (ch.removeStars) { club.roster.sort((a, b) => b.ovr - a.ovr); club.roster.splice(0, ch.removeStars); while (club.roster.length < 10) { const p = Player.createPlayer({ seed: state.seed + ':filler:' + club.roster.length, quality: 45, age: 20 }); p.contract = Contracts.offerForPlayer(p, club, rng, Contracts.NA_ECONOMY_2026_27); club.roster.push(p); } }
+      Finance.ensure(state).objective = null;
+    }
+    if (config.quick) state.quick = 10;
     if (state.era) { if (!Eras.available(Season.LEAGUES[leagueId], eraYear)) throw new Error('league not founded yet'); eraApply(state, false); eraLegends(state); }
     return state;
   }
@@ -127,6 +163,14 @@
       const played = Season.playRound(season, state.seed + ':w' + state.week, overrides);
       if (live) { applyLiveOutcome(state, live); state.live = null; }
       afterGames(state, rng, played, club);
+      if (state.mode === 'coach') Finance.weekTick(state, played, rng);
+      if (Cup.due(season)) {
+        const cup = Cup.play(season, state.seed + ':' + state.year, state.clubId, state.player && state.player.id);
+        state.inbox.push({ type: 'cup', week: state.week, detail: { club: cup.championName, mine: cup.mine } });
+        if (cup.champion === state.clubId) { const lc = Content.ensureLife(state).counters; lc.cups = (lc.cups || 0) + 1; }
+      }
+      const len = season.schedule.length;
+      if (state.player && (season.round === Math.floor(len / 3) || season.round === Math.floor(2 * len / 3))) National.window(state, rng);
       if (season.round >= season.schedule.length) startPlayoffs(state);
     } else if (season.playoffs && !season.playoffs.done) {
       if (act.type === 'skipPlayoffs' && !['playing', 'waiting'].includes(Playoffs.status(season.playoffs, state.clubId))) {
@@ -253,7 +297,7 @@
     const awardsList = season.awards.concat(fm ? [fm] : []).concat([{ award: 'coy', clubId: table[0].id, club: table[0].name }]);
     const myResult = b ? Playoffs.resultOf(b, state.clubId) : null;
     const myRank = table.find(r => r.id === state.clubId).rank;
-    state.history.push({ year: state.year, leagueId: season.leagueId, champion: season.champion, championName: season.clubsById[season.champion].name, runnerUp: b ? b.runnerUp : null,
+    state.history.push({ year: state.year, leagueId: season.leagueId, champion: season.champion, championName: season.clubsById[season.champion].name, runnerUp: b ? b.runnerUp : null, cup: season.cup ? season.cup.championName : null,
       table: table.slice(0, 4), clubRank: myRank, result: myResult, awards: awardsList.map(a => ({ award: a.award, player: a.player || null, club: a.club })), promoted: b ? b.promoted.slice() : [] });
     const lc = Content.ensureLife(state).counters;
     const myAwards = [];
@@ -270,6 +314,13 @@
       record: { wins: clubOf(state).wins, losses: clubOf(state).losses }, promoted: !!(b && b.promoted.includes(state.clubId)),
       stats: pl ? { gp: pl.stats.gp, pts: pl.stats.pts, reb: pl.stats.reb, ast: pl.stats.ast, ovrStart: pl.ovrStart == null ? pl.ovr : pl.ovrStart, ovr: pl.ovr } : null,
       awards: awardsList.map(a => ({ award: a.award, player: a.player || null, club: a.club, mine: myAwards.includes(a.award) && (a.playerId ? state.player && a.playerId === state.player.id : a.clubId === state.clubId) })), myAwards, dismissed: false };
+    if (state.mode === 'coach') state.lastSeasonSummary.club = Finance.seasonEnd(state, myRank, rng);
+    if (state.challenge && !state.challenge.medal && state.challenge.year === state.year) {
+      state.challenge.medal = challengeMedal(state.challenge.id, myRank, table.length, myResult) || 'none';
+      state.lastSeasonSummary.challenge = { id: state.challenge.id, medal: state.challenge.medal };
+      if (state.challenge.medal !== 'none') lc.challengeMedals = (lc.challengeMedals || 0) + 1;
+      if (state.challenge.medal === 'gold') lc.challengeGolds = (lc.challengeGolds || 0) + 1;
+    }
     Content.evaluateAchievements(state);
     if (season.leagueId === 'na-boreal-men') {
       const seeds = Season.naPlayoffSeeds(season);
@@ -333,6 +384,10 @@
       worldOffers(state, rng);
     }
     if (state.era) { eraApply(state, true); if (Eras.decadeOf(state.year) !== state.era.decade) eraLegends(state); }
+    if (state.player) National.summer(state, state.year);
+    refillRosters(state);
+    applyEdits(state);
+    if (state.quick && state.history.length >= state.quick && !(state.retirement && state.retirement.pending)) { state.careerOver = true; state.quickEnd = true; }
     // Noticias del mundo: campeones del resto de ligas (simulación ligera).
     const played = [state.history[state.history.length - 1].leagueId, other && other.leagueId];
     state.world = { year: state.year - 1, champions: Object.keys(Season.LEAGUES).filter(id => !played.includes(id) && (!state.era || Eras.available(Season.LEAGUES[id], state.year - 1))).map(id => Season.quickChampion(id, state.seed + ':world:' + state.year)) };
@@ -394,6 +449,56 @@
     if (!pet) return;
     c.petTricks = Pet.learned(pet).length; c.petContestsWon = pet.contests.won; c.petWalks = pet.walks; c.petBond = pet.bond; c.pet = 1;
     Content.evaluateAchievements(state);
+  }
+  // Relevo generacional en todas las plantillas: los retirados dejan hueco a jóvenes de nivel parecido.
+  function refillRosters(state) {
+    for (const ss of [state.season, state.topSeason]) if (ss) {
+      const g = Season.genderOf(ss.leagueId);
+      for (const c of ss.clubs) {
+        const base = c.roster.length ? c.roster.slice().sort((a, b) => b.ovr - a.ovr).slice(0, 8).reduce((a, p) => a + p.ovr, 0) / Math.min(8, c.roster.length) : 52;
+        let k = 0;
+        while (c.roster.length < 12) {
+          const rr = RNG.create(state.seed + ':refill:' + state.year + ':' + c.id + ':' + k++);
+          const p = Player.createPlayer({ seed: state.seed + ':rk:' + state.year + ':' + c.id + ':' + k, quality: Math.round(base - 6 + rr.int(-3, 3)), age: 19 + rr.int(0, 3), nationality: (c.roster[0] || {}).nationality || 'ES', gender: g });
+          p.contract = Contracts.offerForPlayer(p, c, rr, Contracts.NA_ECONOMY_2026_27);
+          c.roster.push(p);
+        }
+        for (const p of c.roster) p.ovrStart = p.ovr;
+      }
+    }
+  }
+  // Editor (edit35): nombres de clubes y ligas a tu gusto, guardados en la partida.
+  function applyEdits(state) {
+    const ed = state.ed; if (!ed) return;
+    for (const ss of [state.season, state.topSeason]) if (ss) for (const c of ss.clubs) if (ed.clubs[c.id]) c.name = ed.clubs[c.id];
+  }
+  function editOp(state, cfg = {}) {
+    const clean = v => String(v || '').replace(/[<>]/g, '').trim().slice(0, 30);
+    state.ed = state.ed || { clubs: {}, leagues: {} };
+    if (cfg.op === 'club') { const c = state.season.clubsById[cfg.id] || (state.topSeason && state.topSeason.clubsById[cfg.id]); if (!c) throw new Error('unknown club'); const v = clean(cfg.name); if (!v) throw new Error('empty name'); state.ed.clubs[cfg.id] = v; }
+    else if (cfg.op === 'league') { if (!Season.LEAGUES[cfg.id]) throw new Error('unknown league'); const v = clean(cfg.name); if (v) state.ed.leagues[cfg.id] = v; else delete state.ed.leagues[cfg.id]; }
+    else if (cfg.op === 'reset') state.ed = { clubs: {}, leagues: {} };
+    else throw new Error('unknown op');
+    applyEdits(state);
+    record(state, { type: 'edit', op: cfg.op });
+    return state.ed;
+  }
+  // Simular el resto de la temporada de una vez (las decisiones pendientes toman la primera opción).
+  function simSeason(state) {
+    const y = state.year; let g = 0;
+    while (state.year === y && !state.careerOver && !(state.retirement && state.retirement.pending) && g++ < 260) {
+      const life = Content.ensureLife(state);
+      if (life.pendingEvent) { const v = Content.pendingView(state); if (v) chooseEvent(state, v.options[0].id); else life.pendingEvent = null; }
+      const st = state.season.playoffs ? Playoffs.status(state.season.playoffs, state.clubId) : null;
+      advanceWeek(state, { type: state.season.playoffs && !state.season.playoffs.done && !['playing', 'waiting'].includes(st) ? 'skipPlayoffs' : 'play' });
+    }
+    return state;
+  }
+  function clubOp(state, config = {}) {
+    const out = Finance.op(state, config);
+    record(state, { type: 'club', op: config.op, key: config.key || null });
+    Content.evaluateAchievements(state);
+    return Finance.view(state);
   }
   function gearOp(state, config = {}) {
     Content.ensureLife(state);
@@ -711,13 +816,13 @@
     const league = Season.LEAGUES[state.season.leagueId] || {};
     const fx = fixtures(state);
     return {
-      leagueName: league.name || state.season.leagueId, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
+      leagueName: (state.ed && state.ed.leagues[state.season.leagueId]) || league.name || state.season.leagueId, edits: state.ed || null, challenge: state.challenge || null, quick: state.quick || null, quickEnd: !!state.quickEnd, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       era: state.era ? { start: state.era.start, decade: Eras.decadeOf(state.year), legends: state.era.legends, look: Eras.look(state.year), ball: Eras.ballColor(state.year), traits: Eras.traits(state.year, league) } : null,
       leagueId: state.season.leagueId, league: { country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
-      round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
+      round: state.season.round, club: { id: club.id, name: club.name, custom: club.custom || null, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
-      gear: state.life ? Gear.view(state) : null, look: state.life ? Gear.avatarLook(state) : null,
+      gear: state.life ? Gear.view(state) : null, clubFin: state.mode === 'coach' ? Finance.view(state) : null, national: state.player ? National.view(state) : null, cup: state.season.cup || null, look: state.life ? Gear.avatarLook(state) : null,
       event: Content.pendingView(state), pet: state.pet || null, family: state.family || null, retirement: state.retirement || null, careerOver: !!state.careerOver, lastSeason: state.lastSeasonSummary && !state.lastSeasonSummary.dismissed ? state.lastSeasonSummary : null,
       playoffs: state.season.playoffs ? { format: state.season.playoffs.format, round: Playoffs.current(state.season.playoffs).name, done: state.season.playoffs.done, series: Playoffs.seriesOf(state.season.playoffs, state.clubId), status: Playoffs.status(state.season.playoffs, state.clubId), result: Playoffs.resultOf(state.season.playoffs, state.clubId) } : null,
       awards: state.season.awards || null, coach: state.coach,
@@ -798,6 +903,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, gearOp, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, CHALLENGES, gearOp, clubOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

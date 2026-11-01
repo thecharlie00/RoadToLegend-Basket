@@ -115,6 +115,24 @@
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), arcade };
           break;
         }
+        case 'career.edit': {
+          const state = CAA.Career.resume(msg.payload.state);
+          CAA.Career.editOp(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
+          break;
+        }
+        case 'career.simSeason': {
+          const state = CAA.Career.resume(msg.payload.state);
+          CAA.Career.simSeason(state);
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
+          break;
+        }
+        case 'career.club': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const club = CAA.Career.clubOp(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), club };
+          break;
+        }
         case 'career.gear': {
           const state = CAA.Career.resume(msg.payload.state);
           const gear = CAA.Career.gearOp(state, msg.payload.config || {});

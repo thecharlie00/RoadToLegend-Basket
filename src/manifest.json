@@ -135,6 +135,21 @@
       "worker": true
     },
     {
+      "id": "finance",
+      "path": "src/domain/finance.js",
+      "worker": true
+    },
+    {
+      "id": "national",
+      "path": "src/domain/national.js",
+      "worker": true
+    },
+    {
+      "id": "cup",
+      "path": "src/domain/cup.js",
+      "worker": true
+    },
+    {
       "id": "career",
       "path": "src/domain/career.js",
       "worker": true
