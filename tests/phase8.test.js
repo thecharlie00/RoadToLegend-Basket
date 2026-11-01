@@ -158,3 +158,38 @@ test('hero last shot in the live match is decided by the buzzer minigame timing'
   }
   assert.ok(checked >= 1, 'no last-shot moment found');
 });
+
+const Pet = require('../src/domain/pet.js');
+
+test('pet: adopt, weekly care limit, deterministic tricks, contests, items and real effect on the owner', () => {
+  const run = () => {
+    const s = Career.createCareer({ seed: 'pet-test', mode: 'player' });
+    Career.chooseEvent(s, 'b');
+    Career.petOp(s, { op: 'adopt', species: 'dog', name: 'Rebote' });
+    assert.throws(() => Career.petOp(s, { op: 'adopt', species: 'cat' }), /already/);
+    for (let w = 0; w < 30; w++) {
+      Career.petOp(s, { op: 'act', action: 'feed' });
+      Career.petOp(s, { op: 'act', action: 'cuddle' });
+      const next = Pet.TRICKS.find(t => (s.pet.tricks[t.id] || 0) < 100);
+      try { Career.petOp(s, { op: 'act', action: 'train', trick: next.id }); } catch (_) { Career.petOp(s, { op: 'act', action: 'play' }); }
+      Career.petOp(s, { op: 'act', action: w % 2 ? 'walk' : 'play' });
+      assert.throws(() => Career.petOp(s, { op: 'act', action: 'bath' }), /no pet actions/);
+      if (w % 5 === 4) Career.petOp(s, { op: 'contest' });
+      if (s.life.pendingEvent) Career.chooseEvent(s, 'a');
+      Career.advanceWeek(s, { type: 'play' });
+    }
+    return s;
+  };
+  const a = run(), b = run();
+  assert.deepEqual(a.pet, b.pet);
+  assert.ok(Pet.learned(a.pet).length >= 3, 'learned ' + Pet.learned(a.pet).length);
+  assert.ok(a.pet.contests.played >= 5);
+  assert.ok(a.life.achievements.includes('pet-1'));
+  a.life.style += 100;
+  Career.petOp(a, { op: 'buy', item: 'cap' }); Career.petOp(a, { op: 'equip', item: 'cap' });
+  assert.equal(a.pet.equipped.head, 'cap');
+  assert.ok(Career.validate(Career.resume(Career.serialize(a))).ok);
+  // descuido: la mascota triste baja la moral del dueño
+  const owners = [95, 10].map(h => { const s = Career.createCareer({ seed: 'pet-mood', mode: 'player' }); Career.petOp(s, { op: 'adopt', species: 'cat' }); s.pet.happiness = h; s.pet.hunger = 100; s.pet.hygiene = 100; Career.advanceWeek(s, { type: 'rest' }); return s.player.morale; });
+  assert.equal(owners[0] - owners[1], 3, 'happy pet +1 morale, sad pet -2');
+});

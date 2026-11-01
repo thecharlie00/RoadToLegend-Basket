@@ -12,6 +12,7 @@
   const Minigames = CAA.Minigames || (typeof require === 'function' ? require('../match/minigames.js') : null);
   const Live = CAA.Live || (typeof require === 'function' ? require('../match/live.js') : null);
   const Arcade = CAA.Arcade || (typeof require === 'function' ? require('../match/arcade.js') : null);
+  const Pet = CAA.Pet || (typeof require === 'function' ? require('./pet.js') : null);
 
   const MODES = ['player', 'coach'];
   const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted'];
@@ -117,6 +118,8 @@
       if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) lc.totalWins = (lc.totalWins || 0) + 1; }
       if (state.coach) lc.coachGames = (lc.coachGames || 0) + 1;
       Content.weeklyIncome(state);
+      const petWeek = Pet.weekTick(state);
+      if (petWeek && petWeek.mood) Content.applyEffects(state, { morale: petWeek.mood });
       Content.maybeEvent(state, rng);
       Content.evaluateAchievements(state);
       Content.press(state);
@@ -282,6 +285,26 @@
     return state;
   }
   // Minijuegos arcade: la sesión (semilla) se compromete al empezar; cerrar la app no permite repetir.
+  // Mascota: acciones de la semana, concurso, tienda y equipamiento.
+  function petCounters(state) {
+    const life = Content.ensureLife(state), pet = state.pet, c = life.counters;
+    if (!pet) return;
+    c.petTricks = Pet.learned(pet).length; c.petContestsWon = pet.contests.won; c.petWalks = pet.walks; c.petBond = pet.bond; c.pet = 1;
+    Content.evaluateAchievements(state);
+  }
+  function petOp(state, config = {}) {
+    const life = Content.ensureLife(state);
+    let out = null;
+    if (config.op === 'adopt') out = Pet.adopt(state, config);
+    else if (config.op === 'act') out = Pet.act(state, life, config);
+    else if (config.op === 'contest') out = Pet.contest(state, life);
+    else if (config.op === 'buy') out = Pet.buy(state, life, config.item);
+    else if (config.op === 'equip') out = Pet.equip(state, config.item);
+    else throw new Error('unknown pet op');
+    petCounters(state);
+    record(state, { type: 'pet', op: config.op, action: config.action || null, trick: config.trick || null, item: config.item || null });
+    return out;
+  }
   function arcadeAttrs(state) { return state.player ? state.player.attrs : {}; }
   function arcadeStart(state, config = {}) {
     const life = Content.ensureLife(state);
@@ -392,7 +415,7 @@
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       leagueId: state.season.leagueId, round: state.season.round, club: { id: club.id, name: club.name, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
-      event: Content.pendingView(state), coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
+      event: Content.pendingView(state), pet: state.pet || null, coach: state.coach, hash: state.hash, inbox: state.inbox.slice(-8), market: state.market, history: state.history.slice(-4), life: state.life || null
     };
   }
   function validate(state) {
@@ -440,6 +463,7 @@
       const lv = Live.validate(state.live);
       if (!lv.ok || !Number.isInteger(state.live.week) || !Number.isInteger(state.live.round) || typeof state.live.gameId !== 'string') errors.push('invalid live match');
     }
+    if (!Pet.validate(state.pet)) errors.push('invalid pet');
     if (state.life != null) {
       if (!object(state.life) || !['achievements', 'owned', 'appliedBonuses', 'eventHistory', 'press'].every(k => Array.isArray(state.life[k])) || !object(state.life.counters) || !object(state.life.equipment) || !['cash', 'style', 'xp'].every(k => finite(state.life[k])) || !Number.isInteger(state.life.counters.practice) || state.life.counters.practice < 0) errors.push('invalid life state');
       else if (state.life.pendingPractice != null) {
@@ -465,6 +489,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, arcadeStart, arcadeFinish, arcadeCancel, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { MODES, ROUTES, createCareer, advanceWeek, liveStart, liveAdvance, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -90,6 +90,11 @@
       "worker": true
     },
     {
+      "id": "pet",
+      "path": "src/domain/pet.js",
+      "worker": true
+    },
+    {
       "id": "minigames",
       "path": "src/match/minigames.js",
       "worker": true
@@ -152,6 +157,11 @@
     {
       "id": "voxel",
       "path": "src/render/voxel.js",
+      "worker": false
+    },
+    {
+      "id": "petvox",
+      "path": "src/render/petvox.js",
       "worker": false
     },
     {

@@ -133,6 +133,18 @@
     const style = c => c ? ` style="background:${esc(c)}"` : '';
     return `<div class="avatar-wrap"><canvas id="me3d" role="img" aria-label="${t('life.me3d', { name: esc(profile.name) })}"></canvas><div id="me2d" class="me2d" role="img" aria-label="${t('life.me')}" hidden><div class="me-head"${style(eq.accessory)}></div><div class="me-body"${style(eq.jersey)}></div><div class="me-legs"></div><div class="me-shoes"${style(eq.shoes)}></div></div><p class="muted">${t('life.meNote')}</p></div>`;
   }
+  let petRenderer = null, petCanvas = null, petTimer = null;
+  function drawPet() {
+    const canvas = doc.getElementById('pet3d');
+    const pet = state.career.summary && state.career.summary.pet;
+    if (!canvas || !pet) { if (petTimer) { root.clearTimeout(petTimer); petTimer = null; } return; }
+    try {
+      if (!petRenderer || petCanvas !== canvas) { petCanvas = canvas; petRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { petRenderer = null; petCanvas = null; } }); }
+      const reduced = CAA.A11Y.reduced(state.settings);
+      petRenderer.draw(CAA.PetVox.geometry(pet, { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, t: root.performance.now() / 1000, reduced }), 'avatar');
+      if (!reduced && !doc.hidden) { if (petTimer) root.clearTimeout(petTimer); petTimer = root.setTimeout(drawPet, 90); }
+    } catch (_) { canvas.hidden = true; }
+  }
   function drawAvatar() {
     const canvas = doc.getElementById('me3d');
     if (!canvas || !avatarProfile()) return;
@@ -351,6 +363,7 @@
     const st = p ? p.stats : null;
     const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
       <p class="muted small">${t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years })}</p></section>` : '';
+    const petCard = renderPet(s);
     const best = (life.arcade && life.arcade.best) || {};
     const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div><div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
       ${life.pendingArcade ? `<p class="muted small">${t('arcade.pending', { game: t('arcade.' + life.pendingArcade.type) })}</p><div class="row"><button class="small-btn" data-action="arcade-resume">${t('arcade.resume')}</button><button class="small-btn" data-action="arcade-cancel">${t('arcade.abandon')}</button></div>` : ''}</section>`;
@@ -365,7 +378,7 @@
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(CAA.I18N.getLocale() === 'en' ? x.en : x.es)}</li>`).join('')}</ul></section>` : '';
-    return hero + offcourt + minis + attrs + stats + practice + shop + trophies + press;
+    return hero + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
   }
 
   function renderLeague() {
@@ -378,6 +391,31 @@
       <section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p><button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>`;
   }
 
+  function renderPet(s) {
+    const pet = s.pet;
+    if (!pet) {
+      const sp = state.petSpecies || 'dog';
+      return `<section class="card pet"><h3>${t('pet.title')}</h3><p class="muted small">${t('pet.adoptDesc')}</p>
+        <div class="pick-grid">${Object.keys(CAA.Pet.SPECIES).map(k => `<button class="pick" data-action="pet-species" data-species="${k}" aria-pressed="${k === sp}"><b>${t('pet.species.' + k)}</b></button>`).join('')}</div>
+        <label for="pet-name">${t('pet.name')}<input id="pet-name" maxlength="20" value="${esc(draft('pet-name', ''))}" placeholder="${t('pet.namePlaceholder.' + sp)}"></label>
+        <button class="cta" data-action="pet-adopt">${t('pet.adopt')}</button></section>`;
+    }
+    const L = CAA.I18N.getLocale();
+    const learnedN = CAA.Pet.learned(pet).length;
+    const msg = pet.last ? t('pet.msg.' + pet.last.key, { name: pet.name, trick: pet.last.trick ? t('pet.trick.' + pet.last.trick) : '' }) : '';
+    const canContest = pet.lastContestWeek < 0 || state.career.state.week - pet.lastContestWeek >= 4;
+    const acts = [['feed', '🍖'], ['play', '🏀'], ['walk', '🌳'], ['bath', '🛁']];
+    const tricks = CAA.Pet.TRICKS.map(tr => { const pr = pet.tricks[tr.id] || 0; return `<button class="trick ${pr >= 100 ? 'done' : ''}" data-action="pet-act" data-act="train" data-trick="${tr.id}" ${pet.actionsLeft <= 0 || pr >= 100 ? 'disabled' : ''}><span><b>${t('pet.trick.' + tr.id)}</b><small>${'★'.repeat(tr.diff)}</small></span><span class="track" aria-hidden="true"><i style="width:${pr}%"></i></span><small>${pr >= 100 ? t('pet.learned') : pr + ' %'}</small></button>`; }).join('');
+    const items = CAA.Pet.ITEMS.filter(i => !i.prize || pet.owned.includes(i.id)).map(i => { const owned = pet.owned.includes(i.id), on = pet.equipped[i.slot] === i.id; return `<div class="item"><span class="swatch" style="background:${i.color}" aria-hidden="true"></span><span><b>${t('pet.item.' + i.id)}</b><small>${t('pet.slot.' + i.slot)}${owned ? '' : ' · ' + i.cost + ' ' + t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="pet-equip" data-item="${i.id}" aria-pressed="${on}">${t(on ? 'pet.unequip' : 'life.equip')}</button>` : `<button class="small-btn" data-action="pet-buy" data-item="${i.id}">${t('life.buy')}</button>`}</div>`; }).join('');
+    return `<section class="card pet"><div class="guide-head"><h3>${esc(pet.name)}</h3><span class="tag">${t('pet.species.' + pet.species)} · ${t('pet.age', { n: pet.ageWeeks })}</span></div>
+      <div class="pet-stage"><canvas id="pet3d" role="img" aria-label="${t('pet.canvas', { name: esc(pet.name) })}"></canvas><div class="pet-bars">${meter(t('pet.hunger'), pet.hunger)}${meter(t('pet.energy'), pet.energy)}${meter(t('pet.happiness'), pet.happiness)}${meter(t('pet.hygiene'), pet.hygiene)}${meter(t('pet.bond'), pet.bond)}</div></div>
+      ${msg ? `<p class="pet-msg" role="status">${esc(msg)}</p>` : ''}
+      <p class="eyebrow">${t('pet.actionsLeft', { n: pet.actionsLeft })}</p>
+      <div class="pick-grid">${acts.map(([a, ico]) => `<button class="option center" data-action="pet-act" data-act="${a}" ${pet.actionsLeft <= 0 ? 'disabled' : ''}><b>${ico} ${t('pet.act.' + a)}</b></button>`).join('')}<button class="option center" data-action="pet-act" data-act="feed" data-premium="1" ${pet.actionsLeft <= 0 ? 'disabled' : ''}><b>🥩 ${t('pet.act.premium')}</b></button><button class="option center" data-action="pet-act" data-act="cuddle" ${pet.cuddled ? 'disabled' : ''}><b>💛 ${t('pet.act.cuddle')}</b></button></div>
+      <details><summary>${t('pet.tricks', { n: learnedN, total: CAA.Pet.TRICKS.length })}</summary><div class="tricks">${tricks}</div></details>
+      <div class="guide-head"><span class="muted small">${t('pet.contestDesc', { won: pet.contests.won, played: pet.contests.played })}</span><button class="small-btn" data-action="pet-contest" ${canContest ? '' : 'disabled'}>${t(canContest ? 'pet.contest' : 'pet.contestWait')}</button></div>
+      <details><summary>${t('pet.shop')}</summary><div class="shop">${items}</div></details></section>`;
+  }
   function renderArcade() {
     const a = state.arcade;
     if (!a) return `<section class="card"><p class="muted">${t('arcade.none')}</p></section>`;
@@ -430,6 +468,7 @@
   function render() {
     if (voxelRenderer) { voxelRenderer.dispose(); voxelRenderer = null; voxelCanvas = null; }
     if (avatarRenderer) { avatarRenderer.dispose(); avatarRenderer = null; avatarCanvas = null; }
+    if (petRenderer) { petRenderer.dispose(); petRenderer = null; petCanvas = null; } if (petTimer) { root.clearTimeout(petTimer); petTimer = null; }
     const active = doc.activeElement;
     const focusId = active && active.id;
     const focusAction = active && active.dataset.action;
@@ -463,6 +502,7 @@
     if (restore && !restore.disabled) restore.focus({ preventScroll: true });
     drawMatchFrame();
     drawAvatar();
+    drawPet();
     if (state.arcade && state.tab === 'arcade' && arcadeRaf == null) arcadeSync();
     if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
   }
@@ -742,6 +782,17 @@
         await acceptCareer(res);
         if (audio) audio.play(res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : res.live.moment ? 'whistle' : 'click');
         notify(res.live.finished ? t(res.live.outcome.won ? 'live.won' : 'live.lost') : res.live.moment ? t('live.moment.' + res.live.moment.type) : t('live.started'));
+      } else if (name === 'pet-species') { state.petSpecies = el.dataset.species;
+      } else if (name.startsWith('pet-')) {
+        if (!state.career.state) throw new Error(t('career.empty'));
+        const nameEl = doc.getElementById('pet-name');
+        const config = name === 'pet-adopt' ? { op: 'adopt', species: state.petSpecies || 'dog', name: nameEl ? nameEl.value : '' }
+          : name === 'pet-act' ? { op: 'act', action: el.dataset.act, trick: el.dataset.trick, premium: el.dataset.premium === '1' }
+          : name === 'pet-contest' ? { op: 'contest' } : { op: name === 'pet-buy' ? 'buy' : 'equip', item: el.dataset.item };
+        const res = await worker.send('career.pet', { state: state.career.state, config });
+        await acceptCareer(res);
+        if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce');
+        if (name === 'pet-contest') notify(t('pet.contestResult', { place: res.pet.place, score: res.pet.score }));
       } else if (name === 'live-hero') {
         state.heroShot = { aimStart: root.performance.now() }; if (audio) audio.play('whistle');
       } else if (name === 'arcade-start' || name === 'arcade-resume') {

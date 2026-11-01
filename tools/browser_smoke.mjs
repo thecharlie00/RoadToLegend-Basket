@@ -240,6 +240,16 @@ try {
     await tab(page, 'life'); await page.locator('[data-action="arcade-auto"][data-game="three"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     assert.ok(await page.evaluate(() => CAA_APP.state.arcade.final.auto && CAA_APP.state.career.state.life.arcade.best.three > 0));
     report.arcade = done.final.score;
+    await tab(page, 'life');
+    await page.locator('[data-action="pet-species"][data-species="bunny"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    await page.locator('#pet-name').fill('Saltitos'); await click(page, 'pet-adopt');
+    await page.locator('[data-action="pet-act"][data-act="play"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.pet.name), 'Saltitos');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.pet.actionsLeft), 2);
+    const pr = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'pet', violations: pr.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await page.locator('#pet3d').screenshot({ path: 'data/qa/phase8-pet-screen.png' });
   });
   await scenario('Phase 6 no WebGL and context loss fall back to 2D', {}, async page => {
     await tab(page, 'match'); await click(page, 'match-simulate');

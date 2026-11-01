@@ -2069,9 +2069,129 @@
       "rewardStyle": 7
     },
     {
+      "id": "pet-1",
+      "metric": "pet",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Mi mejor amigo",
+        "en": "Man's Best Friend"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "petTricks-1",
+      "metric": "petTricks",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Sit, Ubu, sit",
+        "en": "Sit, Ubu, Sit"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "petTricks-4",
+      "metric": "petTricks",
+      "threshold": 4,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Truco o trato",
+        "en": "Trick or Treat"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "petTricks-8",
+      "metric": "petTricks",
+      "threshold": 8,
+      "mode": "any",
+      "tier": 3,
+      "title": {
+        "es": "Air Bud",
+        "en": "Air Bud"
+      },
+      "rewardStyle": 13
+    },
+    {
+      "id": "petWalks-10",
+      "metric": "petWalks",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Paseo por el parque",
+        "en": "Walk in the Park"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "petWalks-50",
+      "metric": "petWalks",
+      "threshold": 50,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Cien paseos de amor",
+        "en": "A Dog's Journey"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "petBond-60",
+      "metric": "petBond",
+      "threshold": 60,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Uña y carne",
+        "en": "Two Peas in a Pod"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "petBond-100",
+      "metric": "petBond",
+      "threshold": 100,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Siempre a tu lado",
+        "en": "Hachiko"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "petContestsWon-1",
+      "metric": "petContestsWon",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Mejor en el show",
+        "en": "Best in Show"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "petContestsWon-3",
+      "metric": "petContestsWon",
+      "threshold": 3,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Rey de la pista canina",
+        "en": "Top Dog"
+      },
+      "rewardStyle": 10
+    },
+    {
       "id": "platinum-player",
       "metric": "achievements",
-      "threshold": 162,
+      "threshold": 172,
       "mode": "player",
       "tier": 99,
       "platinum": true,
@@ -2084,7 +2204,7 @@
     {
       "id": "platinum-coach",
       "metric": "achievements",
-      "threshold": 92,
+      "threshold": 102,
       "mode": "coach",
       "tier": 99,
       "platinum": true,

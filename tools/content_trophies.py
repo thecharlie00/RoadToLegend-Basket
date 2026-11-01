@@ -189,6 +189,17 @@ T = [
  ('streetWins', 1, 'any', 'Rey de la pista callejera', 'King of the Court'),
  ('streetWins', 5, 'any', 'Leyenda del asfalto', 'Asphalt Legend'),
  ('perfects', 25, 'any', 'Perfeccionista', 'Perfectionist'),
+ # mascota
+ ('pet', 1, 'any', 'Mi mejor amigo', 'Man\'s Best Friend'),
+ ('petTricks', 1, 'any', 'Sit, Ubu, sit', 'Sit, Ubu, Sit'),
+ ('petTricks', 4, 'any', 'Truco o trato', 'Trick or Treat'),
+ ('petTricks', 8, 'any', 'Air Bud', 'Air Bud'),
+ ('petWalks', 10, 'any', 'Paseo por el parque', 'Walk in the Park'),
+ ('petWalks', 50, 'any', 'Cien paseos de amor', 'A Dog\'s Journey'),
+ ('petBond', 60, 'any', 'Uña y carne', 'Two Peas in a Pod'),
+ ('petBond', 100, 'any', 'Siempre a tu lado', 'Hachiko'),
+ ('petContestsWon', 1, 'any', 'Mejor en el show', 'Best in Show'),
+ ('petContestsWon', 3, 'any', 'Rey de la pista canina', 'Top Dog'),
 ]
 
 if __name__ == '__main__':

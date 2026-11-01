@@ -10,6 +10,7 @@
     if (!CAA.Match) require('../match/engine.js');
     if (!CAA.Live) require('../match/live.js');
     if (!CAA.Arcade) require('../match/arcade.js');
+    if (!CAA.Pet) require('../domain/pet.js');
     if (!CAA.Calibration) require('../match/calibration.js');
     if (!CAA.Names) require('../domain/names.js');
     if (!CAA.Player) require('../domain/player.js');
@@ -109,6 +110,12 @@
           else if (p.cancel) { CAA.Career.arcadeCancel(state); arcade = { cancelled: true }; }
           else arcade = CAA.Career.arcadeFinish(state, { ticks: p.ticks, auto: !!p.auto });
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), arcade };
+          break;
+        }
+        case 'career.pet': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const pet = CAA.Career.petOp(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), pet };
           break;
         }
         case 'career.summary':
