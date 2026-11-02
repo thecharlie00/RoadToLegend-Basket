@@ -1,11 +1,14 @@
 package com.caminoalaro.app;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -27,10 +30,12 @@ public final class MainActivity extends ComponentActivity {
     private static final String GAME_URL = ORIGIN + "/assets/game/index.html";
     private static final int OPEN_SAVE = 71;
     private static final int EXPORT_SAVE = 72;
+    private static final int MIC_REQUEST = 73;
     private static final int MAX_SAVE_CHARS = 8 * 1024 * 1024; // Pretty-printed export; imports still enforce the stricter game limit.
     private WebView web;
     private ValueCallback<Uri[]> fileCallback;
     private String pendingExport;
+    private PermissionRequest pendingMedia;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -61,6 +66,22 @@ public final class MainActivity extends ComponentActivity {
             }
         });
         web.setWebChromeClient(new WebChromeClient() {
+            // The parrot records only after an explicit tap. Grant audio capture just for that page and only
+            // with the runtime RECORD_AUDIO permission; everything else is denied.
+            @Override public void onPermissionRequest(final PermissionRequest request) {
+                runOnUiThread(() -> {
+                    boolean audio = false;
+                    for (String resource : request.getResources()) if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resource)) audio = true;
+                    if (!audio) { request.deny(); return; }
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        request.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+                    } else {
+                        if (pendingMedia != null) pendingMedia.deny();
+                        pendingMedia = request;
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MIC_REQUEST);
+                    }
+                });
+            }
             @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
@@ -79,6 +100,14 @@ public final class MainActivity extends ComponentActivity {
             }
         });
         web.loadUrl(GAME_URL);
+    }
+    @Override public void onRequestPermissionsResult(int request, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(request, permissions, results);
+        if (request != MIC_REQUEST || pendingMedia == null) return;
+        boolean granted = results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED;
+        if (granted) pendingMedia.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+        else pendingMedia.deny();
+        pendingMedia = null;
     }
     private static WebResourceResponse blocked() {
         return new WebResourceResponse("text/plain", "UTF-8", 403, "Blocked", null,
@@ -125,6 +154,8 @@ public final class MainActivity extends ComponentActivity {
         web.onPause(); super.onPause();
     }
     @Override protected void onDestroy() {
-        finishFiles(null); pendingExport = null; web.removeJavascriptInterface("CAAAndroid"); web.destroy(); super.onDestroy();
+        finishFiles(null); pendingExport = null;
+        if (pendingMedia != null) { pendingMedia.deny(); pendingMedia = null; }
+        web.removeJavascriptInterface("CAAAndroid"); web.destroy(); super.onDestroy();
     }
 }

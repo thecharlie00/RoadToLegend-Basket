@@ -145,8 +145,10 @@ test('hero last shot in the live match is decided by the buzzer minigame timing'
     while (!live.finished && guard++ < 100) {
       if (live.moment && live.moment.type === 'lastShot') {
         const copy = JSON.parse(JSON.stringify(live));
-        Live.advance(live, { choice: 'hero', release: 18 });  // cima del salto: calidad máxima
-        Live.advance(copy, { choice: 'hero', release: 2000 }); // fuera de tiempo
+        // En la mecánica de bocina la fuerza sube una vez: el mejor instante es el centro de la zona buena.
+        const bestTick = Arcade.centerTick(Arcade.roundSpec('buzzer', 'hero', 0, 0));
+        Live.advance(live, { choice: 'hero', release: bestTick }); // zona buena: calidad máxima
+        Live.advance(copy, { choice: 'hero', release: 2000 });    // fuera de tiempo
         const good = live.decisions.find(d => d.type === 'lastShot'), bad = copy.decisions.find(d => d.type === 'lastShot');
         assert.ok(good.minigame && bad.minigame);
         assert.ok(good.minigame.quality > bad.minigame.quality);

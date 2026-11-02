@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- No INTERNET, storage, contacts, location or advertising permissions. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- No INTERNET, storage, contacts, location or advertising permissions.
+         RECORD_AUDIO only powers the parrot's voice feature, is requested at runtime the first time the
+         player taps "Grabar" and is never recorded in the background or uploaded. -->
     <application android:label="@string/app_name" android:icon="@drawable/ic_aro"
         android:theme="@android:style/Theme.Material.NoActionBar"
         android:allowBackup="false" android:fullBackupContent="false"

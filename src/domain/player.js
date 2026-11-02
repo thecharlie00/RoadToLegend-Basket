@@ -25,6 +25,30 @@
     'passing-big': { pase: 5, vision: 4, poste: 3, rebDef: 2 }
   };
 
+  // Perfiles por posición: al elegir Base no se ofrecen los mismos arquetipos que al elegir Pívot.
+  // Cada perfil sigue siendo un arquetipo del motor (sesgo de atributos ya probado), pero el orden,
+  // la etiqueta y las fortalezas que se muestran cambian según la posición elegida.
+  const POSITION_PROFILES = {
+    PG: ['creator', 'shooter', 'two-way', 'finisher'],
+    SG: ['shooter', 'finisher', 'creator', 'two-way'],
+    SF: ['point-forward', 'finisher', 'shooter', 'two-way'],
+    PF: ['interior', 'finisher', 'passing-big', 'two-way'],
+    C: ['interior', 'passing-big', 'two-way', 'finisher']
+  };
+  // Fortalezas visibles de un perfil = peso de la posición + sesgo del arquetipo.
+  function profileStrengths(pos, archetype, n) {
+    const base = pos && pos.includes('/') ? pos.split('/')[0] : pos;
+    const pw = POS_WEIGHTS[base] || {}, ab = ARCHETYPE_BIAS[archetype] || {};
+    return Match.ATTRS.map(k => ({ k, w: (pw[k] || 0) * 1.4 + (ab[k] || 0) })).filter(x => x.w > 0)
+      .sort((a, b) => b.w - a.w || a.k.localeCompare(b.k)).slice(0, n || 3).map(x => x.k);
+  }
+  function profilesFor(pos, n) {
+    const base = pos && pos.includes('/') ? pos.split('/')[0] : (POSITIONS.includes(pos) ? pos : 'SG');
+    const list = POSITION_PROFILES[base] || POSITION_PROFILES.SG;
+    return list.map((archetype, i) => ({ id: base + '-' + archetype, archetype, pos: base, first: i === 0, strengths: profileStrengths(base, archetype, n || 3) }));
+  }
+  function profileFor(pos, archetype) { return profilesFor(pos).find(x => x.archetype === archetype) || null; }
+
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function ovr(attrs, pos) {
     const base = pos && pos.includes('/') ? pos.split('/')[0] : pos;
@@ -124,6 +148,6 @@
     return p;
   }
 
-  CAA.Player = { POSITIONS, HYBRIDS, ARCHETYPES, createPlayer, toMatchPlayer, ovr, develop, injuryRisk, maybeInjure, recover, ageOneYear };
+  CAA.Player = { POSITIONS, HYBRIDS, ARCHETYPES, POSITION_PROFILES, profilesFor, profileFor, profileStrengths, createPlayer, toMatchPlayer, ovr, develop, injuryRisk, maybeInjure, recover, ageOneYear };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Player;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

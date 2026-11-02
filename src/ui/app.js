@@ -11,6 +11,7 @@
   let storage, worker, voxelRenderer = null, voxelCanvas = null, avatarRenderer = null, avatarCanvas = null, audio = null, clubRequest = 0;
   const saveOptions = () => ({ careerValidator: CAA.Career.validate });
   function notify(text, error = false) { state.message = text; state.messageError = error; }
+  function haptic(kind) { try { if (state.settings.vibration && CAA.Haptic) CAA.Haptic.pulse(root, kind); } catch (_) {} }
   function draft(id, value) { return Object.prototype.hasOwnProperty.call(state.drafts, id) ? state.drafts[id] : value; }
 
   function syncEraLook() { const s = hasCareer() && state.screen === 'game' ? state.career.summary : null; const v = s && s.era ? s.era.look : ''; if (doc.body.dataset.era !== v) doc.body.dataset.era = v; }
@@ -156,9 +157,10 @@
     const pet = state.career.summary && state.career.summary.pet;
     if (!canvas || !pet) { if (petTimer) { root.clearTimeout(petTimer); petTimer = null; } return; }
     try {
-      if (!petRenderer || petCanvas !== canvas) { petCanvas = canvas; petRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { petRenderer = null; petCanvas = null; } }); }
+      if (!petRenderer || petCanvas !== canvas) { if (petRenderer) petRenderer.dispose(); petCanvas = canvas; petRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { petRenderer = null; petCanvas = null; } }); }
       const reduced = CAA.A11Y.reduced(state.settings);
-      petRenderer.draw(CAA.PetVox.geometry(pet, { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, t: root.performance.now() / 1000, reduced }), 'avatar');
+      const club = state.career.summary && state.career.summary.club;
+      petRenderer.draw(CAA.PetVox.geometry(Object.assign({ stage: CAA.Pet.stageOf(pet) }, pet), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, t: root.performance.now() / 1000, reduced, clubColors: CAA.Crest && CAA.Crest.colors && club ? CAA.Crest.colors(club) : null }), 'avatar');
       if (!reduced && !doc.hidden) { if (petTimer) root.clearTimeout(petTimer); petTimer = root.setTimeout(drawPet, 90); }
     } catch (_) { canvas.hidden = true; }
   }
@@ -251,13 +253,15 @@
   function pbSeq(raw) { if (!raw || !raw.match) return null; const p = pbSync(raw); return p.seq; }
   function pbCaught(raw) { return pbSync(raw).seq >= raw.match.events.length; }
   function pbCatchUp(raw) { const p = pbSync(raw), m = raw.match, prof = pbProfile(m); p.seq = m.events.length; const e = m.events[m.events.length - 1]; if (e) p.cursor = Math.max(p.cursor, evAbs(prof, e.period, e.clock)); p.hold = 0; }
+  // Valor de una canasta: la zona manda porque los fallos guardan points:0.
+  const shotPoints = e => CAA.Live.shotPoints(e);
   // Marcador, reloj, crónica y estadísticas con solo lo ya "emitido".
   function pbView(raw) {
     const v = CAA.Live.view(raw, 400), m = raw.match, prof = pbProfile(m), p = pbSync(raw), me = raw.userTeam;
     const shown = m.events.slice(0, p.seq), score = [0, 0], box = {};
     const b = id => box[id] || (box[id] = { pts: 0, reb: 0, ast: 0, pf: 0 });
     for (const e of shown) {
-      if (e.type === 'shot' && e.made) { score[e.team] += e.points || 2; if (e.team === me) { b(e.player).pts += e.points || 2; if (e.assist) b(e.assist).ast++; } }
+      if (e.type === 'shot' && e.made) { score[e.team] += shotPoints(e); if (e.team === me) { b(e.player).pts += shotPoints(e); if (e.assist) b(e.assist).ast++; } }
       else if (e.type === 'ft' && e.made) { score[e.team] += 1; if (e.team === me) b(e.player).pts += 1; }
       else if (e.type === 'rebound' && e.team === me) b(e.player).reb++;
       else if (e.type === 'foul' && e.team === me && e.player) b(e.player).pf++;
@@ -266,11 +270,11 @@
     const ts = [0, 1].map(() => ({ fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 0, fta: 0, reb: 0, tov: 0 })), qs = {}, swing = [];
     for (const e of shown) {
       const T = ts[e.team];
-      if (e.type === 'shot' && T) { T.fga++; if ((e.points || 2) === 3) T.tpa++; if (e.made) { T.fgm++; if ((e.points || 2) === 3) T.tpm++; } }
+      if (e.type === 'shot' && T) { const three = shotPoints(e) === 3; T.fga++; if (three) T.tpa++; if (e.made) { T.fgm++; if (three) T.tpm++; } }
       else if (e.type === 'ft' && T) { T.fta++; if (e.made) T.ftm++; }
       else if ((e.type === 'rebound' || e.type === 'teamRebound') && T) T.reb++;
       else if ((e.type === 'turnover' || e.type === 'shotClockViolation') && T) T.tov++;
-      const pts = e.type === 'shot' && e.made ? (e.points || 2) : e.type === 'ft' && e.made ? 1 : 0;
+      const pts = e.type === 'shot' && e.made ? shotPoints(e) : e.type === 'ft' && e.made ? 1 : 0;
       if (pts && e.team != null) { const q = qs[e.period] || (qs[e.period] = [0, 0]); q[e.team] += pts; swing.push(e.team === me ? pts : -pts); }
     }
     const momentum = Math.max(-1, Math.min(1, swing.slice(-12).reduce((a, b) => a + b, 0) / 12));
@@ -290,7 +294,7 @@
     if (!raw || !panel || state.screen !== 'game' || state.tab !== 'career' || doc.hidden) { pbStop(); return; }
     const p = pbSync(raw), now = root.performance.now(), dt = Math.min(250, now - (pbLast || now)); pbLast = now;
     if (pbCaught(raw)) {
-      if (raw.moment || raw.finished) { if (!panel.dataset.caught) { pbStop(); render(); } return; }
+      if (raw.moment || raw.finished) { if (!panel.dataset.caught) { pbStop(); state.liveFocus = true; render(); } return; }
       // Sin decisión pendiente: se pide al motor el siguiente tramo sin parar el reloj.
       if (p.speed && !state.busy && !pbFetching) { pbFetching = true; action('live-next', { dataset: {} }).finally(() => { pbFetching = false; }); }
       return;
@@ -313,13 +317,21 @@
   function pbPaint(raw, full) {
     const v = pbView(raw), me = v.userTeam, opp = 1 - me;
     const set = (id, html) => { const el = doc.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; };
-    set('pb-score', `${v.score[me]} – ${v.score[opp]}`);
+    const scoreEl = doc.getElementById('pb-score');
+    if (scoreEl) {
+      const next = `${v.score[me]} – ${v.score[opp]}`, before = parseInt(scoreEl.textContent, 10);
+      if (scoreEl.textContent !== next) {
+        scoreEl.textContent = next;
+        scoreEl.classList.remove('bump'); void scoreEl.offsetWidth; scoreEl.classList.add('bump');
+        if (Number.isFinite(before) && v.score[me] > before) haptic('score');
+      }
+    }
     set('pb-clock', `${esc(v.periodLabel)} · ${clockText(v.clock)}`);
     if (full) { set('pb-feed', liveFeedHtml(v)); set('pb-top', liveTopHtml(v)); set('pb-stats', liveStatsHtml(v)); const mm = doc.getElementById('pb-mom'); if (mm) { mm.style.setProperty('--mom', String(v.momentum)); mm.setAttribute('aria-valuenow', String(Math.round(v.momentum * 100))); } const cap = doc.getElementById('live3d-cap'); if (cap) cap.textContent = live3dCaption(raw); }
   }
   function pbStart() { if (pbTimer == null) { pbLast = root.performance.now(); pbTimer = root.setInterval(pbTick, 100); } }
   function pbStop() { if (pbTimer != null) { root.clearInterval(pbTimer); pbTimer = null; } }
-  function liveFeedHtml(v) { return v.feed.map(e => `<li${v.myName && e.player === v.myName ? ' class="mine"' : ''}><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`).join(''); }
+  function liveFeedHtml(v) { return v.feed.map((e, i) => { const cls = [v.myName && e.player === v.myName ? 'mine' : '', i === 0 ? 'fresh' : ''].filter(Boolean).join(' '); return `<li${cls ? ` class="${cls}"` : ''}><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`; }).join(''); }
   function liveStatsHtml(v) {
     const me = v.userTeam, op = 1 - me, A = v.teamStats[me], B = v.teamStats[op], pct = (m, a) => a ? Math.round(m / a * 100) + '%' : '—';
     const row = (k, a, b) => `<tr><td>${a}</td><th scope="row">${t('live.stat.' + k)}</th><td>${b}</td></tr>`;
@@ -347,7 +359,7 @@
     const controls = v.finished ? '' : v.caught
       ? `<div class="row"><button data-action="live-end">${t('live.toEnd')}</button></div>`
       : `<div class="row speeds" role="group" aria-label="${t('live.speed')}">${speedBtn(0, '⏸', t('live.pause'))}${speedBtn(1, '▶', t('live.speedN', { n: 1 }))}${speedBtn(2, '▶▶', t('live.speedN', { n: 2 }))}${speedBtn(4, '▶▶▶', t('live.speedN', { n: 4 }))}<button data-action="live-skip">${t('live.skip')}</button><button data-action="live-end">${t('live.toEnd')}</button></div>`;
-    return `<section class="panel live" id="live-panel" ${v.caught ? 'data-caught="1"' : ''} aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
+    return `<section class="panel live" id="live-panel" ${v.caught ? 'data-caught="1"' : ''} aria-labelledby="live-title"><h3 id="live-title"><i class="live-dot${v.finished ? ' off' : ''}" aria-hidden="true"></i>${t('live.title')}</h3>
       <div class="scoreboard tv"><div class="sb-team">${crest({ name: v.teams[me] }, 30)}<b>${esc(abbrOf(v.teams[me]))}</b><small>${esc(v.teams[me])}</small></div>
       <strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong>
       <div class="sb-team">${crest({ name: v.teams[opp] }, 30)}<b>${esc(abbrOf(v.teams[opp]))}</b><small>${esc(v.teams[opp])}</small></div>
@@ -361,6 +373,13 @@
   }
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
+  // Orden de navegación para que el panel entre desde el lado correcto al cambiar de pestaña.
+  const TAB_ORDER = ['career', 'life', 'league', 'movements', 'more', 'editor', 'market', 'club', 'shop', 'look', 'national', 'moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab', 'arcade'];
+  function tabDir(from, to) {
+    const a = TAB_ORDER.indexOf(from), b = TAB_ORDER.indexOf(to);
+    if (a < 0 || b < 0 || a === b) return 'fwd';
+    return b > a ? 'fwd' : 'back';
+  }
   const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history', 'shop', 'look', 'club', 'national', 'editor', 'moments', 'market'];
   const NATIONS = Array.from(new Set(['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA', 'NG', 'SN', 'MX', 'PL', 'HR', 'CZ', 'BE', 'NL', 'PT', 'HU', 'UY', 'VE', 'PR', 'NZ', 'EG', 'MA', 'ID', 'TW', 'LB'].concat(Object.keys(CAA.LeagueCatalog.COUNTRIES).filter(c => c !== 'AF' && c !== 'FJ'), ['FJ'])));
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
@@ -392,29 +411,92 @@
   function hasCareer() { return !!(state.career.state && state.career.summary); }
   function seasonLabel(year) { return year + '/' + String((year + 1) % 100).padStart(2, '0'); }
 
+  // Banderas SVG para el selector de idioma: no dependen de la fuente de emoji del sistema.
+  function langFlag(code) {
+    const shapes = {
+      es: '<rect width="24" height="16" fill="#c60b1e"/><rect y="4" width="24" height="8" fill="#ffc400"/><rect y="6.4" width="6" height="3.2" rx=".6" fill="#c60b1e" opacity=".7"/>',
+      en: '<rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5"/><path d="M12 0v16M0 8h24" stroke="#c8102e" stroke-width="2.4"/>',
+      fr: '<rect width="8" height="16" fill="#002395"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ed2939"/>',
+      de: '<rect width="24" height="5.34" fill="#000"/><rect y="5.33" width="24" height="5.34" fill="#dd0000"/><rect y="10.66" width="24" height="5.34" fill="#ffce00"/>',
+      it: '<rect width="8" height="16" fill="#009246"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ce2b37"/>'
+    };
+    return `<svg class="flag-svg" viewBox="0 0 24 16" width="26" height="18" aria-hidden="true" focusable="false"><rect width="24" height="16" rx="2" fill="#0a0c1b"/>${shapes[code] || ''}<rect x=".5" y=".5" width="23" height="15" rx="1.6" fill="none" stroke="rgba(255,255,255,.28)"/></svg>`;
+  }
+  // Ilustración de portada: pabellón nocturno, cancha, aro y balón. Todo SVG/CSS, sin imágenes externas.
+  function bootArt() {
+    const crowd = Array.from({ length: 30 }, (_, i) => {
+      const x = 8 + i * 19, y = 148 - (i * 7 % 13), h = 10 + (i * 5 % 14), tone = i % 3 === 0 ? '#232a55' : i % 3 === 1 ? '#1a2044' : '#2c3468';
+      return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="3" fill="${tone}"/>`;
+    }).join('');
+    return `<div class="boot-hero-art" aria-hidden="true"><svg viewBox="0 0 560 230" role="presentation" focusable="false">
+      <defs>
+        <linearGradient id="bhSpot" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8fb3ff" stop-opacity=".3"/><stop offset="1" stop-color="#8fb3ff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="bhFloor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#4b3324"/><stop offset="1" stop-color="#171226"/></linearGradient>
+        <linearGradient id="bhBall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc48d"/><stop offset=".5" stop-color="#ff7a1f"/><stop offset="1" stop-color="#a83a05"/></linearGradient>
+        <linearGradient id="bhBoard" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e8fbff" stop-opacity=".55"/><stop offset="1" stop-color="#7fb7c9" stop-opacity=".12"/></linearGradient>
+        <radialGradient id="bhGlow"><stop stop-color="#3be3ff" stop-opacity=".55"/><stop offset="1" stop-color="#3be3ff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="bhBallGlow"><stop stop-color="#ff9a4a" stop-opacity=".5"/><stop offset="1" stop-color="#ff9a4a" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="560" height="230" fill="#0a0c1b"/>
+      <path d="M128 0 10 196h216z" fill="url(#bhSpot)"/>
+      <path d="M448 0 342 196h216z" fill="url(#bhSpot)" opacity=".75"/>
+      <g opacity=".55">${crowd}</g>
+      <rect y="176" width="560" height="54" fill="url(#bhFloor)"/>
+      <path d="M0 176h560" stroke="#ffb27a" stroke-opacity=".4"/>
+      <path d="M40 176q240-76 480 0" fill="none" stroke="#ffcf9a" stroke-opacity=".45" stroke-width="3"/>
+      <path d="M168 176v-58h224v58" fill="none" stroke="#ffcf9a" stroke-opacity=".18" stroke-width="2"/>
+      <circle cx="280" cy="176" r="34" fill="none" stroke="#ffcf9a" stroke-opacity=".16" stroke-width="2"/>
+      <g transform="translate(430 96)">
+        <line x1="43" y1="-46" x2="43" y2="0" stroke="#5d6bb0" stroke-width="6" opacity=".45"/>
+        <rect width="88" height="58" rx="3" fill="url(#bhBoard)" stroke="#9fe9ff" stroke-opacity=".55"/>
+        <rect x="27" y="15" width="34" height="24" fill="none" stroke="#9fe9ff" stroke-opacity=".45"/>
+        <ellipse cx="44" cy="62" rx="24" ry="6" fill="none" stroke="#ff7a1f" stroke-width="4"/>
+        <path d="M20 63l5 27m7-26 2 30m9-30v30m7-29-2 29m9-27-5 26" stroke="#cfe9ff" stroke-opacity=".5" fill="none"/>
+      </g>
+      <g transform="translate(150 116)"><g class="boot-art-ball">
+        <circle r="58" fill="url(#bhBallGlow)"/>
+        <circle r="36" fill="url(#bhBall)"/>
+        <path d="M-36 0h72M0-36v72" stroke="#7a2c05" stroke-opacity=".55" stroke-width="2"/>
+        <path d="M-27-24c17 15 17 33 0 48M27-24c-17 15-17 33 0 48" stroke="#7a2c05" stroke-opacity=".45" fill="none" stroke-width="2"/>
+        <circle r="36" fill="none" stroke="#ffd0a8" stroke-opacity=".35"/>
+      </g></g>
+      <g transform="translate(16 16)">
+        <rect width="152" height="54" rx="9" fill="#04060f" stroke="#3be3ff" stroke-opacity=".35"/>
+        <circle class="boot-art-pulse" cx="15" cy="15" r="4" fill="#ff5470"/>
+        <text x="27" y="19" font-family="'Barlow Condensed',sans-serif" font-size="12" letter-spacing="2.4" fill="#aeb3d1">LIVE</text>
+        <text x="13" y="44" font-family="'Bebas Neue',sans-serif" font-size="26" letter-spacing="1" fill="#3be3ff">24 · 10:00</text>
+      </g>
+      <text x="548" y="214" text-anchor="end" font-family="'Bebas Neue',sans-serif" font-size="92" letter-spacing="2" fill="none" stroke="#ff7a1f" stroke-opacity=".13" stroke-width="2">BKL</text>
+    </svg></div>`;
+  }
+
   function renderBoot() {
     if (state.screen === 'lang') {
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">Idioma · Language</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
-        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English'], ['fr', '🇫🇷', 'Français'], ['de', '🇩🇪', 'Deutsch'], ['it', '🇮🇹', 'Italiano']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${f}</span><b>${name}</b></button>`).join('')}</div></main>`;
+        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English'], ['fr', '🇫🇷', 'Français'], ['de', '🇩🇪', 'Deutsch'], ['it', '🇮🇹', 'Italiano']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${langFlag(code)}</span><b>${name}</b><small class="lang-code" aria-hidden="true">${code.toUpperCase()}</small></button>`).join('')}</div></main>`;
     }
     if (state.screen === 'menu') {
       const leagues = Object.keys(CAA.Season.LEAGUES).length;
       const clubs = Object.values(CAA.Season.LEAGUES).reduce((a, l) => a + l.teams, 0);
+      const career = hasCareer() ? state.career.summary : null;
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.kicker')}</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
-        <p class="boot-lead">${t('boot.lead')}</p><p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>${new Set(Object.values(CAA.Season.LEAGUES).map(l => l.country)).size} ${t('boot.countries')}</b></p>
-        <p class="eyebrow">${t('boot.play')}</p>
-        ${hasCareer() ? `<button class="cta" data-action="boot-continue">${t('boot.continue')} <span aria-hidden="true">▶</span></button><p class="muted small">${esc(state.career.summary.player ? state.career.summary.player.name : state.career.summary.coach.name)} · ${esc(state.career.summary.club.name)} · ${t('career.week')} ${state.career.summary.week}</p>` : ''}
-        <button class="${hasCareer() ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
-        <button class="cta ghost" data-action="boot-goat" disabled aria-describedby="goat-soon">🏆 GOAT LADDER</button><p id="goat-soon" class="muted small">${t('boot.goatSoon')}</p>
-        <button class="row-link" data-action="boot-open" data-target="settings"><span class="ico" aria-hidden="true">⚙</span><span><b>${t('boot.settings')}</b><small>${t('boot.settingsSub')}</small></span><span aria-hidden="true">›</span></button>
-        <button class="row-link" data-action="boot-open" data-target="more"><span class="ico" aria-hidden="true">▦</span><span><b>${t('boot.more')}</b><small>${t('boot.moreSub')}</small></span><span aria-hidden="true">›</span></button>
+        <p class="boot-lead">${t('boot.lead')}</p>${bootArt()}<p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>${new Set(Object.values(CAA.Season.LEAGUES).map(l => l.country)).size} ${t('boot.countries')}</b></p>
+        <div class="boot-actions">
+          ${career ? `<button class="cta" data-action="boot-continue">${t('boot.continue')} <span aria-hidden="true">▶</span></button><p class="muted small">${esc(career.player ? career.player.name : career.coach.name)} · ${esc(career.club.name)} · ${t('career.week')} ${career.week}</p>` : ''}
+          <button class="${career ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
+        </div>
+        <div class="tiles boot-tiles">
+          <button class="tile" data-action="boot-open" data-target="settings"><span class="ico" aria-hidden="true">${CAA.Icons.svg('gear')}</span><b>${t('more.settings')}</b></button>
+          <button class="tile" data-action="boot-open" data-target="more"><span class="ico" aria-hidden="true">${CAA.Icons.svg('more')}</span><b>${t('boot.more')}</b></button>
+        </div>
         <p class="version">v${esc(payload.manifest.version)} · ${root.CAAAndroid ? 'ANDROID' : 'WEB'}</p></main>`;
     }
     if (state.screen === 'modes') {
       const card = (mode, ok) => `<button class="mode-card" data-action="boot-mode" data-mode="${mode}" ${ok ? '' : 'disabled'}><b>${t('modes.' + mode)}</b><span>${t('modes.' + mode + 'Desc')}</span>${ok ? '' : `<em>${t('modes.soon')}</em>`}</button>`;
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.new')}</p><h1 class="boot-title small">${t('modes.title')}</h1>
         <div class="seg" role="group" aria-label="${t('modes.league')}"><button data-action="mode-gender" data-gender="m" aria-pressed="${state.career.gender !== 'f'}">${t('modes.men')}</button><button data-action="mode-gender" data-gender="f" aria-pressed="${state.career.gender === 'f'}">${t('modes.women')}</button></div>
-        ${card('player', true)}${card('coach', true)}${card('club', true)}${card('eras', true)}${card('challenge', true)}
+        <div class="mode-grid">${card('player', true)}${card('coach', true)}${card('club', true)}</div>
+        <details class="mode-more"><summary>${t('modes.more')}</summary><div class="mode-grid">${card('eras', true)}${card('challenge', true)}</div></details>
         <button class="ghost-btn" data-action="boot-back">${t('wiz.back')}</button></main>`;
     }
     return renderCreate();
@@ -444,7 +526,7 @@
         ${player ? `<label for="career-nationality">${t('career.nationality')}<select id="career-nationality">${NATIONS.slice().sort((a, b) => nationName(a).localeCompare(nationName(b))).map(n => `<option value="${n}" ${n === c.nationality ? 'selected' : ''}>${flag(n)} ${esc(nationName(n))}</option>`).join('')}</select></label>` : ''}`;
     } else if (stepKey === 'position') {
       body = `<h3 class="eyebrow">${t('career.pos')}</h3><div class="pick-grid">${['PG', 'SG', 'SF', 'PF', 'C'].map(p => pick('pos', p, p, t('pos.' + p))).join('')}</div>
-        <h3 class="eyebrow">${t('career.archetype')}</h3><div class="pick-list">${CAA.Player.ARCHETYPES.map(a => pick('archetype', a, t('career.archetype.' + a), t('arch.' + a))).join('')}</div>
+        <h3 class="eyebrow">${t('career.archetype')}</h3><p class="muted small wiz-hint">${t('wiz.profilesHint', { pos: t('pos.' + c.pos) })}</p><div class="pick-list profiles">${CAA.Player.profilesFor(c.pos).map(p => `<button class="pick profile" data-action="wiz-set" data-field="archetype" data-value="${p.archetype}" aria-pressed="${c.archetype === p.archetype}"><b>${t('profile.' + p.pos + '.' + p.archetype)}</b><small>${t('arch.' + p.archetype)}</small><span class="chips">${p.strengths.map(k => `<span class="chip">${t('attr.' + k)}</span>`).join('')}</span></button>`).join('')}</div>
         <h3 class="eyebrow">${t('career.handedness')}</h3><div class="pick-grid two">${pick('handedness', 'right', t('career.right'))}${pick('handedness', 'left', t('career.left'))}</div>
         <h3 class="eyebrow">${t('wiz.number')}</h3><div class="pick-grid nums">${NUMBERS.map(n => pick('number', n, String(n))).join('')}</div>`;
     } else if (stepKey === 'talent') {
@@ -471,7 +553,9 @@
     if (!hasCareer()) return `<header class="cromo"><div class="cromo-id"><b class="title-sm">${t('boot.title1')} ${t('boot.title2')}</b></div><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
     const s = state.career.summary, p = s.player;
     const ovr = p ? p.ovr : Math.round(s.table.length ? 50 + (s.club.wins - s.club.losses) : 50);
-    return `<header class="cromo"><div class="ovr tier-${tier(ovr)}" aria-label="${t('cromo.ovr', { ovr })}"><b>${p ? p.ovr : '★'}</b><small>${p ? esc(p.pos) : t('cromo.coach')}</small></div>
+    const cc = CAA.Crest && CAA.Crest.colors && s.club ? CAA.Crest.colors(s.club) : null;
+    const clubStyle = cc ? ` style="--club-a:${esc(cc[0])};--club-b:${esc(cc[1])}"` : '';
+    return `<header class="cromo"${clubStyle}><div class="ovr tier-${tier(ovr)}" aria-label="${t('cromo.ovr', { ovr })}"><b>${p ? p.ovr : '★'}</b><small>${p ? esc(p.pos) : t('cromo.coach')}</small></div>
       <div class="cromo-id">${p ? `<span class="dorsal" aria-label="${t('cromo.number', { n: p.number })}">${p.number}</span>` : ''}<b class="name">${esc(p ? p.name : s.coach.name)}</b>
       <span class="cromo-sub">${crest(s.club)} ${esc(s.club.name)} · ${p ? t('cromo.age', { age: p.age }) + ' ' + flag(p.nationality) : t('cromo.coachRole')}</span></div>
       <button class="iconbtn" data-action="toggle-audio" aria-pressed="${!!state.settings.audio}" aria-label="${t('settings.audio')}">♪</button><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
@@ -593,7 +677,8 @@
       <p class="muted small">${t('coach.style', { pace: t('coach.pace.' + sc.pace), shooting: t('coach.focus.' + sc.shooting) })}</p><ul class="news">${sc.top.map(p => `<li><b>${esc(p.name)}</b> · ${esc(p.pos)} · ${p.ovr} <span class="muted small">${t('career.archetype.' + p.archetype)}</span></li>`).join('')}</ul></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${mk.crossing ? `<b>${esc(mk.crossing.clubName || '')}</b> <small class="muted">${esc(leagueLabel(mk.crossing.targetLeague))}</small><br>` : ''}${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(pick(p))}</li>`)).slice(0, 8).join('');
-    return `${eraBanner(s)}${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}${socialCard(s)}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    // Lo urgente primero: partido en directo y decisión pendiente antes que la guía o la familia.
+    return `${eraBanner(s)}${renderLive(c)}${decision}${outcome}${seasonCard}${famSetup}${guide}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}${socialCard(s)}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -630,7 +715,7 @@
       ${fm.legends.length ? `<h4 class="eyebrow">${t('fam.dynasty', { n: fm.generation })}</h4><ul class="news">${fm.legends.map((l, i) => `<li>🏛 <b>${esc(l.name)}</b> · ${t('fam.gen', { n: i + 1 })} · ${t('ret.legendLine', { seasons: seasonsTxt(l.seasons), pts: l.totals ? l.totals.pts : 0, titles: l.titles })}</li>`).join('')}</ul>` : ''}</section>` : '';
     const coachCards = s.squad ? renderSquad(s) : '';
     const best = (life.arcade && life.arcade.best) || {};
-    const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div>${arcadeExtras(life)}<div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${{ freeThrow: '🎯', three: '🏀', buzzer: '⏱', dunk: '🚀', defense: '🛡', street: '🏙' }[g]}</span><span><b>${t('arcade.' + g)}</b><small>${t('arcade.' + g + 'Desc')}</small><small class="best">${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}${arcadeStat(life, g)}</small></span><span class="mini-btns"><button class="small-btn primary" data-action="arcade-start" data-game="${g}">${t('arcade.play')}</button><button class="small-btn" data-action="arcade-auto" data-game="${g}">${t('arcade.auto')}</button></span></div>`).join('')}</div>
+    const minis = `<section class="card"><div class="guide-head"><h3>${t('arcade.title')}</h3><span class="tag led">${t('arcade.plays', { n: life.counters.arcadePlays || 0 })}</span></div>${arcadeExtras(life)}<div class="minis">${CAA.Arcade.TYPES.map(g => `<div class="mini"><span class="mini-ico" aria-hidden="true">${CAA.Icons.svg({ freeThrow: 'freethrow', three: 'three', buzzer: 'buzzer', dunk: 'dunk', defense: 'defense', street: 'street' }[g], 22)}</span><div class="mini-txt"><b>${t('arcade.' + g)}</b><small>${best[g] != null ? t('arcade.best', { n: best[g] }) : t('arcade.noBest')}${arcadeStat(life, g)}</small></div><button class="mini-go" data-action="arcade-start" data-game="${g}" aria-label="${esc(t('arcade.play') + ': ' + t('arcade.' + g) + '. ' + t('arcade.' + g + 'Desc'))}">${CAA.Icons.svg('ball', 18)}</button><button class="mini-auto" data-action="arcade-auto" data-game="${g}" aria-label="${esc(t('arcade.auto') + ': ' + t('arcade.' + g))}" title="${t('arcade.auto')}">AUTO</button></div>`).join('')}</div>
       ${life.pendingArcade ? `<p class="muted small">${t('arcade.pending', { game: t('arcade.' + life.pendingArcade.type) })}</p><div class="row"><button class="small-btn" data-action="arcade-resume">${t('arcade.resume')}</button><button class="small-btn" data-action="arcade-cancel">${t('arcade.abandon')}</button></div>` : ''}</section>`;
     const practice = `<section class="card"><h3>${t('me.practice')}</h3><p class="muted small">${t('me.practiceDesc')}</p>
       <div class="pick-grid two"><button class="option" data-action="life-practice-start"><b>${t('life.practiceManual')}</b></button><button class="option" data-action="life-practice-auto"><b>${t('life.practiceAuto')}</b></button><button class="option" data-action="life-buzzer-start"><b>${t('life.buzzerManual')}</b></button><button class="option" data-action="life-buzzer-auto"><b>${t('life.buzzerAuto')}</b></button></div>
@@ -709,47 +794,128 @@
     const by = CONTINENTS.map(c => { const rows = s.world.champions.filter(x => (CAA.Season.LEAGUES[x.leagueId] || {}).continent === c); return rows.length ? `<details><summary class="eyebrow">${t('continent.' + c)} · ${rows.length}</summary><ul class="news">${rows.map(x => `<li>🏆 <b>${esc(x.club)}</b> <small class="muted">${esc(leagueLabel(x.leagueId))}</small></li>`).join('')}</ul></details>` : ''; }).join('');
     return `<section class="card"><h3>${t('world.champions', { season: seasonLabel(s.world.year) })}</h3>${by}</section>`;
   }
+  // ---- Loro: graba la voz del jugador y la repite distorsionada (solo para esta especie) ----
+  function parrotStatus(st) {
+    if (st.error) return t('pet.parrot.' + st.error);
+    if (st.status === 'recording') return t('pet.parrot.recording');
+    if (st.status === 'playing') return t('pet.parrot.playing');
+    if (st.status === 'ready') return t('pet.parrot.ready', { n: (st.ms / 1000).toLocaleString(CAA.I18N.getLocale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) });
+    return st.supported ? t('pet.parrot.idle') : t('pet.parrot.unsupported');
+  }
+  // Refresca solo el panel del loro: un render completo cortaría la grabación o la reproducción en curso.
+  function paintParrot() {
+    if (!CAA.Parrot) return;
+    const box = doc.getElementById('parrot');
+    if (!box) return;
+    const st = CAA.Parrot.info();
+    const statusEl = doc.getElementById('parrot-status');
+    if (statusEl) { statusEl.textContent = parrotStatus(st); statusEl.className = 'parrot-status' + (st.error ? ' bad' : '') + (st.status === 'recording' ? ' rec' : ''); }
+    const rec = doc.getElementById('parrot-rec'), say = doc.getElementById('parrot-say'), forget = doc.getElementById('parrot-forget');
+    if (rec) rec.textContent = st.status === 'recording' ? t('pet.parrot.stop') : st.ready ? t('pet.parrot.again') : t('pet.parrot.record');
+    const busy = !!state.busy;
+    if (rec) rec.disabled = busy;
+    if (say) say.disabled = busy || !st.ready || st.status === 'recording';
+    if (forget) forget.disabled = busy || st.status === 'recording' || (!st.ready && !st.error);
+    const fallback = doc.getElementById('parrot-fallback');
+    if (fallback && st.error && /blocked|nodevice|unsupported|decode|failed/.test(st.error)) fallback.open = true;
+  }
+  function parrotPanel(pet) {
+    if (pet.species !== 'parrot') return '';
+    const st = CAA.Parrot ? CAA.Parrot.info() : { status: 'idle', error: 'unsupported', ready: false, supported: false };
+    const recLabel = st.status === 'recording' ? t('pet.parrot.stop') : st.ready ? t('pet.parrot.again') : t('pet.parrot.record');
+    return `<section class="parrot" id="parrot" aria-labelledby="parrot-title">
+      <h4 id="parrot-title">🦜 ${t('pet.parrot.title')}</h4>
+      <p class="muted small">${t('pet.parrot.hint')}</p>
+      <p class="parrot-status${st.error ? ' bad' : ''}" id="parrot-status" role="status" aria-live="polite">${esc(parrotStatus(st))}</p>
+      <div class="pick-grid three">
+        <button class="option center" id="parrot-rec" data-action="pet-parrot" data-op="record"><b>${esc(recLabel)}</b></button>
+        <button class="option center" id="parrot-say" data-action="pet-parrot" data-op="say" ${st.ready && st.status !== 'recording' ? '' : 'disabled'}><b>${t('pet.parrot.say')}</b></button>
+        <button class="option center" id="parrot-forget" data-action="pet-parrot" data-op="forget" ${st.ready || st.error ? '' : 'disabled'}><b>${t('pet.parrot.forget')}</b></button>
+      </div>
+      <details id="parrot-fallback"${st.error && /blocked|nodevice|unsupported|decode|failed/.test(st.error) ? ' open' : ''}><summary>${t('pet.parrot.textTitle')}</summary>
+        <label for="parrot-text">${t('pet.parrot.textLabel')}<input id="parrot-text" maxlength="80" value="${esc(draft('parrot-text', ''))}" placeholder="${t('pet.parrot.textPlaceholder')}" autocomplete="off"></label>
+        <button class="small-btn" data-action="pet-parrot" data-op="text">${t('pet.parrot.textButton')}</button>
+        <p class="muted small">${t('pet.parrot.textNote')}</p>
+      </details>
+      <p class="muted small">${t('pet.parrot.privacy')}</p>
+    </section>`;
+  }
   function renderPet(s) {
     const pet = s.pet, P = CAA.Pet;
     if (!pet) {
       const sp = state.petSpecies || 'dog';
       const cash = s.life ? s.life.cash : 0;
+      const group = k => Object.keys(P.SPECIES).filter(x => !!P.SPECIES[x].exotic === (k === 'exotic'));
+      const btn = k => `<button class="pick" data-action="pet-species" data-species="${k}" aria-pressed="${k === sp}"><b>${t('pet.species.' + k)}</b><small>${P.SPECIES[k].exotic ? t('pet.exotic', { n: P.EXOTIC_COST.toLocaleString(CAA.I18N.getLocale()) }) : t('pet.free')}</small><small class="muted">${t('pet.upkeepSeason', { n: P.SPECIES[k].upkeep })}</small></button>`;
       return `<section class="card pet"><h3>${t('pet.title')}</h3><p class="muted small">${t('pet.adoptDesc')}</p>
-        <div class="pick-grid">${Object.keys(P.SPECIES).map(k => `<button class="pick" data-action="pet-species" data-species="${k}" aria-pressed="${k === sp}"><b>${t('pet.species.' + k)}</b>${P.SPECIES[k].exotic ? `<small>${t('pet.exotic', { n: P.EXOTIC_COST.toLocaleString(CAA.I18N.getLocale()) })}</small>` : ''}</button>`).join('')}</div>
+        <p class="eyebrow">${t('pet.normalTitle')}</p><div class="pick-grid three">${group('normal').map(btn).join('')}</div>
+        <p class="eyebrow">${t('pet.exoticTitle')}</p><p class="muted small">${t('pet.exoticNote')}</p><div class="pick-grid three">${group('exotic').map(btn).join('')}</div>
         <label for="pet-name">${t('pet.name')}<input id="pet-name" maxlength="20" value="${esc(draft('pet-name', ''))}" placeholder="${t('pet.namePlaceholder.' + sp)}"></label>
-        <button class="cta" data-action="pet-adopt" ${P.SPECIES[sp].exotic && cash < P.EXOTIC_COST ? 'disabled' : ''}>${t('pet.adopt')}</button></section>`;
+        <button class="cta" data-action="pet-adopt" ${P.SPECIES[sp].exotic && cash < P.EXOTIC_COST ? 'disabled' : ''}>${t('pet.adopt')}</button>
+        <p class="muted small">${t('pet.noDeath')}</p></section>`;
     }
     const SP = P.SPECIES[pet.species], stage = P.stageOf(pet), wk = state.career.state.week;
+    const view = state.petView === 'style' || state.petView === 'info' ? state.petView : 'care';
     const learnedN = P.learned(pet).length;
-    const msg = pet.last ? t('pet.msg.' + pet.last.key, { name: pet.name, trick: pet.last.trick ? t('pet.trick.' + pet.last.trick) : '', route: pet.last.route ? t('pet.route.' + pet.last.route) : '', stage: pet.last.stage ? t('pet.stage.' + pet.last.stage) : '', tier: pet.last.tier ? t('pet.tier.' + pet.last.tier) : '', toy: pet.last.toy ? t('pet.supply.' + pet.last.toy) : '' }) : '';
+    const msg = pet.last ? t('pet.msg.' + pet.last.key, { name: pet.name, trick: pet.last.trick ? t('pet.trick.' + pet.last.trick) : '', route: pet.last.route ? t('pet.route.' + pet.last.route) : '', stage: pet.last.stage ? t('pet.stage.' + pet.last.stage) : '', tier: pet.last.tier ? t('pet.tier.' + pet.last.tier) : '', toy: pet.last.toy ? t('pet.supply.' + pet.last.toy) : '', x: pet.last.x || '' }) : '';
     const canContest = pet.lastContestWeek < 0 || wk - pet.lastContestWeek >= 4;
     const none = pet.actionsLeft <= 0, quick = pet.quick || {};
-    const qBtn = (a, ico, used) => `<button class="option center" data-action="pet-act" data-act="${a}" ${used ? 'disabled' : ''}><b>${ico} ${t('pet.act.' + a)}</b></button>`;
-    const care = qBtn('cuddle', '🤗', pet.cuddled) + qBtn('water', '💧', quick.water) + qBtn('brush', '🪮', quick.brush);
-    const inv = pet.inv || {}, toys = pet.toys || [];
-    const main = [`<button class="option center" data-action="pet-act" data-act="feed" ${none ? 'disabled' : ''}><b>🍖 ${t('pet.act.feed')}</b></button>`,
-      `<button class="option center" data-action="pet-act" data-act="feed" data-food="food_prem" ${none || (!(inv.food_prem > 0) && s.life.cash < 300) ? 'disabled' : ''}><b>🥩 ${t('pet.act.premium')}</b><small>${t('pet.left', { n: inv.food_prem || 0 })}</small></button>`,
-      `<button class="option center" data-action="pet-act" data-act="feed" data-food="treats" ${none || !(inv.treats > 0) ? 'disabled' : ''}><b>🦴 ${t('pet.act.treat')}</b><small>${t('pet.left', { n: inv.treats || 0 })}</small></button>`,
-      `<button class="option center" data-action="pet-act" data-act="bath" ${none ? 'disabled' : ''}><b>🛁 ${t('pet.act.bath')}</b></button>`,
-      `<button class="option center" data-action="pet-act" data-act="play" ${none ? 'disabled' : ''}><b>🏀 ${t('pet.act.play')}</b></button>`]
-      .concat(toys.map(k => `<button class="option center" data-action="pet-act" data-act="play" data-toy="${k}" ${none ? 'disabled' : ''}><b>🎾 ${t('pet.supply.' + k)}</b></button>`)).join('');
-    const routes = SP.walks ? Object.entries(P.ROUTES).map(([k, r]) => `<button class="option center" data-action="pet-act" data-act="walk" data-route="${k}" ${none || pet.bond < r.bond ? 'disabled' : ''}><b>🌳 ${t('pet.route.' + k)}</b><small>${pet.bond < r.bond ? t('pet.needBond', { n: r.bond }) : t('pet.walk')}</small></button>`).join('') : `<p class="muted small">${t('pet.noWalk')}</p>`;
-    const tricks = P.TRICKS.map(tr => { const pr = pet.tricks[tr.id] || 0, cant = tr.diff > SP.maxTrick; return `<button class="trick ${pr >= 100 ? 'done' : ''}" data-action="pet-act" data-act="train" data-trick="${tr.id}" ${none || pr >= 100 || cant ? 'disabled' : ''}><span><b>${t('pet.trick.' + tr.id)}</b><small>${cant ? t('pet.cannot') : '★'.repeat(tr.diff)}</small></span><span class="track" aria-hidden="true"><i style="width:${pr}%"></i></span><span class="muted small">${pr >= 100 ? t('pet.learned') : pr + '%'}</span></button>`; }).join('');
-    const items = P.ITEMS.filter(i => !i.prize || pet.owned.includes(i.id)).map(i => { const owned = pet.owned.includes(i.id), on = pet.equipped[i.slot] === i.id; return `<div class="item"><span class="swatch" style="background:${i.color}" aria-hidden="true"></span><span><b>${t('pet.item.' + i.id)}</b><small>${t('pet.slot.' + i.slot)} · ${t('pet.rarity.' + i.rarity)}${owned ? '' : ' · ' + i.cost + ' ' + t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="pet-equip" data-item="${i.id}">${on ? t('pet.unequip') : t('life.equip')}</button>` : `<button class="small-btn" data-action="pet-buy" data-item="${i.id}" ${s.life.style < i.cost ? 'disabled' : ''}>${t('life.buy')}</button>`}</div>`; }).join('');
-    const supplies = P.SUPPLIES.map(x => { const own = x.kind === 'toy' && toys.includes(x.id); return `<div class="item"><span aria-hidden="true">${x.kind === 'toy' ? '🎾' : '🍖'}</span><span><b>${t('pet.supply.' + x.id)}</b><small>${x.qty ? '×' + x.qty + ' · ' : ''}${x.price.toLocaleString(CAA.I18N.getLocale())} €</small></span>${own ? `<span class="tag">${t('pet.owned')}</span>` : `<button class="small-btn" data-action="pet-supply" data-item="${x.id}" ${s.life.cash < x.price ? 'disabled' : ''}>${t('life.buy')}</button>`}</div>`; }).join('');
-    const tiers = Object.keys(P.CONTESTS).map(k => { const open = P.contestOpen(pet, k); return `<button class="option center" data-action="pet-contest" data-tier="${k}" ${!open || !canContest ? 'disabled' : ''}><b>🏆 ${t('pet.tier.' + k)}</b><small>${open ? t('pet.tierWins', { n: (pet.contests.wins || {})[k] || 0 }) : t('pet.tierLocked')}</small></button>`; }).join('');
-    const album = (pet.album || []).slice().reverse().slice(0, 8).map(m => `<li><span class="muted">${seasonLabel(m.year)} · ${t('pet.week', { n: m.week })}</span> ${esc(t('pet.album.' + m.key, { name: pet.name, x: m.x ? (m.key === 'trick' ? t('pet.trick.' + m.x) : m.key === 'route' ? t('pet.route.' + m.x) : m.key === 'grew' ? t('pet.stage.' + m.x) : m.key === 'contestWin' ? t('pet.tier.' + m.x) : m.key === 'toy' ? t('pet.supply.' + m.x) : m.x) : '' }))}</li>`).join('');
-    return `<section class="card pet"><div class="guide-head"><h3>${esc(pet.name)}</h3><span class="tag">${t('pet.species.' + pet.species)} · ${t('pet.stage.' + stage)} · ${t('pet.trait.' + pet.trait)}</span></div>
+    const clubColors = CAA.Crest && CAA.Crest.colors && s.club ? CAA.Crest.colors(s.club) : [];
+    const tab = (k, label) => `<button class="pick" data-action="pet-view" data-view="${k}" aria-pressed="${view === k}"><b>${label}</b></button>`;
+    const tabs = `<div class="pick-grid three" role="group" aria-label="${t('pet.views')}">${tab('care', t('pet.view.care'))}${tab('style', t('pet.view.style'))}${tab('info', t('pet.view.info'))}</div>`;
+    const head = `<div class="guide-head"><h3>${esc(pet.name)}</h3><span class="tag">${t('pet.species.' + pet.species)} · ${t('pet.stage.' + stage)} · ${t('pet.trait.' + pet.trait)}</span></div>
       <div class="pet-stage"><canvas id="pet3d" role="img" aria-label="${t('pet.canvas', { name: esc(pet.name) })}"></canvas><div class="pet-bars">${P.NEEDS.map(k => meter(t('pet.' + k), pet[k])).join('')}${meter(t('pet.bond'), pet.bond)}</div></div>
-      ${msg ? `<p class="pet-msg" role="status">${esc(msg)}</p>` : ''}
-      <p class="eyebrow">${t('pet.quick')}</p><div class="pick-grid three">${care}</div>
-      <p class="eyebrow">${t('pet.actionsLeft', { n: pet.actionsLeft })}</p><div class="pick-grid">${main}</div>
-      <details><summary>${t('pet.walks')}</summary><div class="pick-grid">${routes}</div></details>
-      <details><summary>${t('pet.tricks', { n: learnedN, total: P.TRICKS.length })}</summary><div class="tricks">${tricks}</div></details>
-      <details><summary>${t('pet.contests', { won: pet.contests.won, played: pet.contests.played })}</summary>${canContest ? '' : `<p class="muted small">${t('pet.contestWait')}</p>`}<div class="pick-grid three">${tiers}</div></details>
-      <details><summary>${t('pet.shopSupplies')}</summary><div class="shop">${supplies}</div></details>
-      <details><summary>${t('pet.shop')}</summary><div class="shop">${items}</div></details>
-      ${album ? `<details><summary>${t('pet.albumTitle')}</summary><ul class="news">${album}</ul></details>` : ''}</section>`;
+      ${msg ? `<p class="pet-msg" role="status">${esc(msg)}</p>` : ''}`;
+    let body = '';
+    if (view === 'care') {
+      const qBtn = (a, ico, used) => `<button class="option center" data-action="pet-act" data-act="${a}" ${used ? 'disabled' : ''}><b>${ico} ${t('pet.act.' + a)}</b></button>`;
+      const care = qBtn('cuddle', '🤗', pet.cuddled) + qBtn('water', '💧', quick.water) + qBtn('brush', '🪮', quick.brush);
+      const inv = pet.inv || {}, toys = pet.toys || [];
+      const actBtn = (a, ico, extra = '', dis = false) => P.careAllowed(pet, a) ? `<button class="option center" data-action="pet-act" data-act="${a}" ${extra} ${none || dis ? 'disabled' : ''}><b>${ico} ${t('pet.act.' + a)}</b></button>` : '';
+      const main = [`<button class="option center" data-action="pet-act" data-act="feed" ${none ? 'disabled' : ''}><b>🍖 ${t('pet.act.feed')}</b></button>`,
+        `<button class="option center" data-action="pet-act" data-act="feed" data-food="food_prem" ${none || (!(inv.food_prem > 0) && s.life.cash < 300) ? 'disabled' : ''}><b>🥩 ${t('pet.act.premium')}</b><small>${t('pet.left', { n: inv.food_prem || 0 })}</small></button>`,
+        `<button class="option center" data-action="pet-act" data-act="feed" data-food="treats" ${none || !(inv.treats > 0) ? 'disabled' : ''}><b>🦴 ${t('pet.act.treat')}</b><small>${t('pet.left', { n: inv.treats || 0 })}</small></button>`,
+        `<button class="option center" data-action="pet-act" data-act="bath" ${none ? 'disabled' : ''}><b>🛁 ${t('pet.act.bath')}</b></button>`,
+        `<button class="option center" data-action="pet-act" data-act="play" ${none ? 'disabled' : ''}><b>🏀 ${t('pet.act.play')}</b></button>`,
+        actBtn('pat', '🤲'), actBtn('watch', '👀'), actBtn('photo', '📸'),
+        actBtn('spa', '💆', '', s.life.cash < P.SPA_COST), actBtn('home', '🏠')].filter(Boolean)
+        .concat(toys.map(k => `<button class="option center" data-action="pet-act" data-act="play" data-toy="${k}" ${none ? 'disabled' : ''}><b>🎾 ${t('pet.supply.' + k)}</b></button>`)).join('');
+      const routes = SP.walks ? Object.entries(P.ROUTES).map(([k, r]) => `<button class="option center" data-action="pet-act" data-act="walk" data-route="${k}" ${none || pet.bond < r.bond ? 'disabled' : ''}><b>🌳 ${t('pet.route.' + k)}</b><small>${pet.bond < r.bond ? t('pet.needBond', { n: r.bond }) : t('pet.walk')}</small></button>`).join('') : `<p class="muted small">${t('pet.noWalk')}</p>`;
+      const tricks = P.TRICKS.map(tr => { const pr = pet.tricks[tr.id] || 0, cant = tr.diff > SP.maxTrick; return `<button class="trick ${pr >= 100 ? 'done' : ''}" data-action="pet-act" data-act="train" data-trick="${tr.id}" ${none || pr >= 100 || cant ? 'disabled' : ''}><span><b>${t('pet.trick.' + tr.id)}</b><small>${cant ? t('pet.cannot') : '★'.repeat(tr.diff)}</small></span><span class="track" aria-hidden="true"><i style="width:${pr}%"></i></span><span class="muted small">${pr >= 100 ? t('pet.learned') : pr + '%'}</span></button>`; }).join('');
+      const tiers = Object.keys(P.CONTESTS).map(k => { const open = P.contestOpen(pet, k); return `<button class="option center" data-action="pet-contest" data-tier="${k}" ${!open || !canContest ? 'disabled' : ''}><b>🏆 ${t('pet.tier.' + k)}</b><small>${open ? t('pet.tierWins', { n: (pet.contests.wins || {})[k] || 0 }) : t('pet.tierLocked')}</small></button>`; }).join('');
+      const supplies = P.SUPPLIES.map(x => { const own = x.kind === 'toy' && toys.includes(x.id); return `<div class="item"><span aria-hidden="true">${x.kind === 'toy' ? '🎾' : '🍖'}</span><span><b>${t('pet.supply.' + x.id)}</b><small>${x.qty ? '×' + x.qty + ' · ' : ''}${x.price.toLocaleString(CAA.I18N.getLocale())} €</small></span>${own ? `<span class="tag">${t('pet.owned')}</span>` : `<button class="small-btn" data-action="pet-supply" data-item="${x.id}" ${s.life.cash < x.price ? 'disabled' : ''}>${t('life.buy')}</button>`}</div>`; }).join('');
+      const album = (pet.album || []).slice().reverse().slice(0, 8).map(m => `<li><span class="muted">${seasonLabel(m.year)} · ${t('pet.week', { n: m.week })}</span> ${esc(t('pet.album.' + m.key, { name: pet.name, x: m.x ? (m.key === 'trick' ? t('pet.trick.' + m.x) : m.key === 'route' ? t('pet.route.' + m.x) : m.key === 'grew' ? t('pet.stage.' + m.x) : m.key === 'contestWin' ? t('pet.tier.' + m.x) : m.key === 'toy' ? t('pet.supply.' + m.x) : m.x) : '' }))}</li>`).join('');
+      body = `${parrotPanel(pet)}<p class="eyebrow">${t('pet.quick')}</p><div class="pick-grid three">${care}</div>
+        <p class="eyebrow">${t('pet.actionsLeft', { n: pet.actionsLeft })}</p><div class="pick-grid three">${main}</div>
+        <details><summary>${t('pet.walks')}</summary><div class="pick-grid">${routes}</div></details>
+        <details><summary>${t('pet.tricks', { n: learnedN, total: P.TRICKS.length })}</summary><div class="tricks">${tricks}</div></details>
+        <details><summary>${t('pet.contests', { won: pet.contests.won, played: pet.contests.played })}</summary>${canContest ? '' : `<p class="muted small">${t('pet.contestWait')}</p>`}<div class="pick-grid three">${tiers}</div></details>
+        <details><summary>${t('pet.shopSupplies')}</summary><div class="shop">${supplies}</div></details>
+        ${album ? `<details><summary>${t('pet.albumTitle')}</summary><ul class="news">${album}</ul></details>` : ''}`;
+    } else if (view === 'style') {
+      const coat = pet.coat || 'nat', bg = pet.bg || 'none';
+      const coats = P.COATS.map(c => { const on = coat === c.id, open = P.coatOpen(pet, c.id); return `<button class="swatch-btn" data-action="pet-coat" data-coat="${c.id}" aria-pressed="${on}" ${on ? '' : open ? '' : 'disabled'} title="${open ? esc(t('pet.coat.' + c.id)) : esc(t(c.lock === 'national' ? 'pet.lockedNational' : 'pet.lockedRegional'))}"><span class="coat-dot" style="background:${c.sample || '#c58a4a'}" aria-hidden="true"></span><small>${open ? '' : '🔒 '}${t('pet.coat.' + c.id)}</small></button>`; }).join('');
+      const bgs = P.BACKGROUNDS.map(b => { const on = bg === b.id; return `<button class="swatch-btn" data-action="pet-bg" data-bg="${b.id}" aria-pressed="${on}"><span class="coat-dot" style="${b.color ? `background:${b.color}` : b.club ? `background:linear-gradient(135deg, ${esc(clubColors[0] || '#1b2140')} 50%, ${esc(clubColors[1] || '#141a2e')} 50%)` : 'background:#1b2140'}" aria-hidden="true"></span><small>${t('pet.bg.' + b.id)}</small></button>`; }).join('');
+      const slotGroups = P.SLOTS.map(sl => { const list = P.ITEMS.filter(i => i.slot === sl && (!i.prize || pet.owned.includes(i.id))); return list.length ? `<p class="eyebrow">${t('pet.slot.' + sl)}</p><div class="shop">${list.map(i => { const owned = pet.owned.includes(i.id), on = pet.equipped[sl] === i.id; return `<div class="item"><span class="swatch" style="background:${i.color}" aria-hidden="true"></span><span><b>${t('pet.item.' + i.id)}</b><small>${t('pet.rarity.' + i.rarity)}${owned ? '' : ' · ' + i.cost + ' ' + t('life.style')}</small></span>${owned ? `<button class="small-btn" data-action="pet-equip" data-item="${i.id}">${on ? t('pet.unequip') : t('life.equip')}</button>` : `<button class="small-btn" data-action="pet-buy" data-item="${i.id}" ${s.life.style < i.cost ? 'disabled' : ''}>${t('life.buy')}</button>`}</div>`; }).join('')}</div>` : ''; }).join('');
+      const prizes = P.ITEMS.filter(i => i.prize && !pet.owned.includes(i.id)).map(i => `<span class="chip">🔒 ${t('pet.item.' + i.id)}</span>`).join('');
+      body = `<p class="eyebrow">${t('pet.coatTitle')}</p><div class="pick-grid swatches">${coats}</div>
+        <p class="eyebrow">${t('pet.bgTitle')}</p><div class="pick-grid swatches">${bgs}</div>
+        <p class="eyebrow">${t('pet.shop')}</p>${slotGroups}
+        ${prizes ? `<p class="eyebrow">${t('pet.prizes')}</p><p class="muted small">${t('pet.prizesNote')}</p><p>${prizes}</p>` : ''}
+        <details><summary>${t('pet.shopSupplies')}</summary><div class="shop">${P.SUPPLIES.map(x => `<div class="item"><span aria-hidden="true">${x.kind === 'toy' ? '🎾' : '🍖'}</span><span><b>${t('pet.supply.' + x.id)}</b><small>${x.price.toLocaleString(CAA.I18N.getLocale())} €</small></span><button class="small-btn" data-action="pet-supply" data-item="${x.id}" ${s.life.cash < x.price ? 'disabled' : ''}>${t('life.buy')}</button></div>`).join('')}</div></details>`;
+    } else {
+      const facts = [`${t('pet.species.' + pet.species)}`, t('pet.upkeepSeason', { n: SP.upkeep }), t('pet.stage.' + stage), t('pet.trait.' + pet.trait)];
+      if (SP.fame) facts.push(t('pet.fameBonus', { n: SP.fame }));
+      if (SP.calm) facts.push(t('pet.calmBonus'));
+      if (SP.risk) facts.push(t('pet.riskNote'));
+      const allowed = Array.from(new Set(P.ACTIONS.concat(Object.keys(P.CARE_ACTIONS)))).filter(a => P.careAllowed(pet, a)).map(a => `<span class="chip">${t('pet.act.' + a)}</span>`).join('');
+      body = `<p class="eyebrow">${t('pet.facts')}</p><p>${facts.map(f => `<span class="chip">${f}</span>`).join('')}</p>
+        <p class="eyebrow">${t('pet.careNote')}</p><p>${allowed}</p>
+        <label for="pet-rename-name">${t('pet.renameTitle')}<input id="pet-rename-name" maxlength="20" value="${esc(draft('pet-rename-name', pet.name))}"></label>
+        <button class="cta" data-action="pet-rename">${t('pet.rename')}</button>
+        <p class="muted small">${t('pet.noDeath')}</p>`;
+    }
+    return `<section class="card pet">${head}${tabs}${body}</section>`;
   }
   // Minijuegos: dificultad, retos semanales, concurso del All-Star y estadísticas (paridad con sp-modes del fútbol).
   function arcadeStat(life, g) { const st = life.arcade && life.arcade.stats && life.arcade.stats[g]; return st && st.plays ? ' · ' + t('arcade.stat', { avg: Math.round(st.sum / st.plays * 10) / 10, pct: st.rounds ? Math.round(st.hits / st.rounds * 100) : 0 }) : ''; }
@@ -766,7 +932,7 @@
     if (!a) return `<section class="card"><p class="muted">${t('arcade.none')}</p></section>`;
     const g = CAA.Arcade.GAMES[a.type];
     const done = a.final;
-    const scoreTxt = a.type === 'street' ? `${a.live.score} – ${a.live.opponent}` : a.type === 'dunk' ? a.live.score.toFixed(1) : a.live.score;
+    const scoreTxt = a.type === 'street' ? `${a.live.score} – ${a.live.opponent}` : a.type === 'dunk' ? (a.live.score ? a.live.score.toFixed(1) : '—') : a.live.score;
     const summary = done ? `<section class="card outcome ${done.record ? 'good' : ''}"><span class="eyebrow">${t('arcade.final')}</span><h2>${a.type === 'street' ? t(done.won ? 'arcade.streetWon' : 'arcade.streetLost', { a: done.score, b: done.opponent }) : t('arcade.score', { n: done.score })}</h2>
       ${done.record ? `<p class="ok"><b>${t('arcade.newRecord')}</b></p>` : done.previous != null ? `<p class="muted">${t('arcade.best', { n: done.previous })}</p>` : ''}
       <p class="muted small">${done.auto ? t('arcade.autoNote') : t('arcade.perfects', { n: done.perfects, streak: done.bestStreak })}</p>
@@ -775,10 +941,10 @@
       ${(done.challenges || []).map(x => `<p class="ok small">✅ ${esc(t('arcade.chDone', { ch: t('arcade.ch.' + x.type, { n: x.target }) }))}</p>`).join('')}
       <div class="row">${done.contest ? '' : `<button class="cta" data-action="arcade-start" data-game="${a.type}">${t('arcade.again')}</button>`}<button class="small-btn" data-tab="life">${t('arcade.back')}</button></div></section>` : '';
     return `<section class="card arcade"><div class="guide-head"><div><span class="eyebrow">${t('arcade.round', { n: Math.min(a.round + 1, g.rounds), total: g.rounds })}</span><h2>${t('arcade.' + a.type)}</h2></div><div class="arcade-score"><b>${scoreTxt}</b><small>${t('arcade.streak', { n: a.streak })}</small></div></div>
-      <div class="arcade-stage">${state.arcade3dOff ? '' : '<canvas id="arcade3d" aria-hidden="true"></canvas>'}<canvas id="arcade-canvas" class="${state.arcade3dOff ? '' : 'hud'}" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas></div>
-      <p id="arcade-help" class="muted small">${t('arcade.help.' + g.meter)}</p>
+      <div class="arcade-stage${a.flash ? ' is-hot' : ''}">${state.arcade3dOff ? '' : '<canvas id="arcade3d" aria-hidden="true"></canvas>'}<canvas id="arcade-canvas" class="${state.arcade3dOff ? '' : 'hud'}" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas></div>
+      <p id="arcade-help" class="muted small"><b class="chip">${t('arcade.mech.' + g.mech)}</b> ${t('arcade.help.' + g.meter)}</p>
       <p class="sr-only" role="status" aria-live="polite">${esc(a.lastText || '')}</p>
-      ${done ? '' : `<button class="cta shoot" data-action="arcade-release" ${a.phase !== 'aim' ? 'disabled' : ''}>${t(a.type === 'defense' || (a.type === 'street' && a.round % 2 === 1) ? 'arcade.defend' : a.type === 'dunk' ? 'arcade.beat' : 'arcade.shoot')}</button>`}
+      ${done ? '' : `<button class="cta shoot" data-action="arcade-release" ${a.phase !== 'aim' ? 'disabled' : ''}>${t(a.type === 'dunk' ? 'arcade.beat' : (a.type === 'defense' || (a.type === 'street' && a.round % 2 === 1)) ? 'arcade.defend' : 'arcade.shoot')}</button>`}
       </section>${summary}`;
   }
   const GUIDE = ['career', 'week', 'live', 'decisions', 'minigames', 'pet', 'playoffs', 'coach', 'saves', 'a11y'];
@@ -945,11 +1111,21 @@
       ${decades.map(d => `<h4 class="eyebrow">${d}s</h4><div class="stack">${M.filter(m => Math.floor(m.year / 10) * 10 === d).map(m => `<button class="row-link" data-action="moment-open" data-id="${m.id}"><span class="ico" aria-hidden="true">📼</span><span><b>${m.year} · ${t('nat.kind.' + m.kind)}${m.gender === 'f' ? ' · ' + t('modes.women') : ''}</b><small>${teamLabel(m.teams[0])} – ${teamLabel(m.teams[1])}</small></span><span aria-hidden="true">›</span></button>`).join('')}</div>`).join('')}</section>`;
   }
   function renderMore() {
-    const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${ico}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
-    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${hasCareer() ? row('editor', '✏') + `<button class="row-link" data-action="sim-season"><span class="ico" aria-hidden="true">⏩</span><span><b>${t('more.simSeason')}</b><small>${t('more.simSeasonSub')}</small></span><span aria-hidden="true">›</span></button>` : ''}${hasCareer() ? (state.career.summary.clubFin ? row('club', '🏟') + (state.career.summary.transfers ? row('market', '🤝') : '') : '') + (state.career.summary.national ? row('national', '🏅') : '') + row('shop', '🛍') + row('look', '🎨') : ''}${row('moments', '📼')}${row('history', '🏛')}${row('guide', '📖')}${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
-      <button class="row-link" data-action="boot-menu"><span class="ico" aria-hidden="true">⌂</span><span><b>${t('more.menu')}</b><small>${t('more.menuSub')}</small></span><span aria-hidden="true">›</span></button></div></section>`;
+    const s = hasCareer() ? state.career.summary : null;
+    const ico = { editor: 'edit', market: 'handshake', club: 'arena', shop: 'bag', look: 'palette', national: 'trophy', moments: 'film', history: 'hall', guide: 'book', world: 'globe', match: 'ball', save: 'save', settings: 'gear', lab: 'flask' };
+    const tile = (tab) => `<button class="tile" data-tab="${tab}" id="more-${tab}" aria-label="${esc(t('more.' + tab) + ': ' + t('more.' + tab + 'Sub'))}"><span class="ico" aria-hidden="true">${CAA.Icons.svg(ico[tab] || 'ball')}</span><b>${t('more.' + tab)}</b></button>`;
+    const group = (title, tabs) => `<section class="more-group"><h3 class="eyebrow">${title}</h3><div class="tiles">${tabs.filter(Boolean).map(tile).join('')}</div></section>`;
+    const club = [s ? 'editor' : '', s && s.transfers ? 'market' : '', s && s.clubFin ? 'club' : '', s ? 'shop' : '', s ? 'look' : '', s && s.national ? 'national' : ''];
+    const systemTabs = ['moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab'];
+    const quick = s && s.club ? `<section class="card more-hero"><div class="mh-id">${crest(s.club, 34)}<div><b>${esc(s.player ? s.player.name : s.coach.name)}</b><small class="muted">${esc(s.club.name)} · ${esc(s.leagueName)}</small></div></div>
+      <div class="more-stats"><div><b>${s.week}</b><small>${t('career.week')}</small></div><div><b>${s.club.wins}-${s.club.losses}</b><small>${t('league.w')}-${t('league.l')}</small></div><div><b>${(s.life && s.life.achievements ? s.life.achievements.length : 0)}</b><small>${t('me.trophies')}</small></div><div><b>${s.table && s.table.length ? s.table.find(r => r.id === s.club.id) ? s.table.find(r => r.id === s.club.id).rank + 'º' : '—' : '—'}</b><small>${t('league.table')}</small></div></div>
+      ${s.life && s.life.pendingArcade ? `<p class="small ok">▶ ${t('arcade.pending', { game: t('arcade.' + s.life.pendingArcade.type) })}</p>` : ''}</section>` : '';
+    return `${quick}<section class="card more-panel">
+      <button class="row-link sim" data-action="sim-season"><span class="ico" aria-hidden="true">${CAA.Icons.svg('fastForward')}</span><span><b>${t('more.simSeason')}</b><small>${t('more.simSeasonSub')}</small></span><span aria-hidden="true">›</span></button>
+      ${s ? group(t('more.group.club'), club) : ''}
+      ${group(t('more.group.system'), systemTabs)}</section>
+      <button class="cta ghost" data-action="boot-menu">${CAA.Icons.svg('home', 20)} ${t('more.menu')}</button>`;
   }
-
   function renderActionBar() {
     if (!hasCareer() || state.tab !== 'career' || state.career.summary.retirement || state.career.summary.careerOver) return '';
     const c = state.career;
@@ -991,20 +1167,31 @@
     const status = `<div id="global-status" role="status" aria-live="polite" aria-atomic="true" class="${state.messageError ? 'bad' : 'muted'}">${esc(state.message || (state.busy ? t('status.working') : ''))}</div>`;
     const confirm = state.confirm ? `<section class="panel confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description"><h2 id="confirm-title">${t('confirm.title')}</h2><p id="confirm-description">${esc(state.confirm.text)}</p><div class="row"><button id="confirm-cancel" data-action="confirm-cancel">${t('confirm.cancel')}</button><button data-action="confirm-yes" class="danger">${t('confirm.yes')}</button></div></section>` : '';
     doc.body.dataset.screen = state.screen;
+    // Una animación de entrada por cambio de pantalla/pestaña/paso, no en cada repintado.
+    const viewKey = state.screen + ':' + (state.screen === 'game' ? state.tab : state.screen === 'create' ? 'create:' + state.wizard.step : state.screen);
+    const entered = state.viewKey !== viewKey; state.viewKey = viewKey;
+    const rail = state.busy ? '<div class="busy-rail" aria-hidden="true"><i></i></div>' : '';
     if (state.screen !== 'game') {
-      doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
+      doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
       const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'moments' ? renderMoments() : tab === 'editor' ? renderEditor() : tab === 'club' ? renderClub() : tab === 'market' ? renderMarket() : tab === 'national' ? renderNational() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
       const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' ? 'life' : 'more';
-      const icons = { career: '⌂', life: '👕', league: '▤', more: '▦' };
-      doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
+      const icons = { career: CAA.Icons.svg('career'), life: CAA.Icons.svg('life'), league: CAA.Icons.svg('league'), more: CAA.Icons.svg('more') };
+      doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
       ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
       <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="${tab === 'arcade' ? 'life' : 'more'}">‹ ${t(tab === 'arcade' ? 'nav.life' : 'nav.more')}</button>` : ''}${body}</main>
       <footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
     }
-    for (const child of doc.getElementById('app').children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
+    const appEl = doc.getElementById('app');
+    const mainEl = doc.getElementById('panel');
+    if (mainEl) {
+      mainEl.classList.remove('view-in', 'nav-fwd', 'nav-back');
+      if (entered) { void mainEl.offsetWidth; mainEl.classList.add('view-in', 'nav-' + (state.navDir || 'fwd')); }
+    }
+    appEl.setAttribute('aria-busy', state.busy ? 'true' : 'false');
+    for (const child of appEl.children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
     doc.querySelectorAll('[data-action]').forEach(b => { b.disabled = state.busy || b.disabled || !!state.confirm; });
     if (state.confirm) doc.querySelectorAll('.confirm button').forEach(b => { b.disabled = false; });
     doc.querySelectorAll('details').forEach((d, i) => { if (openDetails[i] !== undefined) d.open = openDetails[i]; });
@@ -1022,7 +1209,14 @@
     if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
     if (doc.getElementById('live3d')) liveRaf = root.requestAnimationFrame(drawLive3d);
     syncEraLook();
+    if (state.liveFocus) {
+      state.liveFocus = false;
+      const lp = doc.getElementById('live-panel');
+      if (lp && !CAA.A11Y.reduced(state.settings) && typeof lp.scrollIntoView === 'function') lp.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      else if (lp && typeof lp.scrollIntoView === 'function') lp.scrollIntoView({ block: 'start' });
+    }
     { const lp = doc.getElementById('live-panel'); if (lp && !lp.dataset.caught && pb.speed) pbStart(); else pbStop(); }
+    if (CAA.Parrot) { if (doc.getElementById('parrot')) paintParrot(); else CAA.Parrot.stop(); }
   }
   function drawMatchFrame() {
     const m = state.match;
@@ -1094,14 +1288,14 @@
   let arcadeRaf = null, arcadeRenderer = null, arcadeGlCanvas = null;
   function arcadeAttrs() { return state.career.state && state.career.state.player ? state.career.state.player.attrs : {}; }
   function arcadeBegin(pending) {
-    state.arcade = { type: pending.type, seed: pending.seed, round: 0, ticks: [], results: [], streak: 0, phase: 'aim', aimStart: root.performance.now(), anim: null, final: null, label: '', flash: 0,
+    state.arcade = { type: pending.type, seed: pending.seed, round: 0, ticks: [], results: [], streak: 0, phase: 'aim', aimStart: root.performance.now(), cueFired: false, anim: null, final: null, label: '', flash: 0,
       live: { score: 0, opponent: 0 } };
     state.tab = 'arcade';
   }
   function arcadeSpec() { const a = state.arcade; return CAA.Arcade.roundSpec(a.type, a.seed, a.round, a.streak); }
-  function arcadeRelease() {
+  function arcadeRelease(atTick) {
     const a = state.arcade; if (!a || a.phase !== 'aim') return;
-    const tick = Math.round((root.performance.now() - a.aimStart) / 1000 * CAA.Arcade.HZ);
+    const tick = atTick != null ? Math.max(0, Math.round(atTick)) : Math.round((root.performance.now() - a.aimStart) / 1000 * CAA.Arcade.HZ);
     const r = CAA.Arcade.resolveRound(a.type, a.seed, a.round, tick, arcadeAttrs(), a.streak);
     a.ticks.push(tick); a.results.push(r);
     const tally = CAA.Arcade.play(a.type, a.seed, a.ticks, arcadeAttrs());
@@ -1113,7 +1307,7 @@
     a.lastText = a.label;
     a.anim = { start: root.performance.now(), made: r.made, perfect: r.perfect };
     a.phase = 'flight'; a.flash = r.perfect || (a.type === 'dunk' && r.judge >= 9) ? 1 : 0;
-    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim');
+    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim'); haptic(r.made ? (r.perfect ? 'success' : 'tap') : 'fail');
     a.done = tally.complete;
     render(); arcadeSync();
     const wait = CAA.A11Y.reduced(state.settings) ? 350 : 900;
@@ -1126,7 +1320,7 @@
       a.phase = 'finishing'; render();
       try { const res = await worker.send('career.arcade', { state: state.career.state, ticks: a.ticks }); await acceptCareer(res); a.final = res.arcade; a.phase = 'done'; if (audio) audio.play(res.arcade.record ? 'success' : 'buzzer'); }
       catch (err) { notify(t('status.error') + ': ' + err.message, true); a.phase = 'done'; }
-    } else { a.round++; a.phase = 'aim'; a.aimStart = root.performance.now(); }
+    } else { a.round++; a.phase = 'aim'; a.cueFired = false; a.aimStart = root.performance.now(); }
     render(); arcadeSync();
   }
   function arcadeDraw(ts) {
@@ -1134,11 +1328,16 @@
     if (!a || !canvas || state.tab !== 'arcade' || state.screen !== 'game') { arcadeRaf = null; return; }
     const ctx = canvas.getContext('2d');
     const spec = arcadeSpec();
-    const tick = a.phase === 'aim' ? Math.round((ts - a.aimStart) / 1000 * CAA.Arcade.HZ) : 0;
+    const tick = a.phase === 'aim' ? Math.round((ts - a.aimStart) / 1000 * CAA.Arcade.HZ) : (a.ticks.length ? a.ticks[a.ticks.length - 1] : 0);
+    // La bocina y el rival no esperan: si no sueltas a tiempo, el intento se pierde solo.
+    if (a.phase === 'aim' && (spec.motion === 'rise' || spec.motion === 'react') && spec.deadlineTicks && tick > spec.deadlineTicks) { arcadeRelease(tick); return; }
+    if (a.phase === 'aim' && spec.cueTick != null && tick >= spec.cueTick && !a.cueFired) { a.cueFired = true; haptic('tap'); if (audio) audio.play('click'); }
     const anim = a.anim ? { t: Math.min(1, (ts - a.anim.start) / (CAA.A11Y.reduced(state.settings) ? 1 : 700)), made: a.anim.made } : null;
     const s = state.career.summary, eq = s && s.life && s.life.equipment;
     const jerseyItem = eq && eq.jersey && CAA.Content.packs().shop.items.find(i => i.id === eq.jersey);
-    const view = { type: a.type, round: a.round, phase: a.phase, spec, cursor: a.phase === 'aim' ? CAA.Arcade.cursorAt(spec, tick) : spec.center, meterType: CAA.Arcade.GAMES[a.type].meter,
+    const view = { type: a.type, round: a.round, phase: a.phase, spec, tick, cursor: CAA.Arcade.cursorAt(spec, tick), meterType: CAA.Arcade.GAMES[a.type].meter,
+      onCue: spec.cueTick != null && tick >= spec.cueTick, clockText: String(Math.max(0, Math.ceil(24 * (1 - (tick % Math.max(1, spec.periodTicks)) / spec.periodTicks)))),
+      text: { power: t('arcade.cue.power'), rack: t('arcade.cue.rack'), buzzer: t('arcade.cue.buzzer'), beat: t('arcade.cue.beat'), wait: t('arcade.cue.wait'), now: t('arcade.cue.now'), late: t('arcade.cue.late'), attack: t('arcade.cue.attack'), defend: t('arcade.cue.defend') },
       anim, now: ts, label: a.label, labelGood: a.labelGood, flash: a.flash ? Math.max(0, 1 - (ts - (a.anim ? a.anim.start : ts)) / 250) : 0, netKick: anim && anim.made && anim.t > 0.7 ? 1 - (anim.t - 0.7) / 0.3 : 0, hype: Math.min(1, 0.2 + a.streak / 4) };
     const opts = { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: CAA.A11Y.reduced(state.settings), jersey: jerseyItem ? jerseyItem.color : null };
     const gl = doc.getElementById('arcade3d');
@@ -1169,7 +1368,9 @@
     const h = state.heroShot, canvas = doc.getElementById('hero-canvas');
     if (!h || !canvas) { heroRaf = null; return; }
     const spec = heroSpec(), tick = Math.round((ts - h.aimStart) / 1000 * CAA.Arcade.HZ);
-    CAA.Arcade2D.draw(canvas.getContext('2d'), canvas.width, canvas.height, { type: 'buzzer', round: 0, phase: 'aim', spec, cursor: CAA.Arcade.cursorAt(spec, tick), meterType: 'jump', anim: null, now: ts, label: '', flash: 0, netKick: 0, hype: 1 }, { colorMode: state.settings.colorMode });
+    if (tick > spec.periodTicks) { heroRelease(); return; } // la bocina no perdona: tiro automático
+    CAA.Arcade2D.draw(canvas.getContext('2d'), canvas.width, canvas.height, { type: 'buzzer', round: 0, phase: 'aim', spec, tick, cursor: CAA.Arcade.cursorAt(spec, tick), meterType: 'jump', anim: null, now: ts, label: '', flash: 0, netKick: 0, hype: 1,
+      text: { power: t('arcade.cue.power'), buzzer: t('arcade.cue.buzzer'), clock: t('arcade.cue.clock') } }, { colorMode: state.settings.colorMode });
     heroRaf = root.requestAnimationFrame(heroDraw);
   }
   async function persistCareer() {
@@ -1197,17 +1398,18 @@
       }
       state.confirmed = false;
       if (name === 'confirm-cancel') { state.confirm = null; }
-      else if (name === 'confirm-yes') { const pending = state.confirm; state.confirm = null; state.confirmed = true; state.busy = false; await action(pending.name, pending.el); return; }
-      else if (name === 'boot-lang') { CAA.I18N.setLocale(['en', 'fr', 'de', 'it'].includes(el.dataset.locale) ? el.dataset.locale : 'es'); saveSettings(); state.screen = 'menu'; }
-      else if (name === 'boot-new') { state.screen = 'modes'; }
+      else if (name === 'confirm-yes') { haptic('confirm'); const pending = state.confirm; state.confirm = null; state.confirmed = true; state.busy = false; await action(pending.name, pending.el); return; }
+      else if (name === 'boot-lang') { state.navDir = 'fwd'; CAA.I18N.setLocale(['en', 'fr', 'de', 'it'].includes(el.dataset.locale) ? el.dataset.locale : 'es'); saveSettings(); state.screen = 'menu'; }
+      else if (name === 'boot-new') { state.navDir = 'fwd'; state.screen = 'modes'; }
       else if (name === 'boot-continue') { state.screen = 'game'; state.tab = 'career'; }
       else if (name === 'boot-open') { state.screen = 'game'; state.tab = el.dataset.target || 'more'; }
-      else if (name === 'boot-menu' || name === 'boot-back') { state.screen = 'menu'; state.match.playing = false; }
+      else if (name === 'boot-menu' || name === 'boot-back') { state.navDir = 'back'; state.screen = 'menu'; state.match.playing = false; }
       else if (name === 'mode-gender') {
         const c = state.career; c.gender = el.dataset.gender === 'f' ? 'f' : 'm';
         if (CAA.Season.LEAGUES[c.leagueId].gender !== c.gender) c.leagueId = c.gender === 'f' ? 'es-iberica-women' : 'fr-hexagone-men';
         if (c.gender === 'f') c.route = 'world'; c.clubId = ''; c.clubsRoute = null;
       } else if (name === 'boot-mode') {
+        state.navDir = 'fwd';
         state.career.eraYear = el.dataset.mode === 'eras' ? (state.career.eraYear || 1952) : null;
         state.career.challenge = el.dataset.mode === 'challenge' ? (state.career.challenge || 'save') : null;
         state.career.newClub = el.dataset.mode === 'club' ? (state.career.newClub || { name: '', abbr: '', primary: '#ff7a1f', secondary: '#0b0d1c' }) : null;
@@ -1221,6 +1423,7 @@
         if (state.career.newClub) for (const [id, k] of [['club-name', 'name'], ['club-abbr', 'abbr'], ['club-primary', 'primary'], ['club-secondary', 'secondary']]) { const e = doc.getElementById(id); if (e) state.career.newClub[k] = e.value; }
         const natEl = doc.getElementById('career-nationality'); if (natEl) state.career.nationality = natEl.value;
         const seedEl = doc.getElementById('career-seed'); if (seedEl) state.career.seed = seedEl.value;
+        state.navDir = name === 'wiz-next' ? 'fwd' : 'back';
         if (name === 'wiz-cancel') state.screen = 'modes'; else state.wizard.step = Math.max(1, state.wizard.step + (name === 'wiz-next' ? 1 : -1));
       } else if (name === 'wiz-set') {
         const field = el.dataset.field, value = el.dataset.value;
@@ -1233,7 +1436,13 @@
           if (c.gender === 'f') c.route = 'world';
           c.clubId = ''; c.clubsRoute = null; eraDefaultLeague(); state.busy = false; await ensureClubs(c.route);
         }
-        else if (['pos', 'archetype', 'handedness', 'talent', 'clubId', 'challenge'].includes(field)) state.career[field] = value;
+        else if (field === 'pos') {
+          state.career.pos = value;
+          const list = CAA.Player.profilesFor(value);
+          if (!list.some(x => x.archetype === state.career.archetype)) state.career.archetype = list[0].archetype;
+          haptic('select');
+        }
+        else if (['archetype', 'handedness', 'talent', 'clubId', 'challenge'].includes(field)) state.career[field] = value;
         if (audio) audio.play('click');
       } else if (name === 'guide-skip') { try { root.localStorage.setItem('caa.guideSkip.' + state.career.summary.careerId, '1'); } catch (_) {} }
       else if (name === 'toggle-audio') { state.settings.audio = !state.settings.audio; CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } saveSettings(); }
@@ -1291,7 +1500,7 @@
         if (state.practice && state.practice.start != null) {
           const releaseTick = Math.round((root.performance.now() - state.practice.start) / 1000 * CAA.Minigames.HZ);
           const res = await worker.send('career.practice.resolve', { state: state.career.state, config: { type: state.practice.type || 'freeThrow', id: state.practice.id, releaseTick } });
-          await acceptCareer(res); state.practice = { result: res.practice }; if (audio) audio.play(res.practice.made ? 'swish' : 'rim');
+          await acceptCareer(res); state.practice = { result: res.practice }; if (audio) audio.play(res.practice.made ? 'swish' : 'rim'); haptic(res.practice.made ? 'success' : 'fail');
         }
       } else if (name === 'life-guide-next') {
         const res = await worker.send('career.guide', { state: state.career.state });
@@ -1317,7 +1526,7 @@
         if (!state.career.clubId && state.career.clubs.length && String(state.career.clubsRoute || '').endsWith(state.career.route === 'world' ? state.career.leagueId : state.career.route)) state.career.clubId = state.career.clubs[0].id;
         if (!state.career.clubId) throw new Error(t('career.clubRequired'));
         const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, eraYear: state.career.eraYear || undefined, newClub: state.career.newClub || undefined, challenge: state.career.challenge && state.career.mode === 'coach' ? state.career.challenge : undefined, quick: !!state.career.quick, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
-        if (audio) audio.play('success');
+        if (audio) audio.play('success'); haptic('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
         state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t(state.career.mode === 'coach' ? 'wiz.welcomeCoach' : 'wiz.welcome'));
       } else if (name === 'career-play' || name === 'career-train' || name === 'career-rest') {
@@ -1357,20 +1566,46 @@
         const res = await worker.send('career.live', payloadLive);
         await acceptCareer(res);
         if (name === 'live-end') pbCatchUp(state.career.state.live);
-        if (name === 'live-start' && !pb.speed) pb.speed = 1;
+        if (name === 'live-start') { if (!pb.speed) pb.speed = 1; state.liveFocus = true; }
         const caught = pbCaught(state.career.state.live);
         if (audio && name !== 'live-next') audio.play(caught && res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : 'whistle');
+        if (caught && res.live.finished) haptic(res.live.outcome && res.live.outcome.won ? 'success' : 'fail');
         if (name === 'live-start') notify(t('live.started')); else if (caught && res.live.finished) notify(t(res.live.outcome.won ? 'live.won' : 'live.lost'));
       } else if (name === 'pet-species') { state.petSpecies = el.dataset.species;
+      } else if (name === 'pet-view') { state.petView = el.dataset.view;
+      } else if (name === 'pet-parrot') {
+        if (!state.career.state || !state.career.summary.pet) throw new Error(t('career.empty'));
+        if (!CAA.Parrot) throw new Error(t('pet.parrot.unsupported'));
+        const op = el.dataset.op || 'record', parrot = CAA.Parrot;
+        const reward = async () => { const res = await worker.send('career.pet', { state: state.career.state, config: { op: 'speak' } }); await acceptCareer(res); };
+        if (op === 'record') {
+          if (parrot.info().status === 'recording') {
+            // Al parar, el loro repite la toma sin pedir otro toque: es lo que hace un loro.
+            try { await parrot.finish(); } catch (e) { notify(t('pet.parrot.' + (e.code || 'failed')), true); }
+            if (parrot.info().ready) { try { await parrot.say(); await reward(); } catch (_) {} }
+          } else { try { await parrot.start(); } catch (e) { notify(t('pet.parrot.' + (e.code || 'failed')), true); } }
+        } else if (op === 'say') {
+          try { await parrot.say(); await reward(); } catch (e) { notify(t('pet.parrot.' + (e.code || 'failed')), true); }
+        } else if (op === 'forget') { parrot.forget();
+        } else if (op === 'text') {
+          const text = draft('parrot-text', '').trim();
+          if (!text) notify(t('pet.parrot.emptyText'), true);
+          else { await parrot.sayText(text, CAA.I18N.getLocale()); await reward(); }
+        }
       } else if (name.startsWith('pet-')) {
         if (!state.career.state) throw new Error(t('career.empty'));
         const nameEl = doc.getElementById('pet-name');
+        const nameValue = draft('pet-rename-name', state.career.summary && state.career.summary.pet ? state.career.summary.pet.name : '');
         const config = name === 'pet-adopt' ? { op: 'adopt', species: state.petSpecies || 'dog', name: nameEl ? nameEl.value : '' }
           : name === 'pet-act' ? { op: 'act', action: el.dataset.act, trick: el.dataset.trick, premium: el.dataset.premium === '1', food: el.dataset.food, toy: el.dataset.toy, route: el.dataset.route }
-          : name === 'pet-contest' ? { op: 'contest', tier: el.dataset.tier } : { op: name === 'pet-buy' ? 'buy' : name === 'pet-supply' ? 'supply' : 'equip', item: el.dataset.item };
+          : name === 'pet-contest' ? { op: 'contest', tier: el.dataset.tier }
+          : name === 'pet-coat' ? { op: 'coat', coat: el.dataset.coat }
+          : name === 'pet-bg' ? { op: 'bg', bg: el.dataset.bg }
+          : name === 'pet-rename' ? { op: 'rename', name: nameValue }
+          : { op: name === 'pet-buy' ? 'buy' : name === 'pet-supply' ? 'supply' : 'equip', item: el.dataset.item };
         const res = await worker.send('career.pet', { state: state.career.state, config });
         await acceptCareer(res);
-        if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce');
+        if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce'); if (name === 'pet-contest') haptic(res.pet.place === 1 ? 'success' : 'tap');
         if (name === 'pet-contest') notify(t('pet.contestResult', { place: res.pet.place, score: res.pet.score, tier: t('pet.tier.' + res.pet.tier) }));
       } else if (name === 'live-hero') {
         state.heroShot = { aimStart: root.performance.now() }; if (audio) audio.play('whistle');
@@ -1437,7 +1672,10 @@
       } else if (name === 'lab-performance') {
         const courtVisible = !!state.match.result;
         if (courtVisible) { state.tab = 'match'; render(); }
-        state.diagnostics = await CAA.Diagnostics.sampleFrames({ frames: 180, context: { worker: worker.getMode(), storage: storage.kind, workload: courtVisible ? (state.match.view === '3d' ? 'voxel-' + state.match.quality : 'court2d') : 'static-ui' }, onFrame: () => { if (state.match.result) { state.match.progress = 1; stepMatch(1); drawMatchFrame(); } } });
+        doc.body.dataset.measuring = 'true';
+        try {
+          state.diagnostics = await CAA.Diagnostics.sampleFrames({ frames: 180, context: { worker: worker.getMode(), storage: storage.kind, workload: courtVisible ? (state.match.view === '3d' ? 'voxel-' + state.match.quality : 'court2d') : 'static-ui' }, onFrame: () => { if (state.match.result) { state.match.progress = 1; stepMatch(1); drawMatchFrame(); } } });
+        } finally { delete doc.body.dataset.measuring; }
         state.lab = JSON.stringify(state.diagnostics, null, 2); state.tab = 'lab';
       } else if (name === 'lab-export') {
         const report = { game: payload.manifest.game, title: t('app.title'), build: payload.manifest, worker: worker.getMode(), storage: { kind: storage.kind, persistent: storage.persistent, diagnostics: storage.diagnostics }, performance: state.diagnostics, missingTranslations: CAA.I18N.missingKeys() };
@@ -1461,9 +1699,9 @@
     doc.getElementById('app').addEventListener('click', e => {
       if (state.heroShot && (e.target.id === 'hero-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'live-hero-release'))) { heroRelease(); return; }
       if (e.target.id === 'arcade-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'arcade-release')) { arcadeRelease(); return; }
-      const go = e.target.closest('[data-tab-go]'); if (go) { state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
-      const tab = e.target.closest('[data-tab]'); if (tab) { state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
-      const btn = e.target.closest('[data-action]'); if (btn) { if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
+      const go = e.target.closest('[data-tab-go]'); if (go) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, go.dataset.tabGo); state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
+      const tab = e.target.closest('[data-tab]'); if (tab) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, tab.dataset.tab); state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
+      const btn = e.target.closest('[data-action]'); if (btn) { haptic('tap'); if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
     });
     doc.getElementById('app').addEventListener('keydown', e => {
       if (state.confirm) {
@@ -1473,7 +1711,7 @@
       }
       const tab = e.target.closest('[role=tab][data-tab]'); if (!tab) return;
       const next = CAA.A11Y.tabKey(e.key, PRIMARY_TABS.indexOf(tab.dataset.tab), PRIMARY_TABS.length); if (next == null) return;
-      e.preventDefault(); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
+      e.preventDefault(); haptic('select'); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
     });
     doc.getElementById('app').addEventListener('input', e => { if (e.target.id) state.drafts[e.target.id] = e.target.value; if (e.target.id === 'save-import') { state.importText = e.target.value; state.importPreview = null; const b = doc.querySelector('[data-action="save-import"]'); if (b) b.disabled = true; } });
     doc.getElementById('app').addEventListener('change', async e => {
@@ -1513,7 +1751,7 @@
       else if (key === 'fontSize') state.settings.fontSize = +el.value;
       else if (key === 'vibration' || key === 'audio' || key === 'highContrast') state.settings[key] = el.value === 'true';
       else state.settings[key] = el.value;
-      CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; saveSettings(); render(); syncAnimation();
+      CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } if (key === 'vibration') haptic('confirm'); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; saveSettings(); render(); syncAnimation();
     });
   }
 
@@ -1533,8 +1771,9 @@
     if (lastEnv && lastEnv.payload.career) { try { state.career.state = CAA.Career.resume(lastEnv.payload.career); state.career.summary = CAA.Career.summary(state.career.state); state.tab = 'career'; } catch (err) { notify(t('save.failed') + ': ' + err.message, true); } }
     let storedLocale = null; try { storedLocale = root.localStorage.getItem('caa.locale'); } catch (_) {}
     state.screen = storedLocale ? 'menu' : 'lang';
+    if (CAA.Parrot) CAA.Parrot.subscribe(() => paintParrot());
     bind(); render();
-    const suspend = () => { if (state.arcade && state.arcade.phase === 'aim') state.arcade.aimStart = root.performance.now(); state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); };
+    const suspend = () => { if (CAA.Parrot) CAA.Parrot.stop(); if (state.arcade && state.arcade.phase === 'aim') state.arcade.aimStart = root.performance.now(); state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); };
     doc.addEventListener('visibilitychange', () => { if (doc.hidden) suspend(); else { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); } });
     root.addEventListener('pagehide', suspend);
     root.addEventListener('caa:native-pause', suspend);

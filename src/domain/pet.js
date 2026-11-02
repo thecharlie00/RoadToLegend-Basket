@@ -9,42 +9,90 @@
   const RNG = CAA.RNG || (typeof require === 'function' ? require('../core/rng.js') : null);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-  // shape: plantilla vóxel (quad = cuadrúpedo, small = pequeño redondo, shell = tortuga, fin = pez, bird = ave).
+  // shape: plantilla vóxel (quad = cuadrúpedo, small = pequeño redondo, shell = tortuga, fin = pez, bird = ave,
+  // lizard = lagarto, snake = serpiente, spider = tarántula). Mismas 13 especies que el juego de fútbol.
+  // mor/calm/fame/risk/upkeep traducen sus efectos al baloncesto: moral semanal, forma estable, seguidores,
+  // sustos de veterinario y gasto de manutención por temporada.
   const SPECIES = {
-    dog: { body: '#c58a4a', belly: '#f0d7b0', ear: '#7a4f2a', shape: 'quad', exotic: false, maxTrick: 5, walks: true },
-    cat: { body: '#8d8f96', belly: '#e6e3dc', ear: '#5c5e64', shape: 'quad', exotic: false, maxTrick: 5, walks: true },
-    bunny: { body: '#efe6da', belly: '#ffffff', ear: '#e8b7b0', shape: 'quad', exotic: false, maxTrick: 4, walks: true },
-    hamster: { body: '#d9a066', belly: '#fbe9d0', ear: '#b97a45', shape: 'small', exotic: false, maxTrick: 3, walks: true },
-    turtle: { body: '#6c8f3e', belly: '#c9b37a', ear: '#3f5f2a', shape: 'shell', exotic: false, maxTrick: 3, walks: false },
-    fish: { body: '#ff8a2b', belly: '#ffe0b8', ear: '#ffffff', shape: 'fin', exotic: false, maxTrick: 2, walks: false },
-    parrot: { body: '#2fbf5a', belly: '#ffd23f', ear: '#e8412c', shape: 'bird', exotic: true, maxTrick: 5, walks: true },
-    hedgehog: { body: '#7b5a42', belly: '#e9d2b5', ear: '#4a3426', shape: 'small', exotic: true, maxTrick: 3, walks: true },
-    fennec: { body: '#e9c38c', belly: '#fff3dc', ear: '#f4a989', shape: 'quad', exotic: true, maxTrick: 5, walks: true },
-    capybara: { body: '#9b7048', belly: '#c49a6c', ear: '#6e4c2e', shape: 'quad', exotic: true, maxTrick: 4, walks: true }
+    dog: { body: '#c58a4a', belly: '#f0d7b0', ear: '#7a4f2a', shape: 'quad', exotic: false, maxTrick: 5, walks: true, mor: 1.5, calm: 0, fame: 0, risk: 0, upkeep: 260 },
+    cat: { body: '#8d8f96', belly: '#e6e3dc', ear: '#5c5e64', shape: 'quad', exotic: false, maxTrick: 5, walks: true, mor: 1.2, calm: 0.8, fame: 0, risk: 0, upkeep: 190 },
+    bunny: { body: '#efe6da', belly: '#ffffff', ear: '#e8b7b0', shape: 'quad', exotic: false, maxTrick: 4, walks: true, mor: 2, calm: 0, fame: 0, risk: 0, upkeep: 120 },
+    hamster: { body: '#d9a066', belly: '#fbe9d0', ear: '#b97a45', shape: 'small', exotic: false, maxTrick: 3, walks: true, mor: 1.2, calm: 0, fame: 0, risk: 0, upkeep: 70 },
+    turtle: { body: '#6c8f3e', belly: '#c9b37a', ear: '#3f5f2a', shape: 'shell', exotic: false, maxTrick: 3, walks: false, mor: 0.8, calm: 0.9, fame: 0, risk: 0, upkeep: 90 },
+    fish: { body: '#ff8a2b', belly: '#ffe0b8', ear: '#ffffff', shape: 'fin', exotic: false, maxTrick: 2, walks: false, mor: 0.8, calm: 0.9, fame: 0, risk: 0, upkeep: 60 },
+    parrot: { body: '#2fbf5a', belly: '#ffd23f', ear: '#e8412c', shape: 'bird', exotic: true, maxTrick: 5, walks: true, mor: 1, calm: 0, fame: 1.5, risk: 0.04, upkeep: 420 },
+    hedgehog: { body: '#7b5a42', belly: '#e9d2b5', ear: '#4a3426', shape: 'small', exotic: true, maxTrick: 3, walks: true, mor: 1.8, calm: 0, fame: 0.6, risk: 0.04, upkeep: 150 },
+    fennec: { body: '#e9c38c', belly: '#fff3dc', ear: '#f4a989', shape: 'quad', exotic: true, maxTrick: 5, walks: true, mor: 1.2, calm: 0, fame: 1.5, risk: 0.06, upkeep: 520 },
+    capybara: { body: '#9b7048', belly: '#c49a6c', ear: '#6e4c2e', shape: 'quad', exotic: true, maxTrick: 4, walks: true, mor: 3, calm: 0.7, fame: 1.5, risk: 0.04, upkeep: 480 },
+    iguana: { body: '#5f9e4a', belly: '#cfe0a2', ear: '#2f5e2a', shape: 'lizard', exotic: true, maxTrick: 3, walks: true, mor: 0.7, calm: 0.6, fame: 1, risk: 0.05, upkeep: 220 },
+    python: { body: '#c9a227', belly: '#f0e0a0', ear: '#6b4c12', shape: 'snake', exotic: true, maxTrick: 2, walks: false, mor: 0.5, calm: 0.6, fame: 2, risk: 0.08, upkeep: 300 },
+    tarantula: { body: '#3b2f2a', belly: '#8a6a52', ear: '#1e1714', shape: 'spider', exotic: true, maxTrick: 2, walks: false, mor: 0.3, calm: 0.5, fame: 1, risk: 0.05, upkeep: 140 }
   };
+  // Colores de pelaje (los mismos 10 del fútbol): se aplican al modelo vóxel como tinte, no como imagen.
+  // gold y rainbow se ganan con los concursos, no se compran.
+  const COATS = [
+    { id: 'nat', tint: null, sample: '#c58a4a' },
+    { id: 'snow', tint: { sat: 0, light: 0.3, contrast: 1.1 }, sample: '#efe9df' },
+    { id: 'coal', tint: { sat: 0, light: -0.36, contrast: 1.2 }, sample: '#3a3438' },
+    { id: 'choc', tint: { sepia: 0.9, sat: 1.45, light: -0.2 }, sample: '#7a4a2a' },
+    { id: 'pink', tint: { hue: 300, sat: 1.4 }, sample: '#f2a7c3' },
+    { id: 'blue', tint: { hue: 185, sat: 1.3 }, sample: '#7fc8e8' },
+    { id: 'green', tint: { hue: 80, sat: 1.2 }, sample: '#9ad06a' },
+    { id: 'purple', tint: { hue: 245, sat: 1.3 }, sample: '#b79ae8' },
+    { id: 'gold', tint: { sepia: 1, sat: 3, hue: -8, light: 0.08 }, sample: '#e8c35a', lock: 'regional' },
+    { id: 'rainbow', tint: { rainbow: true }, sample: 'linear-gradient(135deg,#ff6b6b,#ffd166,#6bd490,#63b3ff,#b389ff)', lock: 'national' }
+  ];
+  // Fondos del retrato vóxel (el «club» usa los colores del club desde la interfaz).
+  const BACKGROUNDS = [
+    { id: 'none', color: null },
+    { id: 'grass', color: '#1f7a3a' },
+    { id: 'sky', color: '#2c6fb7' },
+    { id: 'rose', color: '#c4527d' },
+    { id: 'sun', color: '#d9822b' },
+    { id: 'night', color: '#2a2350' },
+    { id: 'club', color: null, club: true }
+  ];
   const EXOTIC_COST = 5000;
+  const SPA_COST = 400;
   const TRICKS = [
     { id: 'sit', diff: 1 }, { id: 'paw', diff: 1 }, { id: 'roll', diff: 2 }, { id: 'fetch', diff: 2 },
     { id: 'dribble', diff: 3 }, { id: 'pass', diff: 3 }, { id: 'shoot', diff: 4 }, { id: 'dunk', diff: 5 }
   ];
   // Accesorios (se pagan con estilo). rarity: c común · r rara · e épica · prize = solo por concursos.
+  // Seis huecos como en el fútbol (cabeza, cara, cuello, cuerpo, pies y juguete) y 30 piezas en total.
   const ITEMS = [
     { id: 'collar', slot: 'neck', cost: 10, color: '#ff5b66', rarity: 'c' },
     { id: 'bandana', slot: 'neck', cost: 18, color: '#ffb21e', rarity: 'c' },
+    { id: 'bell', slot: 'neck', cost: 22, color: '#e8c35a', rarity: 'c' },
     { id: 'bowtie', slot: 'neck', cost: 28, color: '#8b5cf6', rarity: 'r' },
     { id: 'scarf', slot: 'neck', cost: 34, color: '#36b98a', rarity: 'r' },
+    { id: 'pearls', slot: 'neck', cost: 60, color: '#f3efe7', rarity: 'e' },
     { id: 'cap', slot: 'head', cost: 25, color: '#66b9ff', rarity: 'c' },
     { id: 'headband', slot: 'head', cost: 15, color: '#3fcf7c', rarity: 'c' },
+    { id: 'bow', slot: 'head', cost: 20, color: '#ff8fb1', rarity: 'c' },
     { id: 'beanie', slot: 'head', cost: 30, color: '#e8412c', rarity: 'r' },
+    { id: 'straw', slot: 'head', cost: 38, color: '#d9bd7a', rarity: 'r' },
+    { id: 'grad', slot: 'head', cost: 46, color: '#20242c', rarity: 'r' },
+    { id: 'tophat', slot: 'head', cost: 55, color: '#1b1f22', rarity: 'e' },
     { id: 'shades', slot: 'face', cost: 30, color: '#1b1f22', rarity: 'r' },
+    { id: 'glasses', slot: 'face', cost: 24, color: '#7a4f2a', rarity: 'c' },
+    { id: 'sun', slot: 'face', cost: 32, color: '#2a2350', rarity: 'r' },
+    { id: 'disguise', slot: 'face', cost: 36, color: '#6b4c2e', rarity: 'r' },
     { id: 'goggles', slot: 'face', cost: 45, color: '#3be3ff', rarity: 'e' },
     { id: 'jersey', slot: 'body', cost: 35, color: '#ffb21e', rarity: 'c' },
     { id: 'hoodie', slot: 'body', cost: 48, color: '#26304a', rarity: 'r' },
     { id: 'cape', slot: 'body', cost: 70, color: '#c9183c', rarity: 'e' },
     { id: 'sneakers', slot: 'feet', cost: 40, color: '#f5f5f5', rarity: 'r' },
+    { id: 'bone', slot: 'toy', cost: 12, color: '#efe6da', rarity: 'c' },
+    { id: 'ball', slot: 'toy', cost: 16, color: '#e2731b', rarity: 'c' },
+    { id: 'teddy', slot: 'toy', cost: 34, color: '#b9793f', rarity: 'r' },
     { id: 'crown', slot: 'head', cost: 0, color: '#e8c35a', rarity: 'e', prize: true },
-    { id: 'medal', slot: 'neck', cost: 0, color: '#f6c83a', rarity: 'e', prize: true }
+    { id: 'star', slot: 'head', cost: 0, color: '#ffe27a', rarity: 'e', prize: true },
+    { id: 'medal', slot: 'neck', cost: 0, color: '#f6c83a', rarity: 'e', prize: true },
+    { id: 'gold', slot: 'neck', cost: 0, color: '#ffd24a', rarity: 'e', prize: true },
+    { id: 'cup', slot: 'toy', cost: 0, color: '#e8c35a', rarity: 'e', prize: true }
   ];
+  const SLOTS = ['head', 'face', 'neck', 'body', 'feet', 'toy'];
   // Comida y juguetes (se pagan con dinero del juego).
   const SUPPLIES = [
     { id: 'food_prem', kind: 'food', price: 600, qty: 3 },
@@ -70,12 +118,39 @@
   const TRAITS = ['active', 'affectionate', 'curious', 'independent', 'glutton'];
   const NEEDS = ['hunger', 'thirst', 'hygiene', 'energy', 'fun', 'affection'];
   const DECAY = { hunger: 22, thirst: 26, hygiene: 12, energy: -35, fun: 20, affection: 14 }; // energía se recupera
-  const ACTIONS = ['feed', 'play', 'walk', 'bath', 'train', 'cuddle', 'water', 'brush'];
+  const ACTIONS = ['feed', 'play', 'walk', 'bath', 'train', 'cuddle', 'water', 'brush', 'pat', 'watch', 'photo', 'spa', 'home'];
+  // Acciones del fútbol que no teníamos, con qué especies las admiten (igual que su lista de cuidados).
+  const CARE_ACTIONS = {
+    pat: { no: ['fish', 'tarantula'] },
+    watch: { only: ['fish', 'turtle', 'iguana', 'python', 'tarantula', 'capybara', 'cat'] },
+    photo: {},
+    spa: { only: ['dog', 'cat', 'bunny', 'hamster', 'hedgehog', 'fennec', 'capybara', 'parrot'] },
+    home: { only: ['fish', 'turtle', 'iguana', 'python', 'tarantula', 'hamster'] },
+    speak: { only: ['parrot'] }
+  };
   const QUICK = ['cuddle', 'water', 'brush']; // una vez por semana cada uno, no gastan cuidados
   const PER_WEEK = 3;
   const WEEKS_PER_SEASON = 34;
 
   function stageOf(pet) { const s = (pet.ageWeeks || 0) / WEEKS_PER_SEASON; return s < 1 ? 'baby' : s < 3 ? 'young' : s < 10 ? 'adult' : 'senior'; }
+  function careAllowed(pet, action) {
+    const c = CARE_ACTIONS[action]; if (!c) return false;
+    if (c.no && c.no.includes(pet.species)) return false;
+    if (c.only && !c.only.includes(pet.species)) return false;
+    return true;
+  }
+  function coatOf(pet) { return COATS.find(c => c.id === (pet && pet.coat)) || COATS[0]; }
+  // Los colores de trofeo se ganan en los concursos: regional desbloquea oro, nacional el arcoíris.
+  function coatOpen(pet, id) {
+    const c = COATS.find(x => x.id === id); if (!c) return false;
+    if (!c.lock) return true;
+    const wins = (pet && pet.contests && pet.contests.wins) || {};
+    if (c.lock === 'regional') return (wins.regional || 0) + (wins.national || 0) > 0;
+    if (c.lock === 'national') return (wins.national || 0) > 0;
+    return false;
+  }
+  function bgOf(pet) { return BACKGROUNDS.find(b => b.id === (pet && pet.bg)) || BACKGROUNDS[0]; }
+  function cleanName(name) { const s = String(name || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); return s; }
   function rngFor(state, tag) { const pet = state.pet; pet.seq++; return RNG.create(state.seed + ':pet:' + state.year + ':' + state.week + ':' + tag + ':' + pet.seq); }
   function learned(pet) { return TRICKS.filter(t => (pet.tricks[t.id] || 0) >= 100); }
   function remember(state, key, extra) {
@@ -92,6 +167,9 @@
     if (pet.affection == null) pet.affection = 70;
     if (!pet.trait) pet.trait = TRAITS[RNG.create(state.seed + ':pet-trait:' + pet.name).int(0, TRAITS.length - 1)];
     pet.quick = pet.quick || {};
+    if (!COATS.some(c => c.id === pet.coat)) pet.coat = 'nat';
+    if (!BACKGROUNDS.some(b => b.id === pet.bg)) pet.bg = 'none';
+    if (!pet.caresLeft && pet.caresLeft !== 0) pet.caresLeft = PER_WEEK;
     pet.inv = pet.inv || { food_prem: 0, treats: 2 };
     pet.toys = pet.toys || [];
     pet.album = pet.album || [];
@@ -108,9 +186,9 @@
     if (state.pet) throw new Error('already has a pet');
     const species = SPECIES[config.species] ? config.species : 'dog';
     if (SPECIES[species].exotic) { if (!life || life.cash < EXOTIC_COST) throw new Error('not enough cash'); life.cash -= EXOTIC_COST; }
-    const DEF = { dog: 'Rebote', cat: 'Triple', bunny: 'Saltitos', hamster: 'Pívot', turtle: 'Reloj', fish: 'Swish', parrot: 'Speaker', hedgehog: 'Tapón', fennec: 'Alley', capybara: 'Zen' };
+    const DEF = { dog: 'Rebote', cat: 'Triple', bunny: 'Saltitos', hamster: 'Pívot', turtle: 'Reloj', fish: 'Swish', parrot: 'Speaker', hedgehog: 'Tapón', fennec: 'Alley', capybara: 'Zen', iguana: 'Lento', python: 'Mamba', tarantula: 'Viuda' };
     const name = String(config.name || '').trim().slice(0, 20) || DEF[species];
-    state.pet = { species, name, hunger: 80, thirst: 80, energy: 90, happiness: 75, hygiene: 85, fun: 75, affection: 70, bond: 10, tricks: {}, owned: [], equipped: {},
+    state.pet = { species, name, coat: 'nat', bg: 'none', caresLeft: PER_WEEK, hunger: 80, thirst: 80, energy: 90, happiness: 75, hygiene: 85, fun: 75, affection: 70, bond: 10, tricks: {}, owned: [], equipped: {},
       actionsLeft: PER_WEEK, cuddled: false, quick: {}, week: state.week, ageWeeks: 0, walks: 0, contests: { played: 0, won: 0, best: null, wins: {} }, lastContestWeek: -99,
       neglect: 0, last: { key: 'adopted' }, seq: 0, inv: { food_prem: 1, treats: 3 }, toys: ['toy_ball'], album: [] };
     state.pet.trait = TRAITS[RNG.create(state.seed + ':pet-trait:' + name).int(0, TRAITS.length - 1)];
@@ -172,6 +250,34 @@
       const hates = pet.species === 'cat' || pet.species === 'hamster';
       pet.hygiene = 100; pet.fun = clamp(pet.fun + (hates ? -10 : -3), 0, 100); if (pet.species === 'fish') pet.fun = clamp(pet.fun + 10, 0, 100);
       pet.last = { key: hates ? 'bathCat' : pet.species === 'fish' ? 'bathFish' : 'bath' };
+    } else if (action === 'pat') {
+      if (!careAllowed(pet, action)) { pet.actionsLeft++; throw new Error('this pet does not like pats'); }
+      pet.affection = clamp(pet.affection + 20 + traitBonus(pet, 'affectionate', 6), 0, 100);
+      pet.fun = clamp(pet.fun + 5, 0, 100); pet.bond = clamp(pet.bond + 3, 0, 100);
+      pet.last = { key: 'pat' };
+    } else if (action === 'watch') {
+      if (!careAllowed(pet, action)) { pet.actionsLeft++; throw new Error('this pet is too restless to watch'); }
+      pet.energy = clamp(pet.energy + 12, 0, 100); pet.fun = clamp(pet.fun + 6, 0, 100);
+      pet.affection = clamp(pet.affection + 8, 0, 100); pet.bond = clamp(pet.bond + 2, 0, 100);
+      pet.last = { key: 'watch' };
+    } else if (action === 'photo') {
+      const looks = Object.keys(pet.equipped || {}).length, bonus = 1 + looks * 0.2;
+      life.style = (life.style || 0) + Math.max(1, Math.round(2 * bonus));
+      if (bonus >= 1.6) life.fans = clamp((life.fans || 0) + 1, -30, 30);
+      pet.bond = clamp(pet.bond + 2, 0, 100); pet.fun = clamp(pet.fun + 3, 0, 100);
+      pet.last = { key: looks ? 'photoLook' : 'photo', x: looks };
+      remember(state, 'photo', String(looks));
+    } else if (action === 'spa') {
+      if (!careAllowed(pet, action)) { pet.actionsLeft++; throw new Error('this pet is not for the spa'); }
+      if (life.cash < SPA_COST) { pet.actionsLeft++; throw new Error('not enough cash'); }
+      life.cash -= SPA_COST; pet.hygiene = 100; pet.affection = clamp(pet.affection + 10, 0, 100);
+      pet.bond = clamp(pet.bond + 4, 0, 100); pet.fun = clamp(pet.fun + 4, 0, 100);
+      pet.last = { key: 'spa' };
+    } else if (action === 'home') {
+      if (!careAllowed(pet, action)) { pet.actionsLeft++; throw new Error('this pet does not need a terrarium'); }
+      pet.hygiene = clamp(pet.hygiene + 35, 0, 100); pet.fun = clamp(pet.fun + 8, 0, 100);
+      pet.bond = clamp(pet.bond + 2, 0, 100);
+      pet.last = { key: 'home' };
     } else if (action === 'train') {
       const trick = TRICKS.find(t => t.id === config.trick);
       if (!trick) { pet.actionsLeft++; throw new Error('unknown trick'); }
@@ -206,7 +312,8 @@
     if (!contestOpen(pet, tier)) throw new Error('contest locked');
     if (state.week - pet.lastContestWeek < 4 && pet.lastContestWeek >= 0) throw new Error('contest not available yet');
     const rng = rngFor(state, 'contest:' + tier);
-    const score = Math.round(learned(pet).reduce((s, t) => s + t.diff * 10, 0) + pet.happiness / 5 + pet.hygiene / 10 + Object.keys(pet.equipped).length * 3 + pet.bond / 10 + rng.float() * 12);
+    const fame = Math.round(((SPECIES[pet.species] || {}).fame || 0) * 4);
+    const score = Math.round(learned(pet).reduce((s, t) => s + t.diff * 10, 0) + pet.happiness / 5 + pet.hygiene / 10 + Object.keys(pet.equipped).length * 3 + pet.bond / 10 + fame + rng.float() * 12);
     const losses = Math.max(0, pet.contests.played - pet.contests.won);
     const rivals = [0, 1, 2].map(i => Math.round(C.rival + i * 12 + rng.float() * 30 + Math.min(30, pet.contests.played * 3) - Math.min(15, losses * 2))); // rivales algo más flojos tras derrotas (oculto)
     const place = 1 + rivals.filter(r => r > score).length;
@@ -217,8 +324,11 @@
     life.style += prize.style; life.cash += prize.cash;
     if (place === 1) {
       pet.contests.won++; pet.contests.wins[tier] = (pet.contests.wins[tier] || 0) + 1;
-      if (!pet.owned.includes('crown')) pet.owned.push('crown');
-      if (tier === 'national' && !pet.owned.includes('medal')) pet.owned.push('medal');
+      const grant = id => { if (!pet.owned.includes(id)) pet.owned.push(id); };
+      grant('crown');
+      if (tier === 'regional') grant('star');
+      if (tier === 'national') { grant('medal'); grant('gold'); }
+      if (pet.contests.won >= 3) grant('cup');
       remember(state, 'contestWin', tier);
     }
     pet.fun = clamp(pet.fun + (place === 1 ? 15 : place <= 3 ? 6 : -4), 0, 100);
@@ -226,6 +336,44 @@
     pet.happiness = mood(pet);
     pet.last = { key: 'contest' + place, tier };
     return { score, rivals, place, prize, tier };
+  }
+  // Clase de habla del loro: el jugador graba su voz y el loro la repite distorsionada. La recompensa
+  // (vínculo, diversión, cariño) se da una vez por semana; grabar y escuchar se puede siempre.
+  function speak(state) {
+    const pet = migrate(state);
+    if (!pet) throw new Error('no pet');
+    if (!careAllowed(pet, 'speak')) throw new Error('this pet cannot talk');
+    const first = !pet.quick.speak;
+    pet.quick.speak = true;
+    if (first) {
+      pet.fun = clamp(pet.fun + 12, 0, 100);
+      pet.affection = clamp(pet.affection + 10, 0, 100);
+      pet.bond = clamp(pet.bond + 3, 0, 100);
+      remember(state, 'speak');
+      pet.last = { key: 'speak' };
+    } else pet.last = { key: 'speakAgain' };
+    pet.happiness = mood(pet);
+    return { first, key: pet.last.key, bond: pet.bond };
+  }
+  function rename(state, name) {
+    const pet = migrate(state); const clean = cleanName(name);
+    if (!pet) throw new Error('no pet');
+    if (!clean) throw new Error('empty name');
+    pet.name = clean; pet.last = { key: 'renamed' };
+    return clean;
+  }
+  function setCoat(state, id) {
+    const pet = migrate(state); const c = COATS.find(x => x.id === id);
+    if (!pet || !c) throw new Error('unknown coat');
+    if (!coatOpen(pet, id)) throw new Error('coat locked');
+    pet.coat = id; pet.last = { key: 'coat' };
+    return c;
+  }
+  function setBg(state, id) {
+    const pet = migrate(state); const b = BACKGROUNDS.find(x => x.id === id);
+    if (!pet || !b) throw new Error('unknown background');
+    pet.bg = id; pet.last = { key: 'bg' };
+    return b;
   }
   function buy(state, life, itemId) {
     const pet = migrate(state); const item = ITEMS.find(i => i.id === itemId);
@@ -254,12 +402,14 @@
     return item;
   }
   // Paso de semana: las necesidades bajan (según la personalidad), la energía se recupera y la mascota crece.
-  function weekTick(state) {
+  function weekTick(state, life) {
     const pet = migrate(state);
     if (!pet) return null;
+    const sp = SPECIES[pet.species] || SPECIES.dog;
     const stageBefore = stageOf(pet);
     for (const k of NEEDS) {
       let d = DECAY[k];
+      if (k === 'fun') d -= Math.round((sp.calm || 0) * 5);
       if (k === 'hunger') d += traitBonus(pet, 'glutton', 6);
       if (k === 'fun') d += traitBonus(pet, 'active', 5);
       if (k === 'affection') d += traitBonus(pet, 'affectionate', 5) - traitBonus(pet, 'independent', 6);
@@ -272,18 +422,33 @@
     pet.neglect = pet.actionsLeft === PER_WEEK && !pet.cuddled ? pet.neglect + 1 : 0;
     if (pet.neglect >= 2) pet.bond = clamp(pet.bond - 3, 0, 100);
     pet.actionsLeft = PER_WEEK; pet.cuddled = false; pet.quick = {}; pet.ageWeeks++;
+    // Manutención y susto veterinario una vez por temporada (nunca muerte: no se castiga con pérdidas).
+    let extra = 0;
+    if (life) {
+      if (pet.ageWeeks % WEEKS_PER_SEASON === 0) {
+        if (sp.upkeep) { life.cash = Math.max(0, life.cash - sp.upkeep); remember(state, 'upkeep', String(sp.upkeep)); }
+        if ((sp.risk || 0) > 0 && rngFor(state, 'vet').float() < sp.risk) {
+          const bill = Math.round((sp.upkeep || 100) * 1.5);
+          life.cash = Math.max(0, life.cash - bill);
+          remember(state, 'vet');
+          pet.last = { key: 'vet', x: bill };
+        }
+      }
+      if ((sp.fame || 0) > 0 && pet.ageWeeks % 4 === 0 && pet.happiness >= 60) life.fans = clamp((life.fans || 0) + 1, -30, 30);
+      if ((sp.mor || 0) >= 1.2 && pet.ageWeeks % 4 === 0 && pet.happiness >= 70) extra = 1;
+    }
     const stage = stageOf(pet);
     if (stage !== stageBefore) { remember(state, 'grew', stage); pet.last = { key: 'grew', stage }; }
     if (pet.ageWeeks % WEEKS_PER_SEASON === 0) remember(state, 'birthday', String(pet.ageWeeks / WEEKS_PER_SEASON));
     const m = pet.happiness >= 70 ? 1 : pet.happiness < 30 ? -2 : 0;
-    return { mood: m };
+    return { mood: m, extra };
   }
   function validate(pet) {
     const o = v => v && typeof v === 'object' && !Array.isArray(v);
     if (pet == null) return true;
-    return o(pet) && SPECIES[pet.species] && typeof pet.name === 'string' && ['hunger', 'energy', 'happiness', 'hygiene', 'bond', 'actionsLeft'].every(k => Number.isFinite(pet[k])) && o(pet.tricks) && Array.isArray(pet.owned) && o(pet.equipped);
+    return o(pet) && (pet.coat == null || COATS.some(c => c.id === pet.coat)) && (pet.bg == null || BACKGROUNDS.some(b => b.id === pet.bg)) && SPECIES[pet.species] && typeof pet.name === 'string' && ['hunger', 'energy', 'happiness', 'hygiene', 'bond', 'actionsLeft'].every(k => Number.isFinite(pet[k])) && o(pet.tricks) && Array.isArray(pet.owned) && o(pet.equipped);
   }
-  CAA.Pet = { SPECIES, EXOTIC_COST, TRICKS, ITEMS, SUPPLIES, ROUTES, CONTESTS, TRAITS, NEEDS, ACTIONS, QUICK, PER_WEEK, WEEKS_PER_SEASON,
-    adopt, act, contest, contestOpen, buy, buySupply, equip, weekTick, learned, validate, migrate, stageOf, mood };
+  CAA.Pet = { SPECIES, COATS, BACKGROUNDS, SLOTS, CARE_ACTIONS, EXOTIC_COST, SPA_COST, TRICKS, ITEMS, SUPPLIES, ROUTES, CONTESTS, TRAITS, NEEDS, ACTIONS, QUICK, PER_WEEK, WEEKS_PER_SEASON,
+    adopt, act, contest, contestOpen, buy, buySupply, equip, weekTick, learned, validate, migrate, stageOf, mood, careAllowed, coatOf, coatOpen, bgOf, setCoat, setBg, rename, speak };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Pet;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

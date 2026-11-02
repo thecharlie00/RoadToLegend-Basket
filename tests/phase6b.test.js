@@ -145,3 +145,54 @@ test('procedural audio is gesture-unlocked, optional, rate-limited and lifecycle
   const played = a.stats().played;
   a.dispose(); assert.equal(a.play('click'), false); assert.equal(a.stats().played, played); assert.equal(a.stats().disposed, true);
 });
+
+// ===== Perfiles de jugador por posición (el asistente ofrece cosas distintas según el puesto) =====
+test('player profiles depend on the chosen position and expose real strengths', () => {
+  const Player = require('../src/domain/player.js');
+  const seen = new Set();
+  for (const pos of Player.POSITIONS) {
+    const list = Player.profilesFor(pos);
+    assert.equal(list.length, 4, pos + ' offers four profiles');
+    assert.equal(new Set(list.map(p => p.archetype)).size, 4, pos + ' profiles are distinct');
+    assert.ok(list[0].first && !list[1].first, pos + ' first profile is the recommended one');
+    for (const p of list) {
+      assert.ok(Player.ARCHETYPES.includes(p.archetype), pos + ' profile maps to a legal archetype');
+      assert.equal(p.pos, pos);
+      assert.equal(p.strengths.length, 3);
+      assert.equal(new Set(p.strengths).size, 3);
+      seen.add(p.id);
+    }
+  }
+  assert.equal(seen.size, 20, 'each position contributes its own profile ids');
+  // La lista cambia de verdad con la posición: base y pívot no comparten el primer perfil ni las etiquetas.
+  const pg = Player.profilesFor('PG'), c = Player.profilesFor('C');
+  assert.notEqual(pg[0].archetype, c[0].archetype);
+  assert.notDeepEqual(pg.map(p => p.strengths[0]), c.map(p => p.strengths[0]));
+  assert.ok(pg[0].strengths.includes('pase'), 'a point guard leads with passing');
+  assert.ok(c[0].strengths.includes('poste'), 'a center leads with the post');
+  assert.equal(Player.profileFor('SF', 'point-forward').archetype, 'point-forward');
+  assert.equal(Player.profileFor('C', 'creator'), null, 'a profile must exist for that position');
+  assert.deepEqual(Player.profilesFor('PG/SG'), Player.profilesFor('PG'), 'hybrids use their primary position');
+});
+
+test('a career created without archetype takes the first profile of the chosen position', () => {
+  const c = Career.createCareer({ seed: 'profile-default-center', pos: 'C' });
+  assert.equal(c.player.pos, 'C');
+  assert.equal(c.player.archetype, 'interior');
+  const pg = Career.createCareer({ seed: 'profile-default-pg', pos: 'PG' });
+  assert.equal(pg.player.archetype, 'creator');
+});
+
+test('every position profile is labelled in all five languages', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const Player = require('../src/domain/player.js');
+  const root = path.join(__dirname, '..');
+  const locales = ['es', 'en', 'fr', 'de', 'it'].map(l => [l, JSON.parse(fs.readFileSync(path.join(root, 'src/locales/' + l + '.json'), 'utf8'))]);
+  const keys = ['wiz.profilesHint'];
+  for (const pos of Player.POSITIONS) for (const p of Player.profilesFor(pos)) keys.push('profile.' + p.pos + '.' + p.archetype);
+  assert.equal(keys.length, 21);
+  for (const [name, dict] of locales) {
+    for (const k of keys) assert.ok(typeof dict[k] === 'string' && dict[k].length > 2, 'missing label: ' + name + ' ' + k);
+  }
+});

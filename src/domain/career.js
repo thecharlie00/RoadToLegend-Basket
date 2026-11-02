@@ -71,7 +71,7 @@
       player: null, coach: null, inbox: [], market: [], draft: null, history: [], hash: '00000000'
     };
     if (mode === 'player') {
-      const p = Player.createPlayer({ seed: seed + ':myplayer', gender: Season.genderOf(leagueId), nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || 'shooter', handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
+      const p = Player.createPlayer({ seed: seed + ':myplayer', gender: Season.genderOf(leagueId), nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || (Player.profilesFor(config.pos || 'SG')[0] || { archetype: 'shooter' }).archetype, handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
       // Tu jugador siempre tiene margen real: el techo oculto queda 14-28 puntos por encima de su media inicial.
       p.potential = Math.max(p.potential, Math.min(95, p.ovr + 14 + rng.int(0, 14)));
       p.number = Number.isInteger(config.number) && config.number >= 0 && config.number <= 99 ? config.number : 7;
@@ -246,8 +246,9 @@
     chronicle(state, played, mine);
     if (state.coach) coachWeek(state, rng);
     Content.weeklyIncome(state);
-    const petWeek = Pet.weekTick(state);
+    const petWeek = Pet.weekTick(state, Content.ensureLife(state));
     if (petWeek && petWeek.mood) Content.applyEffects(state, { morale: petWeek.mood });
+    if (petWeek && petWeek.extra) Content.applyEffects(state, { morale: petWeek.extra });
     Gear.ensure(state); Gear.weekTick(state);
     const famWeek = Family.weekTick(state, state._lastAction);
     if (famWeek && famWeek.mood) Content.applyEffects(state, { morale: famWeek.mood });
@@ -567,6 +568,10 @@
     else if (config.op === 'buy') out = Pet.buy(state, life, config.item);
     else if (config.op === 'supply') out = Pet.buySupply(state, life, config.item);
     else if (config.op === 'equip') out = Pet.equip(state, config.item);
+    else if (config.op === 'rename') out = Pet.rename(state, config.name);
+    else if (config.op === 'coat') out = Pet.setCoat(state, config.coat);
+    else if (config.op === 'bg') out = Pet.setBg(state, config.bg);
+    else if (config.op === 'speak') out = Pet.speak(state);
     else throw new Error('unknown pet op');
     petCounters(state);
     record(state, { type: 'pet', op: config.op, action: config.action || null, trick: config.trick || null, item: config.item || null, route: config.route || null, tier: config.tier || null, toy: config.toy || null, food: config.food || null });

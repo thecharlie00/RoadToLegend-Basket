@@ -39,6 +39,13 @@
     const kick = view.netKick || 0;
     CAA.Voxel.rimAndNet(add, HX, kick, t);
     CAA.Voxel.arenaDressing((x, y, z, sx, sy, sz, color, yaw) => { if (x > -2) add(x, y, z, sx, sy, sz, color, yaw); }, L, W, { t, hype: view.hype || 0.2, reducedMotion: options.reducedMotion });
+    // Grada de fondo tras la canasta: sin ella la cámara del tiro miraba a un vacío negro.
+    for (let i = 0; i < 3; i++) {
+      add(L / 2 + 1.9 + i * 0.95, 0.55 + i * 0.5, 0, 0.9, 0.85, W + 2, i % 2 ? 'seatA' : 'seatB');
+      for (let j = 0; j < 9; j++) add(L / 2 + 1.9 + i * 0.95, 1.15 + i * 0.5, -6.5 + j * 1.62, 0.4, 0.46, 0.34, ['crowdA', 'crowdB', 'crowdC', 'crowdD'][(i + j) % 4]);
+    }
+    add(L / 2 + 1.2, 0.4, 0, 0.3, 0.5, W + 2, 'ledBoard');
+    add(L / 2 + 1.25, 0.4, 0, 0.32, 0.16, W + 2, 'ledBoardB');
     const [sx, sz] = spot(view);
     const yaw = Math.atan2(RIM[0] - sx, RIM[2] - sz);
     let pose = { crouch: 0, jump: 0, arm: 0 };
@@ -75,9 +82,9 @@
     else {
       // Por detrás y a la derecha del tirador, algo elevada: se ven el gesto, el vuelo del balón y el aro.
       const d = Math.hypot(RIM[0] - sx, RIM[2] - sz) || 1, ux = (RIM[0] - sx) / d, uz = (RIM[2] - sz) / d, px = -uz, pz = ux;
-      camera = { eye: [sx - ux * 4.2 + px * 1.7, 3.5, sz - uz * 4.2 + pz * 1.7], target: [lerp(sx, RIM[0], 0.62), 2.6, lerp(sz, RIM[2], 0.62)], fov: 58 };
+      camera = { eye: [sx - ux * 5.2 + px * 2.0, 3.0, sz - uz * 5.2 + pz * 2.0], target: [lerp(sx, RIM[0], 0.55), 2.0, lerp(sz, RIM[2], 0.55)], fov: 56 };
     }
-    return { scene: { cubes, colors, quality: 'low', aspect: 640 / 420, maxCubes: 2000 }, camera };
+    return { scene: { cubes, colors, quality: 'low', aspect: 640 / 420, maxCubes: 2000, gain: 1.18, sky: [[0.03, 0.04, 0.1], [0.08, 0.1, 0.22], [0.22, 0.13, 0.1]], glow: 0.5, fog: { near: 20, far: 60, color: [0.05, 0.06, 0.12] } }, camera };
   }
   CAA.Arcade3D = { geometry };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Arcade3D;

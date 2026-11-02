@@ -256,6 +256,14 @@
     return { ok: !errors.length, errors };
   }
 
-  CAA.Live = { MOMENTS, create, advance, detect, view, validate };
+  // Puntos de un tiro: la zona manda porque los fallos guardan points:0 (un triple fallado sigue siendo triple).
+  const THREE_ZONES = ['corner3', 'above3'];
+  function shotPoints(event) {
+    if (!event || event.type !== 'shot') return 0;
+    if (THREE_ZONES.includes(event.zone)) return 3;
+    if (event.zone) return 2;
+    return event.points === 3 ? 3 : 2;
+  }
+  CAA.Live = { MOMENTS, create, advance, detect, view, validate, shotPoints, THREE_ZONES };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Live;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

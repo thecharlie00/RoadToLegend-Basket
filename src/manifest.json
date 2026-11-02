@@ -213,6 +213,11 @@
       "worker": false
     },
     {
+      "id": "haptics",
+      "path": "src/platform/haptics.js",
+      "worker": false
+    },
+    {
       "id": "storage",
       "path": "src/platform/storage.js",
       "worker": false
@@ -233,6 +238,11 @@
       "worker": false
     },
     {
+      "id": "parrot",
+      "path": "src/platform/parrot.js",
+      "worker": false
+    },
+    {
       "id": "court2d",
       "path": "src/render/court2d.js",
       "worker": false
@@ -240,6 +250,11 @@
     {
       "id": "voxel",
       "path": "src/render/voxel.js",
+      "worker": false
+    },
+    {
+      "id": "icons",
+      "path": "src/render/icons.js",
       "worker": false
     },
     {
