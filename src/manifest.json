@@ -243,6 +243,16 @@
       "worker": false
     },
     {
+      "id": "crest",
+      "path": "src/render/crest.js",
+      "worker": false
+    },
+    {
+      "id": "scenes",
+      "path": "src/render/scenes.js",
+      "worker": false
+    },
+    {
       "id": "faces",
       "path": "src/render/faces.js",
       "worker": false

@@ -162,6 +162,17 @@
       if (!reduced && !doc.hidden) { if (petTimer) root.clearTimeout(petTimer); petTimer = root.setTimeout(drawPet, 90); }
     } catch (_) { canvas.hidden = true; }
   }
+  // Escena vóxel de la decisión pendiente (como las escenas de eventos del fútbol). Se dibuja una vez por evento.
+  let sceneRenderer = null, sceneCanvas = null;
+  function drawScene() {
+    const canvas = doc.getElementById('ev3d');
+    if (!canvas || !avatarProfile() || !CAA.Scenes) return;
+    try {
+      if (!sceneRenderer || sceneCanvas !== canvas) { if (sceneRenderer) sceneRenderer.dispose(); sceneCanvas = canvas; sceneRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { canvas.hidden = true; sceneRenderer = null; sceneCanvas = null; } }); }
+      const g = CAA.Scenes.geometry(canvas.dataset.cat, avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast });
+      sceneRenderer.draw(g, g.camera);
+    } catch (_) { canvas.hidden = true; }
+  }
   function drawAvatar() {
     const canvas = doc.getElementById('me3d');
     if (!canvas || !avatarProfile()) return;
@@ -313,7 +324,7 @@
     const me = v.userTeam, op = 1 - me, A = v.teamStats[me], B = v.teamStats[op], pct = (m, a) => a ? Math.round(m / a * 100) + '%' : '—';
     const row = (k, a, b) => `<tr><td>${a}</td><th scope="row">${t('live.stat.' + k)}</th><td>${b}</td></tr>`;
     const qk = Object.keys(v.quarters).sort((x, y) => x - y);
-    return `<table class="vs"><thead><tr><th>${esc(v.teams[me])}</th><th></th><th>${esc(v.teams[op])}</th></tr></thead><tbody>${row('fg', `${A.fgm}/${A.fga} (${pct(A.fgm, A.fga)})`, `${B.fgm}/${B.fga} (${pct(B.fgm, B.fga)})`)}${row('tp', `${A.tpm}/${A.tpa}`, `${B.tpm}/${B.tpa}`)}${row('ft', `${A.ftm}/${A.fta}`, `${B.ftm}/${B.fta}`)}${row('reb', A.reb, B.reb)}${row('tov', A.tov, B.tov)}</tbody></table>
+    return `<table class="vs"><thead><tr><th>${esc(abbrOf(v.teams[me]))}</th><th></th><th>${esc(abbrOf(v.teams[op]))}</th></tr></thead><tbody>${row('fg', `${A.fgm}/${A.fga} (${pct(A.fgm, A.fga)})`, `${B.fgm}/${B.fga} (${pct(B.fgm, B.fga)})`)}${row('tp', `${A.tpm}/${A.tpa}`, `${B.tpm}/${B.tpa}`)}${row('ft', `${A.ftm}/${A.fta}`, `${B.ftm}/${B.fta}`)}${row('reb', A.reb, B.reb)}${row('tov', A.tov, B.tov)}</tbody></table>
       ${qk.length ? `<p class="muted small">${t('live.quarters')}: ${qk.map(q => `${q}º ${v.quarters[q][me]}–${v.quarters[q][op]}`).join(' · ')}</p>` : ''}`;
   }
   function liveTopHtml(v) { return v.top.map(p => `<tr${p.me ? ' class="me"' : ''}><td>${esc(p.name)}${p.onCourt ? ' •' : ''}</td><td>${p.pts}</td><td>${p.reb}</td><td>${p.ast}</td><td>${p.pf}</td></tr>`).join(''); }
@@ -337,8 +348,10 @@
       ? `<div class="row"><button data-action="live-end">${t('live.toEnd')}</button></div>`
       : `<div class="row speeds" role="group" aria-label="${t('live.speed')}">${speedBtn(0, '⏸', t('live.pause'))}${speedBtn(1, '▶', t('live.speedN', { n: 1 }))}${speedBtn(2, '▶▶', t('live.speedN', { n: 2 }))}${speedBtn(4, '▶▶▶', t('live.speedN', { n: 4 }))}<button data-action="live-skip">${t('live.skip')}</button><button data-action="live-end">${t('live.toEnd')}</button></div>`;
     return `<section class="panel live" id="live-panel" ${v.caught ? 'data-caught="1"' : ''} aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
-      <div class="scoreboard"><span>${esc(v.teams[me])}</span><strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong><span>${esc(v.teams[opp])}</span>
-      <span class="muted"><span id="pb-clock">${esc(v.periodLabel)} · ${clockText(v.clock)}</span> · ${t('live.timeouts')}: ${v.timeouts}</span></div>
+      <div class="scoreboard tv"><div class="sb-team">${crest({ name: v.teams[me] }, 30)}<b>${esc(abbrOf(v.teams[me]))}</b><small>${esc(v.teams[me])}</small></div>
+      <strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong>
+      <div class="sb-team">${crest({ name: v.teams[opp] }, 30)}<b>${esc(abbrOf(v.teams[opp]))}</b><small>${esc(v.teams[opp])}</small></div>
+      <span class="sb-clock"><span id="pb-clock">${esc(v.periodLabel)} · ${clockText(v.clock)}</span> · ${t('live.timeouts')}: ${v.timeouts}</span></div>
       <div class="live3d"><canvas id="live3d" role="img" aria-label="${t('live.view3d')}" aria-describedby="live3d-cap"></canvas><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p></div>
       <div class="momentum" id="pb-mom" role="meter" aria-label="${t('live.momentum')}" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="${Math.round(v.momentum * 100)}" style="--mom:${v.momentum}"><span>${esc(v.teams[opp])}</span><i aria-hidden="true"></i><span>${esc(v.teams[me])}</span></div>
       ${controls}${momentHtml}${outcomeHtml}
@@ -362,7 +375,9 @@
   function flag(code) { return /^[A-Z]{2}$/.test(code || '') ? String.fromCodePoint(...code.split('').map(c => 127397 + c.charCodeAt(0))) : '🏀'; }
   function nationName(code) { try { return new Intl.DisplayNames([CAA.I18N.getLocale()], { type: 'region' }).of(code); } catch (_) { return code; } }
   function hue(id) { return Math.round((CAA.Hash.hashString(String(id)) >>> 0) % 360); }
-  function crest(club) {
+  function abbrOf(name) { return CAA.Crest ? CAA.Crest.abbr(name) : String(name || '').slice(0, 3).toUpperCase(); }
+  function crest(club, size) {
+    if (CAA.Crest) return `<span class="crest-wrap" aria-hidden="true">${CAA.Crest.svg(club, size || 24)}</span>`;
     const cu = club.custom;
     const initials = cu && cu.abbr ? cu.abbr : String(club.name || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 3).toUpperCase();
     return `<span class="crest" aria-hidden="true" style="--c1:${cu ? esc(cu.primary) : `hsl(${hue(club.id)} 62% 42%)`};--c2:${cu ? esc(cu.secondary) : `hsl(${(hue(club.id) + 40) % 360} 70% 62%)`}">${esc(initials)}</span>`;
@@ -386,7 +401,7 @@
       const leagues = Object.keys(CAA.Season.LEAGUES).length;
       const clubs = Object.values(CAA.Season.LEAGUES).reduce((a, l) => a + l.teams, 0);
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.kicker')}</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
-        <p class="boot-lead">${t('boot.lead')}</p><p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>2 ${t('boot.worlds')}</b></p>
+        <p class="boot-lead">${t('boot.lead')}</p><p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>${new Set(Object.values(CAA.Season.LEAGUES).map(l => l.country)).size} ${t('boot.countries')}</b></p>
         <p class="eyebrow">${t('boot.play')}</p>
         ${hasCareer() ? `<button class="cta" data-action="boot-continue">${t('boot.continue')} <span aria-hidden="true">▶</span></button><p class="muted small">${esc(state.career.summary.player ? state.career.summary.player.name : state.career.summary.coach.name)} · ${esc(state.career.summary.club.name)} · ${t('career.week')} ${state.career.summary.week}</p>` : ''}
         <button class="${hasCareer() ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
@@ -540,7 +555,7 @@
     const guides = [['life', 'life'], ['live', 'career'], ['league', 'league'], ['train', 'career'], ['trophies', 'life']];
     const guide = !skipGuide && guideStep < guides.length ? `<section class="card guide"><div class="guide-head"><span class="eyebrow">${t('guide.kicker', { n: guideStep + 1, total: guides.length })}</span><button class="link" data-action="guide-skip">${t('guide.skip')}</button></div>
       <div class="steps" aria-hidden="true">${guides.map((_, i) => `<i class="${i <= guideStep ? 'on' : ''}"></i>`).join('')}</div>
-      <h3>${t('guide.' + guides[guideStep][0])}</h3><p>${t('guide.' + guides[guideStep][0] + 'Desc')}</p>
+      <h3>${t('guide.' + guides[guideStep][0] + (s.squad && guides[guideStep][0] === 'life' ? 'Coach' : ''))}</h3><p>${t('guide.' + guides[guideStep][0] + (s.squad && guides[guideStep][0] === 'life' ? 'Coach' : '') + 'Desc')}</p>
       <div class="row">${guides[guideStep][1] !== 'career' ? `<button class="small-btn" data-tab-go="${guides[guideStep][1]}">${t('guide.go.' + guides[guideStep][1])}</button>` : ''}<button class="small-btn" data-action="life-guide-next">${t('guide.done')}</button></div></section>` : '';
     const segs = 5, seg = s.playoffs ? 4 : Math.min(segs - 2, Math.floor(s.round / Math.max(1, s.totalRounds) * (segs - 1)));
     const season = `<section class="season"><div class="season-head"><h2>${t('home.season', { season: seasonLabel(s.year) })}</h2><span class="muted">${s.playoffs ? t('po.kicker') : t('home.round', { n: s.round + 1, total: s.totalRounds })}</span></div>
@@ -554,6 +569,7 @@
     const ev = s.event;
     const L = pair => pick(pair);
     const decision = ev ? `<section class="card decision"><div class="guide-head"><span class="tag led">● ${t(ev.story ? 'home.story' : 'home.decision')}</span><span class="muted small">${esc(t('eventcat.' + ev.category))}</span></div>
+      <canvas id="ev3d" class="ev-scene" data-cat="${esc(ev.category)}" role="img" aria-label="${t('home.sceneAlt', { place: t('scene.' + CAA.Scenes.settingOf(ev.category)) })}"></canvas>
       <h3>${esc(L(ev.title))}</h3><p>${esc(L(ev.body))}</p>
       <div class="stack">${ev.options.map(o => `<button class="option" data-action="life-event" data-option="${o.id}"><span class="opt-head"><b>${esc(L(o.label))}</b><span class="odds ${o.p == null ? 'sure' : o.p >= 0.6 ? 'hi' : o.p >= 0.45 ? 'mid' : 'lo'}">${o.p == null ? t('odds.sure') : t('odds.pct', { p: Math.round(o.p * 100) })}</span></span>${o.desc ? `<span class="muted small">${esc(L(o.desc))}</span>` : ''}
         <span class="chips">${o.p == null ? chips(o.effects) : `<span class="chip-label">${t('odds.ifGood')}</span>${chips(o.ok)}<span class="chip-label">${t('odds.ifBad')}</span>${chips(o.ko)}`}</span></button>`).join('')}</div></section>` : '';
@@ -580,13 +596,23 @@
     return `${eraBanner(s)}${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}${socialCard(s)}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
+  // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
+  function playerCard(s, p) {
+    const A = p.attrs || {}, avg = keys => Math.round(keys.reduce((a, k) => a + (A[k] || 50), 0) / keys.length);
+    const G = [['TIR', ['tiroCerca', 'tiroMedia', 'tiroTriple', 'tiroLibre']], ['ATA', ['bandeja', 'mate', 'poste']], ['ORG', ['manejo', 'pase', 'vision']],
+      ['DEF', ['defExterior', 'defInterior', 'robo', 'tapon']], ['REB', ['rebOf', 'rebDef']], ['FIS', ['velocidad', 'aceleracion', 'salto', 'fuerza', 'resistencia']]];
+    const tierK = p.ovr >= 85 ? 'special' : tier(p.ovr);
+    return `<section class="pcard ${tierK}" aria-label="${t('me.card', { name: esc(p.name), ovr: p.ovr })}"><div class="pc-top"><div><b class="pc-ovr">${p.ovr}</b><span class="pc-pos">${esc(p.pos)}</span></div><span class="pc-num">${p.number}</span>${crest(s.club, 34)}</div>
+      <h2 class="pc-name">${esc(p.name)}</h2><div class="pc-grid">${G.map(([k, keys]) => `<span><b>${avg(keys)}</b> ${t('card.' + k)}</span>`).join('')}</div>
+      <p class="pc-foot">${flag(p.nationality)} ${esc(nationName(p.nationality))} · ${t('pos.' + p.pos)} · ${t(p.handedness === 'left' ? 'career.left' : 'career.right')}</p></section>`;
+  }
   function renderMe() {
     if (!hasCareer()) return renderHome();
     const s = state.career.summary, life = s.life || { achievements: [], owned: [], equipment: {}, counters: {}, press: [] };
     const packs = CAA.Content.packs();
     const p = s.player;
     const potLow = p ? Math.max(p.ovr, p.potential - 4) : 0, potHigh = p ? Math.min(99, p.potential + 4) : 0;
-    const hero = `<section class="card me-hero">${avatarHtml()}<div><h2>${esc(p ? p.name : s.coach.name)}</h2>
+    const hero = (p ? playerCard(s, p) : '') + `<section class="card me-hero">${avatarHtml()}<div><h2>${esc(p ? p.name : s.coach.name)}</h2>
       ${p ? `<p class="muted">${t('pos.' + p.pos)} · ${t('career.archetype.' + p.archetype)} · ${t(p.handedness === 'left' ? 'career.left' : 'career.right')}</p>
       <div class="kv"><span>${t('me.ovr')}</span><b>${p.ovr}</b><span>${t('me.pot')}</span><b>${potLow}–${potHigh}</b><span>${t('me.height')}</span><b>${p.height} cm</b><span>${t('me.wingspan')}</span><b>${p.wingspan} cm</b><span>${t('me.weight')}</span><b>${p.weight} kg</b><span>${t('career.nationality')}</span><b>${flag(p.nationality)} ${esc(nationName(p.nationality))}</b></div>`
       : `<p class="muted">${t('cromo.coachRole')} · ${esc(s.club.name)}</p><div class="kv"><span>${t('meter.morale')}</span><b>${s.coach.morale}</b><span>${t('meter.board')}</span><b>${s.coach.trust}</b></div>`}</div></section>`;
@@ -653,9 +679,10 @@
   function renderLeague() {
     if (!hasCareer()) return renderHome();
     const s = state.career.summary;
-    const rows = s.table.map(r => `<tr class="${r.id === s.club.id ? 'me' : ''}"><td>${r.rank}</td><td>${esc(r.name)}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('');
+    const N = s.table.length, po = s.leagueId === 'na-boreal-men' ? 0 : Math.min(8, N - 2);
+    const rows = s.table.map(r => `<tr class="${r.id === s.club.id ? 'me' : ''} ${po && r.rank <= po ? 'zone-po' : ''} ${po && r.rank > N - 2 && s.league && s.league.level ? 'zone-down' : ''}"><td class="num">${r.rank}</td><td class="team">${crest(r, 18)}<span>${esc(r.name)}</span></td><td class="num">${r.wins + r.losses}</td><td class="num">${r.wins}</td><td class="num">${r.losses}</td><td class="num">${r.diff > 0 ? '+' : ''}${r.diff}</td></tr>`).join('');
     return `<section class="card"><span class="eyebrow">${t('league.kicker', { season: seasonLabel(s.year) })}</span><h2>${esc(s.leagueName)}</h2>
-      <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('league.table')}"><table><caption class="muted">${t('league.table')}</caption><thead><tr><th>#</th><th>${t('league.team')}</th><th>${t('league.w')}</th><th>${t('league.l')}</th><th>${t('league.diff')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>
+      <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('league.table')}"><table><caption class="muted">${t('league.table')}</caption><thead><tr><th class="num">#</th><th>${t('league.team')}</th><th class="num">${t('league.gp')}</th><th class="num">${t('league.w')}</th><th class="num">${t('league.l')}</th><th class="num">${t('league.diff')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>
       ${s.recent.length ? `<section class="card"><h3>${t('league.results')}</h3><ul class="news">${s.recent.map(r => `<li><span class="${r.won ? 'ok' : 'bad'}">${t(r.won ? 'home.w' : 'home.l')}</span> ${t('league.roundShort', { n: r.round })} · ${r.us}–${r.them} ${t(r.home ? 'home.vsHome' : 'home.vsAway', { team: r.opponent })}</li>`).join('')}</ul></section>` : ''}
       ${eraCard(s)}
       ${rivalCard(s)}
@@ -989,6 +1016,7 @@
     drawMatchFrame();
     drawAvatar();
     drawPet();
+    drawScene();
     if (state.arcade && state.tab === 'arcade' && arcadeRaf == null) arcadeSync();
     if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
     if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
@@ -1291,7 +1319,7 @@
         const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, eraYear: state.career.eraYear || undefined, newClub: state.career.newClub || undefined, challenge: state.career.challenge && state.career.mode === 'coach' ? state.career.challenge : undefined, quick: !!state.career.quick, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
         if (audio) audio.play('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
-        state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t('wiz.welcome'));
+        state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t(state.career.mode === 'coach' ? 'wiz.welcomeCoach' : 'wiz.welcome'));
       } else if (name === 'career-play' || name === 'career-train' || name === 'career-rest') {
         if (!state.career.state) throw new Error(t('career.empty'));
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };

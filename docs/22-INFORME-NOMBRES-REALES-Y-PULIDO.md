@@ -39,3 +39,15 @@
 ## Verificación
 - `npm test`: 127/127.
 - `npm run test:browser`: 21/21, sin violaciones de accesibilidad.
+
+## Calidad visual al nivel del fútbol (comparación con capturas reales de ambos juegos)
+- **Escenas vóxel en las decisiones** (`src/render/scenes.js`): tu personaje dentro de un escenario según el evento. Hay ocho escenarios: despacho, vestuario (con pizarra en las tácticas), pista, sala de prensa, clínica, casa, pista de barrio y viaje.
+- **Escudos procedurales** (`src/render/crest.js`): 10 formas y 8 patrones, con colores reales aproximados para los clubes conocidos. Aparecen en la cabecera, la tabla, el partido, la elección de club y el cromo.
+- **Cromo del jugador** en «Yo»: bronce, plata, oro o especial según la media, con dorsal, escudo y seis valoraciones.
+- **Tabla de liga**: escudos, columna PJ, marcas de playoff y descenso, y nada de saltos de línea en móvil.
+- **Marcador de directo** estilo televisión, con escudos y siglas. La tabla de estadísticas ya se ve bien en móvil.
+- **Textos**:
+  - Ya no quedan nombres de liga antiguos en ninguno de los cinco idiomas, tampoco en las decisiones.
+  - La portada cuenta países en vez de «2 mundos».
+  - La guía y la bienvenida del modo entrenador ya no hablan de «tu jugador».
+  - Las especies de mascota ya no parten la palabra.

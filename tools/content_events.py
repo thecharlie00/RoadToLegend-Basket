@@ -804,7 +804,7 @@ ev('locker-music', 'fun', C, ('La música del vestuario', 'Locker room music'),
 
 # ======================= MÁS JUGADOR =======================
 ev('buyout-clause', 'contract', P, ('La cláusula de la liga americana', 'The NA-league buyout clause'),
-   ('Tu agente propone incluir una cláusula de salida a la Liga Boreal en tu próximo contrato.', 'Your agent proposes adding a Liga Boreal exit clause to your next contract.'),
+   ('Tu agente propone incluir una cláusula de salida a la NBA en tu próximo contrato.', 'Your agent proposes adding a NBA exit clause to your next contract.'),
    [O(('Incluirla', 'Include it'), ('La puerta abierta.', 'The door stays open.'), {'salary': 0.95, 'fame': 2, 'flag': 'na-clause'},
       ('Cobras un poco menos, pero puedes soñar.', 'You earn a bit less, but you can dream.')),
     O(('No incluirla', 'Leave it out'), ('Compromiso total.', 'Full commitment.'), {'trust': 4, 'salary': 1.05},

@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-01T21:54:10.461Z",
+  "date": "2026-11-02T09:05:19.663Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -311,14 +311,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T21:54:31.795Z",
+    "measuredAt": "2026-11-02T09:05:41.445Z",
     "frames": 180,
-    "meanFrameMs": 16.666,
+    "meanFrameMs": 16.574,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.8,
+    "p95FrameMs": 16.7,
     "maxFrameMs": 16.8,
-    "meanFps": 60,
-    "framesOver16_67Ms": 109,
+    "meanFps": 60.34,
+    "framesOver16_67Ms": 111,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -333,7 +333,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 53500000
+    "jsHeapUsedBytes": 56800000
   },
   "voxel": {
     "version": "voxel-1",
@@ -347,14 +347,14 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-01T21:55:19.428Z",
+    "measuredAt": "2026-11-02T09:06:35.384Z",
     "frames": 180,
-    "meanFrameMs": 71.479,
+    "meanFrameMs": 74.997,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 233.4,
+    "p95FrameMs": 200,
     "maxFrameMs": 316.7,
-    "meanFps": 13.99,
-    "framesOver16_67Ms": 142,
+    "meanFps": 13.33,
+    "framesOver16_67Ms": 141,
     "framesOver33_34Ms": 74,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -367,9 +367,11 @@
       "storage": "indexedDB",
       "workload": "voxel-balanced"
     },
-    "longTasks": [],
+    "longTasks": [
+      87
+    ],
     "stopped": false,
-    "jsHeapUsedBytes": 37300000
+    "jsHeapUsedBytes": 33100000
   },
   "avatar": {
     "version": "voxel-1",
@@ -403,9 +405,9 @@
       85
     ]
   },
-  "arcade": 6,
+  "arcade": 4,
   "locales": {
-    "es": 1422,
-    "en": 1422
+    "es": 1443,
+    "en": 1443
   }
 }
