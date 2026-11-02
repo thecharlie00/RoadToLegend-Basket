@@ -20,7 +20,7 @@ async function scenario(name, options, fn) {
   report.scenarios.push({ name, ok: true, missingTranslations: await page.evaluate(() => CAA.I18N.missingKeys()) });
   await context.close();
 }
-async function click(page, action) { await page.locator(`[data-action="${action}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
+async function click(page, action) { if (!(await page.locator(`[data-action="${action}"]`).first().isVisible().catch(() => false))) await page.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; })); await page.locator(`[data-action="${action}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
 const screen = page => page.evaluate(() => CAA_APP.state.screen);
 async function enterGame(page) {
   if (await screen(page) === 'lang') await click(page, 'boot-lang"][data-locale="es');
@@ -30,6 +30,12 @@ async function tab(page, name) {
   await enterGame(page);
   if (!(await page.locator(`[data-tab="${name}"]`).count())) await page.locator('#tab-more').click();
   await page.locator(`[data-tab="${name}"]`).first().click();
+  await openFolds(page);
+}
+// La interfaz pliega lo secundario: las pruebas abren los desplegables para llegar a los botones.
+async function openFolds(page) {
+  await page.waitForFunction(() => !window.CAA_APP || !CAA_APP.state.busy).catch(() => {});
+  await page.evaluate(() => document.querySelectorAll('details').forEach(d => { d.open = true; }));
 }
 async function reload(page) { await page.reload(); await page.waitForFunction(() => globalThis.CAA_APP); await enterGame(page); }
 // Recorre portada → modos → asistente por pasos, como un usuario.
@@ -167,7 +173,7 @@ try {
     assert.equal(await page.title(), 'Baketball: Road to legend');
     await newCareer(page); await click(page, 'career-play');
     const storedHash = await page.evaluate(() => CAA_APP.state.career.state.lastMatch.state.hash);
-    await click(page, 'career-watch');
+    await openFolds(page); await click(page, 'career-watch');
     assert.equal(await page.evaluate(() => CAA_APP.state.match.source), 'career');
     assert.equal(await page.evaluate(() => CAA_APP.state.match.result.state.hash), storedHash);
     await page.locator('#match-view').selectOption('3d');
@@ -254,7 +260,7 @@ try {
         if (moments === 1) {
           const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
           report.accessibility.push({ name: 'phase7-live-moment', violations: result.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })) });
-          await page.locator('.live').screenshot({ path: 'data/qa/phase7-live-screen.png' });
+          await page.locator('#live-panel').screenshot({ path: 'data/qa/phase7-live-screen.png' });
         }
         await page.locator('[data-action="live-choice"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy);
       } else await click(page, 'live-next');
@@ -304,7 +310,7 @@ try {
   });
   await scenario('Family and dynasty: setup, family week, retirement and next generation', { viewport: { width: 390, height: 844 } }, async page => {
     await newCareer(page, { seed: 'dynasty-browser' });
-    await page.locator('#partner-name').fill('Lucía');
+    await openFolds(page); await page.locator('#partner-name').fill('Lucía');
     await page.locator('[data-action="family-setup"][data-kind="parent"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     assert.equal(await page.evaluate(() => CAA_APP.state.career.state.family.partner.name), 'Lucía');
     if (await page.locator('[data-action="life-event"]').count()) { await page.locator('[data-action="life-event"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy); }

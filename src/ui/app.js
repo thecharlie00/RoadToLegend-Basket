@@ -10,7 +10,10 @@
   const state = { screen: 'lang', wizard: { step: 1 }, tab: 'career', slot: 'slot-1', message: '', lab: '', match: { ruleSetId: 'FIBA-2026', seed: 'camino-demo', result: null, calibration: null, frame: 0, playing: false, view: '2d', quality: 'low', camera: 'broadcast', keyOnly: false, progress: 1, source: 'lab' }, career: { mode: 'player', gender: 'm', leagueId: 'fr-hexagone-men', route: 'eu-academy', seed: 'carrera-demo', nationality: 'ES', pos: 'SG', clubId: '', archetype: 'shooter', handedness: 'right', name: '', number: 7, talent: 'gem', clubs: [], clubsRoute: null, clubsLoading: false, state: null, summary: null }, practice: null, busy: false, saveState: 'idle', saveError: '', slots: [], importText: '', importPreview: null, confirm: null, diagnostics: null, drafts: {}, settings: CAA.A11Y.DEFAULTS };
   let storage, worker, voxelRenderer = null, voxelCanvas = null, avatarRenderer = null, avatarCanvas = null, audio = null, clubRequest = 0;
   const saveOptions = () => ({ careerValidator: CAA.Career.validate });
-  function notify(text, error = false) { state.message = text; state.messageError = error; }
+  function notify(text, error = false) {
+    state.message = text; state.messageError = error;
+    if (!error) root.setTimeout(() => { if (state.message === text) { state.message = ''; const el = doc.getElementById('global-status'); if (el) el.textContent = ''; } }, 4500);
+  }
   function haptic(kind) { try { if (state.settings.vibration && CAA.Haptic) CAA.Haptic.pulse(root, kind); } catch (_) {} }
   function draft(id, value) { return Object.prototype.hasOwnProperty.call(state.drafts, id) ? state.drafts[id] : value; }
 
@@ -175,6 +178,7 @@
       sceneRenderer.draw(g, g.camera);
     } catch (_) { canvas.hidden = true; }
   }
+  let avatarTimer = null;
   function drawAvatar() {
     const canvas = doc.getElementById('me3d');
     if (!canvas || !avatarProfile()) return;
@@ -187,7 +191,16 @@
       // Celebración: al tocar el modelo hace la celebración elegida en «Aspecto» durante 1,6 s.
       const cel = state.celebrate, ph = cel ? (root.performance.now() - cel) / 1600 : 1;
       if (cel && ph >= 1) state.celebrate = null;
-      avatarRenderer.draw(CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, celebrate: !!state.celebrate, phase: Math.min(1, ph) }), 'avatar');
+      const reduced = CAA.A11Y.reduced(state.settings);
+      const g = CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, celebrate: !!state.celebrate, phase: Math.min(1, ph) });
+      // Peana con el color del nivel del cromo y cámara en ligero vaivén (estático con movimiento reducido).
+      const pl = state.career && state.career.summary && state.career.summary.player, tk = pl ? (pl.ovr >= 85 ? '#8b5cf6' : pl.ovr >= 80 ? '#e2b23b' : pl.ovr >= 68 ? '#b9c3ca' : '#c08a52') : '#ff7a1f';
+      g.colors.ped_a = [0.08, 0.09, 0.18]; g.colors.ped_b = [parseInt(tk.slice(1, 3), 16) / 255, parseInt(tk.slice(3, 5), 16) / 255, parseInt(tk.slice(5, 7), 16) / 255];
+      g.cubes = g.cubes.filter(c => c.color !== 'shadow');
+      g.cubes.unshift({ x: 0, y: -0.06, z: 0, sx: 1.5, sy: 0.12, sz: 1.5, color: 'ped_a', yaw: 0.785 }, { x: 0, y: 0.015, z: 0, sx: 1.25, sy: 0.04, sz: 1.25, color: 'ped_b', yaw: 0.785 });
+      const tt = root.performance.now() / 1000, a = reduced ? 0.5 : 0.5 + Math.sin(tt * 0.5) * 0.32;
+      avatarRenderer.draw(g, { eye: [Math.sin(a) * 6.4, 2.6, Math.cos(a) * 6.4], target: [0, 1.5, 0], fov: 36, near: 0.1, far: 40 });
+      if (!reduced && !doc.hidden && state.tab === 'life' && !state.celebrate) { if (avatarTimer) root.clearTimeout(avatarTimer); avatarTimer = root.setTimeout(drawAvatar, 80); }
       if (state.celebrate) root.setTimeout(drawAvatar, 60);
     } catch (_) { fallback(); }
   }
@@ -678,7 +691,16 @@
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${mk.crossing ? `<b>${esc(mk.crossing.clubName || '')}</b> <small class="muted">${esc(leagueLabel(mk.crossing.targetLeague))}</small><br>` : ''}${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(pick(p))}</li>`)).slice(0, 8).join('');
     // Lo urgente primero: partido en directo y decisión pendiente antes que la guía o la familia.
-    return `${eraBanner(s)}${renderLive(c)}${decision}${outcome}${seasonCard}${famSetup}${guide}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}${socialCard(s)}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    // Inicio simplificado: una franja dice siempre qué pasa y qué toca hacer. Si hay decisión, va sola y lo demás se pliega.
+    const liveNow = !!(c.state.live && c.state.live.week === c.state.week);
+    const nowKey = liveNow ? 'live' : ev ? 'decision' : s.lastSeason ? 'summary' : po && !po.done ? 'playoffs' : s.next ? 'next' : 'idle';
+    const nowVars = { opp: s.next ? s.next.opponent.name : '', where: s.next ? t(s.next.home ? 'home.atHome' : 'home.away') : '' };
+    const nowStrip = `<section class="now-strip ${nowKey}" aria-live="polite"><span class="eyebrow">${po && !po.done ? t('po.kicker') : t('home.nowWeek', { n: s.round + 1, total: s.totalRounds })}</span><b>${esc(t('home.now.' + nowKey, nowVars))}</b><small>${esc(t('home.nowHint.' + nowKey, nowVars))}</small></section>`;
+    const extra = `<details class="card more-week"><summary>${t('home.moreWeek')}</summary>${socialCard(s)}<h3>${t('home.news')}</h3><ul class="news">${news.split('</li>').slice(0, 6).join('</li>')}</ul></details>`;
+    if (liveNow) return `${eraBanner(s)}${nowStrip}${renderLive(c)}`;
+    if (ev) return `${eraBanner(s)}${nowStrip}${decision}<details class="card more-week"><summary>${t('home.restWeek')}</summary>${market}${recent}${next}${season}${famSetup}</details>`;
+    const famFold = famSetup ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}</details>` : '';
+    return `${eraBanner(s)}${nowStrip}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -686,10 +708,12 @@
     const A = p.attrs || {}, avg = keys => Math.round(keys.reduce((a, k) => a + (A[k] || 50), 0) / keys.length);
     const G = [['TIR', ['tiroCerca', 'tiroMedia', 'tiroTriple', 'tiroLibre']], ['ATA', ['bandeja', 'mate', 'poste']], ['ORG', ['manejo', 'pase', 'vision']],
       ['DEF', ['defExterior', 'defInterior', 'robo', 'tapon']], ['REB', ['rebOf', 'rebDef']], ['FIS', ['velocidad', 'aceleracion', 'salto', 'fuerza', 'resistencia']]];
-    const tierK = p.ovr >= 85 ? 'special' : tier(p.ovr);
-    return `<section class="pcard ${tierK}" aria-label="${t('me.card', { name: esc(p.name), ovr: p.ovr })}"><div class="pc-top"><div><b class="pc-ovr">${p.ovr}</b><span class="pc-pos">${esc(p.pos)}</span></div><span class="pc-num">${p.number}</span>${crest(s.club, 34)}</div>
-      <h2 class="pc-name">${esc(p.name)}</h2><div class="pc-grid">${G.map(([k, keys]) => `<span><b>${avg(keys)}</b> ${t('card.' + k)}</span>`).join('')}</div>
-      <p class="pc-foot">${flag(p.nationality)} ${esc(nationName(p.nationality))} · ${t('pos.' + p.pos)} · ${t(p.handedness === 'left' ? 'career.left' : 'career.right')}</p></section>`;
+    const tierK = p.ovr >= 85 ? 'special' : tier(p.ovr), potLow = Math.max(p.ovr, p.potential - 4), potHigh = Math.min(99, p.potential + 4);
+    return `<section class="pcard ${tierK}" aria-label="${t('me.card', { name: esc(p.name), ovr: p.ovr })}">
+      <div class="pc-stage">${avatarHtml()}</div>
+      <div class="pc-info"><div class="pc-top"><div><b class="pc-ovr">${p.ovr}</b><span class="pc-pos">${esc(p.pos)}</span></div><span class="pc-num">${p.number}</span>${crest(s.club, 30)}</div>
+      <h2 class="pc-name">${esc(p.name)}</h2><div class="pc-grid">${G.map(([k, keys]) => `<span><b>${avg(keys)}</b> ${t('card.' + k)}</span>`).join('')}</div></div>
+      <p class="pc-foot">${flag(p.nationality)} ${t('pos.' + p.pos)} · ${t('career.archetype.' + p.archetype)} · ${p.height} cm · ${t('me.pot')} ${potLow}–${potHigh}</p></section>`;
   }
   function renderMe() {
     if (!hasCareer()) return renderHome();
@@ -697,7 +721,7 @@
     const packs = CAA.Content.packs();
     const p = s.player;
     const potLow = p ? Math.max(p.ovr, p.potential - 4) : 0, potHigh = p ? Math.min(99, p.potential + 4) : 0;
-    const hero = (p ? playerCard(s, p) : '') + `<section class="card me-hero">${avatarHtml()}<div><h2>${esc(p ? p.name : s.coach.name)}</h2>
+    const hero = p ? playerCard(s, p) : `<section class="card me-hero">${avatarHtml()}<div><h2>${esc(p ? p.name : s.coach.name)}</h2>
       ${p ? `<p class="muted">${t('pos.' + p.pos)} · ${t('career.archetype.' + p.archetype)} · ${t(p.handedness === 'left' ? 'career.left' : 'career.right')}</p>
       <div class="kv"><span>${t('me.ovr')}</span><b>${p.ovr}</b><span>${t('me.pot')}</span><b>${potLow}–${potHigh}</b><span>${t('me.height')}</span><b>${p.height} cm</b><span>${t('me.wingspan')}</span><b>${p.wingspan} cm</b><span>${t('me.weight')}</span><b>${p.weight} kg</b><span>${t('career.nationality')}</span><b>${flag(p.nationality)} ${esc(nationName(p.nationality))}</b></div>`
       : `<p class="muted">${t('cromo.coachRole')} · ${esc(s.club.name)}</p><div class="kv"><span>${t('meter.morale')}</span><b>${s.coach.morale}</b><span>${t('meter.board')}</span><b>${s.coach.trust}</b></div>`}</div></section>`;
@@ -729,8 +753,11 @@
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
     const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(pick(x))}</li>`).join('')}</ul></section>` : '';
-    if (s.squad) return hero + coachCards + famCard + petCard + offcourt + minis + shop + trophies + press;
-    return hero + famCard + petCard + offcourt + minis + attrs + stats + practice + shop + trophies + press;
+    // Simplificado: arriba lo esencial; el resto, plegado con un título claro.
+    const fold = (key, html) => html ? `<details class="card more-week"><summary>${t(key)}</summary>${html}</details>` : '';
+    const pet = s.pet ? petCard : fold('pet.title', petCard);
+    if (s.squad) return hero + coachCards + famCard + pet + fold('arcade.title', minis) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
+    return hero + famCard + pet + fold('arcade.title', minis) + fold('me.attributes', attrs) + fold('me.season', stats) + fold('me.practice', practice) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
   }
 
   function renderSquad(s) {

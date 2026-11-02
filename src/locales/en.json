@@ -1594,5 +1594,21 @@
   "pet.act.speak": "Talk",
   "pet.msg.speak": "Squawk! {name} repeats your voice in a distorted parrot screech.",
   "pet.msg.speakAgain": "It already practised talking this week; it will keep repeating you, but the bond will not grow more.",
-  "pet.album.speak": "Spoke through the parrot"
+  "pet.album.speak": "Spoke through the parrot",
+  "home.nowWeek": "Round {n} of {total}",
+  "home.now.live": "Live game",
+  "home.nowHint.live": "Watch the play and decide when the game stops.",
+  "home.now.decision": "You have a decision to make",
+  "home.nowHint.decision": "Pick an option to carry on with the week.",
+  "home.now.next": "Next game: {opp}",
+  "home.nowHint.next": "{where}. Play it live or simulate it with the button below.",
+  "home.now.playoffs": "Playoffs under way",
+  "home.nowHint.playoffs": "Every game counts: use the button below to carry on.",
+  "home.now.summary": "End of season",
+  "home.nowHint.summary": "Review the summary and start the next one.",
+  "home.now.idle": "Quiet week",
+  "home.nowHint.idle": "Move on with the button below.",
+  "home.atHome": "At home",
+  "home.moreWeek": "News and more",
+  "home.restWeek": "The rest of the week"
 }

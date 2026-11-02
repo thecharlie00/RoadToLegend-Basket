@@ -1594,5 +1594,21 @@
   "pet.act.speak": "Sprechen",
   "pet.msg.speak": "Kraa! {name} wiederholt deine Stimme als verzerrten Papageienschrei.",
   "pet.msg.speakAgain": "Er hat diese Woche schon Sprechen geübt; er wiederholt dich weiter, aber die Bindung wächst nicht mehr.",
-  "pet.album.speak": "Sprach durch den Papagei"
+  "pet.album.speak": "Sprach durch den Papagei",
+  "home.nowWeek": "Spieltag {n} von {total}",
+  "home.now.live": "Live-Spiel",
+  "home.nowHint.live": "Schau zu und entscheide, wenn das Spiel stoppt.",
+  "home.now.decision": "Du musst eine Entscheidung treffen",
+  "home.nowHint.decision": "Wähle eine Option, um mit der Woche weiterzumachen.",
+  "home.now.next": "Nächstes Spiel: {opp}",
+  "home.nowHint.next": "{where}. Spiel es live oder simuliere es mit dem Knopf unten.",
+  "home.now.playoffs": "Playoffs laufen",
+  "home.nowHint.playoffs": "Jedes Spiel zählt: Mit dem Knopf unten geht es weiter.",
+  "home.now.summary": "Saisonende",
+  "home.nowHint.summary": "Sieh dir die Bilanz an und starte die nächste.",
+  "home.now.idle": "Ruhige Woche",
+  "home.nowHint.idle": "Mit dem Knopf unten geht es weiter.",
+  "home.atHome": "Zu Hause",
+  "home.moreWeek": "Neuigkeiten und mehr",
+  "home.restWeek": "Der Rest der Woche"
 }

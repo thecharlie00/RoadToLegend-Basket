@@ -51,3 +51,15 @@
   - La portada cuenta países en vez de «2 mundos».
   - La guía y la bienvenida del modo entrenador ya no hablan de «tu jugador».
   - Las especies de mascota ya no parten la palabra.
+
+## Interfaz simplificada y personaje pulido
+- **Franja «ahora»** arriba del inicio: dice siempre qué pasa y qué toca hacer (decisión pendiente, partido en directo, próximo partido, playoffs o fin de temporada).
+- **Decisión pendiente**: se muestra sola; el resto de la semana queda en un desplegable.
+- **Directo**: solo la franja y el partido.
+- **Sin decisión**: se ve el resultado, las ofertas, el último partido, el próximo, el plan de la semana y la temporada; lo demás queda en «Novedades y más».
+- **Avisos**: se borran solos a los 4,5 s; los errores se quedan.
+- **«Yo»**:
+  - Una sola tarjeta: el modelo vóxel sobre una peana con el color de su nivel, con cámara en ligero vaivén (quieta con movimiento reducido), al lado del cromo. Ya no se repiten nombre ni datos.
+  - Mascota (si aún no hay), minijuegos, atributos, temporada, entrenamiento, fuera de la pista, tienda, trofeos y prensa quedan plegados con títulos claros.
+- **Ilustraciones de decisiones**: encuadre más cercano, con el personaje como protagonista.
+- Las pruebas de navegador abren los desplegables antes de pulsar.

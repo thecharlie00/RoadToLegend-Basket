@@ -173,7 +173,7 @@
       add(2.9, 0.3, -0.4, 0.8, 0.5, 0.5, 's_red'); add(2.9, 0.62, -0.4, 0.5, 0.16, 0.4, 's_dark');
       add(-3.0, 0.28, -0.1, 0.44, 0.42, 0.34, 's_wood'); add(-3.0, 0.52, -0.1, 0.06, 0.12, 0.06, 's_metal');
     }
-    const camera = { eye: [1.55, 1.9, 4.3], target: [0.08, 0.95, -0.2], fov: 43, near: 0.1, far: 40 };
+    const camera = { eye: [1.05, 1.5, 3.35], target: [-0.18, 0.82, -0.25], fov: 42, near: 0.1, far: 40 }; // el personaje es el protagonista del encuadre
     const wallC2 = colors.s_wall;
     return {
       version: CAA.Voxel.VERSION, kind: 'avatar', cubes, colors, quality: 'low', aspect: 1.9, maxCubes: CAA.Voxel.MAX_CUBES, camera, setting: set,

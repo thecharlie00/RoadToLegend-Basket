@@ -1594,5 +1594,21 @@
   "pet.act.speak": "Hablar",
   "pet.msg.speak": "¡Kraa! {name} repite tu voz con un graznido distorsionado.",
   "pet.msg.speakAgain": "Ya ha practicado el habla esta semana; puede seguir repitiéndote, pero el vínculo no sube más.",
-  "pet.album.speak": "Habló por el loro"
+  "pet.album.speak": "Habló por el loro",
+  "home.nowWeek": "Jornada {n} de {total}",
+  "home.now.live": "Partido en directo",
+  "home.nowHint.live": "Mira la jugada y decide cuando el partido se pare.",
+  "home.now.decision": "Tienes una decisión pendiente",
+  "home.nowHint.decision": "Elige una opción para seguir con la semana.",
+  "home.now.next": "Próximo partido: {opp}",
+  "home.nowHint.next": "{where}. Juégalo en directo o simúlalo con el botón de abajo.",
+  "home.now.playoffs": "Playoffs en juego",
+  "home.nowHint.playoffs": "Cada partido cuenta: usa el botón de abajo para seguir.",
+  "home.now.summary": "Fin de temporada",
+  "home.nowHint.summary": "Repasa el resumen y empieza la siguiente.",
+  "home.now.idle": "Semana tranquila",
+  "home.nowHint.idle": "Avanza con el botón de abajo.",
+  "home.atHome": "En casa",
+  "home.moreWeek": "Novedades y más",
+  "home.restWeek": "El resto de la semana"
 }

@@ -566,3 +566,18 @@ tbody tr:nth-child(even){background:rgba(255,255,255,.02)}
   .boot-hero-art::before{animation:none;display:none}
   .view-in .viewer canvas,.view-in .live3d canvas,.view-in .decision canvas.ev-scene,.dock nav button[aria-selected="true"]{animation:none}
 }
+/* «Yo»: tarjeta única con el modelo sobre la peana y el cromo al lado */
+.pcard{display:grid;grid-template-columns:44% 1fr;gap:0 12px;align-items:center;padding:14px}
+.pcard .pc-stage .avatar-wrap{margin:0}.pcard .pc-stage canvas{max-width:100%;width:100%;border-radius:12px;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.22),rgba(0,0,0,.25));box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.pcard .pc-stage .celebrate{margin:6px auto 0;padding:4px 10px;min-height:34px;font-size:.78rem;background:rgba(0,0,0,.22);color:inherit;border:0}
+.pcard .pc-ovr{font-size:3.2rem}.pcard .pc-num{font-size:2.3rem}.pcard .pc-name{font-size:1.3rem;margin:6px 0}.pcard .pc-grid{grid-template-columns:1fr;gap:1px;font-size:.84rem}.pcard .pc-grid b{font-size:1rem}
+.pcard .pc-foot{grid-column:1/-1;margin-top:10px}
+.now-strip{display:grid;gap:2px;margin:0 0 12px;padding:12px 14px;border-radius:14px;background:linear-gradient(90deg,rgba(255,122,31,.18),rgba(59,227,255,.08));border:1px solid rgba(255,122,31,.35)}
+.now-strip b{font:700 1.25rem/1.15 var(--disp,sans-serif);letter-spacing:.03em}.now-strip small{opacity:.8}.now-strip.decision{border-color:rgba(246,200,58,.6);background:linear-gradient(90deg,rgba(246,200,58,.2),rgba(255,122,31,.06))}
+.now-strip.live{border-color:rgba(59,227,255,.6);background:linear-gradient(90deg,rgba(59,227,255,.18),rgba(255,122,31,.05))}
+details.more-week>summary{cursor:pointer;font:700 1rem var(--disp,sans-serif);letter-spacing:.04em;list-style:none;display:flex;justify-content:space-between}details.more-week>summary::after{content:"＋";opacity:.6}details.more-week[open]>summary::after{content:"－"}
+details.more-week>section.card{box-shadow:none;margin:10px 0 0}
+.pcard .avatar-wrap p,.pcard .avatar-wrap .muted{display:none}
+details.more-week{padding:12px 16px;margin:0 0 8px}details.more-week>summary{min-height:28px;align-items:center;font-size:.95rem}details.more-week[open]{padding-bottom:16px}
+.card.guide{padding:12px 14px}.card.guide .steps{display:none}.card.guide h3{font-size:.95rem;margin:4px 0}.card.guide p{font-size:.85rem;margin:0 0 8px;opacity:.85}.card.guide .row button,.card.guide button:not(.link){min-height:36px;padding:6px 12px;font-size:.85rem}
+details.more-week .card.family{padding:0;border:0;background:none;box-shadow:none}
