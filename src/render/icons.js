@@ -27,7 +27,14 @@
     play: '<path d="M8 5l11 7-11 7z"/>',
     star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
     whistle: '<circle cx="9" cy="15" r="5"/><path d="M14 15h6l1-4h-6l-2 4z"/>',
-    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>'
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    // Minijuegos: cada uno con su glifo para que la lista se lea de un vistazo (sin emoji del sistema).
+    freethrow: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/>',
+    three: '<path d="M3 18h18"/><path d="M4 18c0-5 3.6-9 8-9s8 4 8 9"/><path d="M12 9V6"/><circle cx="12" cy="4.5" r="1.6"/>',
+    buzzer: '<circle cx="12" cy="13" r="8"/><path d="M12 13V9M9 3h6M12 5V3"/>',
+    dunk: '<path d="M3 6h18"/><path d="M6 6v2M18 6v2"/><path d="M9 8V6h6v2"/><path d="M8 15l4-4 4 4"/><path d="M12 11v8"/><path d="M9 20h6"/>',
+    defense: '<path d="M12 3l7 3v6c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    street: '<path d="M3 21V8l4-3 4 3v13"/><path d="M11 21V11h5l4 3v7"/><path d="M6 12h2M6 16h2M14 15h2M14 18h2"/>'
   };
   function svg(name, size) {
     const d = P[name] || P.ball, z = size || 22;

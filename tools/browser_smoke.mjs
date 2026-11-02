@@ -8,7 +8,7 @@ const browser = await launchBrowser();
 const report = { title: 'Baketball: Road to legend', date: new Date().toISOString(), browser: await browser.version(), scenarios: [], consoleErrors: [], pageErrors: [], externalRequests: [], accessibility: [] };
 const url = pathToFileURL(resolve('dist/index.html')).href;
 async function scenario(name, options, fn) {
-  const context = await browser.newContext({ viewport: options.viewport || { width: 1280, height: 900 }, reducedMotion: options.reducedMotion || 'no-preference', acceptDownloads: true });
+  const context = await browser.newContext({ viewport: options.viewport || { width: 1280, height: 900 }, reducedMotion: options.reducedMotion || 'no-preference', acceptDownloads: true, permissions: options.permissions || [] });
   const page = await context.newPage();
   page.on('pageerror', e => report.pageErrors.push({ name, message: e.message }));
   page.on('console', m => { if (m.type() === 'error') report.consoleErrors.push({ name, text: m.text() }); });
@@ -37,6 +37,9 @@ async function newCareer(page, o = {}) {
   if (await screen(page) === 'lang') await click(page, 'boot-lang"][data-locale="es');
   if (await screen(page) === 'game') await page.locator('[data-action="boot-menu"]').first().click();
   await click(page, 'boot-new');
+  // Eras y retos viven en «Más modos» para que la primera pantalla no agobie.
+  const moreModes = page.locator('details.mode-more');
+  if (await moreModes.count() && !(await moreModes.evaluate(d => d.open))) await moreModes.locator('summary').click();
   await page.locator(`[data-action="boot-mode"][data-mode="${o.mode || 'player'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
   if (o.name) await page.locator('#career-name').fill(o.name);
   if (o.nationality) await page.locator('#career-nationality').selectOption(o.nationality);
@@ -44,7 +47,13 @@ async function newCareer(page, o = {}) {
   if (o.gender) { await page.locator(`[data-action="wiz-set"][data-field="gender"][data-value="${o.gender}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   const set = async (field, value) => { await page.locator(`[data-action="wiz-set"][data-field="${field}"][data-value="${value}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); };
   while (!(await page.locator('[data-action="career-create"]').count())) {
-    if (o.archetype && await page.locator('[data-field="archetype"]').count()) await set('archetype', o.archetype);
+    if (o.archetype && await page.locator('[data-field="archetype"]').count()) {
+      // Los perfiles dependen de la posición: si el arquetipo pedido no existe en el puesto actual,
+      // el jugador tendría que cambiar de posición, así que hacemos lo mismo que haría él.
+      const available = await page.evaluate(a => CAA.Player.profilesFor(CAA_APP.state.career.pos).some(p => p.archetype === a), o.archetype);
+      if (!available) await set('pos', await page.evaluate(a => CAA.Player.POSITIONS.find(p => CAA.Player.profilesFor(p).some(x => x.archetype === a)), o.archetype));
+      await set('archetype', o.archetype);
+    }
     if (o.handedness && await page.locator('[data-field="handedness"]').count()) await set('handedness', o.handedness);
     await click(page, 'wiz-next');
   }
@@ -111,6 +120,22 @@ try {
       report.accessibility.push({ locale: 'es', tab: 'boot-' + step, violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
       if (step === 'lang') await click(page, 'boot-lang"][data-locale="es'); else if (step === 'menu') await click(page, 'boot-new'); else if (step === 'modes') await click(page, 'boot-mode"][data-mode="player');
     }
+    // Paso de posición: los perfiles cambian con el puesto y la entrada tiene dirección.
+    await click(page, 'wiz-next');
+    assert.equal(await page.evaluate(() => CAA_APP.state.wizard.step), 2);
+    assert.ok(await page.evaluate(() => document.getElementById('panel').classList.contains('nav-fwd')), 'forward transition on the wizard');
+    assert.equal(await page.locator('.pick.profile').count(), 4, 'four profiles for the chosen position');
+    assert.equal(await page.locator('.pick.profile[aria-pressed="true"]').count(), 1, 'one profile selected');
+    const sgProfile = await page.locator('.pick.profile b').first().innerText();
+    await page.locator('[data-action="wiz-set"][data-field="pos"][data-value="C"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    const centerProfile = await page.locator('.pick.profile b').first().innerText();
+    assert.notEqual(centerProfile, sgProfile, 'center profiles differ from shooting guard profiles');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.archetype), 'interior', 'position switch lands on a valid profile');
+    assert.equal(await page.locator('.pick.profile .chip').count(), 12, 'each profile shows three real strengths');
+    const pr = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'boot-profiles', violations: pr.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await click(page, 'wiz-back');
+    assert.ok(await page.evaluate(() => document.getElementById('panel').classList.contains('nav-back')), 'back transition on the wizard');
     await click(page, 'wiz-cancel'); await click(page, 'boot-back');
     await newCareer(page); await click(page, 'career-play'); await click(page, 'career-play'); await click(page, 'career-play');
     await tab(page, 'match'); await click(page, 'match-simulate');
@@ -461,6 +486,98 @@ try {
     assert.match(await page.locator('#app').textContent(), /solo vive en memoria/);
     await tab(page, 'save'); const downloadEvent = page.waitForEvent('download'); await click(page, 'save-export');
     const download = await downloadEvent; assert.match(download.suggestedFilename(), /slot-1\.json$/);
+  });
+  await scenario('Pet: voxel portrait, coat and background, care rules, rename and 360 px layout', { viewport: { width: 360, height: 800 } }, async page => {
+    const pick = async sel => { await page.locator(sel).click(); await page.waitForFunction(() => !CAA_APP.state.busy); };
+    await newCareer(page, { seed: 'pet-browser' });
+    await tab(page, 'life');
+    await pick('[data-action="pet-species"][data-species="dog"]');
+    await pick('[data-action="pet-adopt"]');
+    assert.equal(await page.locator('#pet3d').count(), 1);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.pet.species), 'dog');
+    await pick('[data-action="pet-view"][data-view="style"]');
+    assert.equal(await page.locator('[data-action="pet-coat"]').count(), 10);
+    assert.equal(await page.locator('[data-action="pet-bg"]').count(), 7);
+    assert.equal(await page.locator('[data-action="pet-coat"][data-coat="gold"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-action="pet-coat"][data-coat="rainbow"]').isDisabled(), true);
+    await pick('[data-action="pet-coat"][data-coat="blue"]');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.pet.coat), 'blue');
+    await pick('[data-action="pet-bg"][data-bg="club"]');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.pet.bg), 'club');
+    const axeStyle = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'pet-style', violations: axeStyle.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await pick('[data-action="pet-view"][data-view="info"]');
+    await page.locator('#pet-rename-name').fill('Rex');
+    await pick('[data-action="pet-rename"]');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.pet.name), 'Rex');
+    await pick('[data-action="pet-view"][data-view="care"]');
+    assert.equal(await page.locator('[data-action="pet-act"][data-act="watch"]').count(), 0);
+    assert.equal(await page.locator('[data-action="pet-act"][data-act="home"]').count(), 0);
+    assert.equal(await page.locator('[data-action="pet-act"][data-act="pat"]').isDisabled(), false);
+    const style0 = await page.evaluate(() => CAA_APP.state.career.summary.life.style);
+    await pick('[data-action="pet-act"][data-act="photo"]');
+    assert.ok(await page.evaluate(s0 => CAA_APP.state.career.summary.life.style > s0, style0));
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0);
+    const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'pet', violations: axe.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    const geo = await page.evaluate(() => CAA.PetVox.geometry(CAA_APP.state.career.summary.pet, { t: 0 }));
+    assert.ok(geo.cubes.length > 5 && geo.cubes.length < 800);
+    assert.ok(geo.colors[geo.cubes[0].color]);
+    assert.equal(geo.aspect, 0.8);
+  });
+  async function parrotCareer(page) {
+    await newCareer(page, { seed: 'parrot-browser' });
+    await page.evaluate(() => { const st = CAA_APP.state.career.state; st.life.cash = 30000; CAA_APP.state.career.summary = CAA.Career.summary(st); });
+    await tab(page, 'life');
+    await page.locator('[data-action="pet-species"][data-species="parrot"]').click();
+    await page.waitForFunction(() => !CAA_APP.state.busy);
+    await click(page, 'pet-adopt');
+    await page.waitForFunction(() => !CAA_APP.state.busy && CAA_APP.state.career.summary.pet && CAA_APP.state.career.summary.pet.species === 'parrot');
+    assert.equal(await page.locator('#parrot').count(), 1);
+  }
+  await scenario('Parrot: records the player, trims silence and repeats it distorted', { permissions: ['microphone'], viewport: { width: 360, height: 800 } }, async page => {
+    await parrotCareer(page);
+    const bond0 = await page.evaluate(() => CAA_APP.state.career.summary.pet.bond);
+    await page.locator('#parrot-rec').click();
+    await page.waitForFunction(() => CAA_APP.state.career && CAA.Parrot.info().status === 'recording', null, { timeout: 15000 });
+    await page.waitForTimeout(1200);
+    await page.locator('#parrot-rec').click();
+    // Al parar, el loro repite la toma automáticamente.
+    await page.waitForFunction(() => CAA.Parrot.info().status === 'ready' && CAA.Parrot.info().plays >= 1 && !CAA_APP.state.busy, null, { timeout: 20000 }).catch(async () => { throw new Error('record/auto-repeat failed: ' + JSON.stringify(await page.evaluate(() => CAA.Parrot.info()))); });
+    const rec = await page.evaluate(() => CAA.Parrot.info());
+    assert.ok(rec.ms >= 400, 'trimmed ms ' + rec.ms);
+    assert.ok(rec.ms <= 4000, 'bounded ms ' + rec.ms);
+    assert.equal(await page.locator('#parrot-say').isDisabled(), false);
+    assert.match(await page.locator('#parrot-status').textContent(), /s\./);
+    await page.locator('#parrot-say').click();
+    await page.waitForFunction(() => CAA.Parrot.info().plays >= 2 && !CAA_APP.state.busy);
+    await page.waitForTimeout(400);
+    const info = await page.evaluate(() => CAA.Parrot.info());
+    assert.ok(info.plays >= 2);
+    const pet = await page.evaluate(() => CAA_APP.state.career.summary.pet);
+    assert.ok(pet.bond > bond0, 'the talking class raises the bond');
+    assert.ok(pet.album.some(m => m.key === 'speak'));
+    await page.locator('#parrot-forget').click();
+    await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA.Parrot.info().ready), false);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0);
+    const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ locale: 'es', tab: 'pet-parrot', violations: axe.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+  });
+  await scenario('Parrot: a blocked microphone explains itself and falls back to typed speech', {
+    viewport: { width: 1280, height: 900 },
+    init: () => { navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('denied', 'NotAllowedError')); }
+  }, async page => {
+    await parrotCareer(page);
+    await page.locator('#parrot-rec').click();
+    await page.waitForFunction(() => CAA.Parrot.info().error === 'blocked', null, { timeout: 15000 });
+    assert.match(await page.locator('#parrot-status').textContent(), /micrófono|bloqueado/i);
+    assert.equal(await page.evaluate(() => document.getElementById('parrot-fallback').open), true);
+    await page.locator('#parrot-text').fill('Hola, crack');
+    await page.waitForFunction(() => !CAA_APP.state.busy);
+    await page.locator('[data-action="pet-parrot"][data-op="text"]').click();
+    await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.pet.last.key), 'speak');
   });
   report.locales = await (async () => { const es = JSON.parse(readFileSync('src/locales/es.json', 'utf8')), en = JSON.parse(readFileSync('src/locales/en.json', 'utf8')); return { es: Object.keys(es).length, en: Object.keys(en).length }; })();
   assert.ok(report.scenarios.every(s => s.missingTranslations.length === 0), 'missing translations: ' + JSON.stringify(report.scenarios.map(s => s.missingTranslations)));

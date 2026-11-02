@@ -238,6 +238,11 @@
       "worker": false
     },
     {
+      "id": "parrot",
+      "path": "src/platform/parrot.js",
+      "worker": false
+    },
+    {
       "id": "court2d",
       "path": "src/render/court2d.js",
       "worker": false

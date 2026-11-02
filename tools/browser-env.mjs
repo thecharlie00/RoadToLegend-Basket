@@ -18,8 +18,11 @@ export async function launchBrowser() {
   }
   const executablePath = await chromium.executablePath();
   const blocked = new Set(['--disable-web-security', '--allow-running-insecure-content', '--disable-site-isolation-trials', '--single-process', '--no-zygote']);
+  // Synthetic microphone for the parrot scenario: the CI browser has no capture device and the game is
+  // never served with relaxed security. Only the media device is faked, same as Playwright's own docs.
+  const extra = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'];
   return playwright.launch({ executablePath, headless: true, chromiumSandbox: false,
     env: { ...process.env, LD_LIBRARY_PATH: libDir + '/lib:' + (process.env.LD_LIBRARY_PATH || '') },
-    args: chromium.args.filter(a => !blocked.has(a)) });
+    args: chromium.args.filter(a => !blocked.has(a)).concat(extra) });
 }
 export { playwright, pathToFileURL };
