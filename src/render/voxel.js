@@ -258,21 +258,21 @@
       part(x, y + 0.52 * dir, z + 0.04, 0.21, 0.14, 0.21, 'skinShade');
       if (colors.g_wrist) part(x, y + 0.46 * dir, z + 0.03, 0.2, 0.07, 0.22, 'g_wrist');
     };
-    if (!pose) { arm(-0.52, 1.04, 0, -1); arm(0.52, 1.04, 0, -1); }
-    else if (pose === 'point') { arm(-0.46 * side, 1.02, 0, -1); arm(0.46 * side, 1.44, 0, 1); }
+    if (!pose) { arm(-0.5, 1.3, 0, -1); arm(0.5, 1.3, 0, -1); }
+    else if (pose === 'point') { arm(-0.5 * side, 1.3, 0, -1); arm(0.48 * side, 1.44, 0, 1); }
     else if (pose === 'shimmy') { const w = Math.sin(k * Math.PI * 6) * 0.07; arm(-0.5, 1.24 + w, 0.04, 1); arm(0.5, 1.24 - w, 0.04, 1); }
     else if (pose === 'flex') { arm(-0.54, 1.34, 0.02, 1); arm(0.54, 1.34, 0.02, 1); }
-    else if (pose === 'silence') { arm(-0.46 * side, 1.02, 0, -1); arm(0.34 * side, 1.3, 0.1, 1); }
+    else if (pose === 'silence') { arm(-0.5 * side, 1.3, 0, -1); arm(0.34 * side, 1.3, 0.1, 1); }
     else if (pose === 'archer') { arm(-0.46 * side, 1.34, 0.04, 1); arm(0.3 * side, 1.3, 0.12, 1); }
     else if (pose === 'crown') { arm(-0.3, 1.7, 0.02, 1); arm(0.3, 1.7, 0.02, 1); }
     else if (pose === 'goggles') { arm(-0.34, 1.28, 0.12, 1); arm(0.34, 1.28, 0.12, 1); }
     else if (pose === 'heart') { arm(-0.24, 1.28, 0.14, 1); arm(0.24, 1.28, 0.14, 1); part(0, 1.42, 0.26, 0.24, 0.2, 0.06, 'skinA'); }
-    else if (pose === 'salute') { arm(-0.46 * side, 1.02, 0, -1); arm(0.4 * side, 1.32, 0.06, 1); }
-    else { arm(-0.52, 1.04, 0, -1); arm(0.52, 1.04, 0, -1); }
+    else if (pose === 'salute') { arm(-0.5 * side, 1.3, 0, -1); arm(0.4 * side, 1.32, 0.06, 1); }
+    else { arm(-0.5, 1.3, 0, -1); arm(0.5, 1.3, 0, -1); }
     if (!lk) part(0, 1.98, 0, 0.48, 0.07, 0.46, 'accessory');
     if (lk) {
       if (colors.g_band) part(0, 1.94, 0, 0.44, 0.07, 0.43, 'g_band');
-      if (colors.g_sleeve) part(profile.handedness === 'left' ? -0.46 : 0.46, 1.12, 0, 0.23, 0.3, 0.26, 'g_sleeve');
+      if (colors.g_sleeve) part(profile.handedness === 'left' ? -0.5 : 0.5, 1.2, 0, 0.23, 0.3, 0.26, 'g_sleeve');
       if (colors.g_knee) { part(-0.17, 0.58, 0.02, 0.25, 0.13, 0.28, 'g_knee'); part(0.17, 0.58, 0.02, 0.25, 0.13, 0.28, 'g_knee'); }
       if (colors.g_socks) { part(-0.17, 0.31, 0, 0.25, 0.15, 0.29, 'g_socks'); part(0.17, 0.31, 0, 0.25, 0.15, 0.29, 'g_socks'); }
       if (colors.g_goggles) part(0, 1.82, 0.22, 0.36, 0.08, 0.03, 'g_goggles');
@@ -280,9 +280,9 @@
     }
     const hand = profile.handedness === 'left' ? -0.58 : 0.58;
     if (!(options.celebrate && lk)) {
-      add(hand, 1.02 * h, 0.3, 0.26, 0.26, 0.26, 'ball', 0.4);
-      add(hand, 1.02 * h, 0.3, 0.265, 0.05, 0.265, 'ballSeam', 0.4);
-      add(hand, 1.02 * h, 0.3, 0.05, 0.265, 0.265, 'ballSeam', 0.4);
+      add(hand, 0.74 * h, 0.3, 0.26, 0.26, 0.26, 'ball', 0.4);
+      add(hand, 0.74 * h, 0.3, 0.265, 0.05, 0.265, 'ballSeam', 0.4);
+      add(hand, 0.74 * h, 0.3, 0.05, 0.265, 0.265, 'ballSeam', 0.4);
     }
     if (profile.mode === 'coach') { colors.jersey = hex('#344d58') || colors.post; part(0, 1.32, 0.22, 0.18, 0.4, 0.04, 'line'); }
     return { version: VERSION, kind: 'avatar', cubes, colors, quality: 'low', aspect: 0.8, maxCubes: 64, frame: { eye: [2.5, 2.0, 3.4], target: [0, 1.72, 0], halfH: 2.2 }, sky: [[0.03, 0.04, 0.095], [0.07, 0.085, 0.2], [0.15, 0.1, 0.14]] };
@@ -471,6 +471,11 @@
   }
   // Vértices con luz de estudio + oclusión + niebla: la luz se cocina por cara y la niebla por vértice,
   // así un solo draw call (sin shaders de luz) consigue volumen y profundidad atmosférica.
+  function studioLight(eye, target) {
+    const d = normalize([eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]]);
+    const side = normalize(cross([0, 1, 0], d));
+    return { key: [d[0] * 0.8 - side[0] * 0.45, d[1] * 0.8 + 0.6, d[2] * 0.8 - side[2] * 0.45], fill: [-d[0] + side[0] * 0.6, 0.25, -d[2] + side[2] * 0.6], ambient: 0.42, aoMin: 0.82 };
+  }
   function vertexData(scene, options = {}) {
     const cubes = scene.cubes, total = cubes.length;
     const out = new Float32Array(total * 36 * FLOATS_PER_VERTEX);
@@ -480,19 +485,24 @@
     const fogNear = fog ? fog.near : 0, fogSpan = fog ? Math.max(0.001, fog.far - fog.near) : 1;
     const fallback = scene.colors.line || [1, 1, 1];
     const gain = scene.gain || 1;
+    // Luz de estudio opcional (avatar y escenas): la principal sigue a la cámara para que lo que mira al espectador
+    // quede iluminado; ambiental más alta y oclusión de contacto más suave.
+    const L = scene.light || null;
+    const KEY = L && L.key ? normalize(L.key) : KEY_LIGHT, FILL = L && L.fill ? normalize(L.fill) : FILL_LIGHT;
+    const amb = L && L.ambient != null ? L.ambient : 0.24, aoMin = L && L.aoMin != null ? L.aoMin : 0.6;
     let offset = 0;
     for (let ci = 0; ci < total; ci++) {
       const cube = cubes[ci], color = scene.colors[cube.color] || fallback;
       const c = Math.cos(cube.yaw || 0), s = Math.sin(cube.yaw || 0);
       // Oclusión de contacto: lo que está cerca del suelo pierde luz; el público alto y el techo la recuperan.
-      const ao = clamp(0.6 + Math.max(0, cube.y - cube.sy * 0.5) * 0.14, 0.6, 1.0);
+      const ao = clamp(aoMin + Math.max(0, cube.y - cube.sy * 0.5) * 0.14, aoMin, 1.0);
       for (let fi = 0; fi < 6; fi++) {
         const normal = FACE_LIST[fi][0], corners = FACE_LIST[fi][1];
         const nx = normal[0] * c + normal[2] * s, nz = -normal[0] * s + normal[2] * c, ny = normal[1];
-        const key = Math.max(0, nx * KEY_LIGHT[0] + ny * KEY_LIGHT[1] + nz * KEY_LIGHT[2]);
-        const fill = Math.max(0, nx * FILL_LIGHT[0] + ny * FILL_LIGHT[1] + nz * FILL_LIGHT[2]);
+        const key = Math.max(0, nx * KEY[0] + ny * KEY[1] + nz * KEY[2]);
+        const fill = Math.max(0, nx * FILL[0] + ny * FILL[1] + nz * FILL[2]);
         const hemi = 0.5 + 0.5 * ny;
-        const shade = (0.24 + key * 0.66 + fill * 0.13 + hemi * 0.15) * ao * gain;
+        const shade = (amb + key * 0.66 + fill * 0.13 + hemi * 0.15) * ao * gain;
         // Tinte de cielo en caras superiores y rebote cálido del parqué en las inferiores.
         const tr = shade * (1 + ny * 0.02 - Math.max(0, -ny) * 0.04);
         const tg = shade * (1 + ny * 0.05);
@@ -570,6 +580,7 @@
       const ratio = Math.min(root.devicePixelRatio || 1, scene.quality === 'balanced' ? 1.75 : 1.4);
       const width = Math.max(1, Math.round((canvas.clientWidth || 640) * ratio)), height = Math.max(1, Math.round(width / (scene.aspect || 16 / 9)));
       if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+      const bg = scene.clear || [0.043, 0.05, 0.11]; gl.clearColor(bg[0], bg[1], bg[2], 1);
       gl.viewport(0, 0, width, height); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       try { paintSky(scene.sky, scene.glow); } catch (_) { /* sin cielo: el color de fondo hace de respaldo */ }
       const frame = camera === 'avatar' ? scene.frame : null;
@@ -584,6 +595,6 @@
     function dispose() { if (disposed) return; disposed = true; canvas.removeEventListener('webglcontextlost', onLost); canvas.removeEventListener('webglcontextrestored', onRestored); gl.deleteBuffer(buffer); gl.deleteBuffer(skyBuffer); gl.deleteProgram(mainProgram); gl.deleteProgram(skyProgram); shaders.forEach(s => gl.deleteShader(s)); }
     return { draw, dispose, stats: () => ({ version: VERSION, cubes: lastScene ? lastScene.cubes.length : 0, vertices: count, drawCalls: draws ? 1 : 0, quality: lastScene && lastScene.quality, lost, disposed }), isLost: () => lost };
   }
-  CAA.Voxel = { VERSION, MAX_CUBES, keyPlays, scoreAt, courtGeometry, frameAt, geometry, arenaDressing, rimAndNet, lookAt, perspective, avatarGeometry, palette, vertexData, viewMatrix, orthoMatrix, cameraEye, createRenderer };
+  CAA.Voxel = { studioLight, VERSION, MAX_CUBES, keyPlays, scoreAt, courtGeometry, frameAt, geometry, arenaDressing, rimAndNet, lookAt, perspective, avatarGeometry, palette, vertexData, viewMatrix, orthoMatrix, cameraEye, createRenderer };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Voxel;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

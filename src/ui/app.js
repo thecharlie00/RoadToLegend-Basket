@@ -175,6 +175,7 @@
     try {
       if (!sceneRenderer || sceneCanvas !== canvas) { if (sceneRenderer) sceneRenderer.dispose(); sceneCanvas = canvas; sceneRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { canvas.hidden = true; sceneRenderer = null; sceneCanvas = null; } }); }
       const g = CAA.Scenes.geometry(canvas.dataset.cat, avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast });
+      g.light = Object.assign(CAA.Voxel.studioLight(g.camera.eye, g.camera.target), { ambient: 0.38, aoMin: 0.75 }); g.gain = Math.min(g.gain || 1, 1.08);
       sceneRenderer.draw(g, g.camera);
     } catch (_) { canvas.hidden = true; }
   }
@@ -199,7 +200,9 @@
       g.cubes = g.cubes.filter(c => c.color !== 'shadow');
       g.cubes.unshift({ x: 0, y: -0.06, z: 0, sx: 1.5, sy: 0.12, sz: 1.5, color: 'ped_a', yaw: 0.785 }, { x: 0, y: 0.015, z: 0, sx: 1.25, sy: 0.04, sz: 1.25, color: 'ped_b', yaw: 0.785 });
       const tt = root.performance.now() / 1000, a = reduced ? 0.5 : 0.5 + Math.sin(tt * 0.5) * 0.32;
-      avatarRenderer.draw(g, { eye: [Math.sin(a) * 6.4, 2.6, Math.cos(a) * 6.4], target: [0, 1.5, 0], fov: 36, near: 0.1, far: 40 });
+      const cam = { eye: [Math.sin(a) * 6.4, 2.6, Math.cos(a) * 6.4], target: [0, 1.5, 0], fov: 36, near: 0.1, far: 40 };
+      g.light = CAA.Voxel.studioLight(cam.eye, cam.target); g.clear = [0.28, 0.3, 0.44]; g.gain = 1.08; g.sky = [[0.5, 0.53, 0.68], [0.33, 0.36, 0.52], [0.2, 0.2, 0.3]]; g.glow = 0.55;
+      avatarRenderer.draw(g, cam);
       if (!reduced && !doc.hidden && state.tab === 'life' && !state.celebrate) { if (avatarTimer) root.clearTimeout(avatarTimer); avatarTimer = root.setTimeout(drawAvatar, 80); }
       if (state.celebrate) root.setTimeout(drawAvatar, 60);
     } catch (_) { fallback(); }
