@@ -172,7 +172,7 @@
   "lab.export": "Voir le diagnostic",
   "lab.performanceNote": "Échantillon de ce navigateur, pas une certification Android à 60 ips. Exporte le diagnostic depuis un vrai appareil.",
   "settings.contrast": "Contraste élevé",
-  "settings.audioNote": "Son procédural original facultatif : filet, arceau, sifflet et buzzer. Aucun fichier externe. La vibration est prévue pour plus tard.",
+  "settings.audioNote": "Son procédural original facultatif : filet, arceau, sifflet et buzzer. Aucun fichier externe. La vibration accompagne les actions si l'appareil la prend en charge.",
   "life.resumeAttempt": "Reprendre la tentative sauvegardée",
   "life.cancelAttempt": "Annuler la tentative",
   "life.pendingAttempt": "Tentative engagée {id} : {type}. Reprendre garde la graine ; annuler consomme la tentative.",
@@ -1441,5 +1441,8 @@
   "card.FIS": "Physique",
   "guide.lifeCoach": "Découvre ton coach",
   "guide.lifeCoachDesc": "Ouvre « Moi » : ton effectif, ton cinq, ta tactique et ton look sur le banc.",
-  "wiz.welcomeCoach": "Ta carrière sur le banc commence. D’abord, découvre ton effectif."
+  "wiz.welcomeCoach": "Ta carrière sur le banc commence. D’abord, découvre ton effectif.",
+  "more.group.squad": "Ta carrière",
+  "more.group.club": "Ton club",
+  "more.group.system": "Système"
 }

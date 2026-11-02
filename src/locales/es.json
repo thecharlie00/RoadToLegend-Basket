@@ -172,7 +172,7 @@
   "lab.export": "Ver diagnóstico",
   "lab.performanceNote": "Muestra de este navegador, no certificación de 60 fps en Android. Exporta el diagnóstico desde un dispositivo real.",
   "settings.contrast": "Contraste alto",
-  "settings.audioNote": "Audio procedural original y opcional: canasta, aro, silbato y bocina. Sin archivos externos. La vibración sigue reservada para una fase posterior.",
+  "settings.audioNote": "Audio procedural original y opcional: canasta, aro, silbato y bocina. Sin archivos externos. La vibración acompaña las acciones si el dispositivo la admite.",
   "life.resumeAttempt": "Reanudar intento guardado",
   "life.cancelAttempt": "Cancelar intento",
   "life.pendingAttempt": "Intento comprometido {id}: {type}. Reanudar conserva la semilla; cancelar consume el intento.",
@@ -1441,5 +1441,8 @@
   "card.FIS": "Físico",
   "guide.lifeCoach": "Conoce a tu míster",
   "guide.lifeCoachDesc": "Abre «Yo»: ahí ves tu plantilla, el quinteto, la táctica y tu aspecto en la banda.",
-  "wiz.welcomeCoach": "Empieza tu carrera en el banquillo. Primero, conoce a tu plantilla."
+  "wiz.welcomeCoach": "Empieza tu carrera en el banquillo. Primero, conoce a tu plantilla.",
+  "more.group.squad": "Tu carrera",
+  "more.group.club": "Tu club",
+  "more.group.system": "Sistema"
 }

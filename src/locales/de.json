@@ -172,7 +172,7 @@
   "lab.export": "Diagnose anzeigen",
   "lab.performanceNote": "Eine Stichprobe dieses Browsers, keine Android-60-fps-Zertifizierung. Exportiere die Diagnose von einem echten Gerät.",
   "settings.contrast": "Hoher Kontrast",
-  "settings.audioNote": "Optionaler, origineller prozeduraler Ton: Netz, Ring, Pfiff und Buzzer. Keine externen Dateien. Vibration folgt später.",
+  "settings.audioNote": "Optionaler, origineller prozeduraler Ton: Netz, Ring, Pfiff und Buzzer. Keine externen Dateien. Vibration begleitet Aktionen, wenn das Gerät sie unterstützt.",
   "life.resumeAttempt": "Gespeicherten Versuch fortsetzen",
   "life.cancelAttempt": "Versuch abbrechen",
   "life.pendingAttempt": "Festgelegter Versuch {id}: {type}. Fortsetzen behält den Seed; Abbrechen verbraucht den Versuch.",
@@ -1441,5 +1441,8 @@
   "card.FIS": "Athletik",
   "guide.lifeCoach": "Lerne deinen Coach kennen",
   "guide.lifeCoachDesc": "Öffne „Ich“: Kader, Startfünf, Taktik und dein Look an der Seitenlinie.",
-  "wiz.welcomeCoach": "Deine Trainerkarriere beginnt. Lerne zuerst deinen Kader kennen."
+  "wiz.welcomeCoach": "Deine Trainerkarriere beginnt. Lerne zuerst deinen Kader kennen.",
+  "more.group.squad": "Deine Karriere",
+  "more.group.club": "Dein Verein",
+  "more.group.system": "System"
 }

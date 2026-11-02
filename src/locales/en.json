@@ -172,7 +172,7 @@
   "lab.export": "View diagnostics",
   "lab.performanceNote": "A sample from this browser, not an Android 60 fps certification. Export diagnostics from a real device.",
   "settings.contrast": "High contrast",
-  "settings.audioNote": "Original optional procedural audio: swish, rim, whistle and buzzer. No external files. Vibration is still reserved for a later phase.",
+  "settings.audioNote": "Original optional procedural audio: swish, rim, whistle and buzzer. No external files. Vibration accompanies actions when the device supports it.",
   "life.resumeAttempt": "Resume saved attempt",
   "life.cancelAttempt": "Cancel attempt",
   "life.pendingAttempt": "Committed attempt {id}: {type}. Resuming keeps the seed; cancelling consumes the attempt.",
@@ -1441,5 +1441,8 @@
   "card.FIS": "Physical",
   "guide.lifeCoach": "Meet your coach",
   "guide.lifeCoachDesc": "Open “Me”: your roster, starting five, tactics and sideline look.",
-  "wiz.welcomeCoach": "Your bench career starts. First, meet your roster."
+  "wiz.welcomeCoach": "Your bench career starts. First, meet your roster.",
+  "more.group.squad": "Your career",
+  "more.group.club": "Your club",
+  "more.group.system": "System"
 }

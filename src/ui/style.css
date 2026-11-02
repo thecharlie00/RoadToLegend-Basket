@@ -225,3 +225,188 @@ tr.zone-po td:first-child{box-shadow:inset 3px 0 0 #36b98a}tr.zone-down td:first
 .scoreboard.tv .sb-clock{grid-column:1/-1;text-align:center;font-size:.8rem;opacity:.8}
 table.vs{table-layout:fixed;border-collapse:collapse}table.vs th,table.vs td{padding:5px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}table.vs th[scope=row]{width:40%;font-size:.75rem}table.vs thead th{font:700 1rem var(--disp,sans-serif);letter-spacing:.06em}
 table.vs td{text-align:center}table.vs th[scope=row]{width:36%;white-space:normal;line-height:1.15}
+
+/* ===================== v10 — ARTE Y GAME FEEL =====================
+   Pasada de acabado sobre «Pabellón»: profundidad de pabellón nocturno, jerarquía
+   tipográfica, movimiento con intención, HUD de directo y feedback táctil/visual.
+   Todo CSS/SVG procedural; sin imágenes, fuentes ni audio externos. */
+:root{
+  --r-card:18px;--r-control:12px;
+  --ease-out:cubic-bezier(.22,.85,.25,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --t-fast:120ms;--t-mid:220ms;--t-slow:480ms;
+  --shadow-card:0 10px 26px rgba(0,0,0,.28);--shadow-pop:0 18px 44px rgba(0,0,0,.45);
+}
+body{
+  background:
+    radial-gradient(90% 55% at 50% -12%,#33418f 0%,rgba(51,65,143,0) 62%),
+    radial-gradient(45% 32% at 100% 2%,rgba(59,227,255,.14),transparent 70%),
+    radial-gradient(55% 38% at 0% 100%,rgba(255,122,31,.12),transparent 70%),
+    linear-gradient(180deg,#0c0f22 0%,#090a17 65%,#070812 100%);
+  background-attachment:fixed;
+}
+h1,h2,h3{text-wrap:balance}p,li{text-wrap:pretty}
+button,select,input,textarea,summary{transition:border-color var(--t-fast),background-color var(--t-fast),color var(--t-fast),transform var(--t-fast),box-shadow var(--t-fast),filter var(--t-fast)}
+:where(button,select,input,textarea,summary):focus-visible{box-shadow:0 0 0 5px rgba(255,122,31,.18)}
+button:not(:disabled):active{transform:translateY(1px)}
+.card{transition:transform var(--t-mid) var(--ease-out),border-color var(--t-mid),box-shadow var(--t-mid)}
+.card::before{height:2px;opacity:.55}
+@media(hover:hover){
+  .card:hover{transform:translateY(-2px);border-color:#38427f;box-shadow:var(--shadow-pop)}
+  /* durante la medición de rendimiento no se animan elevaciones: alteran el muestreo en WebKit/Chromium headless */
+  body[data-measuring=true] .card:hover,body[data-measuring=true] .card{transform:none!important;box-shadow:var(--shadow-card)!important}
+  .choice:hover,.pick:hover,.mode-card:not(:disabled):hover{border-color:rgba(255,122,31,.55)}
+  .choice:hover{transform:translateX(3px)}
+  .mode-card:not(:disabled):hover{transform:translateY(-2px)}
+  tbody tr:hover{background:rgba(59,227,255,.045)}
+}
+
+/* --- movimiento de entrada (una vez por pantalla, pestaña o paso) --- */
+/* Solo movimiento: nunca se baja la opacidad del contenido (el contraste debe ser correcto en cada fotograma). */
+@keyframes viewIn{from{transform:translateY(6px)}to{transform:none}}
+@keyframes riseIn{from{transform:translateY(12px)}to{transform:none}}
+.view-in{animation:viewIn var(--t-mid) var(--ease-out) backwards}
+.view-in>*{animation:riseIn .42s var(--ease-out) backwards}
+.view-in>:nth-child(2){animation-delay:45ms}.view-in>:nth-child(3){animation-delay:80ms}.view-in>:nth-child(4){animation-delay:115ms}
+.view-in>:nth-child(5){animation-delay:150ms}.view-in>:nth-child(6){animation-delay:180ms}.view-in>:nth-child(7){animation-delay:205ms}
+.view-in>:nth-child(8){animation-delay:225ms}.view-in>:nth-child(n+9){animation-delay:240ms}
+
+/* --- portada: arte de pabellón y estadísticas --- */
+.boot-title{text-shadow:0 14px 44px rgba(0,0,0,.55)}
+.boot-hero-art{position:relative;margin:4px 0 18px;border-radius:20px;overflow:hidden;border:1px solid rgba(59,227,255,.18);background:#0a0c1b;box-shadow:0 24px 48px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.06)}
+.boot-hero-art svg{display:block;width:100%;height:auto}
+.boot-hero-art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,12,27,.04),transparent 55%,rgba(10,12,27,.5));box-shadow:inset 0 0 70px rgba(0,0,0,.35)}
+.boot-art-ball{animation:ballFloat 5.5s ease-in-out infinite}
+.boot-art-pulse{animation:ledPulse 1.8s ease-in-out infinite}
+@keyframes ballFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ledPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.boot-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 18px}
+.boot-stats b{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 6px;border-radius:12px;background:linear-gradient(180deg,rgba(59,227,255,.09),rgba(59,227,255,.02));border:1px solid rgba(59,227,255,.16);color:var(--accent2);font:700 .78rem/1.15 var(--ui);letter-spacing:.07em;text-align:center;text-transform:uppercase;overflow-wrap:anywhere}
+.choice{min-height:64px}
+.big-flag{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2a3266,#141833 70%);border:1px solid var(--line);font-size:1.5rem;box-shadow:var(--shadow-card)}
+.boot{counter-reset:modes}
+.panel>.mode-card{position:relative;padding-right:58px;counter-increment:modes}
+.panel>.mode-card::before{content:counter(modes,decimal-leading-zero);position:absolute;right:15px;top:9px;font:400 1.55rem/1 var(--disp);color:rgba(243,239,231,.14)}
+.mode-card:disabled{border-top-color:var(--line);opacity:.58}
+.steps{gap:8px}.steps i{height:5px;background:#1b2142}.steps i.on{background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(255,122,31,.35)}
+.wiz-nav{padding-top:22px;background:linear-gradient(transparent,var(--bg) 42%)}
+
+/* --- botones: física de pulsación y brillo contenido --- */
+.cta{position:relative;isolation:isolate;overflow:hidden}
+.cta::after{content:"";position:absolute;inset:-40% -25%;z-index:-1;background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.34) 50%,transparent 64%);transform:translateX(-130%);transition:transform var(--t-slow) var(--ease-out);pointer-events:none}
+.cta:not(:disabled):active{transform:translateY(3px) scale(.992);box-shadow:0 3px 0 #a5450a}
+@media(hover:hover){.cta:hover::after{transform:translateX(130%)}.cta:hover{filter:brightness(1.05)}.small-btn:hover{background:#242b58}}
+.small-btn{background:linear-gradient(180deg,#242a55,var(--raise));border:1px solid #343c75;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+
+/* --- cabecera de carrera: color del club --- */
+.cromo{box-shadow:0 12px 30px rgba(0,0,0,.35);overflow:visible}
+.cromo::before{content:"";position:absolute;left:0;right:0;top:-1px;height:3px;background:linear-gradient(90deg,var(--club-a,var(--accent)),var(--club-b,var(--accent2)));opacity:.9}
+.cromo .ovr{filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.cromo-id .name{text-shadow:0 1px 0 rgba(0,0,0,.45)}
+
+/* --- aviso global y carga --- */
+#global-status:not(:empty){display:flex;align-items:center;gap:9px;border-radius:12px;background:linear-gradient(180deg,#151b40,#0f1330);border:1px solid rgba(59,227,255,.26);border-left:3px solid var(--accent2);box-shadow:0 8px 20px rgba(0,0,0,.28)}
+#global-status:not(:empty)::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 10px var(--accent2)}
+#global-status.bad:not(:empty){border-color:rgba(255,84,112,.32);border-left-color:var(--bad);background:linear-gradient(180deg,#2a1620,#1d0f18)}
+#global-status.bad:not(:empty)::before{background:var(--bad);box-shadow:0 0 10px var(--bad)}
+.busy-rail{position:fixed;top:0;left:0;right:0;height:3px;z-index:40;background:rgba(59,227,255,.1);overflow:hidden;pointer-events:none}
+.busy-rail i{display:block;width:38%;height:100%;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);animation:railSweep 1.15s linear infinite}
+@keyframes railSweep{from{transform:translateX(-100%)}to{transform:translateX(320%)}}
+.actionbar{position:relative}
+.actionbar::before{content:"";position:absolute;left:-16px;right:-16px;top:-22px;height:22px;background:linear-gradient(transparent,rgba(11,13,28,.82));pointer-events:none}
+
+/* --- dock inferior --- */
+.dock{background:rgba(12,15,34,.94);border-color:rgba(59,227,255,.14);box-shadow:0 -18px 40px rgba(0,0,0,.45),0 14px 32px rgba(0,0,0,.5)}
+.dock nav button{position:relative;transition:color var(--t-fast)}
+.dock nav button span{transition:transform var(--t-mid) var(--ease-spring),background var(--t-fast),color var(--t-fast)}
+.dock nav button[aria-selected=true] span{animation:navPop .38s var(--ease-spring) both}
+.dock nav button[aria-selected=true]::after{content:"";position:absolute;top:-6px;left:50%;width:26px;height:3px;border-radius:0 0 3px 3px;transform:translateX(-50%);background:var(--accent);box-shadow:0 0 10px rgba(255,122,31,.75)}
+@keyframes navPop{0%{transform:scale(.82)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+/* --- decisión narrativa y resultados --- */
+.decision{border-color:rgba(255,122,31,.42);box-shadow:0 0 0 1px rgba(255,122,31,.08) inset,0 18px 44px rgba(0,0,0,.4)}
+.decision .tag.led{background:rgba(255,122,31,.13);border:1px solid rgba(255,122,31,.3);color:#ffc08c;border-radius:999px;padding:5px 10px}
+.decision canvas.ev-scene{border:1px solid rgba(59,227,255,.22);box-shadow:inset 0 -50px 70px rgba(8,10,24,.85),0 8px 22px rgba(0,0,0,.35)}
+.option{transition:transform var(--t-fast),border-color var(--t-fast),background var(--t-fast),box-shadow var(--t-fast)}
+@media(hover:hover){.option:hover{transform:translateX(3px);border-color:rgba(255,122,31,.55);box-shadow:-3px 0 0 var(--accent) inset}}
+.option .odds{border-radius:999px;padding:4px 8px}
+.outcome.good{box-shadow:0 0 34px rgba(67,209,122,.09) inset}
+.outcome.bad{box-shadow:0 0 34px rgba(255,84,112,.09) inset}
+.card.next{background:linear-gradient(155deg,#211f45,#141833 60%);border-color:rgba(255,122,31,.3)}
+.versus{border:1px solid rgba(42,49,99,.85);border-radius:14px;padding:10px;background:radial-gradient(90% 120% at 50% 0%,rgba(59,227,255,.07),transparent 70%)}
+
+/* --- directo: HUD de televisión --- */
+.live-dot{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 10px var(--bad);vertical-align:middle;animation:ledPulse 1.6s ease-in-out infinite}
+.live-dot.off{background:var(--dim);box-shadow:none;animation:none}
+.live3d{position:relative}
+.live3d::after{content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;box-shadow:inset 0 0 70px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.04)}
+.scoreboard.tv{box-shadow:inset 0 1px rgba(255,255,255,.05),0 14px 34px rgba(0,0,0,.35)}
+.scoreboard.tv strong.bump{animation:scoreBump .55s var(--ease-spring) both}
+@keyframes scoreBump{0%{transform:scale(1)}35%{transform:scale(1.16);color:#fff}100%{transform:scale(1)}}
+.momentum i{background:#080b1c;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.momentum i::after,.momentum i::before{border-radius:999px}
+.feed li.fresh{animation:feedIn .45s var(--ease-out) both}
+@keyframes feedIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* --- minijuegos: escenario y tensión --- */
+.arcade-stage{border:1px solid rgba(59,227,255,.2);border-radius:18px;overflow:hidden;box-shadow:0 20px 46px rgba(0,0,0,.45),inset 0 0 60px rgba(0,0,0,.45)}
+.arcade-stage::after{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;background:radial-gradient(120% 80% at 50% 18%,transparent 55%,rgba(0,0,0,.32));box-shadow:inset 0 0 50px rgba(0,0,0,.5)}
+.arcade-stage.is-hot{animation:stageHot .55s var(--ease-out)}
+@keyframes stageHot{0%,100%{box-shadow:0 20px 46px rgba(0,0,0,.45),inset 0 0 60px rgba(0,0,0,.45)}40%{box-shadow:0 0 0 2px var(--accent2),0 0 44px rgba(59,227,255,.45),inset 0 0 60px rgba(0,0,0,.35)}}
+.arcade-score b{font-size:2.2rem;text-shadow:0 0 18px rgba(59,227,255,.35)}
+.arcade-score small{font:600 .8rem var(--ui);letter-spacing:.08em;text-transform:uppercase}
+.arcade .shoot{margin-top:10px;letter-spacing:.14em}
+.arcade .shoot:not(:disabled){animation:ctaBreathe 2.4s ease-in-out infinite}
+@keyframes ctaBreathe{0%,100%{box-shadow:0 6px 0 #a5450a,0 10px 26px rgba(255,122,31,.28)}50%{box-shadow:0 6px 0 #a5450a,0 0 32px rgba(255,122,31,.55)}}
+
+/* --- tablas y accesibilidad de movimiento --- */
+tbody tr{transition:background-color var(--t-fast)}
+tr.me{background:rgba(255,122,31,.06)}
+:root.hc body{background:#000}
+:root.hc .card,:root.hc .panel,:root.hc .boot-hero-art{background:#0d0d14;box-shadow:none}
+:root.rm *,:root.rm *::before,:root.rm *::after{animation:none!important;transition:none!important}
+@media(max-width:380px){
+  .boot-stats{gap:6px}
+  .boot-stats b{font-size:.7rem;letter-spacing:.04em;padding:7px 4px}
+  .boot-hero-art{margin-bottom:12px}
+  .boot-hero-art{border-radius:16px}
+}
+/* selector de idioma: bandera SVG + código */
+.flag-svg{display:block;border-radius:3px}
+.choice .lang-code{margin-left:auto;font:700 .78rem var(--ui);letter-spacing:.14em;color:var(--dim)}
+.choice b{flex:1 1 auto}
+#live-panel{scroll-margin-top:10px}
+/* el cromo pegajoso no debe tapar el panel al enfocar el directo */
+#live-panel{scroll-margin-top:104px}
+main#panel{scroll-margin-top:96px}
+/* la tabla comparativa del directo necesita todo el ancho: la regla .live la limitaba a 3.2em */
+.live table.vs{width:100%;table-layout:fixed}
+.live table.vs td:not(:first-child),.live table.vs th:not(:first-child){width:auto}
+.live table.vs td{padding:6px 2px;font-variant-numeric:tabular-nums}
+.live table.vs th[scope=row]{font-size:.78rem;line-height:1.15}
+.live table.vs thead th{font-size:.95rem}
+/* --- «Más»: panel de carrera agrupado --- */
+.more-hero{padding:14px;background:linear-gradient(150deg,#1d2350,#121731 65%)}
+.mh-id{display:flex;align-items:center;gap:12px;min-width:0}
+.mh-id b{display:block;font:400 1.5rem/1.05 var(--disp);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mh-id small{display:block;color:var(--muted);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.more-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.more-stats div{background:rgba(8,10,26,.55);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
+.more-stats b{display:block;font:700 1.3rem/1 var(--ui);color:var(--accent2)}
+.more-stats small{display:block;margin-top:3px;color:var(--muted);font:600 .68rem/1.1 var(--ui);letter-spacing:.06em;text-transform:uppercase;overflow-wrap:anywhere}
+.more-group{margin:16px 0 0}
+.more-group>.eyebrow{margin:0 0 8px;padding-left:2px}
+.more-group .row-link{margin:6px 0}
+.more-group .stack{gap:6px}
+/* iconos SVG propios */
+.ico-svg{display:block;width:1em;height:1em}
+.ico{color:var(--accent);font-size:0}
+.ico .ico-svg{width:21px;height:21px}
+.dock nav button .ico-svg{width:22px;height:22px}
+.dock nav button[aria-selected=true] .ico-svg{width:20px;height:20px}
+.cta .ico-svg{flex:none}
+.more-stats small{letter-spacing:.02em;word-break:keep-all;font-size:.64rem}
+
+/* cabecera: botones de icono siempre legibles sobre el club */
+.iconbtn{background:radial-gradient(circle at 35% 30%,#242c5c,#161a38);border:1px solid #333c78;color:var(--accent);box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.iconbtn:hover{background:radial-gradient(circle at 35% 30%,#2d366c,#1a1f42);color:#ffb27a}
+.iconbtn[aria-pressed=true]{color:var(--accent2);border-color:rgba(59,227,255,.5);box-shadow:0 0 14px rgba(59,227,255,.25)}

@@ -172,7 +172,7 @@
   "lab.export": "Vedi diagnostica",
   "lab.performanceNote": "Un campione di questo browser, non una certificazione Android a 60 fps. Esporta la diagnostica da un dispositivo reale.",
   "settings.contrast": "Contrasto elevato",
-  "settings.audioNote": "Audio procedurale originale facoltativo: retina, ferro, fischio e sirena. Nessun file esterno. La vibrazione arriverà più avanti.",
+  "settings.audioNote": "Audio procedurale originale facoltativo: retina, ferro, fischio e sirena. Nessun file esterno. La vibrazione accompagna le azioni se il dispositivo la supporta.",
   "life.resumeAttempt": "Riprendi il tentativo salvato",
   "life.cancelAttempt": "Annulla il tentativo",
   "life.pendingAttempt": "Tentativo impegnato {id}: {type}. Riprendere mantiene il seme; annullare consuma il tentativo.",
@@ -1441,5 +1441,8 @@
   "card.FIS": "Fisico",
   "guide.lifeCoach": "Conosci il tuo allenatore",
   "guide.lifeCoachDesc": "Apri «Io»: la rosa, il quintetto, la tattica e il tuo look in panchina.",
-  "wiz.welcomeCoach": "Inizia la tua carriera in panchina. Prima, conosci la tua rosa."
+  "wiz.welcomeCoach": "Inizia la tua carriera in panchina. Prima, conosci la tua rosa.",
+  "more.group.squad": "La tua carriera",
+  "more.group.club": "Il tuo club",
+  "more.group.system": "Sistema"
 }

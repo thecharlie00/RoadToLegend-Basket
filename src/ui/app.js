@@ -11,6 +11,7 @@
   let storage, worker, voxelRenderer = null, voxelCanvas = null, avatarRenderer = null, avatarCanvas = null, audio = null, clubRequest = 0;
   const saveOptions = () => ({ careerValidator: CAA.Career.validate });
   function notify(text, error = false) { state.message = text; state.messageError = error; }
+  function haptic(kind) { try { if (state.settings.vibration && CAA.Haptic) CAA.Haptic.pulse(root, kind); } catch (_) {} }
   function draft(id, value) { return Object.prototype.hasOwnProperty.call(state.drafts, id) ? state.drafts[id] : value; }
 
   function syncEraLook() { const s = hasCareer() && state.screen === 'game' ? state.career.summary : null; const v = s && s.era ? s.era.look : ''; if (doc.body.dataset.era !== v) doc.body.dataset.era = v; }
@@ -251,13 +252,15 @@
   function pbSeq(raw) { if (!raw || !raw.match) return null; const p = pbSync(raw); return p.seq; }
   function pbCaught(raw) { return pbSync(raw).seq >= raw.match.events.length; }
   function pbCatchUp(raw) { const p = pbSync(raw), m = raw.match, prof = pbProfile(m); p.seq = m.events.length; const e = m.events[m.events.length - 1]; if (e) p.cursor = Math.max(p.cursor, evAbs(prof, e.period, e.clock)); p.hold = 0; }
+  // Valor de una canasta: la zona manda porque los fallos guardan points:0.
+  const shotPoints = e => CAA.Live.shotPoints(e);
   // Marcador, reloj, crónica y estadísticas con solo lo ya "emitido".
   function pbView(raw) {
     const v = CAA.Live.view(raw, 400), m = raw.match, prof = pbProfile(m), p = pbSync(raw), me = raw.userTeam;
     const shown = m.events.slice(0, p.seq), score = [0, 0], box = {};
     const b = id => box[id] || (box[id] = { pts: 0, reb: 0, ast: 0, pf: 0 });
     for (const e of shown) {
-      if (e.type === 'shot' && e.made) { score[e.team] += e.points || 2; if (e.team === me) { b(e.player).pts += e.points || 2; if (e.assist) b(e.assist).ast++; } }
+      if (e.type === 'shot' && e.made) { score[e.team] += shotPoints(e); if (e.team === me) { b(e.player).pts += shotPoints(e); if (e.assist) b(e.assist).ast++; } }
       else if (e.type === 'ft' && e.made) { score[e.team] += 1; if (e.team === me) b(e.player).pts += 1; }
       else if (e.type === 'rebound' && e.team === me) b(e.player).reb++;
       else if (e.type === 'foul' && e.team === me && e.player) b(e.player).pf++;
@@ -266,11 +269,11 @@
     const ts = [0, 1].map(() => ({ fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 0, fta: 0, reb: 0, tov: 0 })), qs = {}, swing = [];
     for (const e of shown) {
       const T = ts[e.team];
-      if (e.type === 'shot' && T) { T.fga++; if ((e.points || 2) === 3) T.tpa++; if (e.made) { T.fgm++; if ((e.points || 2) === 3) T.tpm++; } }
+      if (e.type === 'shot' && T) { const three = shotPoints(e) === 3; T.fga++; if (three) T.tpa++; if (e.made) { T.fgm++; if (three) T.tpm++; } }
       else if (e.type === 'ft' && T) { T.fta++; if (e.made) T.ftm++; }
       else if ((e.type === 'rebound' || e.type === 'teamRebound') && T) T.reb++;
       else if ((e.type === 'turnover' || e.type === 'shotClockViolation') && T) T.tov++;
-      const pts = e.type === 'shot' && e.made ? (e.points || 2) : e.type === 'ft' && e.made ? 1 : 0;
+      const pts = e.type === 'shot' && e.made ? shotPoints(e) : e.type === 'ft' && e.made ? 1 : 0;
       if (pts && e.team != null) { const q = qs[e.period] || (qs[e.period] = [0, 0]); q[e.team] += pts; swing.push(e.team === me ? pts : -pts); }
     }
     const momentum = Math.max(-1, Math.min(1, swing.slice(-12).reduce((a, b) => a + b, 0) / 12));
@@ -290,7 +293,7 @@
     if (!raw || !panel || state.screen !== 'game' || state.tab !== 'career' || doc.hidden) { pbStop(); return; }
     const p = pbSync(raw), now = root.performance.now(), dt = Math.min(250, now - (pbLast || now)); pbLast = now;
     if (pbCaught(raw)) {
-      if (raw.moment || raw.finished) { if (!panel.dataset.caught) { pbStop(); render(); } return; }
+      if (raw.moment || raw.finished) { if (!panel.dataset.caught) { pbStop(); state.liveFocus = true; render(); } return; }
       // Sin decisión pendiente: se pide al motor el siguiente tramo sin parar el reloj.
       if (p.speed && !state.busy && !pbFetching) { pbFetching = true; action('live-next', { dataset: {} }).finally(() => { pbFetching = false; }); }
       return;
@@ -313,13 +316,21 @@
   function pbPaint(raw, full) {
     const v = pbView(raw), me = v.userTeam, opp = 1 - me;
     const set = (id, html) => { const el = doc.getElementById(id); if (el && el.innerHTML !== html) el.innerHTML = html; };
-    set('pb-score', `${v.score[me]} – ${v.score[opp]}`);
+    const scoreEl = doc.getElementById('pb-score');
+    if (scoreEl) {
+      const next = `${v.score[me]} – ${v.score[opp]}`, before = parseInt(scoreEl.textContent, 10);
+      if (scoreEl.textContent !== next) {
+        scoreEl.textContent = next;
+        scoreEl.classList.remove('bump'); void scoreEl.offsetWidth; scoreEl.classList.add('bump');
+        if (Number.isFinite(before) && v.score[me] > before) haptic('score');
+      }
+    }
     set('pb-clock', `${esc(v.periodLabel)} · ${clockText(v.clock)}`);
     if (full) { set('pb-feed', liveFeedHtml(v)); set('pb-top', liveTopHtml(v)); set('pb-stats', liveStatsHtml(v)); const mm = doc.getElementById('pb-mom'); if (mm) { mm.style.setProperty('--mom', String(v.momentum)); mm.setAttribute('aria-valuenow', String(Math.round(v.momentum * 100))); } const cap = doc.getElementById('live3d-cap'); if (cap) cap.textContent = live3dCaption(raw); }
   }
   function pbStart() { if (pbTimer == null) { pbLast = root.performance.now(); pbTimer = root.setInterval(pbTick, 100); } }
   function pbStop() { if (pbTimer != null) { root.clearInterval(pbTimer); pbTimer = null; } }
-  function liveFeedHtml(v) { return v.feed.map(e => `<li${v.myName && e.player === v.myName ? ' class="mine"' : ''}><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`).join(''); }
+  function liveFeedHtml(v) { return v.feed.map((e, i) => { const cls = [v.myName && e.player === v.myName ? 'mine' : '', i === 0 ? 'fresh' : ''].filter(Boolean).join(' '); return `<li${cls ? ` class="${cls}"` : ''}><span class="muted">${esc(e.period)}º · ${clockText(e.clock)}</span> ${esc(feedText(e))}</li>`; }).join(''); }
   function liveStatsHtml(v) {
     const me = v.userTeam, op = 1 - me, A = v.teamStats[me], B = v.teamStats[op], pct = (m, a) => a ? Math.round(m / a * 100) + '%' : '—';
     const row = (k, a, b) => `<tr><td>${a}</td><th scope="row">${t('live.stat.' + k)}</th><td>${b}</td></tr>`;
@@ -347,7 +358,7 @@
     const controls = v.finished ? '' : v.caught
       ? `<div class="row"><button data-action="live-end">${t('live.toEnd')}</button></div>`
       : `<div class="row speeds" role="group" aria-label="${t('live.speed')}">${speedBtn(0, '⏸', t('live.pause'))}${speedBtn(1, '▶', t('live.speedN', { n: 1 }))}${speedBtn(2, '▶▶', t('live.speedN', { n: 2 }))}${speedBtn(4, '▶▶▶', t('live.speedN', { n: 4 }))}<button data-action="live-skip">${t('live.skip')}</button><button data-action="live-end">${t('live.toEnd')}</button></div>`;
-    return `<section class="panel live" id="live-panel" ${v.caught ? 'data-caught="1"' : ''} aria-labelledby="live-title"><h3 id="live-title">${t('live.title')}</h3>
+    return `<section class="panel live" id="live-panel" ${v.caught ? 'data-caught="1"' : ''} aria-labelledby="live-title"><h3 id="live-title"><i class="live-dot${v.finished ? ' off' : ''}" aria-hidden="true"></i>${t('live.title')}</h3>
       <div class="scoreboard tv"><div class="sb-team">${crest({ name: v.teams[me] }, 30)}<b>${esc(abbrOf(v.teams[me]))}</b><small>${esc(v.teams[me])}</small></div>
       <strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong>
       <div class="sb-team">${crest({ name: v.teams[opp] }, 30)}<b>${esc(abbrOf(v.teams[opp]))}</b><small>${esc(v.teams[opp])}</small></div>
@@ -392,22 +403,81 @@
   function hasCareer() { return !!(state.career.state && state.career.summary); }
   function seasonLabel(year) { return year + '/' + String((year + 1) % 100).padStart(2, '0'); }
 
+  // Banderas SVG para el selector de idioma: no dependen de la fuente de emoji del sistema.
+  function langFlag(code) {
+    const shapes = {
+      es: '<rect width="24" height="16" fill="#c60b1e"/><rect y="4" width="24" height="8" fill="#ffc400"/><rect y="6.4" width="6" height="3.2" rx=".6" fill="#c60b1e" opacity=".7"/>',
+      en: '<rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5"/><path d="M12 0v16M0 8h24" stroke="#c8102e" stroke-width="2.4"/>',
+      fr: '<rect width="8" height="16" fill="#002395"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ed2939"/>',
+      de: '<rect width="24" height="5.34" fill="#000"/><rect y="5.33" width="24" height="5.34" fill="#dd0000"/><rect y="10.66" width="24" height="5.34" fill="#ffce00"/>',
+      it: '<rect width="8" height="16" fill="#009246"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ce2b37"/>'
+    };
+    return `<svg class="flag-svg" viewBox="0 0 24 16" width="26" height="18" aria-hidden="true" focusable="false"><rect width="24" height="16" rx="2" fill="#0a0c1b"/>${shapes[code] || ''}<rect x=".5" y=".5" width="23" height="15" rx="1.6" fill="none" stroke="rgba(255,255,255,.28)"/></svg>`;
+  }
+  // Ilustración de portada: pabellón nocturno, cancha, aro y balón. Todo SVG/CSS, sin imágenes externas.
+  function bootArt() {
+    const crowd = Array.from({ length: 30 }, (_, i) => {
+      const x = 8 + i * 19, y = 148 - (i * 7 % 13), h = 10 + (i * 5 % 14), tone = i % 3 === 0 ? '#232a55' : i % 3 === 1 ? '#1a2044' : '#2c3468';
+      return `<rect x="${x}" y="${y}" width="12" height="${h}" rx="3" fill="${tone}"/>`;
+    }).join('');
+    return `<div class="boot-hero-art" aria-hidden="true"><svg viewBox="0 0 560 230" role="presentation" focusable="false">
+      <defs>
+        <linearGradient id="bhSpot" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8fb3ff" stop-opacity=".3"/><stop offset="1" stop-color="#8fb3ff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="bhFloor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#4b3324"/><stop offset="1" stop-color="#171226"/></linearGradient>
+        <linearGradient id="bhBall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc48d"/><stop offset=".5" stop-color="#ff7a1f"/><stop offset="1" stop-color="#a83a05"/></linearGradient>
+        <linearGradient id="bhBoard" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e8fbff" stop-opacity=".55"/><stop offset="1" stop-color="#7fb7c9" stop-opacity=".12"/></linearGradient>
+        <radialGradient id="bhGlow"><stop stop-color="#3be3ff" stop-opacity=".55"/><stop offset="1" stop-color="#3be3ff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="bhBallGlow"><stop stop-color="#ff9a4a" stop-opacity=".5"/><stop offset="1" stop-color="#ff9a4a" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="560" height="230" fill="#0a0c1b"/>
+      <path d="M128 0 10 196h216z" fill="url(#bhSpot)"/>
+      <path d="M448 0 342 196h216z" fill="url(#bhSpot)" opacity=".75"/>
+      <g opacity=".55">${crowd}</g>
+      <rect y="176" width="560" height="54" fill="url(#bhFloor)"/>
+      <path d="M0 176h560" stroke="#ffb27a" stroke-opacity=".4"/>
+      <path d="M40 176q240-76 480 0" fill="none" stroke="#ffcf9a" stroke-opacity=".45" stroke-width="3"/>
+      <path d="M168 176v-58h224v58" fill="none" stroke="#ffcf9a" stroke-opacity=".18" stroke-width="2"/>
+      <circle cx="280" cy="176" r="34" fill="none" stroke="#ffcf9a" stroke-opacity=".16" stroke-width="2"/>
+      <g transform="translate(430 96)">
+        <line x1="43" y1="-46" x2="43" y2="0" stroke="#5d6bb0" stroke-width="6" opacity=".45"/>
+        <rect width="88" height="58" rx="3" fill="url(#bhBoard)" stroke="#9fe9ff" stroke-opacity=".55"/>
+        <rect x="27" y="15" width="34" height="24" fill="none" stroke="#9fe9ff" stroke-opacity=".45"/>
+        <ellipse cx="44" cy="62" rx="24" ry="6" fill="none" stroke="#ff7a1f" stroke-width="4"/>
+        <path d="M20 63l5 27m7-26 2 30m9-30v30m7-29-2 29m9-27-5 26" stroke="#cfe9ff" stroke-opacity=".5" fill="none"/>
+      </g>
+      <g transform="translate(150 116)"><g class="boot-art-ball">
+        <circle r="58" fill="url(#bhBallGlow)"/>
+        <circle r="36" fill="url(#bhBall)"/>
+        <path d="M-36 0h72M0-36v72" stroke="#7a2c05" stroke-opacity=".55" stroke-width="2"/>
+        <path d="M-27-24c17 15 17 33 0 48M27-24c-17 15-17 33 0 48" stroke="#7a2c05" stroke-opacity=".45" fill="none" stroke-width="2"/>
+        <circle r="36" fill="none" stroke="#ffd0a8" stroke-opacity=".35"/>
+      </g></g>
+      <g transform="translate(16 16)">
+        <rect width="152" height="54" rx="9" fill="#04060f" stroke="#3be3ff" stroke-opacity=".35"/>
+        <circle class="boot-art-pulse" cx="15" cy="15" r="4" fill="#ff5470"/>
+        <text x="27" y="19" font-family="'Barlow Condensed',sans-serif" font-size="12" letter-spacing="2.4" fill="#aeb3d1">LIVE</text>
+        <text x="13" y="44" font-family="'Bebas Neue',sans-serif" font-size="26" letter-spacing="1" fill="#3be3ff">24 · 10:00</text>
+      </g>
+      <text x="548" y="214" text-anchor="end" font-family="'Bebas Neue',sans-serif" font-size="92" letter-spacing="2" fill="none" stroke="#ff7a1f" stroke-opacity=".13" stroke-width="2">BKL</text>
+    </svg></div>`;
+  }
+
   function renderBoot() {
     if (state.screen === 'lang') {
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">Idioma · Language</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
-        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English'], ['fr', '🇫🇷', 'Français'], ['de', '🇩🇪', 'Deutsch'], ['it', '🇮🇹', 'Italiano']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${f}</span><b>${name}</b></button>`).join('')}</div></main>`;
+        <div class="stack">${[['es', '🇪🇸', 'Español'], ['en', '🇬🇧', 'English'], ['fr', '🇫🇷', 'Français'], ['de', '🇩🇪', 'Deutsch'], ['it', '🇮🇹', 'Italiano']].map(([code, f, name]) => `<button class="choice" data-action="boot-lang" data-locale="${code}" lang="${code}"><span class="big-flag" aria-hidden="true">${langFlag(code)}</span><b>${name}</b><small class="lang-code" aria-hidden="true">${code.toUpperCase()}</small></button>`).join('')}</div></main>`;
     }
     if (state.screen === 'menu') {
       const leagues = Object.keys(CAA.Season.LEAGUES).length;
       const clubs = Object.values(CAA.Season.LEAGUES).reduce((a, l) => a + l.teams, 0);
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.kicker')}</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
-        <p class="boot-lead">${t('boot.lead')}</p><p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>${new Set(Object.values(CAA.Season.LEAGUES).map(l => l.country)).size} ${t('boot.countries')}</b></p>
+        <p class="boot-lead">${t('boot.lead')}</p>${bootArt()}<p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>${new Set(Object.values(CAA.Season.LEAGUES).map(l => l.country)).size} ${t('boot.countries')}</b></p>
         <p class="eyebrow">${t('boot.play')}</p>
         ${hasCareer() ? `<button class="cta" data-action="boot-continue">${t('boot.continue')} <span aria-hidden="true">▶</span></button><p class="muted small">${esc(state.career.summary.player ? state.career.summary.player.name : state.career.summary.coach.name)} · ${esc(state.career.summary.club.name)} · ${t('career.week')} ${state.career.summary.week}</p>` : ''}
         <button class="${hasCareer() ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
         <button class="cta ghost" data-action="boot-goat" disabled aria-describedby="goat-soon">🏆 GOAT LADDER</button><p id="goat-soon" class="muted small">${t('boot.goatSoon')}</p>
-        <button class="row-link" data-action="boot-open" data-target="settings"><span class="ico" aria-hidden="true">⚙</span><span><b>${t('boot.settings')}</b><small>${t('boot.settingsSub')}</small></span><span aria-hidden="true">›</span></button>
-        <button class="row-link" data-action="boot-open" data-target="more"><span class="ico" aria-hidden="true">▦</span><span><b>${t('boot.more')}</b><small>${t('boot.moreSub')}</small></span><span aria-hidden="true">›</span></button>
+        <button class="row-link" data-action="boot-open" data-target="settings"><span class="ico" aria-hidden="true">${CAA.Icons.svg('gear')}</span><span><b>${t('boot.settings')}</b><small>${t('boot.settingsSub')}</small></span><span aria-hidden="true">›</span></button>
+        <button class="row-link" data-action="boot-open" data-target="more"><span class="ico" aria-hidden="true">${CAA.Icons.svg('more')}</span><span><b>${t('boot.more')}</b><small>${t('boot.moreSub')}</small></span><span aria-hidden="true">›</span></button>
         <p class="version">v${esc(payload.manifest.version)} · ${root.CAAAndroid ? 'ANDROID' : 'WEB'}</p></main>`;
     }
     if (state.screen === 'modes') {
@@ -471,7 +541,9 @@
     if (!hasCareer()) return `<header class="cromo"><div class="cromo-id"><b class="title-sm">${t('boot.title1')} ${t('boot.title2')}</b></div><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
     const s = state.career.summary, p = s.player;
     const ovr = p ? p.ovr : Math.round(s.table.length ? 50 + (s.club.wins - s.club.losses) : 50);
-    return `<header class="cromo"><div class="ovr tier-${tier(ovr)}" aria-label="${t('cromo.ovr', { ovr })}"><b>${p ? p.ovr : '★'}</b><small>${p ? esc(p.pos) : t('cromo.coach')}</small></div>
+    const cc = CAA.Crest && CAA.Crest.colors && s.club ? CAA.Crest.colors(s.club) : null;
+    const clubStyle = cc ? ` style="--club-a:${esc(cc[0])};--club-b:${esc(cc[1])}"` : '';
+    return `<header class="cromo"${clubStyle}><div class="ovr tier-${tier(ovr)}" aria-label="${t('cromo.ovr', { ovr })}"><b>${p ? p.ovr : '★'}</b><small>${p ? esc(p.pos) : t('cromo.coach')}</small></div>
       <div class="cromo-id">${p ? `<span class="dorsal" aria-label="${t('cromo.number', { n: p.number })}">${p.number}</span>` : ''}<b class="name">${esc(p ? p.name : s.coach.name)}</b>
       <span class="cromo-sub">${crest(s.club)} ${esc(s.club.name)} · ${p ? t('cromo.age', { age: p.age }) + ' ' + flag(p.nationality) : t('cromo.coachRole')}</span></div>
       <button class="iconbtn" data-action="toggle-audio" aria-pressed="${!!state.settings.audio}" aria-label="${t('settings.audio')}">♪</button><button class="iconbtn" data-action="boot-menu" aria-label="${t('nav.menu')}">⋯</button></header>`;
@@ -593,7 +665,8 @@
       <p class="muted small">${t('coach.style', { pace: t('coach.pace.' + sc.pace), shooting: t('coach.focus.' + sc.shooting) })}</p><ul class="news">${sc.top.map(p => `<li><b>${esc(p.name)}</b> · ${esc(p.pos)} · ${p.ovr} <span class="muted small">${t('career.archetype.' + p.archetype)}</span></li>`).join('')}</ul></section>` : '';
     const market = s.market.length ? `<section class="card"><h3>${t('career.market')}</h3><div class="stack">${s.market.map((mk, i) => `<div class="offer"><span>${mk.crossing ? `<b>${esc(mk.crossing.clubName || '')}</b> <small class="muted">${esc(leagueLabel(mk.crossing.targetLeague))}</small><br>` : ''}${esc(mk.contract.salary.toLocaleString(CAA.I18N.getLocale()))} €/$ · ${mk.contract.years} ${t('career.years')}</span><button class="small-btn" data-action="career-sign" data-index="${i}">${t('career.sign')}</button></div>`).join('')}</div></section>` : '';
     const news = s.inbox.slice().reverse().map(i => `<li>${esc(newsText(i))}</li>`).concat((life.press || []).slice(-4).reverse().map(p => `<li class="press">📰 ${esc(pick(p))}</li>`)).slice(0, 8).join('');
-    return `${eraBanner(s)}${seasonCard}${famSetup}${guide}${renderLive(c)}${decision}${outcome}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}${socialCard(s)}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
+    // Lo urgente primero: partido en directo y decisión pendiente antes que la guía o la familia.
+    return `${eraBanner(s)}${renderLive(c)}${decision}${outcome}${seasonCard}${famSetup}${guide}${poCard}${season}${next}${week}${coachWeek}${scout}${recent}${market}${socialCard(s)}<section class="card"><h3>${t('home.news')}</h3><ul class="news">${news}</ul></section>`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -775,7 +848,7 @@
       ${(done.challenges || []).map(x => `<p class="ok small">✅ ${esc(t('arcade.chDone', { ch: t('arcade.ch.' + x.type, { n: x.target }) }))}</p>`).join('')}
       <div class="row">${done.contest ? '' : `<button class="cta" data-action="arcade-start" data-game="${a.type}">${t('arcade.again')}</button>`}<button class="small-btn" data-tab="life">${t('arcade.back')}</button></div></section>` : '';
     return `<section class="card arcade"><div class="guide-head"><div><span class="eyebrow">${t('arcade.round', { n: Math.min(a.round + 1, g.rounds), total: g.rounds })}</span><h2>${t('arcade.' + a.type)}</h2></div><div class="arcade-score"><b>${scoreTxt}</b><small>${t('arcade.streak', { n: a.streak })}</small></div></div>
-      <div class="arcade-stage">${state.arcade3dOff ? '' : '<canvas id="arcade3d" aria-hidden="true"></canvas>'}<canvas id="arcade-canvas" class="${state.arcade3dOff ? '' : 'hud'}" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas></div>
+      <div class="arcade-stage${a.flash ? ' is-hot' : ''}">${state.arcade3dOff ? '' : '<canvas id="arcade3d" aria-hidden="true"></canvas>'}<canvas id="arcade-canvas" class="${state.arcade3dOff ? '' : 'hud'}" width="640" height="420" role="img" aria-label="${t('arcade.canvas', { game: t('arcade.' + a.type) })}" aria-describedby="arcade-help"></canvas></div>
       <p id="arcade-help" class="muted small">${t('arcade.help.' + g.meter)}</p>
       <p class="sr-only" role="status" aria-live="polite">${esc(a.lastText || '')}</p>
       ${done ? '' : `<button class="cta shoot" data-action="arcade-release" ${a.phase !== 'aim' ? 'disabled' : ''}>${t(a.type === 'defense' || (a.type === 'street' && a.round % 2 === 1) ? 'arcade.defend' : a.type === 'dunk' ? 'arcade.beat' : 'arcade.shoot')}</button>`}
@@ -945,9 +1018,18 @@
       ${decades.map(d => `<h4 class="eyebrow">${d}s</h4><div class="stack">${M.filter(m => Math.floor(m.year / 10) * 10 === d).map(m => `<button class="row-link" data-action="moment-open" data-id="${m.id}"><span class="ico" aria-hidden="true">📼</span><span><b>${m.year} · ${t('nat.kind.' + m.kind)}${m.gender === 'f' ? ' · ' + t('modes.women') : ''}</b><small>${teamLabel(m.teams[0])} – ${teamLabel(m.teams[1])}</small></span><span aria-hidden="true">›</span></button>`).join('')}</div>`).join('')}</section>`;
   }
   function renderMore() {
-    const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${ico}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
-    return `<section class="card"><h2>${t('nav.more')}</h2><div class="stack">${hasCareer() ? row('editor', '✏') + `<button class="row-link" data-action="sim-season"><span class="ico" aria-hidden="true">⏩</span><span><b>${t('more.simSeason')}</b><small>${t('more.simSeasonSub')}</small></span><span aria-hidden="true">›</span></button>` : ''}${hasCareer() ? (state.career.summary.clubFin ? row('club', '🏟') + (state.career.summary.transfers ? row('market', '🤝') : '') : '') + (state.career.summary.national ? row('national', '🏅') : '') + row('shop', '🛍') + row('look', '🎨') : ''}${row('moments', '📼')}${row('history', '🏛')}${row('guide', '📖')}${row('match', '🏀')}${row('save', '💾')}${row('settings', '⚙')}${row('world', '🌍')}${row('lab', '🧪')}
-      <button class="row-link" data-action="boot-menu"><span class="ico" aria-hidden="true">⌂</span><span><b>${t('more.menu')}</b><small>${t('more.menuSub')}</small></span><span aria-hidden="true">›</span></button></div></section>`;
+    const row = (tab, ico) => `<button class="row-link" data-tab="${tab}" id="more-${tab}"><span class="ico" aria-hidden="true">${CAA.Icons.svg(ico)}</span><span><b>${t('more.' + tab)}</b><small>${t('more.' + tab + 'Sub')}</small></span><span aria-hidden="true">›</span></button>`;
+    const simRow = `<button class="row-link" data-action="sim-season"><span class="ico" aria-hidden="true">${CAA.Icons.svg('fastForward')}</span><span><b>${t('more.simSeason')}</b><small>${t('more.simSeasonSub')}</small></span><span aria-hidden="true">›</span></button>`;
+    const group = (title, rows) => rows ? `<section class="more-group"><h3 class="eyebrow">${title}</h3><div class="stack">${rows}</div></section>` : '';
+    const s = hasCareer() ? state.career.summary : null;
+    const squad = s ? row('editor', 'edit') + simRow + (s.national ? row('national', 'trophy') : '') : '';
+    const club = s ? (s.clubFin ? row('club', 'arena') : '') + (s.transfers ? row('market', 'handshake') : '') + row('shop', 'bag') + row('look', 'palette') : '';
+    const collection = row('moments', 'film') + row('history', 'hall') + row('guide', 'book');
+    const system = row('match', 'ball') + row('save', 'save') + row('settings', 'gear') + row('world', 'globe') + row('lab', 'flask');
+    const quick = s && s.club ? `<section class="card more-hero"><div class="mh-id">${crest(s.club, 34)}<div><b>${esc(s.player ? s.player.name : s.coach.name)}</b><small class="muted">${esc(s.club.name)} · ${esc(s.leagueName)}</small></div></div>
+      <div class="more-stats"><div><b>${s.week}</b><small>${t('career.week')}</small></div><div><b>${s.club.wins}-${s.club.losses}</b><small>${t('league.w')}-${t('league.l')}</small></div><div><b>${(s.life && s.life.achievements ? s.life.achievements.length : 0)}</b><small>${t('me.trophies')}</small></div><div><b>${s.table && s.table.length ? s.table.find(r => r.id === s.club.id) ? s.table.find(r => r.id === s.club.id).rank + 'º' : '—' : '—'}</b><small>${t('league.table')}</small></div></div></section>` : '';
+    return `${quick}${group(t('more.group.squad'), squad)}${group(t('more.group.club'), club)}${group(t('more.group.system'), collection + system)}
+      <button class="cta ghost" data-action="boot-menu">${CAA.Icons.svg('home', 20)} ${t('more.menu')}</button>`;
   }
 
   function renderActionBar() {
@@ -991,20 +1073,28 @@
     const status = `<div id="global-status" role="status" aria-live="polite" aria-atomic="true" class="${state.messageError ? 'bad' : 'muted'}">${esc(state.message || (state.busy ? t('status.working') : ''))}</div>`;
     const confirm = state.confirm ? `<section class="panel confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description"><h2 id="confirm-title">${t('confirm.title')}</h2><p id="confirm-description">${esc(state.confirm.text)}</p><div class="row"><button id="confirm-cancel" data-action="confirm-cancel">${t('confirm.cancel')}</button><button data-action="confirm-yes" class="danger">${t('confirm.yes')}</button></div></section>` : '';
     doc.body.dataset.screen = state.screen;
+    // Una animación de entrada por cambio de pantalla/pestaña/paso, no en cada repintado.
+    const viewKey = state.screen + ':' + (state.screen === 'game' ? state.tab : state.screen === 'create' ? 'create:' + state.wizard.step : 'boot');
+    const entered = state.viewKey !== viewKey; state.viewKey = viewKey;
+    const rail = state.busy ? '<div class="busy-rail" aria-hidden="true"><i></i></div>' : '';
     if (state.screen !== 'game') {
-      doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
+      doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
       const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'moments' ? renderMoments() : tab === 'editor' ? renderEditor() : tab === 'club' ? renderClub() : tab === 'market' ? renderMarket() : tab === 'national' ? renderNational() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
       const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' ? 'life' : 'more';
-      const icons = { career: '⌂', life: '👕', league: '▤', more: '▦' };
-      doc.getElementById('app').innerHTML = `<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
+      const icons = { career: CAA.Icons.svg('career'), life: CAA.Icons.svg('life'), league: CAA.Icons.svg('league'), more: CAA.Icons.svg('more') };
+      doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
       ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
       <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="${tab === 'arcade' ? 'life' : 'more'}">‹ ${t(tab === 'arcade' ? 'nav.life' : 'nav.more')}</button>` : ''}${body}</main>
       <footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
     }
-    for (const child of doc.getElementById('app').children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
+    const appEl = doc.getElementById('app');
+    const mainEl = doc.getElementById('panel');
+    if (mainEl) { mainEl.classList.remove('view-in'); if (entered) { void mainEl.offsetWidth; mainEl.classList.add('view-in'); } }
+    appEl.setAttribute('aria-busy', state.busy ? 'true' : 'false');
+    for (const child of appEl.children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
     doc.querySelectorAll('[data-action]').forEach(b => { b.disabled = state.busy || b.disabled || !!state.confirm; });
     if (state.confirm) doc.querySelectorAll('.confirm button').forEach(b => { b.disabled = false; });
     doc.querySelectorAll('details').forEach((d, i) => { if (openDetails[i] !== undefined) d.open = openDetails[i]; });
@@ -1022,6 +1112,12 @@
     if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
     if (doc.getElementById('live3d')) liveRaf = root.requestAnimationFrame(drawLive3d);
     syncEraLook();
+    if (state.liveFocus) {
+      state.liveFocus = false;
+      const lp = doc.getElementById('live-panel');
+      if (lp && !CAA.A11Y.reduced(state.settings) && typeof lp.scrollIntoView === 'function') lp.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      else if (lp && typeof lp.scrollIntoView === 'function') lp.scrollIntoView({ block: 'start' });
+    }
     { const lp = doc.getElementById('live-panel'); if (lp && !lp.dataset.caught && pb.speed) pbStart(); else pbStop(); }
   }
   function drawMatchFrame() {
@@ -1113,7 +1209,7 @@
     a.lastText = a.label;
     a.anim = { start: root.performance.now(), made: r.made, perfect: r.perfect };
     a.phase = 'flight'; a.flash = r.perfect || (a.type === 'dunk' && r.judge >= 9) ? 1 : 0;
-    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim');
+    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim'); haptic(r.made ? (r.perfect ? 'success' : 'tap') : 'fail');
     a.done = tally.complete;
     render(); arcadeSync();
     const wait = CAA.A11Y.reduced(state.settings) ? 350 : 900;
@@ -1197,7 +1293,7 @@
       }
       state.confirmed = false;
       if (name === 'confirm-cancel') { state.confirm = null; }
-      else if (name === 'confirm-yes') { const pending = state.confirm; state.confirm = null; state.confirmed = true; state.busy = false; await action(pending.name, pending.el); return; }
+      else if (name === 'confirm-yes') { haptic('confirm'); const pending = state.confirm; state.confirm = null; state.confirmed = true; state.busy = false; await action(pending.name, pending.el); return; }
       else if (name === 'boot-lang') { CAA.I18N.setLocale(['en', 'fr', 'de', 'it'].includes(el.dataset.locale) ? el.dataset.locale : 'es'); saveSettings(); state.screen = 'menu'; }
       else if (name === 'boot-new') { state.screen = 'modes'; }
       else if (name === 'boot-continue') { state.screen = 'game'; state.tab = 'career'; }
@@ -1291,7 +1387,7 @@
         if (state.practice && state.practice.start != null) {
           const releaseTick = Math.round((root.performance.now() - state.practice.start) / 1000 * CAA.Minigames.HZ);
           const res = await worker.send('career.practice.resolve', { state: state.career.state, config: { type: state.practice.type || 'freeThrow', id: state.practice.id, releaseTick } });
-          await acceptCareer(res); state.practice = { result: res.practice }; if (audio) audio.play(res.practice.made ? 'swish' : 'rim');
+          await acceptCareer(res); state.practice = { result: res.practice }; if (audio) audio.play(res.practice.made ? 'swish' : 'rim'); haptic(res.practice.made ? 'success' : 'fail');
         }
       } else if (name === 'life-guide-next') {
         const res = await worker.send('career.guide', { state: state.career.state });
@@ -1317,7 +1413,7 @@
         if (!state.career.clubId && state.career.clubs.length && String(state.career.clubsRoute || '').endsWith(state.career.route === 'world' ? state.career.leagueId : state.career.route)) state.career.clubId = state.career.clubs[0].id;
         if (!state.career.clubId) throw new Error(t('career.clubRequired'));
         const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, eraYear: state.career.eraYear || undefined, newClub: state.career.newClub || undefined, challenge: state.career.challenge && state.career.mode === 'coach' ? state.career.challenge : undefined, quick: !!state.career.quick, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
-        if (audio) audio.play('success');
+        if (audio) audio.play('success'); haptic('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
         state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t(state.career.mode === 'coach' ? 'wiz.welcomeCoach' : 'wiz.welcome'));
       } else if (name === 'career-play' || name === 'career-train' || name === 'career-rest') {
@@ -1357,9 +1453,10 @@
         const res = await worker.send('career.live', payloadLive);
         await acceptCareer(res);
         if (name === 'live-end') pbCatchUp(state.career.state.live);
-        if (name === 'live-start' && !pb.speed) pb.speed = 1;
+        if (name === 'live-start') { if (!pb.speed) pb.speed = 1; state.liveFocus = true; }
         const caught = pbCaught(state.career.state.live);
         if (audio && name !== 'live-next') audio.play(caught && res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : 'whistle');
+        if (caught && res.live.finished) haptic(res.live.outcome && res.live.outcome.won ? 'success' : 'fail');
         if (name === 'live-start') notify(t('live.started')); else if (caught && res.live.finished) notify(t(res.live.outcome.won ? 'live.won' : 'live.lost'));
       } else if (name === 'pet-species') { state.petSpecies = el.dataset.species;
       } else if (name.startsWith('pet-')) {
@@ -1370,7 +1467,7 @@
           : name === 'pet-contest' ? { op: 'contest', tier: el.dataset.tier } : { op: name === 'pet-buy' ? 'buy' : name === 'pet-supply' ? 'supply' : 'equip', item: el.dataset.item };
         const res = await worker.send('career.pet', { state: state.career.state, config });
         await acceptCareer(res);
-        if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce');
+        if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce'); if (name === 'pet-contest') haptic(res.pet.place === 1 ? 'success' : 'tap');
         if (name === 'pet-contest') notify(t('pet.contestResult', { place: res.pet.place, score: res.pet.score, tier: t('pet.tier.' + res.pet.tier) }));
       } else if (name === 'live-hero') {
         state.heroShot = { aimStart: root.performance.now() }; if (audio) audio.play('whistle');
@@ -1437,7 +1534,10 @@
       } else if (name === 'lab-performance') {
         const courtVisible = !!state.match.result;
         if (courtVisible) { state.tab = 'match'; render(); }
-        state.diagnostics = await CAA.Diagnostics.sampleFrames({ frames: 180, context: { worker: worker.getMode(), storage: storage.kind, workload: courtVisible ? (state.match.view === '3d' ? 'voxel-' + state.match.quality : 'court2d') : 'static-ui' }, onFrame: () => { if (state.match.result) { state.match.progress = 1; stepMatch(1); drawMatchFrame(); } } });
+        doc.body.dataset.measuring = 'true';
+        try {
+          state.diagnostics = await CAA.Diagnostics.sampleFrames({ frames: 180, context: { worker: worker.getMode(), storage: storage.kind, workload: courtVisible ? (state.match.view === '3d' ? 'voxel-' + state.match.quality : 'court2d') : 'static-ui' }, onFrame: () => { if (state.match.result) { state.match.progress = 1; stepMatch(1); drawMatchFrame(); } } });
+        } finally { delete doc.body.dataset.measuring; }
         state.lab = JSON.stringify(state.diagnostics, null, 2); state.tab = 'lab';
       } else if (name === 'lab-export') {
         const report = { game: payload.manifest.game, title: t('app.title'), build: payload.manifest, worker: worker.getMode(), storage: { kind: storage.kind, persistent: storage.persistent, diagnostics: storage.diagnostics }, performance: state.diagnostics, missingTranslations: CAA.I18N.missingKeys() };
@@ -1461,9 +1561,9 @@
     doc.getElementById('app').addEventListener('click', e => {
       if (state.heroShot && (e.target.id === 'hero-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'live-hero-release'))) { heroRelease(); return; }
       if (e.target.id === 'arcade-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'arcade-release')) { arcadeRelease(); return; }
-      const go = e.target.closest('[data-tab-go]'); if (go) { state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
-      const tab = e.target.closest('[data-tab]'); if (tab) { state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
-      const btn = e.target.closest('[data-action]'); if (btn) { if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
+      const go = e.target.closest('[data-tab-go]'); if (go) { haptic('select'); state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
+      const tab = e.target.closest('[data-tab]'); if (tab) { haptic('select'); state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
+      const btn = e.target.closest('[data-action]'); if (btn) { haptic('tap'); if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
     });
     doc.getElementById('app').addEventListener('keydown', e => {
       if (state.confirm) {
@@ -1473,7 +1573,7 @@
       }
       const tab = e.target.closest('[role=tab][data-tab]'); if (!tab) return;
       const next = CAA.A11Y.tabKey(e.key, PRIMARY_TABS.indexOf(tab.dataset.tab), PRIMARY_TABS.length); if (next == null) return;
-      e.preventDefault(); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
+      e.preventDefault(); haptic('select'); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
     });
     doc.getElementById('app').addEventListener('input', e => { if (e.target.id) state.drafts[e.target.id] = e.target.value; if (e.target.id === 'save-import') { state.importText = e.target.value; state.importPreview = null; const b = doc.querySelector('[data-action="save-import"]'); if (b) b.disabled = true; } });
     doc.getElementById('app').addEventListener('change', async e => {
@@ -1513,7 +1613,7 @@
       else if (key === 'fontSize') state.settings.fontSize = +el.value;
       else if (key === 'vibration' || key === 'audio' || key === 'highContrast') state.settings[key] = el.value === 'true';
       else state.settings[key] = el.value;
-      CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; saveSettings(); render(); syncAnimation();
+      CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } if (key === 'vibration') haptic('confirm'); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; saveSettings(); render(); syncAnimation();
     });
   }
 

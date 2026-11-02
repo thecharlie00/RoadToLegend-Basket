@@ -32,10 +32,16 @@
     const w = String(name || '?').replace(/[^\p{L}\p{N} ]/gu, ' ').split(/\s+/).filter(x => x && !/^(de|del|la|el|los|las|of|the|BC|CB|KK|FC|AS|SC|CD|y)$/i.test(x));
     return (w.length >= 2 ? w.slice(0, 3).map(x => x[0]).join('') : (w[0] || '?').slice(0, 3)).toUpperCase();
   }
+  function colors(club) {
+    const name = club && club.name || '?', cu = club && club.custom;
+    return cu && /^#[0-9a-f]{6}$/i.test(cu.primary || '') && /^#[0-9a-f]{6}$/i.test(cu.secondary || '')
+      ? [cu.primary, cu.secondary]
+      : (KNOWN[name] || PAL[hash(name) % PAL.length]);
+  }
   function svg(club, size) {
     const name = club && club.name || '?', h = hash(name), z = size || 24;
     const cu = club && club.custom;
-    const [c0, c1] = cu ? [cu.primary, cu.secondary] : KNOWN[name] || PAL[h % PAL.length];
+    const [c0, c1] = colors(club);
     const shape = SHAPES[(h >> 5) % SHAPES.length], pat = PATS[(h >> 9) % PATS.length], id = 'cr' + (++uid);
     const ab = esc(cu && cu.abbr ? cu.abbr : abbr(name));
     const outline = PATH[shape] ? `<path d="${PATH[shape]}"/>` : '<circle cx="22" cy="25" r="21"/>';
@@ -52,6 +58,6 @@
       + `<g fill="none" stroke="${pat === 'border' ? c1 : 'rgba(0,0,0,.35)'}" stroke-width="${pat === 'border' ? 4 : 2}">${outline}</g>`
       + `<text x="22" y="${shape === 'pennant' ? 22 : 30}" text-anchor="middle" font-family="'Bebas Neue','Oswald',system-ui,sans-serif" font-weight="700" font-size="${fs}" fill="${txt}" stroke="${txt === '#fff' ? 'rgba(0,0,0,.45)' : 'rgba(255,255,255,.4)'}" stroke-width=".6" paint-order="stroke">${ab}</text></svg>`;
   }
-  CAA.Crest = { SHAPES, PATS, KNOWN, svg, abbr };
+  CAA.Crest = { SHAPES, PATS, KNOWN, svg, abbr, colors };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Crest;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
