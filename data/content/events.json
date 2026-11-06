@@ -264,7 +264,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -2610,8 +2610,8 @@
           "label": {
             "es": "Pedir no ir esta vez",
             "en": "Ask to skip this time",
-            "fr": "Demander à passer ton tour",
-            "de": "Bitten, diesmal auszusetzen",
+            "fr": "Demander à ne pas y aller cette fois",
+            "de": "Diesmal absagen",
             "it": "Chiedere di saltare questa volta"
           },
           "desc": {
@@ -2739,7 +2739,7 @@
         "es": "Invitación a un pódcast",
         "en": "Podcast invitation",
         "fr": "Invitation à un podcast",
-        "de": "Einladung zu einem Podcast",
+        "de": "Podcast-Einladung",
         "it": "Invito a un podcast"
       },
       "body": {
@@ -2755,7 +2755,7 @@
             "es": "Hablar sin filtro",
             "en": "Speak unfiltered",
             "fr": "Parler sans filtre",
-            "de": "Ungefiltert reden",
+            "de": "Ohne Filter reden",
             "it": "Parlare senza filtri"
           },
           "desc": {
@@ -2985,9 +2985,9 @@
       "body": {
         "es": "La liga te invita al concurso de mates del fin de semana de las estrellas.",
         "en": "The league invites you to the All-Star weekend dunk contest.",
-        "fr": "La ligue t'invite au concours de dunks du week-end All-Star.",
+        "fr": "La ligue t’invite au concours de dunks du week-end des étoiles.",
         "de": "Die Liga lädt dich zum Dunk-Contest am All-Star-Wochenende ein.",
-        "it": "La lega ti invita alla gara delle schiacciate del weekend All-Star."
+        "it": "La lega ti invita alla gara delle schiacciate dell’All-Star."
       },
       "options": [
         {
@@ -5100,9 +5100,9 @@
           "label": {
             "es": "Dejarle jugar",
             "en": "Let him play",
-            "fr": "Le laisser jouer",
-            "de": "Ihn spielen lassen",
-            "it": "Lasciarlo giocare"
+            "fr": "Qu’il joue",
+            "de": "Er soll spielen",
+            "it": "Che giochi"
           },
           "desc": {
             "es": "Es su decisión… y la tuya.",
@@ -5283,7 +5283,7 @@
           "label": {
             "es": "Animarle a irse",
             "en": "Encourage him to go",
-            "fr": "L'encourager à partir",
+            "fr": "L’encourager à partir",
             "de": "Ihn ermutigen zu gehen",
             "it": "Incoraggiarlo ad andare"
           },
@@ -6767,7 +6767,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -7645,7 +7645,7 @@
             "es": "Hacerlo",
             "en": "Do it",
             "fr": "Le faire",
-            "de": "Machen",
+            "de": "Mitmachen",
             "it": "Farlo"
           },
           "desc": {
@@ -8524,7 +8524,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -10508,9 +10508,9 @@
       "title": {
         "es": "La función del colegio",
         "en": "The school play",
-        "fr": "Le spectacle de l'école",
-        "de": "Das Schultheater",
-        "it": "La recita scolastica"
+        "fr": "Le spectacle de l’école",
+        "de": "Die Schulaufführung",
+        "it": "La recita della scuola"
       },
       "body": {
         "es": "{child} es el árbol número tres en la función del colegio. Coincide con el entrenamiento de tiro.",
@@ -10525,7 +10525,7 @@
             "es": "Ir a la función",
             "en": "Go to the play",
             "fr": "Aller au spectacle",
-            "de": "Zum Theater gehen",
+            "de": "Zur Aufführung gehen",
             "it": "Andare alla recita"
           },
           "desc": {
@@ -12300,9 +12300,9 @@
           "label": {
             "es": "Pedir una reunión",
             "en": "Ask for a meeting",
-            "fr": "Demander un entretien",
-            "de": "Um ein Gespräch bitten",
-            "it": "Chiedere un colloquio"
+            "fr": "Demander une réunion",
+            "de": "Um ein Treffen bitten",
+            "it": "Chiedere un incontro"
           },
           "desc": {
             "es": "",
@@ -12620,8 +12620,8 @@
             "es": "Nadie duerme, pero todos se ríen.",
             "en": "Nobody sleeps, but everyone laughs.",
             "fr": "Personne ne dort, mais tout le monde rit.",
-            "de": "Niemand schläft, aber alle lachen.",
-            "it": "Nessuno dorme, ma tutti ridono."
+            "de": "Keiner schläft, aber alle lachen.",
+            "it": "Nessuno dorme, ma ridono tutti."
           },
           "id": "b"
         }
@@ -12950,7 +12950,7 @@
         "en": "Your signature move",
         "fr": "Ton geste signature",
         "de": "Dein Markenzeichen",
-        "it": "La tua mossa firma"
+        "it": "Il tuo marchio di fabbrica"
       },
       "body": {
         "es": "En el entrenamiento te sale un paso atrás que nadie sabe defender.",
@@ -13545,7 +13545,7 @@
           "label": {
             "es": "Rechazar y descansar",
             "en": "Decline and rest",
-            "fr": "Refuser et te reposer",
+            "fr": "Refuser et se reposer",
             "de": "Absagen und ausruhen",
             "it": "Rifiutare e riposare"
           },
@@ -13754,7 +13754,7 @@
             "es": "Hacerle caso",
             "en": "Do it",
             "fr": "Le faire",
-            "de": "Machen",
+            "de": "Mitmachen",
             "it": "Farlo"
           },
           "desc": {
@@ -15143,9 +15143,9 @@
       "title": {
         "es": "Año de contrato",
         "en": "Contract year",
-        "fr": "Année de fin de contrat",
-        "de": "Vertragsjahr",
-        "it": "Anno di scadenza"
+        "fr": "Dernière année de contrat",
+        "de": "Letztes Vertragsjahr",
+        "it": "Ultimo anno di contratto"
       },
       "body": {
         "es": "Es tu último año de contrato. Cada partido cuenta para tu próximo sueldo.",
@@ -16043,7 +16043,7 @@
           "label": {
             "es": "Contestar con canastas",
             "en": "Answer with buckets",
-            "fr": "Répondre avec des paniers",
+            "fr": "Répondre par des paniers",
             "de": "Mit Körben antworten",
             "it": "Rispondere con i canestri"
           },
@@ -17048,7 +17048,7 @@
           "label": {
             "es": "Probarla",
             "en": "Try it",
-            "fr": "L'essayer",
+            "fr": "L’essayer",
             "de": "Ausprobieren",
             "it": "Provarla"
           },
@@ -18399,7 +18399,7 @@
             "es": "Hacerlo",
             "en": "Do it",
             "fr": "Le faire",
-            "de": "Machen",
+            "de": "Mitmachen",
             "it": "Farlo"
           },
           "desc": {
@@ -19026,7 +19026,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -19808,7 +19808,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -19885,7 +19885,7 @@
             "es": "Aceptarla",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -20498,7 +20498,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -21136,7 +21136,7 @@
       "title": {
         "es": "Partido benéfico",
         "en": "Charity game",
-        "fr": "Match de charité",
+        "fr": "Match caritatif",
         "de": "Benefizspiel",
         "it": "Partita di beneficenza"
       },
@@ -21721,7 +21721,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -21796,7 +21796,7 @@
           "label": {
             "es": "Probarlo",
             "en": "Try it",
-            "fr": "L'essayer",
+            "fr": "L’essayer",
             "de": "Ausprobieren",
             "it": "Provarla"
           },
@@ -22115,7 +22115,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -22190,7 +22190,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -23287,7 +23287,7 @@
             "es": "Aceptar",
             "en": "Accept",
             "fr": "Accepter",
-            "de": "Annehmen",
+            "de": "Akzeptieren",
             "it": "Accettare"
           },
           "desc": {
@@ -24683,7 +24683,7 @@
             "es": "Hacerla",
             "en": "Do it",
             "fr": "Le faire",
-            "de": "Machen",
+            "de": "Mitmachen",
             "it": "Farlo"
           },
           "desc": {
@@ -27463,6 +27463,2838 @@
             "fr": "Il répond avec un pouce levé. C’est déjà ça.",
             "de": "Er antwortet mit einem Daumen hoch. Immerhin.",
             "it": "Risponde con un pollice in su. È già qualcosa."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "late-shootaround",
+      "category": "training",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Tiro a deshoras",
+        "en": "Late-night shooting",
+        "fr": "Tirs à des heures tardives",
+        "de": "Wurftraining zu später Stunde",
+        "it": "Tiro a tarda notte"
+      },
+      "body": {
+        "es": "El conserje te deja las llaves del pabellón si quieres tirar después de cenar.",
+        "en": "The janitor offers you the arena keys if you want to shoot after dinner.",
+        "fr": "Le gardien te laisse les clés de la salle si tu veux tirer après le dîner.",
+        "de": "Der Hausmeister gibt dir die Hallenschlüssel, falls du nach dem Abendessen werfen willst.",
+        "it": "Il custode ti lascia le chiavi del palazzetto se vuoi tirare dopo cena."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Doscientos tiros",
+            "en": "Two hundred shots",
+            "fr": "Deux cents tirs",
+            "de": "Zweihundert Würfe",
+            "it": "Duecento tiri"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "attr": {
+              "tiroTriple": 1
+            },
+            "load": 5
+          },
+          "result": {
+            "es": "Te vas a casa a la una con la muñeca caliente.",
+            "en": "You go home at one with a warm wrist.",
+            "fr": "Tu rentres à une heure avec le poignet chaud.",
+            "de": "Um eins gehst du mit warmem Handgelenk nach Hause.",
+            "it": "Torni a casa all’una con il polso caldo."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Dormir, que también entrena",
+            "en": "Sleep: it trains too",
+            "fr": "Dormir, ça entraîne aussi",
+            "de": "Schlafen, das trainiert auch",
+            "it": "Dormire: allena anche quello"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "load": -4,
+            "morale": 1
+          },
+          "result": {
+            "es": "Nueve horas de sueño. Al día siguiente vuelas.",
+            "en": "Nine hours of sleep. The next day you fly.",
+            "fr": "Neuf heures de sommeil. Le lendemain, tu voles.",
+            "de": "Neun Stunden Schlaf. Am nächsten Tag fliegst du.",
+            "it": "Nove ore di sonno. Il giorno dopo voli."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "new-position",
+      "category": "tactics",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Te prueban en otro puesto",
+        "en": "They try you in another position",
+        "fr": "On t’essaie à un autre poste",
+        "de": "Man testet dich auf einer anderen Position",
+        "it": "Ti provano in un altro ruolo"
+      },
+      "body": {
+        "es": "Faltan efectivos y el entrenador quiere probarte un puesto por debajo del tuyo durante unas semanas.",
+        "en": "The squad is short and the coach wants to try you one position down for a few weeks.",
+        "fr": "L’effectif est réduit et l’entraîneur veut t’essayer un poste plus bas pendant quelques semaines.",
+        "de": "Der Kader ist dünn und der Trainer will dich ein paar Wochen eine Position tiefer testen.",
+        "it": "La rosa è corta e l’allenatore vuole provarti un ruolo più in basso per qualche settimana."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Aceptar el reto",
+            "en": "Accept the challenge",
+            "fr": "Accepter le défi",
+            "de": "Die Herausforderung annehmen",
+            "it": "Accettare la sfida"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "trust": 3,
+            "attr": {
+              "pase": 1
+            },
+            "confidence": -1
+          },
+          "result": {
+            "es": "Sufres al principio, pero ves el juego de otra forma.",
+            "en": "You struggle at first, but you see the game differently.",
+            "fr": "Tu souffres au début, mais tu vois le jeu autrement.",
+            "de": "Anfangs leidest du, aber du siehst das Spiel anders.",
+            "it": "All’inizio soffri, ma vedi il gioco in un altro modo."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedir seguir en lo tuyo",
+            "en": "Ask to stay in your role",
+            "fr": "Demander à rester à ton poste",
+            "de": "Darum bitten, auf deiner Position zu bleiben",
+            "it": "Chiedere di restare nel tuo ruolo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "confidence": 1,
+            "trust": -2
+          },
+          "result": {
+            "es": "El míster acepta, sin entusiasmo.",
+            "en": "The coach agrees, without enthusiasm.",
+            "fr": "Le coach accepte, sans enthousiasme.",
+            "de": "Der Trainer stimmt zu, ohne Begeisterung.",
+            "it": "Il coach accetta, senza entusiasmo."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "allstar-dunk-invite",
+      "category": "fun",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minFame": 15,
+        "minWeek": 10
+      },
+      "title": {
+        "es": "Invitación al concurso de mates",
+        "en": "Dunk contest invitation",
+        "fr": "Invitation au concours de dunks",
+        "de": "Einladung zum Dunk-Contest",
+        "it": "Invito alla gara delle schiacciate"
+      },
+      "body": {
+        "es": "La liga te invita al concurso de mates del fin de semana de las estrellas.",
+        "en": "The league invites you to the All-Star weekend dunk contest.",
+        "fr": "La ligue t’invite au concours de dunks du week-end des étoiles.",
+        "de": "Die Liga lädt dich zum Dunk-Contest am All-Star-Wochenende ein.",
+        "it": "La lega ti invita alla gara delle schiacciate dell’All-Star."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Preparar un mate nuevo",
+            "en": "Prepare a new dunk",
+            "fr": "Préparer un nouveau dunk",
+            "de": "Einen neuen Dunk vorbereiten",
+            "it": "Preparare una schiacciata nuova"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.45,
+          "ok": {
+            "effects": {
+              "fame": 4,
+              "style": 4
+            },
+            "result": {
+              "es": "El pabellón se viene abajo. Tu mate da la vuelta al mundo.",
+              "en": "The arena erupts. Your dunk goes around the world.",
+              "fr": "La salle explose. Ton dunk fait le tour du monde.",
+              "de": "Die Halle tobt. Dein Dunk geht um die Welt.",
+              "it": "Il palazzetto esplode. La tua schiacciata fa il giro del mondo."
+            }
+          },
+          "ko": {
+            "effects": {
+              "fame": 1,
+              "confidence": -1
+            },
+            "result": {
+              "es": "Fallas tres intentos. Te ríes, pero escuece.",
+              "en": "You miss three attempts. You laugh, but it stings.",
+              "fr": "Tu rates trois tentatives. Tu en ris, mais ça pique.",
+              "de": "Drei Versuche daneben. Du lachst, aber es schmerzt.",
+              "it": "Sbagli tre tentativi. Ridi, ma brucia."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Declinar y descansar",
+            "en": "Decline and rest",
+            "fr": "Refuser et se reposer",
+            "de": "Absagen und ausruhen",
+            "it": "Rifiutare e riposare"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "load": -5,
+            "trust": 1
+          },
+          "result": {
+            "es": "El cuerpo técnico respira aliviado.",
+            "en": "The staff breathe a sigh of relief.",
+            "fr": "Le staff respire.",
+            "de": "Der Trainerstab atmet auf.",
+            "it": "Lo staff tira un sospiro di sollievo."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "teammate-shoes",
+      "category": "locker",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Las zapatillas del novato",
+        "en": "The rookie’s shoes",
+        "fr": "Les baskets du rookie",
+        "de": "Die Schuhe des Rookies",
+        "it": "Le scarpe del rookie"
+      },
+      "body": {
+        "es": "El novato juega con unas zapatillas rotas porque no se atreve a pedir otras al club.",
+        "en": "The rookie plays in broken shoes because he does not dare ask the club for new ones.",
+        "fr": "Le rookie joue avec des baskets abîmées car il n’ose pas en demander au club.",
+        "de": "Der Rookie spielt in kaputten Schuhen, weil er sich nicht traut, den Verein zu fragen.",
+        "it": "Il rookie gioca con scarpe rotte perché non osa chiederne altre al club."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Regalarle un par",
+            "en": "Give him a pair",
+            "fr": "Lui offrir une paire",
+            "de": "Ihm ein Paar schenken",
+            "it": "Regalargli un paio"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "chemistry": 3,
+            "cash": -150
+          },
+          "result": {
+            "es": "No dice nada, pero esa noche te da tres asistencias.",
+            "en": "He says nothing, but that night he gives you three assists.",
+            "fr": "Il ne dit rien, mais ce soir-là il te fait trois passes décisives.",
+            "de": "Er sagt nichts, aber an dem Abend legt er dir drei Assists auf.",
+            "it": "Non dice niente, ma quella sera ti serve tre assist."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Hablar con el utillero",
+            "en": "Talk to the kit man",
+            "fr": "Parler à l’intendant",
+            "de": "Mit dem Zeugwart reden",
+            "it": "Parlare con il magazziniere"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "chemistry": 1,
+            "trust": 1
+          },
+          "result": {
+            "es": "Al día siguiente tiene material nuevo en la taquilla.",
+            "en": "The next day there is new gear in his locker.",
+            "fr": "Le lendemain, il a du matériel neuf dans son casier.",
+            "de": "Am nächsten Tag liegt neue Ausrüstung in seinem Spind.",
+            "it": "Il giorno dopo trova materiale nuovo nell’armadietto."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "trash-talk",
+      "category": "rivalry",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Provocación en pista",
+        "en": "Trash talk on court",
+        "fr": "Provocation sur le terrain",
+        "de": "Trashtalk auf dem Feld",
+        "it": "Provocazione in campo"
+      },
+      "body": {
+        "es": "{rival} no para de hablarte al oído en cada defensa.",
+        "en": "{rival} will not stop talking in your ear on every defensive possession.",
+        "fr": "{rival} n’arrête pas de te parler à l’oreille en défense.",
+        "de": "{rival} redet dir bei jeder Verteidigung ins Ohr.",
+        "it": "{rival} non smette di parlarti all’orecchio in difesa."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Responder con canastas",
+            "en": "Answer with buckets",
+            "fr": "Répondre par des paniers",
+            "de": "Mit Körben antworten",
+            "it": "Rispondere con i canestri"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "confidence": 2,
+            "fans": 1
+          },
+          "result": {
+            "es": "Dos triples seguidos. Ya no habla.",
+            "en": "Two threes in a row. He has gone quiet.",
+            "fr": "Deux tirs à trois points d’affilée. Il se tait.",
+            "de": "Zwei Dreier in Folge. Jetzt ist er still.",
+            "it": "Due triple di fila. Ora tace."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Contestarle",
+            "en": "Talk back",
+            "fr": "Lui répondre",
+            "de": "Zurückreden",
+            "it": "Rispondergli"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.4,
+          "ok": {
+            "effects": {
+              "fans": 3,
+              "style": 2
+            },
+            "result": {
+              "es": "La grada se ríe con tu respuesta. Ganas el duelo.",
+              "en": "The crowd laughs at your comeback. You win the duel.",
+              "fr": "Le public rit de ta réplique. Tu gagnes le duel.",
+              "de": "Die Halle lacht über deine Antwort. Du gewinnst das Duell.",
+              "it": "Il pubblico ride della tua risposta. Vinci il duello."
+            }
+          },
+          "ko": {
+            "effects": {
+              "trust": -2,
+              "confidence": -1
+            },
+            "result": {
+              "es": "Técnica para los dos. El míster no está contento.",
+              "en": "Double technical. The coach is not happy.",
+              "fr": "Double faute technique. Le coach n’est pas content.",
+              "de": "Doppeltes technisches Foul. Der Trainer ist sauer.",
+              "it": "Doppio tecnico. Il coach non è contento."
+            }
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "ankle-tape",
+      "category": "health",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "El tobillo cruje",
+        "en": "The ankle creaks",
+        "fr": "La cheville craque",
+        "de": "Der Knöchel knackt",
+        "it": "La caviglia scricchiola"
+      },
+      "body": {
+        "es": "Notas el tobillo raro en el calentamiento. El fisio dice que puedes jugar con vendaje.",
+        "en": "Your ankle feels odd in warm-ups. The physio says you can play taped.",
+        "fr": "Ta cheville est bizarre à l’échauffement. Le kiné dit que tu peux jouer strappé.",
+        "de": "Dein Knöchel fühlt sich beim Aufwärmen komisch an. Der Physio sagt, mit Tape kannst du spielen.",
+        "it": "Senti la caviglia strana nel riscaldamento. Il fisio dice che puoi giocare con il bendaggio."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Jugar vendado",
+            "en": "Play taped",
+            "fr": "Jouer strappé",
+            "de": "Mit Tape spielen",
+            "it": "Giocare bendato"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.7,
+          "ok": {
+            "effects": {
+              "trust": 2,
+              "form": 1
+            },
+            "result": {
+              "es": "Aguanta. Haces un buen partido.",
+              "en": "It holds. You have a good game.",
+              "fr": "Ça tient. Tu fais un bon match.",
+              "de": "Es hält. Du machst ein gutes Spiel.",
+              "it": "Regge. Fai una buona partita."
+            }
+          },
+          "ko": {
+            "effects": {
+              "injuryWeeks": 2
+            },
+            "result": {
+              "es": "Un mal apoyo y dos semanas fuera.",
+              "en": "One bad landing and two weeks out.",
+              "fr": "Une mauvaise réception et deux semaines d’arrêt.",
+              "de": "Eine unglückliche Landung und zwei Wochen Pause.",
+              "it": "Un appoggio sbagliato e due settimane fuori."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Parar por precaución",
+            "en": "Sit out as a precaution",
+            "fr": "S’arrêter par précaution",
+            "de": "Vorsichtshalber aussetzen",
+            "it": "Fermarsi per precauzione"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "load": -6,
+            "form": -1
+          },
+          "result": {
+            "es": "Ves el partido de traje. El tobillo lo agradece.",
+            "en": "You watch the game in a suit. The ankle thanks you.",
+            "fr": "Tu regardes le match en costume. Ta cheville te remercie.",
+            "de": "Du schaust im Anzug zu. Der Knöchel dankt es dir.",
+            "it": "Guardi la partita in giacca. La caviglia ringrazia."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "signature-move-month",
+      "category": "development",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minWeek": 6
+      },
+      "title": {
+        "es": "Tu movimiento firma",
+        "en": "Your signature move",
+        "fr": "Ton geste signature",
+        "de": "Dein Markenzeichen",
+        "it": "Il tuo marchio di fabbrica"
+      },
+      "body": {
+        "es": "El entrenador de tiro te propone pulir un movimiento propio durante todo el mes.",
+        "en": "The shooting coach suggests polishing a move of your own all month.",
+        "fr": "Le coach de tir te propose de peaufiner un geste à toi tout le mois.",
+        "de": "Der Wurftrainer schlägt vor, einen Monat lang einen eigenen Move zu verfeinern.",
+        "it": "Il coach del tiro ti propone di perfezionare un movimento tuo per tutto il mese."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Paso atrás desde la esquina",
+            "en": "Corner step-back",
+            "fr": "Step-back dans le corner",
+            "de": "Step-back aus der Ecke",
+            "it": "Step-back dall’angolo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "attr": {
+              "tiroTriple": 2
+            },
+            "load": 4
+          },
+          "result": {
+            "es": "Lo estrenas el sábado: dentro.",
+            "en": "You debut it on Saturday: bucket.",
+            "fr": "Tu l’étrennes samedi : dedans.",
+            "de": "Am Samstag zeigst du ihn zum ersten Mal: drin.",
+            "it": "Lo provi sabato: dentro."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Gancho en la zona",
+            "en": "Hook in the paint",
+            "fr": "Bras roulé dans la raquette",
+            "de": "Hakenwurf in der Zone",
+            "it": "Gancio in area"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "attr": {
+              "tiroCerca": 2
+            },
+            "load": 4
+          },
+          "result": {
+            "es": "Imparable con las dos manos.",
+            "en": "Unstoppable with either hand.",
+            "fr": "Inarrêtable des deux mains.",
+            "de": "Mit beiden Händen nicht zu stoppen.",
+            "it": "Inarrestabile con entrambe le mani."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "fan-letter",
+      "category": "fans",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "La carta de una aficionada",
+        "en": "A fan’s letter",
+        "fr": "La lettre d’une supportrice",
+        "de": "Der Brief eines Fans",
+        "it": "La lettera di una tifosa"
+      },
+      "body": {
+        "es": "Una señora de 80 años te escribe: lleva 50 temporadas de abonada y quiere conocerte.",
+        "en": "An 80-year-old woman writes to you: she has had a season ticket for 50 seasons and wants to meet you.",
+        "fr": "Une dame de 80 ans t’écrit : abonnée depuis 50 saisons, elle veut te rencontrer.",
+        "de": "Eine 80-jährige Frau schreibt dir: Sie hat seit 50 Saisons eine Dauerkarte und möchte dich kennenlernen.",
+        "it": "Una signora di 80 anni ti scrive: abbonata da 50 stagioni, vuole conoscerti."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Invitarla al entrenamiento",
+            "en": "Invite her to practice",
+            "fr": "L’inviter à l’entraînement",
+            "de": "Sie zum Training einladen",
+            "it": "Invitarla all’allenamento"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 4,
+            "morale": 2
+          },
+          "result": {
+            "es": "Trae magdalenas para todo el equipo. Día perfecto.",
+            "en": "She brings muffins for the whole team. Perfect day.",
+            "fr": "Elle apporte des madeleines pour toute l’équipe. Journée parfaite.",
+            "de": "Sie bringt Muffins für das ganze Team. Perfekter Tag.",
+            "it": "Porta dolcetti per tutta la squadra. Giornata perfetta."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Responder con una camiseta firmada",
+            "en": "Reply with a signed jersey",
+            "fr": "Répondre avec un maillot signé",
+            "de": "Mit einem signierten Trikot antworten",
+            "it": "Rispondere con una maglia autografata"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 2
+          },
+          "result": {
+            "es": "La enmarca en el salón. Te manda una foto.",
+            "en": "She frames it in her living room. She sends you a photo.",
+            "fr": "Elle l’encadre dans son salon. Elle t’envoie une photo.",
+            "de": "Sie rahmt es im Wohnzimmer ein und schickt dir ein Foto.",
+            "it": "La incornicia in salotto. Ti manda una foto."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "podcast-invite",
+      "category": "media",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minFame": 10
+      },
+      "title": {
+        "es": "Invitación a un pódcast",
+        "en": "Podcast invitation",
+        "fr": "Invitation à un podcast",
+        "de": "Podcast-Einladung",
+        "it": "Invito a un podcast"
+      },
+      "body": {
+        "es": "El pódcast de baloncesto más escuchado del país quiere entrevistarte dos horas.",
+        "en": "The country’s most popular basketball podcast wants to interview you for two hours.",
+        "fr": "Le podcast basket le plus écouté du pays veut t’interviewer deux heures.",
+        "de": "Der meistgehörte Basketball-Podcast des Landes will dich zwei Stunden interviewen.",
+        "it": "Il podcast di basket più ascoltato del paese vuole intervistarti per due ore."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Hablar sin filtro",
+            "en": "Speak unfiltered",
+            "fr": "Parler sans filtre",
+            "de": "Ohne Filter reden",
+            "it": "Parlare senza filtri"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fame": 3,
+            "trust": -2
+          },
+          "result": {
+            "es": "Tus frases se viralizan. En el club no hacen tanta gracia.",
+            "en": "Your quotes go viral. The club is less amused.",
+            "fr": "Tes phrases deviennent virales. Le club apprécie moins.",
+            "de": "Deine Sprüche gehen viral. Der Verein findet es weniger lustig.",
+            "it": "Le tue frasi diventano virali. Al club piacciono meno."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Discurso prudente",
+            "en": "Careful talk",
+            "fr": "Discours prudent",
+            "de": "Vorsichtige Worte",
+            "it": "Discorso prudente"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fame": 1,
+            "trust": 1
+          },
+          "result": {
+            "es": "Entrevista correcta. Te ganas algún seguidor.",
+            "en": "A decent interview. You win a few followers.",
+            "fr": "Interview correcte. Tu gagnes quelques abonnés.",
+            "de": "Ordentliches Interview. Ein paar neue Follower.",
+            "it": "Intervista corretta. Guadagni qualche follower."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "hometown-game",
+      "category": "fans",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "Partido en tu ciudad",
+        "en": "Game in your hometown",
+        "fr": "Match dans ta ville natale",
+        "de": "Spiel in deiner Heimatstadt",
+        "it": "Partita nella tua città"
+      },
+      "body": {
+        "es": "Juegas fuera, pero en tu ciudad natal. Tu familia quiere veinte entradas.",
+        "en": "You play away, but in your hometown. Your family wants twenty tickets.",
+        "fr": "Tu joues à l’extérieur, mais dans ta ville natale. Ta famille veut vingt places.",
+        "de": "Auswärtsspiel, aber in deiner Heimatstadt. Deine Familie will zwanzig Karten.",
+        "it": "Giochi in trasferta, ma nella tua città. La tua famiglia vuole venti biglietti."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Pagarlas todas",
+            "en": "Pay for them all",
+            "fr": "Toutes les payer",
+            "de": "Alle bezahlen",
+            "it": "Pagarli tutti"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "cash": -400,
+            "morale": 3
+          },
+          "result": {
+            "es": "Una pancarta con tu nombre en la grada rival.",
+            "en": "A banner with your name in the away stands.",
+            "fr": "Une banderole à ton nom dans la tribune adverse.",
+            "de": "Ein Banner mit deinem Namen im gegnerischen Block.",
+            "it": "Uno striscione con il tuo nome nella curva avversaria."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Solo la familia cercana",
+            "en": "Close family only",
+            "fr": "Seulement la famille proche",
+            "de": "Nur die engste Familie",
+            "it": "Solo la famiglia stretta"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "cash": -100,
+            "morale": 1
+          },
+          "result": {
+            "es": "Tu madre en primera fila. Suficiente.",
+            "en": "Your mother in the front row. Enough.",
+            "fr": "Ta mère au premier rang. Ça suffit.",
+            "de": "Deine Mutter in der ersten Reihe. Genug.",
+            "it": "Tua madre in prima fila. Basta così."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "star-rest-request",
+      "category": "coach",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach"
+      },
+      "title": {
+        "es": "La estrella pide descanso",
+        "en": "The star asks for rest",
+        "fr": "La star demande du repos",
+        "de": "Der Star bittet um Pause",
+        "it": "La stella chiede riposo"
+      },
+      "body": {
+        "es": "{star} quiere descansar el próximo partido. Es contra un rival directo.",
+        "en": "{star} wants to rest next game. It is against a direct rival.",
+        "fr": "{star} veut se reposer au prochain match. C’est contre un concurrent direct.",
+        "de": "{star} will im nächsten Spiel pausieren. Es geht gegen einen direkten Konkurrenten.",
+        "it": "{star} vuole riposare la prossima partita. È contro una rivale diretta."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Concederlo",
+            "en": "Grant it",
+            "fr": "L’accorder",
+            "de": "Zustimmen",
+            "it": "Concederlo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "locker": 2,
+            "form": -1
+          },
+          "result": {
+            "es": "Tu estrella vuelve fresca. El partido, cuesta arriba.",
+            "en": "Your star comes back fresh. The game, uphill.",
+            "fr": "Ta star revient fraîche. Le match, en montée.",
+            "de": "Dein Star kommt frisch zurück. Das Spiel wird schwer.",
+            "it": "La tua stella torna fresca. La partita, in salita."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Le necesito",
+            "en": "I need him",
+            "fr": "J’ai besoin de lui",
+            "de": "Ich brauche ihn",
+            "it": "Ho bisogno di lui"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "form": 1,
+            "locker": -2
+          },
+          "result": {
+            "es": "Juega a regañadientes, pero juega.",
+            "en": "He plays reluctantly, but he plays.",
+            "fr": "Il joue à contrecœur, mais il joue.",
+            "de": "Er spielt widerwillig, aber er spielt.",
+            "it": "Gioca controvoglia, ma gioca."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "zone-defense",
+      "category": "tactics",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach"
+      },
+      "title": {
+        "es": "¿Defensa en zona?",
+        "en": "Zone defence?",
+        "fr": "Défense de zone ?",
+        "de": "Zonenverteidigung?",
+        "it": "Difesa a zona?"
+      },
+      "body": {
+        "es": "Tu asistente cree que una zona 2-3 frenaría a {opponent}. Nunca la habéis ensayado en serio.",
+        "en": "Your assistant thinks a 2-3 zone would stop {opponent}. You have never seriously practised it.",
+        "fr": "Ton assistant pense qu’une zone 2-3 freinerait {opponent}. Vous ne l’avez jamais vraiment travaillée.",
+        "de": "Dein Assistent glaubt, eine 2-3-Zone würde {opponent} stoppen. Ihr habt sie nie ernsthaft geübt.",
+        "it": "Il tuo vice pensa che una zona 2-3 fermerebbe {opponent}. Non l’avete mai provata sul serio."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Probarla",
+            "en": "Try it",
+            "fr": "L’essayer",
+            "de": "Ausprobieren",
+            "it": "Provarla"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.5,
+          "ok": {
+            "effects": {
+              "form": 2,
+              "board": 1
+            },
+            "result": {
+              "es": "{opponent} se atasca. Funciona.",
+              "en": "{opponent} gets stuck. It works.",
+              "fr": "{opponent} s’enlise. Ça marche.",
+              "de": "{opponent} bleibt hängen. Es funktioniert.",
+              "it": "{opponent} si blocca. Funziona."
+            }
+          },
+          "ko": {
+            "effects": {
+              "form": -2
+            },
+            "result": {
+              "es": "Os castigan desde el triple. Vuelta a la individual.",
+              "en": "They punish you from three. Back to man-to-man.",
+              "fr": "Ils vous punissent à trois points. Retour à l’individuelle.",
+              "de": "Sie bestrafen euch von draußen. Zurück zur Mann-Verteidigung.",
+              "it": "Vi puniscono da tre. Si torna a uomo."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Lo nuestro es la individual",
+            "en": "Man-to-man is our thing",
+            "fr": "Notre truc, c’est l’individuelle",
+            "de": "Mann-Verteidigung ist unser Ding",
+            "it": "La nostra è la uomo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "locker": 1
+          },
+          "result": {
+            "es": "El equipo defiende con confianza lo que conoce.",
+            "en": "The team defends what it knows with confidence.",
+            "fr": "L’équipe défend avec confiance ce qu’elle connaît.",
+            "de": "Das Team verteidigt selbstbewusst, was es kennt.",
+            "it": "La squadra difende con fiducia ciò che conosce."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "assistant-offer",
+      "category": "staff",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach"
+      },
+      "title": {
+        "es": "Tu asistente tiene una oferta",
+        "en": "Your assistant has an offer",
+        "fr": "Ton assistant a une offre",
+        "de": "Dein Assistent hat ein Angebot",
+        "it": "Il tuo vice ha un’offerta"
+      },
+      "body": {
+        "es": "Un club de categoría inferior quiere a tu asistente como primer entrenador.",
+        "en": "A lower-division club wants your assistant as head coach.",
+        "fr": "Un club de division inférieure veut ton assistant comme entraîneur principal.",
+        "de": "Ein unterklassiger Klub will deinen Assistenten als Cheftrainer.",
+        "it": "Un club di categoria inferiore vuole il tuo vice come capo allenatore."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Animarle a irse",
+            "en": "Encourage him to go",
+            "fr": "L’encourager à partir",
+            "de": "Ihn ermutigen zu gehen",
+            "it": "Incoraggiarlo ad andare"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "locker": 1,
+            "form": -1
+          },
+          "result": {
+            "es": "Se despide emocionado. Te llama cada semana.",
+            "en": "He leaves moved. He calls you every week.",
+            "fr": "Il part ému. Il t’appelle chaque semaine.",
+            "de": "Er geht gerührt. Er ruft dich jede Woche an.",
+            "it": "Se ne va commosso. Ti chiama ogni settimana."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedir a la directiva que le suba el sueldo",
+            "en": "Ask the board for a raise for him",
+            "fr": "Demander une augmentation pour lui",
+            "de": "Beim Vorstand eine Gehaltserhöhung für ihn erbitten",
+            "it": "Chiedere un aumento per lui alla dirigenza"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "board": -1,
+            "form": 1
+          },
+          "result": {
+            "es": "Se queda. La directiva toma nota del gasto.",
+            "en": "He stays. The board notes the expense.",
+            "fr": "Il reste. La direction note la dépense.",
+            "de": "Er bleibt. Der Vorstand notiert die Ausgabe.",
+            "it": "Resta. La dirigenza prende nota della spesa."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "practice-closed",
+      "category": "press",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach"
+      },
+      "title": {
+        "es": "¿Entrenamientos a puerta cerrada?",
+        "en": "Closed practices?",
+        "fr": "Entraînements à huis clos ?",
+        "de": "Training hinter verschlossenen Türen?",
+        "it": "Allenamenti a porte chiuse?"
+      },
+      "body": {
+        "es": "Un periodista filtró vuestra jugada de último tiro. Pensáis cerrar los entrenamientos.",
+        "en": "A reporter leaked your last-shot play. You are thinking of closing practices.",
+        "fr": "Un journaliste a divulgé votre combinaison de dernier tir. Vous pensez fermer les entraînements.",
+        "de": "Ein Journalist hat euren Spielzug für den letzten Wurf verraten. Ihr überlegt, das Training zu schließen.",
+        "it": "Un giornalista ha rivelato il vostro schema dell’ultimo tiro. Pensate di chiudere gli allenamenti."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Cerrar",
+            "en": "Close them",
+            "fr": "Fermer",
+            "de": "Schließen",
+            "it": "Chiudere"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "form": 1,
+            "fans": -2
+          },
+          "result": {
+            "es": "Concentración total. Los aficionados se quejan.",
+            "en": "Total focus. The fans complain.",
+            "fr": "Concentration totale. Les supporters se plaignent.",
+            "de": "Volle Konzentration. Die Fans beschweren sich.",
+            "it": "Concentrazione totale. I tifosi si lamentano."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Seguir abiertos y cambiar la jugada",
+            "en": "Stay open and change the play",
+            "fr": "Rester ouverts et changer la combinaison",
+            "de": "Offen bleiben und den Spielzug ändern",
+            "it": "Restare aperti e cambiare lo schema"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 2,
+            "load": 2
+          },
+          "result": {
+            "es": "Diseñas una jugada nueva. La afición lo valora.",
+            "en": "You design a new play. The fans appreciate it.",
+            "fr": "Tu dessines une nouvelle combinaison. Les supporters apprécient.",
+            "de": "Du entwirfst einen neuen Spielzug. Die Fans schätzen das.",
+            "it": "Disegni uno schema nuovo. I tifosi apprezzano."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "rookie-minutes",
+      "category": "coach",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach"
+      },
+      "title": {
+        "es": "Minutos para el novato",
+        "en": "Minutes for the rookie",
+        "fr": "Du temps de jeu pour le rookie",
+        "de": "Minuten für den Rookie",
+        "it": "Minuti per il rookie"
+      },
+      "body": {
+        "es": "El novato rinde en los entrenamientos, pero en partido se le encoge el brazo.",
+        "en": "The rookie shines in practice but tightens up in games.",
+        "fr": "Le rookie brille à l’entraînement mais se crispe en match.",
+        "de": "Der Rookie glänzt im Training, verkrampft aber im Spiel.",
+        "it": "Il rookie brilla in allenamento ma in partita si blocca."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Dárselos igualmente",
+            "en": "Give him them anyway",
+            "fr": "Lui en donner quand même",
+            "de": "Sie ihm trotzdem geben",
+            "it": "Darglieli comunque"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "locker": 1,
+            "form": -1
+          },
+          "result": {
+            "es": "Falla, pero al tercer partido se suelta.",
+            "en": "He misses, but by the third game he loosens up.",
+            "fr": "Il rate, mais au troisième match il se libère.",
+            "de": "Er trifft nicht, aber im dritten Spiel löst er sich.",
+            "it": "Sbaglia, ma alla terza partita si scioglie."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Que se los gane",
+            "en": "Make him earn them",
+            "fr": "Qu’il les mérite",
+            "de": "Er soll sie sich verdienen",
+            "it": "Che se li guadagni"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "form": 1,
+            "locker": -1
+          },
+          "result": {
+            "es": "El equipo gana, el novato se frustra.",
+            "en": "The team wins; the rookie is frustrated.",
+            "fr": "L’équipe gagne, le rookie est frustré.",
+            "de": "Das Team gewinnt, der Rookie ist frustriert.",
+            "it": "La squadra vince, il rookie è frustrato."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "board-budget-cut",
+      "category": "board",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach",
+        "maxWeek": 8
+      },
+      "title": {
+        "es": "Recorte de presupuesto",
+        "en": "Budget cut",
+        "fr": "Coupe budgétaire",
+        "de": "Budgetkürzung",
+        "it": "Taglio del budget"
+      },
+      "body": {
+        "es": "La directiva propone recortar el viaje de pretemporada para cuadrar cuentas.",
+        "en": "The board proposes cutting the preseason trip to balance the books.",
+        "fr": "La direction propose de supprimer le stage de présaison pour équilibrer les comptes.",
+        "de": "Der Vorstand will die Vorbereitungsreise streichen, um die Bilanz auszugleichen.",
+        "it": "La dirigenza propone di tagliare il ritiro precampionato per far quadrare i conti."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Aceptar",
+            "en": "Accept",
+            "fr": "Accepter",
+            "de": "Akzeptieren",
+            "it": "Accettare"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "board": 2,
+            "chemistry": -1
+          },
+          "result": {
+            "es": "Os quedáis en casa. Menos unión, cuentas sanas.",
+            "en": "You stay home. Less bonding, healthy books.",
+            "fr": "Vous restez à la maison. Moins de cohésion, des comptes sains.",
+            "de": "Ihr bleibt zu Hause. Weniger Zusammenhalt, gesunde Finanzen.",
+            "it": "Restate a casa. Meno coesione, conti sani."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Defender el viaje",
+            "en": "Defend the trip",
+            "fr": "Défendre le stage",
+            "de": "Die Reise verteidigen",
+            "it": "Difendere il ritiro"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "board": -2,
+            "chemistry": 2
+          },
+          "result": {
+            "es": "Viaje inolvidable. La directiva te lo recordará.",
+            "en": "An unforgettable trip. The board will remember.",
+            "fr": "Un stage inoubliable. La direction s’en souviendra.",
+            "de": "Eine unvergessliche Reise. Der Vorstand wird es nicht vergessen.",
+            "it": "Un ritiro indimenticabile. La dirigenza se lo ricorderà."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "timeout-speech",
+      "category": "coach",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach",
+        "minWeek": 3
+      },
+      "title": {
+        "es": "El tiempo muerto",
+        "en": "The timeout",
+        "fr": "Le temps mort",
+        "de": "Die Auszeit",
+        "it": "Il timeout"
+      },
+      "body": {
+        "es": "Perdéis de 15 al descanso y el vestuario está callado. Te miran todos.",
+        "en": "You trail by 15 at half-time and the locker room is silent. Everyone looks at you.",
+        "fr": "Vous êtes menés de 15 à la mi-temps et le vestiaire est silencieux. Tout le monde te regarde.",
+        "de": "Ihr liegt zur Pause mit 15 zurück, die Kabine schweigt. Alle sehen dich an.",
+        "it": "Siete sotto di 15 all’intervallo e lo spogliatoio è muto. Ti guardano tutti."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Bronca monumental",
+            "en": "A huge rant",
+            "fr": "Un énorme coup de gueule",
+            "de": "Eine riesige Standpauke",
+            "it": "Una sfuriata enorme"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.5,
+          "ok": {
+            "effects": {
+              "form": 2,
+              "locker": 1
+            },
+            "result": {
+              "es": "Salen como fieras y remontan.",
+              "en": "They come out like animals and come back.",
+              "fr": "Ils sortent comme des fauves et remontent.",
+              "de": "Sie kommen wie entfesselt zurück und drehen das Spiel.",
+              "it": "Escono come belve e rimontano."
+            }
+          },
+          "ko": {
+            "effects": {
+              "locker": -2
+            },
+            "result": {
+              "es": "Agachan la cabeza y la diferencia crece.",
+              "en": "Heads drop and the gap grows.",
+              "fr": "Ils baissent la tête et l’écart grandit.",
+              "de": "Die Köpfe sinken und der Rückstand wächst.",
+              "it": "Abbassano la testa e il distacco cresce."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Calma y pizarra",
+            "en": "Calm and the whiteboard",
+            "fr": "Calme et tableau",
+            "de": "Ruhe und Taktiktafel",
+            "it": "Calma e lavagna"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "locker": 1,
+            "form": 1
+          },
+          "result": {
+            "es": "Dos ajustes, cuarto a cuarto. Os acercáis.",
+            "en": "Two adjustments, quarter by quarter. You get closer.",
+            "fr": "Deux ajustements, quart-temps après quart-temps. Vous revenez.",
+            "de": "Zwei Anpassungen, Viertel für Viertel. Ihr kommt heran.",
+            "it": "Due aggiustamenti, quarto dopo quarto. Vi avvicinate."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "injury-return-early",
+      "category": "health",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach",
+        "minWeek": 5
+      },
+      "title": {
+        "es": "¿Volver antes de tiempo?",
+        "en": "Return early?",
+        "fr": "Revenir plus tôt ?",
+        "de": "Früher zurückkehren?",
+        "it": "Rientrare prima?"
+      },
+      "body": {
+        "es": "Los médicos dicen que {star} podría jugar ya, aunque recomiendan una semana más.",
+        "en": "The doctors say {star} could play now, though they recommend another week.",
+        "fr": "Les médecins disent que {star} pourrait jouer, mais recommandent une semaine de plus.",
+        "de": "Die Ärzte sagen, {star} könnte schon spielen, empfehlen aber noch eine Woche.",
+        "it": "I medici dicono che {star} potrebbe già giocare, ma consigliano un’altra settimana."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Que juegue",
+            "en": "Let him play",
+            "fr": "Qu’il joue",
+            "de": "Er soll spielen",
+            "it": "Che giochi"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.65,
+          "ok": {
+            "effects": {
+              "form": 2
+            },
+            "result": {
+              "es": "Vuelve y decide el partido.",
+              "en": "He returns and decides the game.",
+              "fr": "Il revient et décide du match.",
+              "de": "Er kommt zurück und entscheidet das Spiel.",
+              "it": "Rientra e decide la partita."
+            }
+          },
+          "ko": {
+            "effects": {
+              "form": -2,
+              "locker": -1
+            },
+            "result": {
+              "es": "Recae a los diez minutos.",
+              "en": "He relapses after ten minutes.",
+              "fr": "Il rechute au bout de dix minutes.",
+              "de": "Nach zehn Minuten der Rückfall.",
+              "it": "Ricade dopo dieci minuti."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Una semana más",
+            "en": "One more week",
+            "fr": "Une semaine de plus",
+            "de": "Noch eine Woche",
+            "it": "Un’altra settimana"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "locker": 1
+          },
+          "result": {
+            "es": "Paciencia. Vuelve al cien por cien.",
+            "en": "Patience. He comes back at full strength.",
+            "fr": "Patience. Il revient à cent pour cent.",
+            "de": "Geduld. Er kommt mit voller Kraft zurück.",
+            "it": "Pazienza. Torna al cento per cento."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "charity-match",
+      "category": "community",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Partido benéfico",
+        "en": "Charity game",
+        "fr": "Match caritatif",
+        "de": "Benefizspiel",
+        "it": "Partita di beneficenza"
+      },
+      "body": {
+        "es": "Te invitan a un partido benéfico el día libre. Recauda para el hospital infantil.",
+        "en": "You are invited to a charity game on your day off. It raises money for the children’s hospital.",
+        "fr": "On t’invite à un match caritatif pendant ton jour de repos, au profit de l’hôpital pour enfants.",
+        "de": "Du wirst an deinem freien Tag zu einem Benefizspiel für das Kinderkrankenhaus eingeladen.",
+        "it": "Ti invitano a una partita di beneficenza nel giorno libero, per l’ospedale pediatrico."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ir",
+            "en": "Go",
+            "fr": "Y aller",
+            "de": "Hingehen",
+            "it": "Andare"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 3,
+            "fame": 1,
+            "load": 2
+          },
+          "result": {
+            "es": "El pabellón se llena. Récord de recaudación.",
+            "en": "The arena fills up. Record fundraising.",
+            "fr": "La salle est pleine. Record de dons.",
+            "de": "Die Halle ist voll. Spendenrekord.",
+            "it": "Palazzetto pieno. Record di raccolta."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Donar sin ir",
+            "en": "Donate without going",
+            "fr": "Faire un don sans y aller",
+            "de": "Spenden ohne hinzugehen",
+            "it": "Donare senza andare"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "cash": -250,
+            "fans": 1
+          },
+          "result": {
+            "es": "Tu donativo sale en la prensa local.",
+            "en": "Your donation makes the local paper.",
+            "fr": "Ton don paraît dans la presse locale.",
+            "de": "Deine Spende steht in der Lokalzeitung.",
+            "it": "La tua donazione finisce sul giornale locale."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "flight-delay",
+      "category": "travel",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Vuelo retrasado",
+        "en": "Delayed flight",
+        "fr": "Vol retardé",
+        "de": "Verspäteter Flug",
+        "it": "Volo in ritardo"
+      },
+      "body": {
+        "es": "El vuelo se retrasa seis horas. Llegaréis de madrugada al partido de mañana.",
+        "en": "The flight is delayed six hours. You will arrive in the early hours before tomorrow’s game.",
+        "fr": "Le vol a six heures de retard. Vous arriverez au petit matin avant le match de demain.",
+        "de": "Der Flug hat sechs Stunden Verspätung. Ihr kommt in den frühen Morgenstunden vor dem Spiel an.",
+        "it": "Il volo ha sei ore di ritardo. Arriverete all’alba prima della partita di domani."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Torneo de cartas en la terminal",
+            "en": "Card tournament at the gate",
+            "fr": "Tournoi de cartes au terminal",
+            "de": "Kartenturnier am Gate",
+            "it": "Torneo di carte al gate"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "chemistry": 2,
+            "load": 2
+          },
+          "result": {
+            "es": "Nadie duerme, pero todos se ríen.",
+            "en": "Nobody sleeps, but everyone laughs.",
+            "fr": "Personne ne dort, mais tout le monde rit.",
+            "de": "Keiner schläft, aber alle lachen.",
+            "it": "Nessuno dorme, ma ridono tutti."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Buscar un hotel cercano",
+            "en": "Find a nearby hotel",
+            "fr": "Chercher un hôtel proche",
+            "de": "Ein Hotel in der Nähe suchen",
+            "it": "Cercare un hotel vicino"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "load": -2,
+            "cash": -120
+          },
+          "result": {
+            "es": "Tres horas de sueño valen oro.",
+            "en": "Three hours of sleep are worth gold.",
+            "fr": "Trois heures de sommeil valent de l’or.",
+            "de": "Drei Stunden Schlaf sind Gold wert.",
+            "it": "Tre ore di sonno valgono oro."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "mascot-halftime-prank",
+      "category": "fun",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "La broma de la mascota",
+        "en": "The mascot prank",
+        "fr": "La blague de la mascotte",
+        "de": "Der Maskottchen-Streich",
+        "it": "Lo scherzo della mascotte"
+      },
+      "body": {
+        "es": "La mascota del club te propone una broma en el descanso delante de todo el pabellón.",
+        "en": "The club mascot suggests a half-time prank in front of the whole arena.",
+        "fr": "La mascotte du club te propose une blague à la mi-temps devant toute la salle.",
+        "de": "Das Maskottchen schlägt einen Halbzeit-Streich vor der ganzen Halle vor.",
+        "it": "La mascotte del club ti propone uno scherzo all’intervallo davanti a tutto il palazzetto."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Seguirle el juego",
+            "en": "Play along",
+            "fr": "Jouer le jeu",
+            "de": "Mitspielen",
+            "it": "Stare al gioco"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 3,
+            "style": 2
+          },
+          "result": {
+            "es": "El vídeo es lo más visto de la semana.",
+            "en": "The video is the most watched of the week.",
+            "fr": "La vidéo est la plus vue de la semaine.",
+            "de": "Das Video ist das meistgesehene der Woche.",
+            "it": "Il video è il più visto della settimana."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Hoy no, hay partido",
+            "en": "Not today, there is a game",
+            "fr": "Pas aujourd’hui, il y a match",
+            "de": "Heute nicht, es ist Spiel",
+            "it": "Oggi no, c’è partita"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "trust": 1
+          },
+          "result": {
+            "es": "La mascota se va con la cola entre las piernas.",
+            "en": "The mascot leaves with its tail between its legs.",
+            "fr": "La mascotte repart la queue entre les jambes.",
+            "de": "Das Maskottchen zieht mit eingezogenem Schwanz ab.",
+            "it": "La mascotte se ne va con la coda tra le gambe."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "documentary-crew",
+      "category": "media",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "minFame": 12
+      },
+      "title": {
+        "es": "Un documental",
+        "en": "A documentary",
+        "fr": "Un documentaire",
+        "de": "Eine Dokumentation",
+        "it": "Un documentario"
+      },
+      "body": {
+        "es": "Una plataforma quiere grabar un documental sobre la temporada dentro del vestuario.",
+        "en": "A streaming platform wants to film a season documentary inside the locker room.",
+        "fr": "Une plateforme veut tourner un documentaire sur la saison dans le vestiaire.",
+        "de": "Eine Streaming-Plattform will eine Saison-Doku in der Kabine drehen.",
+        "it": "Una piattaforma vuole girare un documentario sulla stagione nello spogliatoio."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Abrir las puertas",
+            "en": "Open the doors",
+            "fr": "Ouvrir les portes",
+            "de": "Die Türen öffnen",
+            "it": "Aprire le porte"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fame": 3,
+            "fans": 3,
+            "chemistry": -2
+          },
+          "result": {
+            "es": "Media liga os ve en pantalla. Algún compañero se siente vigilado.",
+            "en": "Half the league watches you on screen. Some teammates feel watched.",
+            "fr": "La moitié de la ligue vous regarde. Certains coéquipiers se sentent surveillés.",
+            "de": "Die halbe Liga sieht euch. Manche Mitspieler fühlen sich beobachtet.",
+            "it": "Mezza lega vi guarda. Qualche compagno si sente osservato."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Solo fuera del vestuario",
+            "en": "Only outside the locker room",
+            "fr": "Seulement hors du vestiaire",
+            "de": "Nur außerhalb der Kabine",
+            "it": "Solo fuori dallo spogliatoio"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fame": 1,
+            "chemistry": 1
+          },
+          "result": {
+            "es": "Un documental más suave, un vestuario tranquilo.",
+            "en": "A softer documentary, a calm locker room.",
+            "fr": "Un documentaire plus doux, un vestiaire tranquille.",
+            "de": "Eine sanftere Doku, eine ruhige Kabine.",
+            "it": "Un documentario più leggero, uno spogliatoio tranquillo."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "snowstorm",
+      "category": "travel",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any"
+      },
+      "title": {
+        "es": "Temporal de nieve",
+        "en": "Snowstorm",
+        "fr": "Tempête de neige",
+        "de": "Schneesturm",
+        "it": "Tempesta di neve"
+      },
+      "body": {
+        "es": "La nieve corta la autopista y el autobús se queda parado a 40 km del pabellón.",
+        "en": "Snow cuts the motorway and the bus is stuck 40 km from the arena.",
+        "fr": "La neige coupe l’autoroute et le bus est bloqué à 40 km de la salle.",
+        "de": "Schnee sperrt die Autobahn, der Bus steckt 40 km vor der Halle fest.",
+        "it": "La neve blocca l’autostrada e il pullman resta fermo a 40 km dal palazzetto."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Calentar en el arcén",
+            "en": "Warm up on the hard shoulder",
+            "fr": "S’échauffer sur la bande d’arrêt",
+            "de": "Auf dem Seitenstreifen aufwärmen",
+            "it": "Scaldarsi sulla corsia d’emergenza"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "chemistry": 2,
+            "fans": 2
+          },
+          "result": {
+            "es": "La foto del equipo estirando en la nieve da la vuelta al país.",
+            "en": "The photo of the team stretching in the snow goes around the country.",
+            "fr": "La photo de l’équipe qui s’étire dans la neige fait le tour du pays.",
+            "de": "Das Foto vom Team beim Dehnen im Schnee geht durchs Land.",
+            "it": "La foto della squadra che fa stretching nella neve fa il giro del paese."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Esperar y descansar",
+            "en": "Wait and rest",
+            "fr": "Attendre et se reposer",
+            "de": "Warten und ausruhen",
+            "it": "Aspettare e riposare"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "load": -2
+          },
+          "result": {
+            "es": "Llegáis justos, pero descansados.",
+            "en": "You arrive just in time, but rested.",
+            "fr": "Vous arrivez juste à temps, mais reposés.",
+            "de": "Ihr kommt knapp, aber ausgeruht an.",
+            "it": "Arrivate appena in tempo, ma riposati."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "old-coach-call",
+      "category": "legacy",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "minAge": 24
+      },
+      "title": {
+        "es": "Llama tu primer entrenador",
+        "en": "Your first coach calls",
+        "fr": "Ton premier entraîneur appelle",
+        "de": "Dein erster Trainer ruft an",
+        "it": "Chiama il tuo primo allenatore"
+      },
+      "body": {
+        "es": "Tu entrenador de minibásket se jubila y te pide unas palabras para su despedida.",
+        "en": "Your mini-basketball coach is retiring and asks you for a few words at his farewell.",
+        "fr": "Ton entraîneur de mini-basket prend sa retraite et te demande quelques mots pour son départ.",
+        "de": "Dein Minibasketball-Trainer geht in Rente und bittet dich um ein paar Worte zum Abschied.",
+        "it": "Il tuo allenatore di minibasket va in pensione e ti chiede qualche parola per il suo addio."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ir en persona",
+            "en": "Go in person",
+            "fr": "Y aller en personne",
+            "de": "Persönlich hingehen",
+            "it": "Andare di persona"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "morale": 3,
+            "load": 2
+          },
+          "result": {
+            "es": "Lloráis los dos. El gimnasio aplaude.",
+            "en": "You both cry. The gym applauds.",
+            "fr": "Vous pleurez tous les deux. Le gymnase applaudit.",
+            "de": "Ihr weint beide. Die Halle applaudiert.",
+            "it": "Piangete entrambi. La palestra applaude."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Mandar un vídeo",
+            "en": "Send a video",
+            "fr": "Envoyer une vidéo",
+            "de": "Ein Video schicken",
+            "it": "Mandare un video"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "morale": 1
+          },
+          "result": {
+            "es": "Lo proyectan en la pared. Se emociona igual.",
+            "en": "They project it on the wall. He is moved all the same.",
+            "fr": "On le projette au mur. Il est ému quand même.",
+            "de": "Es wird an die Wand projiziert. Er ist trotzdem gerührt.",
+            "it": "Lo proiettano sul muro. Si commuove lo stesso."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "partner-big-night",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "familyStatus": [
+          "partner",
+          "married",
+          "parent"
+        ]
+      },
+      "title": {
+        "es": "Noche importante en casa",
+        "en": "Big night at home",
+        "fr": "Grande soirée à la maison",
+        "de": "Wichtiger Abend zu Hause",
+        "it": "Serata importante a casa"
+      },
+      "body": {
+        "es": "{partner} tiene la cena de su ascenso el mismo día que el vídeo del rival.",
+        "en": "{partner} has a promotion dinner the same day as the opponent film session.",
+        "fr": "{partner} fête sa promotion le jour de la séance vidéo sur l’adversaire.",
+        "de": "{partner} feiert die Beförderung am selben Tag wie die Videoanalyse des Gegners.",
+        "it": "{partner} festeggia la promozione lo stesso giorno della sessione video sull’avversario."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ir a la cena",
+            "en": "Go to the dinner",
+            "fr": "Aller au dîner",
+            "de": "Zum Abendessen gehen",
+            "it": "Andare alla cena"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "partnerHappiness": 6,
+            "trust": -1
+          },
+          "result": {
+            "es": "Brindis, sonrisas y un mensaje seco del cuerpo técnico.",
+            "en": "Toasts, smiles and a curt message from the staff.",
+            "fr": "Toasts, sourires et un message sec du staff.",
+            "de": "Anstoßen, Lächeln und eine knappe Nachricht vom Trainerstab.",
+            "it": "Brindisi, sorrisi e un messaggio secco dello staff."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Quedarse al vídeo",
+            "en": "Stay for the film",
+            "fr": "Rester à la vidéo",
+            "de": "Beim Video bleiben",
+            "it": "Restare al video"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "partnerHappiness": -5,
+            "trust": 2
+          },
+          "result": {
+            "es": "Llegas a los postres. La mirada lo dice todo.",
+            "en": "You arrive at dessert. The look says it all.",
+            "fr": "Tu arrives au dessert. Le regard en dit long.",
+            "de": "Du kommst zum Nachtisch. Der Blick sagt alles.",
+            "it": "Arrivi al dolce. Lo sguardo dice tutto."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "child-school-play",
+      "category": "family",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "hasChildren": true
+      },
+      "title": {
+        "es": "La función del colegio",
+        "en": "The school play",
+        "fr": "Le spectacle de l’école",
+        "de": "Die Schulaufführung",
+        "it": "La recita della scuola"
+      },
+      "body": {
+        "es": "{child} actúa en la función del colegio la misma tarde del entrenamiento de tiro.",
+        "en": "{child} performs in the school play on the afternoon of shooting practice.",
+        "fr": "{child} joue dans le spectacle de l’école l’après-midi de l’entraînement de tir.",
+        "de": "{child} spielt in der Schulaufführung am Nachmittag des Wurftrainings.",
+        "it": "{child} recita a scuola il pomeriggio dell’allenamento di tiro."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ir a la función",
+            "en": "Go to the play",
+            "fr": "Aller au spectacle",
+            "de": "Zur Aufführung gehen",
+            "it": "Andare alla recita"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "childBond": 6,
+            "load": -2
+          },
+          "result": {
+            "es": "Te busca entre el público y sonríe al verte.",
+            "en": "They look for you in the crowd and smile when they see you.",
+            "fr": "Il te cherche dans le public et sourit en te voyant.",
+            "de": "Es sucht dich im Publikum und lächelt, als es dich sieht.",
+            "it": "Ti cerca tra il pubblico e sorride quando ti vede."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Entrenar y verlo en vídeo",
+            "en": "Train and watch the video",
+            "fr": "S’entraîner et regarder la vidéo",
+            "de": "Trainieren und das Video schauen",
+            "it": "Allenarsi e guardare il video"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "childBond": -3,
+            "form": 1
+          },
+          "result": {
+            "es": "El vídeo está bien. No es lo mismo.",
+            "en": "The video is fine. It is not the same.",
+            "fr": "La vidéo est bien. Ce n’est pas pareil.",
+            "de": "Das Video ist gut. Es ist nicht dasselbe.",
+            "it": "Il video va bene. Non è la stessa cosa."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "national-call-doubt",
+      "category": "national",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minOvr": 68,
+        "minWeek": 8,
+        "maxWeek": 14
+      },
+      "title": {
+        "es": "Dudas con la selección",
+        "en": "National team doubts",
+        "fr": "Doutes avec la sélection",
+        "de": "Zweifel mit der Nationalmannschaft",
+        "it": "Dubbi con la nazionale"
+      },
+      "body": {
+        "es": "La selección te convoca para la ventana de noviembre, pero arrastras molestias.",
+        "en": "The national team calls you up for the November window, but you are carrying a knock.",
+        "fr": "La sélection te convoque pour la fenêtre de novembre, mais tu traînes une gêne.",
+        "de": "Die Nationalmannschaft beruft dich für das Novemberfenster, aber du hast Beschwerden.",
+        "it": "La nazionale ti convoca per la finestra di novembre, ma ti porti dietro un fastidio."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Ir con la selección",
+            "en": "Go with the national team",
+            "fr": "Rejoindre la sélection",
+            "de": "Zur Nationalmannschaft fahren",
+            "it": "Andare in nazionale"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fame": 3,
+            "load": 6
+          },
+          "result": {
+            "es": "Debutas con tu país. El club cruza los dedos.",
+            "en": "You play for your country. The club crosses its fingers.",
+            "fr": "Tu joues pour ton pays. Le club croise les doigts.",
+            "de": "Du spielst für dein Land. Der Verein drückt die Daumen.",
+            "it": "Giochi per il tuo paese. Il club incrocia le dita."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedir no ir esta vez",
+            "en": "Ask to skip this time",
+            "fr": "Demander à ne pas y aller cette fois",
+            "de": "Diesmal absagen",
+            "it": "Chiedere di saltare questa volta"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "load": -4,
+            "trust": 1,
+            "fame": -1
+          },
+          "result": {
+            "es": "El seleccionador lo entiende, a medias.",
+            "en": "The national coach half understands.",
+            "fr": "Le sélectionneur comprend, à moitié.",
+            "de": "Der Nationaltrainer versteht es halb.",
+            "it": "Il ct capisce, a metà."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "playoff-ticket-prices",
+      "category": "board",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach",
+        "lateSeason": true
+      },
+      "title": {
+        "es": "Precio de las entradas de playoffs",
+        "en": "Playoff ticket prices",
+        "fr": "Prix des billets de playoffs",
+        "de": "Playoff-Ticketpreise",
+        "it": "Prezzo dei biglietti dei playoff"
+      },
+      "body": {
+        "es": "La directiva quiere doblar el precio de las entradas de playoffs y te pide opinión.",
+        "en": "The board wants to double playoff ticket prices and asks your opinion.",
+        "fr": "La direction veut doubler le prix des billets de playoffs et te demande ton avis.",
+        "de": "Der Vorstand will die Playoff-Ticketpreise verdoppeln und fragt dich.",
+        "it": "La dirigenza vuole raddoppiare il prezzo dei biglietti dei playoff e chiede il tuo parere."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Apoyar la subida",
+            "en": "Back the increase",
+            "fr": "Soutenir la hausse",
+            "de": "Die Erhöhung unterstützen",
+            "it": "Appoggiare l’aumento"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "board": 2,
+            "fans": -3
+          },
+          "result": {
+            "es": "Caja llena, grada algo más fría.",
+            "en": "Full coffers, a slightly colder crowd.",
+            "fr": "Caisses pleines, public un peu plus froid.",
+            "de": "Volle Kasse, etwas kühlere Halle.",
+            "it": "Casse piene, pubblico un po’ più freddo."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedir precios populares",
+            "en": "Ask for affordable prices",
+            "fr": "Demander des prix populaires",
+            "de": "Faire Preise für alle fordern",
+            "it": "Chiedere prezzi popolari"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 3,
+            "board": -2
+          },
+          "result": {
+            "es": "El pabellón ruge como nunca.",
+            "en": "The arena roars like never before.",
+            "fr": "La salle rugit comme jamais.",
+            "de": "Die Halle tobt wie nie.",
+            "it": "Il palazzetto ruggisce come mai."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "veteran-retirement-talk",
+      "category": "locker",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "coach",
+        "lateSeason": true
+      },
+      "title": {
+        "es": "El veterano piensa en retirarse",
+        "en": "The veteran considers retiring",
+        "fr": "Le vétéran pense à la retraite",
+        "de": "Der Veteran denkt ans Aufhören",
+        "it": "Il veterano pensa al ritiro"
+      },
+      "body": {
+        "es": "El jugador más veterano te confiesa que esta podría ser su última temporada.",
+        "en": "Your most veteran player confesses this could be his last season.",
+        "fr": "Ton joueur le plus expérimenté t’avoue que ce pourrait être sa dernière saison.",
+        "de": "Dein ältester Spieler gesteht, dass dies seine letzte Saison sein könnte.",
+        "it": "Il tuo giocatore più esperto ti confessa che questa potrebbe essere la sua ultima stagione."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Anunciarlo y despedirle por todo lo alto",
+            "en": "Announce it and give him a big send-off",
+            "fr": "L’annoncer et lui offrir un grand adieu",
+            "de": "Es verkünden und ihn groß verabschieden",
+            "it": "Annunciarlo e salutarlo in grande"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 3,
+            "locker": 2
+          },
+          "result": {
+            "es": "Cada pabellón le aplaude. El equipo juega por él.",
+            "en": "Every arena applauds him. The team plays for him.",
+            "fr": "Chaque salle l’applaudit. L’équipe joue pour lui.",
+            "de": "Jede Halle applaudiert ihm. Das Team spielt für ihn.",
+            "it": "Ogni palazzetto lo applaude. La squadra gioca per lui."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Guardarlo hasta final de temporada",
+            "en": "Keep it quiet until the end",
+            "fr": "Le garder pour la fin de saison",
+            "de": "Es bis Saisonende geheim halten",
+            "it": "Tenerlo segreto fino a fine stagione"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "form": 1
+          },
+          "result": {
+            "es": "Nada distrae al grupo. Él lo agradece.",
+            "en": "Nothing distracts the group. He is grateful.",
+            "fr": "Rien ne distrait le groupe. Il t’en remercie.",
+            "de": "Nichts lenkt die Gruppe ab. Er ist dankbar.",
+            "it": "Niente distrae il gruppo. Lui ringrazia."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "win-streak-complacency",
+      "category": "mental",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "winStreak": 5
+      },
+      "title": {
+        "es": "Exceso de confianza",
+        "en": "Overconfidence",
+        "fr": "Excès de confiance",
+        "de": "Übermut",
+        "it": "Eccesso di fiducia"
+      },
+      "body": {
+        "es": "Tras la racha de victorias, el vestuario se relaja en los entrenamientos.",
+        "en": "After the winning streak, the locker room is coasting in practice.",
+        "fr": "Après la série de victoires, le vestiaire se relâche à l’entraînement.",
+        "de": "Nach der Siegesserie lässt die Kabine im Training nach.",
+        "it": "Dopo la serie di vittorie, lo spogliatoio si rilassa in allenamento."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Entrenamiento durísimo",
+            "en": "A brutal practice",
+            "fr": "Entraînement très dur",
+            "de": "Knallhartes Training",
+            "it": "Allenamento durissimo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "form": 2,
+            "load": 5,
+            "morale": -1
+          },
+          "result": {
+            "es": "Nadie se relaja más. Nadie sonríe tampoco.",
+            "en": "Nobody coasts any more. Nobody smiles either.",
+            "fr": "Plus personne ne se relâche. Plus personne ne sourit non plus.",
+            "de": "Keiner lässt mehr nach. Keiner lächelt mehr.",
+            "it": "Nessuno si rilassa più. Nessuno sorride neanche."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Disfrutar el momento",
+            "en": "Enjoy the moment",
+            "fr": "Profiter du moment",
+            "de": "Den Moment genießen",
+            "it": "Godersi il momento"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "morale": 2,
+            "form": -1
+          },
+          "result": {
+            "es": "Buen ambiente. Algún despiste en el siguiente partido.",
+            "en": "Good vibes. A few lapses in the next game.",
+            "fr": "Bonne ambiance. Quelques erreurs au match suivant.",
+            "de": "Gute Stimmung. Ein paar Patzer im nächsten Spiel.",
+            "it": "Bel clima. Qualche distrazione nella partita successiva."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "losing-streak-meeting",
+      "category": "locker",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "any",
+        "loseStreak": 4
+      },
+      "title": {
+        "es": "Reunión de jugadores",
+        "en": "Players-only meeting",
+        "fr": "Réunion entre joueurs",
+        "de": "Spielerbesprechung",
+        "it": "Riunione tra giocatori"
+      },
+      "body": {
+        "es": "Después de la cuarta derrota seguida, los jugadores convocan una reunión sin técnicos.",
+        "en": "After the fourth straight loss, the players call a meeting without coaches.",
+        "fr": "Après la quatrième défaite de suite, les joueurs organisent une réunion sans le staff.",
+        "de": "Nach der vierten Niederlage in Folge berufen die Spieler eine Besprechung ohne Trainer ein.",
+        "it": "Dopo la quarta sconfitta di fila, i giocatori convocano una riunione senza allenatori."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Hablar claro",
+            "en": "Speak plainly",
+            "fr": "Parler franchement",
+            "de": "Klartext reden",
+            "it": "Parlare chiaro"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "p": 0.55,
+          "ok": {
+            "effects": {
+              "chemistry": 3,
+              "morale": 2
+            },
+            "result": {
+              "es": "Salen unidos. La racha se corta.",
+              "en": "They come out united. The streak ends.",
+              "fr": "Ils en sortent soudés. La série s’arrête.",
+              "de": "Sie gehen geschlossen raus. Die Serie endet.",
+              "it": "Escono uniti. La serie si interrompe."
+            }
+          },
+          "ko": {
+            "effects": {
+              "chemistry": -2
+            },
+            "result": {
+              "es": "Salen reproches viejos. Peor que antes.",
+              "en": "Old grudges come out. Worse than before.",
+              "fr": "De vieux reproches ressortent. Pire qu’avant.",
+              "de": "Alte Vorwürfe kommen hoch. Schlimmer als vorher.",
+              "it": "Escono vecchi rancori. Peggio di prima."
+            }
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Escuchar y proponer un plan",
+            "en": "Listen and propose a plan",
+            "fr": "Écouter et proposer un plan",
+            "de": "Zuhören und einen Plan vorschlagen",
+            "it": "Ascoltare e proporre un piano"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "chemistry": 1,
+            "trust": 1
+          },
+          "result": {
+            "es": "Plan sencillo: defensa y rebote. Todos de acuerdo.",
+            "en": "Simple plan: defence and rebounding. Everyone agrees.",
+            "fr": "Plan simple : défense et rebond. Tout le monde est d’accord.",
+            "de": "Einfacher Plan: Verteidigung und Rebound. Alle einverstanden.",
+            "it": "Piano semplice: difesa e rimbalzi. Tutti d’accordo."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "contract-year-pressure",
+      "category": "contract",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "contractYears": 1,
+        "minWeek": 6
+      },
+      "title": {
+        "es": "Último año de contrato",
+        "en": "Contract year",
+        "fr": "Dernière année de contrat",
+        "de": "Letztes Vertragsjahr",
+        "it": "Ultimo anno di contratto"
+      },
+      "body": {
+        "es": "Es tu último año de contrato y el club aún no ha llamado a tu agente.",
+        "en": "It is your contract year and the club has not called your agent yet.",
+        "fr": "C’est ta dernière année de contrat et le club n’a pas encore appelé ton agent.",
+        "de": "Es ist dein letztes Vertragsjahr und der Verein hat deinen Berater noch nicht angerufen.",
+        "it": "È il tuo ultimo anno di contratto e il club non ha ancora chiamato il tuo agente."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Dejar que hablen los números",
+            "en": "Let the numbers talk",
+            "fr": "Laisser parler les chiffres",
+            "de": "Die Zahlen sprechen lassen",
+            "it": "Lasciar parlare i numeri"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "confidence": 2,
+            "load": 3
+          },
+          "result": {
+            "es": "Juegas cada partido como una entrevista de trabajo.",
+            "en": "You play every game like a job interview.",
+            "fr": "Tu joues chaque match comme un entretien d’embauche.",
+            "de": "Du spielst jedes Spiel wie ein Vorstellungsgespräch.",
+            "it": "Giochi ogni partita come un colloquio di lavoro."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedir una reunión",
+            "en": "Ask for a meeting",
+            "fr": "Demander une réunion",
+            "de": "Um ein Treffen bitten",
+            "it": "Chiedere un incontro"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "trust": 1,
+            "morale": 1
+          },
+          "result": {
+            "es": "Te dicen que cuentan contigo. Falta el papel.",
+            "en": "They say they are counting on you. The paper is still missing.",
+            "fr": "On te dit qu’on compte sur toi. Il manque le papier.",
+            "de": "Man sagt, man plane mit dir. Das Papier fehlt noch.",
+            "it": "Ti dicono che contano su di te. Manca la firma."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "sponsor-photoshoot",
+      "category": "sponsor",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "hasSponsor": true
+      },
+      "title": {
+        "es": "Sesión para el patrocinador",
+        "en": "Sponsor photo shoot",
+        "fr": "Shooting pour le sponsor",
+        "de": "Fotoshooting für den Sponsor",
+        "it": "Servizio per lo sponsor"
+      },
+      "body": {
+        "es": "Tu patrocinador quiere una sesión de seis horas el día antes de un partido.",
+        "en": "Your sponsor wants a six-hour shoot the day before a game.",
+        "fr": "Ton sponsor veut un shooting de six heures la veille d’un match.",
+        "de": "Dein Sponsor will ein sechsstündiges Shooting am Tag vor einem Spiel.",
+        "it": "Il tuo sponsor vuole un servizio di sei ore il giorno prima di una partita."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Cumplir",
+            "en": "Do it",
+            "fr": "Le faire",
+            "de": "Mitmachen",
+            "it": "Farlo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "cash": 600,
+            "load": 4
+          },
+          "result": {
+            "es": "Fotos espectaculares. Piernas pesadas.",
+            "en": "Spectacular photos. Heavy legs.",
+            "fr": "Photos spectaculaires. Jambes lourdes.",
+            "de": "Spektakuläre Fotos. Schwere Beine.",
+            "it": "Foto spettacolari. Gambe pesanti."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Pedir cambiar la fecha",
+            "en": "Ask to move the date",
+            "fr": "Demander de changer la date",
+            "de": "Um einen anderen Termin bitten",
+            "it": "Chiedere di spostare la data"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "cash": -100,
+            "load": -1
+          },
+          "result": {
+            "es": "Aceptan, con un correo bastante frío.",
+            "en": "They agree, with a rather cold email.",
+            "fr": "Ils acceptent, avec un mail plutôt froid.",
+            "de": "Sie stimmen zu, mit einer recht kühlen E-Mail.",
+            "it": "Accettano, con una mail piuttosto fredda."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "young-fan-jersey",
+      "category": "fans",
+      "story": false,
+      "once": false,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player"
+      },
+      "title": {
+        "es": "La camiseta del niño",
+        "en": "The kid’s jersey",
+        "fr": "Le maillot de l’enfant",
+        "de": "Das Trikot des Jungen",
+        "it": "La maglia del bambino"
+      },
+      "body": {
+        "es": "Un niño en primera fila lleva tu camiseta hecha a mano con rotulador.",
+        "en": "A kid in the front row wears a handmade jersey with your number in marker.",
+        "fr": "Un enfant au premier rang porte ton maillot fait main au feutre.",
+        "de": "Ein Kind in der ersten Reihe trägt dein Trikot, selbst mit Filzstift gemacht.",
+        "it": "Un bambino in prima fila indossa la tua maglia fatta a mano con il pennarello."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Regalarle la tuya al acabar",
+            "en": "Give him yours afterwards",
+            "fr": "Lui offrir le tien à la fin",
+            "de": "Ihm danach deins schenken",
+            "it": "Regalargli la tua alla fine"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 4,
+            "morale": 2
+          },
+          "result": {
+            "es": "La imagen abre el telediario.",
+            "en": "The image leads the evening news.",
+            "fr": "L’image fait l’ouverture du journal télévisé.",
+            "de": "Das Bild eröffnet die Abendnachrichten.",
+            "it": "L’immagine apre il telegiornale."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "Saludarle desde la pista",
+            "en": "Wave from the court",
+            "fr": "Le saluer depuis le terrain",
+            "de": "Ihm vom Feld aus zuwinken",
+            "it": "Salutarlo dal campo"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "fans": 1
+          },
+          "result": {
+            "es": "Grita tu nombre todo el partido.",
+            "en": "He shouts your name the whole game.",
+            "fr": "Il crie ton nom tout le match.",
+            "de": "Er ruft das ganze Spiel deinen Namen.",
+            "it": "Urla il tuo nome per tutta la partita."
+          },
+          "id": "b"
+        }
+      ]
+    },
+    {
+      "id": "agent-new-client",
+      "category": "agency",
+      "story": false,
+      "once": true,
+      "weight": 6,
+      "cooldownWeeks": 12,
+      "conditions": {
+        "mode": "player",
+        "minWeek": 5
+      },
+      "title": {
+        "es": "Tu agente ficha a un rival",
+        "en": "Your agent signs a rival",
+        "fr": "Ton agent signe un rival",
+        "de": "Dein Berater nimmt einen Rivalen unter Vertrag",
+        "it": "Il tuo agente prende un rivale"
+      },
+      "body": {
+        "es": "Tu agente acaba de fichar a {rival}, que juega en tu mismo puesto.",
+        "en": "Your agent has just signed {rival}, who plays your position.",
+        "fr": "Ton agent vient de signer {rival}, qui joue à ton poste.",
+        "de": "Dein Berater hat gerade {rival} unter Vertrag genommen, der auf deiner Position spielt.",
+        "it": "Il tuo agente ha appena preso {rival}, che gioca nel tuo ruolo."
+      },
+      "options": [
+        {
+          "label": {
+            "es": "Exigir explicaciones",
+            "en": "Demand an explanation",
+            "fr": "Exiger des explications",
+            "de": "Eine Erklärung verlangen",
+            "it": "Pretendere spiegazioni"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "morale": 1,
+            "trust": -1
+          },
+          "result": {
+            "es": "Promete que tú eres la prioridad. Ya veremos.",
+            "en": "He promises you are the priority. We will see.",
+            "fr": "Il promet que tu es la priorité. On verra.",
+            "de": "Er verspricht, du hast Priorität. Mal sehen.",
+            "it": "Promette che sei la priorità. Vedremo."
+          },
+          "id": "a"
+        },
+        {
+          "label": {
+            "es": "No darle importancia",
+            "en": "Shrug it off",
+            "fr": "Ne pas y accorder d’importance",
+            "de": "Es nicht wichtig nehmen",
+            "it": "Non darci peso"
+          },
+          "desc": {
+            "es": "",
+            "en": ""
+          },
+          "effects": {
+            "confidence": 1
+          },
+          "result": {
+            "es": "Lo tuyo se gana en la pista.",
+            "en": "What is yours is won on the court.",
+            "fr": "Ce qui est à toi se gagne sur le terrain.",
+            "de": "Was dir gehört, gewinnst du auf dem Feld.",
+            "it": "Ciò che è tuo si conquista in campo."
           },
           "id": "b"
         }

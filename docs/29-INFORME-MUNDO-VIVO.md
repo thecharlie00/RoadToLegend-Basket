@@ -17,7 +17,7 @@ Paridad con `world45.js`, `draw.js`, la pizarra del directo y la prensa/redes de
 ## Contenido
 - **Prensa**: de 17 a 57 titulares, con prioridad por situación y elección al azar entre los no leídos recientemente.
 - **Redes**: 4 cuentas ficticias nuevas (Ojeador Anónimo, Radio Bocina, Peque del Tercer Anfiteatro, Métrica Avanzada) y 32 mensajes más.
-- **Decisiones**: de 304 a 321, con condiciones nuevas `summerCup`, `deadline`, `academy` y `cupDraw`.
+- **Decisiones**: de 304 a 356 (mundo vivo, cancha, vestuario, banquillo, familia, selección, patrocinio y viajes), con condiciones nuevas `summerCup`, `deadline`, `academy` y `cupDraw`.
 - Todo en español, inglés, francés, alemán e italiano.
 
 ## Pruebas
