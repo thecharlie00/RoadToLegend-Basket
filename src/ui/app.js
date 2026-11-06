@@ -188,12 +188,15 @@
     if (!canvas || !avatarProfile() || !CAA.Scenes) return;
     try {
       if (!sceneRenderer || sceneCanvas !== canvas) { if (sceneRenderer) sceneRenderer.dispose(); sceneCanvas = canvas; sceneRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { canvas.hidden = true; sceneRenderer = null; sceneCanvas = null; } }); }
-      const g = CAA.Scenes.geometry(canvas.dataset.cat, avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast });
-      g.light = Object.assign(CAA.Voxel.studioLight(g.camera.eye, g.camera.target), { ambient: 0.38, aoMin: 0.75 }); g.gain = Math.min(g.gain || 1, 1.08);
+      const reduced = CAA.A11Y.reduced(state.settings), tt = root.performance.now() / 1000;
+      const g = CAA.Scenes.geometry(canvas.dataset.cat, avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, t: reduced ? null : tt, dribble: false });
+      if (!reduced && g.camera) { const c = g.camera, dx = c.eye[0] - c.target[0], dz = c.eye[2] - c.target[2], r = Math.hypot(dx, dz), a0 = Math.atan2(dx, dz) + Math.sin(tt * 0.35) * 0.09; g.camera = Object.assign({}, c, { eye: [c.target[0] + Math.sin(a0) * r, c.eye[1] + Math.sin(tt * 0.5) * 0.06, c.target[2] + Math.cos(a0) * r] }); }
+      g.light = Object.assign(CAA.Voxel.studioLight(g.camera.eye, g.camera.target), { ambient: 0.5, aoMin: 0.84 }); g.gain = 1.06;
       sceneRenderer.draw(g, g.camera);
+      if (!reduced && !doc.hidden) { if (sceneTimer) root.clearTimeout(sceneTimer); sceneTimer = root.setTimeout(drawScene, 50); }
     } catch (_) { canvas.hidden = true; }
   }
-  let avatarTimer = null;
+  let avatarTimer = null, sceneTimer = null;
   function drawAvatar() {
     const canvas = doc.getElementById('me3d');
     if (!canvas || !avatarProfile()) return;
@@ -207,7 +210,7 @@
       const cel = state.celebrate, ph = cel ? (root.performance.now() - cel) / 1600 : 1;
       if (cel && ph >= 1) state.celebrate = null;
       const reduced = CAA.A11Y.reduced(state.settings);
-      const g = CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, celebrate: !!state.celebrate, phase: Math.min(1, ph) });
+      const g = CAA.Voxel.avatarGeometry(avatarProfile(), { colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, celebrate: !!state.celebrate, phase: Math.min(1, ph), t: reduced ? null : root.performance.now() / 1000 });
       // Peana con el color del nivel del cromo y cámara en ligero vaivén (estático con movimiento reducido).
       const pl = state.career && state.career.summary && state.career.summary.player, tk = pl ? (pl.ovr >= 85 ? '#8b5cf6' : pl.ovr >= 80 ? '#e2b23b' : pl.ovr >= 68 ? '#b9c3ca' : '#c08a52') : '#ff7a1f';
       g.colors.ped_a = [0.08, 0.09, 0.18]; g.colors.ped_b = [parseInt(tk.slice(1, 3), 16) / 255, parseInt(tk.slice(3, 5), 16) / 255, parseInt(tk.slice(5, 7), 16) / 255];
@@ -217,7 +220,7 @@
       const cam = { eye: [Math.sin(a) * 6.4, 2.6, Math.cos(a) * 6.4], target: [0, 1.5, 0], fov: 36, near: 0.1, far: 40 };
       g.light = CAA.Voxel.studioLight(cam.eye, cam.target); g.clear = [0.28, 0.3, 0.44]; g.gain = 1.08; g.sky = [[0.5, 0.53, 0.68], [0.33, 0.36, 0.52], [0.2, 0.2, 0.3]]; g.glow = 0.55;
       avatarRenderer.draw(g, cam);
-      if (!reduced && !doc.hidden && state.tab === 'life' && !state.celebrate) { if (avatarTimer) root.clearTimeout(avatarTimer); avatarTimer = root.setTimeout(drawAvatar, 80); }
+      if (!reduced && !doc.hidden && state.tab === 'life' && !state.celebrate) { if (avatarTimer) root.clearTimeout(avatarTimer); avatarTimer = root.setTimeout(drawAvatar, 40); }
       if (state.celebrate) root.setTimeout(drawAvatar, 60);
     } catch (_) { fallback(); }
   }
@@ -269,18 +272,28 @@
     const half = x => x > 50 ? `<path d="M100 3H90A24 24 0 0 0 90 51H100"/><rect x="81" y="19.5" width="19" height="15"/><circle cx="81" cy="27" r="6"/>${rim(94.5)}` : `<path d="M0 3H10A24 24 0 0 1 10 51H0"/><rect x="0" y="19.5" width="19" height="15"/><circle cx="19" cy="27" r="6"/>${rim(5.5)}`;
     return `<svg viewBox="0 0 100 54" class="tac-svg" role="img" aria-label="${esc(t('live.view2d'))}"><rect x="0" y="0" width="100" height="54" class="floor"/><g class="lines"><rect x="0.5" y="0.5" width="99" height="53"/><path d="M50 0.5v53"/><circle cx="50" cy="27" r="6"/>${half(100)}${half(0)}</g>${dots.join('')}<circle class="tac-ball" r="1.1" style="transform:translate(${ball[0]}px,${ball[1]}px)"/></svg>`;
   }
-  let liveRenderer = null, liveCanvas = null, liveRaf = null, liveAnim = { key: null, start: 0 };
+  let liveSim = null, liveSimT = 0, liveRenderer = null, liveCanvas = null, liveRaf = null, liveAnim = { key: null, start: 0 };
   function drawLive3d(ts) {
     const canvas = doc.getElementById('live3d'), raw = state.career.state && state.career.state.live;
     if (!canvas || !raw || state.screen !== 'game' || state.tab !== 'career' || state.liveViewOff) { liveRaf = null; return; }
     try {
       if (!liveRenderer || liveCanvas !== canvas) { liveCanvas = canvas; liveRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { state.liveViewOff = true; liveRenderer = null; } }); }
-      const m = raw.match, idx = liveKeyIndex(m, pbSeq(raw)), key = m.matchId + ':' + idx;
-      if (liveAnim.key !== key) liveAnim = { key, start: ts };
+      // Simulación continua (como el directo 3D del fútbol): escenifica cada jugada emitida por la reproducción.
+      const m = raw.match, seq = Math.max(0, (pbSeq(raw) || 1) - 1);
       const reduced = CAA.A11Y.reduced(state.settings);
-      const cycle = 2600, progress = reduced ? 1 : Math.min(1, ((ts - liveAnim.start) % cycle) / 1300);
+      if (!liveSim || liveSim.id !== m.matchId) { liveSim = CAA.LiveSim.create(m, { women: careerWomen() }); liveSimT = ts; }
+      const dt = Math.max(0, (ts - (liveSimT || ts)) / 1000) * (pb.speed > 1 ? Math.min(2, pb.speed * 0.7) : 1); liveSimT = ts;
+      CAA.LiveSim.step(liveSim, m, seq, reduced ? 0.05 : dt);
+      const fr = CAA.LiveSim.frame(liveSim);
       const diff = Math.abs(m.score[0] - m.score[1]), clutch = m.period >= 4 && m.gameClock <= 1800 && diff <= 8;
-      liveRenderer.draw(CAA.Voxel.geometry(m, idx, progress, { ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: careerWomen(), quality: 'low', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : 0.25 }), 'broadcast');
+      // Equipaciones con los colores de cada club; si chocan, el visitante viste de blanco.
+      const kitOf = name => { const c = CAA.Crest ? CAA.Crest.colors({ name }) : ['#36b98a', '#ffffff']; const h = x => [parseInt(x.slice(1, 3), 16) / 255, parseInt(x.slice(3, 5), 16) / 255, parseInt(x.slice(5, 7), 16) / 255]; return { jersey: h(c[0]), shorts: h(c[0]).map(v => v * 0.7), alt: h(c[1]) }; };
+      const k0 = kitOf(m.teams[0].name), k1 = kitOf(m.teams[1].name), dist = Math.hypot(...k0.jersey.map((v, q) => v - k1.jersey[q]));
+      if (dist < 0.35) { k1.jersey = [0.94, 0.93, 0.9]; k1.shorts = [0.86, 0.85, 0.82]; }
+      const g = CAA.Voxel.geometry(m, 0, 1, { frame: fr, kits: [k0, k1], ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: careerWomen(), quality: 'balanced', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : 0.35 });
+      const cam = CAA.LiveSim.camera(liveSim, canvas.clientWidth / Math.max(1, canvas.clientHeight || canvas.clientWidth * 9 / 16));
+      g.light = Object.assign(CAA.Voxel.studioLight(cam.eye, cam.target), { ambient: 0.5, aoMin: 0.8 }); g.gain = 1.1; g.fog = { near: 30, far: 95, color: [0.08, 0.09, 0.16], eye: cam.eye };
+      liveRenderer.draw(g, cam);
       liveRaf = reduced ? null : root.requestAnimationFrame(drawLive3d);
     } catch (_) { state.liveViewOff = true; canvas.hidden = true; liveRaf = null; }
   }
@@ -728,7 +741,7 @@
     const m = s.meters;
     const guideStep = life.guideStep || 0;
     let skipGuide = false; try { skipGuide = root.localStorage.getItem('caa.guideSkip.' + s.careerId) === '1'; } catch (_) {}
-    const guides = [['life', 'life'], ['live', 'career'], ['league', 'league'], ['train', 'career'], ['trophies', 'life']];
+    const guides = [['life', 'life'], ['live', 'career'], ['league', 'league'], ['trophies', 'life']];
     const guide = !skipGuide && guideStep < guides.length ? `<section class="card guide"><div class="guide-head"><span class="eyebrow">${t('guide.kicker', { n: guideStep + 1, total: guides.length })}</span><button class="link" data-action="guide-skip">${t('guide.skip')}</button></div>
       <div class="steps" aria-hidden="true">${guides.map((_, i) => `<i class="${i <= guideStep ? 'on' : ''}"></i>`).join('')}</div>
       <h3>${t('guide.' + guides[guideStep][0] + (s.squad && guides[guideStep][0] === 'life' ? 'Coach' : ''))}</h3><p>${t('guide.' + guides[guideStep][0] + (s.squad && guides[guideStep][0] === 'life' ? 'Coach' : '') + 'Desc')}</p>
@@ -760,8 +773,8 @@
     const recent = s.recent.length ? `<section class="card"><div class="guide-head"><h3>${t('home.lastGame')}</h3>${c.state.lastMatch ? `<button class="small-btn" data-action="career-watch">${t('career.watch')}</button>` : ''}</div>
       <p class="result ${s.recent[0].won ? 'ok' : 'bad'}"><b>${t(s.recent[0].won ? 'home.win' : 'home.loss')}</b> ${s.recent[0].us}–${s.recent[0].them} ${t(s.recent[0].home ? 'home.vsHome' : 'home.vsAway', { team: s.recent[0].opponent })}</p>
       <p class="form-strip" aria-label="${t('home.formStrip')}">${s.recent.map(r => `<span class="${r.won ? 'w' : 'l'}">${t(r.won ? 'home.w' : 'home.l')}</span>`).join('')}</p></section>` : '';
-    const week = s.player && !(c.state.live && c.state.live.week === c.state.week) && s.next ? `<section class="card"><h3>${t('home.week')}</h3><p class="muted small">${t('home.weekDesc')}</p>
-      <div class="stack"><button class="option" data-action="career-train"><b>${t('home.train')}</b><span class="muted small">${t('home.trainDesc')}</span></button><button class="option" data-action="career-rest"><b>${t('home.rest')}</b><span class="muted small">${t('home.restDesc')}</span></button>${fam && (fam.partner || fam.children.length) ? `<button class="option" data-action="career-family"><b>${t('home.family')}</b><span class="muted small">${t('home.familyDesc')}</span></button>` : ''}</div></section>` : '';
+    // Sin plan semanal: la semana se juega o se simula directamente (menos decisiones para el jugador).
+    const week = '';
     const sq = s.squad;
     const coachWeek = sq && s.next ? `<section class="card"><h3>${t('coach.week')}</h3><p class="muted small">${t('coach.weekDesc')}</p><div class="seg" role="group" aria-label="${t('coach.week')}">${['light', 'normal', 'hard'].map(v => `<button data-action="coach-training" data-v="${v}" aria-pressed="${sq.training === v}">${t('coach.training.' + v)}</button>`).join('')}</div><p class="muted small">${t('coach.trainingDesc.' + sq.training)}</p></section>` : '';
     const sc = s.scouting;
@@ -778,7 +791,9 @@
     const extra = `<details class="card more-week"><summary>${t('home.moreWeek')}</summary>${socialCard(s)}<h3>${t('home.news')}</h3><ul class="news">${news.split('</li>').slice(0, 6).join('</li>')}</ul></details>`;
     if (liveNow) return `${eraBanner(s)}${nowStrip}${renderLive(c)}`;
     if (ev) return `${eraBanner(s)}${nowStrip}${decision}<details class="card more-week"><summary>${t('home.restWeek')}</summary>${liveWorldCards(s)}${market}${recent}${next}${season}${famSetup}</details>`;
-    const famFold = famSetup ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}</details>` : '';
+    // Tiempo en familia: opcional y plegado (ya no hay plan semanal que elegir cada semana).
+    const famTime = s.player && fam && (fam.partner || fam.children.length) && s.next && !(c.state.live && c.state.live.week === c.state.week) ? `<button class="option" data-action="career-family"><b>${t('home.family')}</b><span class="muted small">${t('home.familyDesc')}</span></button>` : '';
+    const famFold = famSetup || famTime ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}${famTime}</details>` : '';
     return `${eraBanner(s)}${nowStrip}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
   }
 

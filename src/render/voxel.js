@@ -4,7 +4,7 @@
   const Rules = CAA.Rules || (typeof require === 'function' ? require('../match/rules.js') : null);
   const Hash = CAA.Hash || (typeof require === 'function' ? require('../core/hash.js') : null);
   const VERSION = 'voxel-2';
-  const MAX_CUBES = 1400;
+  const MAX_CUBES = 2600;
   const FLOATS_PER_VERTEX = 9;
   const TAU = Math.PI * 2;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -183,7 +183,10 @@
     // Escala base del modelo (1,70 m de maniquí) por la altura real del jugador: los pívots se ven más altos.
     const h = 1.7 * clamp((profile.height || 196) / 196, 0.88, 1.12);
     const bulk = ['interior', 'finisher'].includes(profile.archetype) ? 1.12 : ['creator', 'shooter'].includes(profile.archetype) ? 0.94 : 1;
-    const part = (x, y, z, sx, sy, sz, color, yaw = 0) => add(x * bulk, y * h, z, sx * bulk, sy * h, sz, color, yaw);
+    // Animación en reposo (Yo y escenas de decisión): respiración del torso, balanceo de brazos y bote del balón.
+    const T = options.t, idle = T != null && !options.celebrate;
+    const breath = idle ? Math.sin(T * 2.2) * 0.016 : 0, sway = idle ? Math.sin(T * 1.15) * 0.06 : 0;
+    const part = (x, y, z, sx, sy, sz, color, yaw = 0) => add(x * bulk, (y + (y > 0.86 ? breath * (y > 1.5 ? 1.4 : 1) : 0)) * h, z, sx * bulk, sy * h, sz, color, yaw);
     const lk = profile.look || null;
     if (lk) {
       colors.skinA = hex(lk.skin) || colors.skinA; colors.hair = hex(lk.hairColor) || colors.hair;
@@ -258,7 +261,7 @@
       part(x, y + 0.52 * dir, z + 0.04, 0.21, 0.14, 0.21, 'skinShade');
       if (colors.g_wrist) part(x, y + 0.46 * dir, z + 0.03, 0.2, 0.07, 0.22, 'g_wrist');
     };
-    if (!pose) { arm(-0.5, 1.3, 0, -1); arm(0.5, 1.3, 0, -1); }
+    if (!pose) { arm(-0.5, 1.3, sway, -1); arm(0.5, 1.3, -sway, -1); }
     else if (pose === 'point') { arm(-0.5 * side, 1.3, 0, -1); arm(0.48 * side, 1.44, 0, 1); }
     else if (pose === 'shimmy') { const w = Math.sin(k * Math.PI * 6) * 0.07; arm(-0.5, 1.24 + w, 0.04, 1); arm(0.5, 1.24 - w, 0.04, 1); }
     else if (pose === 'flex') { arm(-0.54, 1.34, 0.02, 1); arm(0.54, 1.34, 0.02, 1); }
@@ -280,9 +283,10 @@
     }
     const hand = profile.handedness === 'left' ? -0.58 : 0.58;
     if (!(options.celebrate && lk)) {
-      add(hand, 0.74 * h, 0.3, 0.26, 0.26, 0.26, 'ball', 0.4);
-      add(hand, 0.74 * h, 0.3, 0.265, 0.05, 0.265, 'ballSeam', 0.4);
-      add(hand, 0.74 * h, 0.3, 0.05, 0.265, 0.265, 'ballSeam', 0.4);
+      const by = idle && options.dribble !== false ? (0.16 + Math.abs(Math.cos(T * 3.3)) * 0.58) * h : 0.74 * h, rot = idle ? 0.4 + T * 2 : 0.4;
+      add(hand, by, 0.3, 0.26, 0.26, 0.26, 'ball', rot);
+      add(hand, by, 0.3, 0.265, 0.05, 0.265, 'ballSeam', rot);
+      add(hand, by, 0.3, 0.05, 0.265, 0.265, 'ballSeam', rot);
     }
     if (profile.mode === 'coach') { colors.jersey = hex('#344d58') || colors.post; part(0, 1.32, 0.22, 0.18, 0.4, 0.04, 'line'); }
     return { version: VERSION, kind: 'avatar', cubes, colors, quality: 'low', aspect: 0.8, maxCubes: 64, frame: { eye: [2.5, 2.0, 3.4], target: [0, 1.72, 0], halfH: 2.2 }, sky: [[0.03, 0.04, 0.095], [0.07, 0.085, 0.2], [0.15, 0.1, 0.14]] };
@@ -303,7 +307,7 @@
       shorts: hex('#182c38'), shortsTrim: hex('#f3efe7'), shoeSole: hex('#f2eee4'), shoes: hex('#2b3546'), sock: hex('#f2eee4'),
       homeShorts: hex(cb ? '#1c4b80' : '#14684f'), awayShorts: hex(cb ? '#8a4a12' : '#8f3a30'), homeSock: hex('#f2eee4'), awaySock: hex('#2a2a33'),
       ball: hex('#ffb547'), ballSeam: hex('#8a3c0c'), ballTrail: hex('#ff9a3c'), shadow: hex('#5b4124'), shadowDeep: hex('#3a2a17'),
-      haze: hex('#0b1020'), boardGlow: hex('#dff8ff')
+      haze: hex('#0b1020'), boardGlow: hex('#dff8ff'), refShirt: hex('#c9ccd2'), refStripe: hex('#16181d'), refPants: hex('#1b1d24'), jerseyTrim: hex('#f3efe7')
     };
     if (hc) { p.floor = hex('#000000'); p.apron = hex('#000000'); p.apronDeep = hex('#000000'); p.line = hex('#ffffff'); }
     return p;
@@ -315,7 +319,8 @@
     const cols = Math.max(4, options.cols || (options.quality === 'balanced' ? 16 : 12));
     const people = ['crowdA', 'crowdB', 'crowdC', 'crowdD', 'crowdE', 'crowdF'];
     const gapX = (L - 2) / (cols - 1);
-    for (const side of [-1, 1]) {
+    const sides = options.nearOpen ? [-1] : [-1, 1];
+    for (const side of sides) {
       for (let row = 0; row < rows; row++) {
         const z = side * (W / 2 + 1.35 + row * 0.95), y = 0.52 + row * 0.54;
         add(0, y - 0.42, z + side * 0.42, L + 3.6, 0.14, 0.9, 'seatEdge');
@@ -339,7 +344,7 @@
     for (const sz of [-1, 1]) for (let i = 0; i < 3; i++) add(-0.95 + i * 0.95, 7.55, sz * 0.14, 0.62, 0.52, 0.03, i % 2 ? 'jumboRim' : 'ledBoard');
     for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) add(sx * 0.14, 7.55, -0.95 + i * 0.95, 0.03, 0.52, 0.62, i % 2 ? 'ledBoard' : 'jumboRim');
     // Segundo anillo: graderío alto en sombra con público de fondo, para que el techo no quede vacío.
-    for (const side of [-1, 1]) {
+    for (const side of sides) {
       add(0, 1.35, side * (W / 2 + 3.1), L + 9, 0.4, 1.7, 'seatEdge');
       add(0, 2.35, side * (W / 2 + 4.3), L + 9, 1.8, 2.6, 'standUpper');
       add(0, 3.35, side * (W / 2 + 4.3), L + 9, 0.22, 2.7, 'standRim');
@@ -352,12 +357,17 @@
     // Focos de techo en las cuatro esquinas.
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) { add(sx * (L / 2 + 1.5), 8.2, sz * (W / 2 + 1.6), 1.1, 0.16, 0.4, 'lightPanel'); add(sx * (L / 2 + 1.5), 8.05, sz * (W / 2 + 1.6), 0.9, 0.12, 0.3, 'lightGlow'); }
     // Vallas LED perimetrales (tres tramos por lado, alternando color).
-    for (const side of [-1, 1]) for (let i = -1; i <= 1; i++) add(0, 0.34, side * (W / 2 + 0.72), L + 2, 0.5, 0.16, i % 2 ? 'ledBoard' : 'ledBoardB');
+    for (const side of sides) for (let i = -1; i <= 1; i++) add(0, 0.34, side * (W / 2 + 0.72), L + 2, 0.5, 0.16, i % 2 ? 'ledBoard' : 'ledBoardB');
     // Banquillo, mesa de anotadores y fotógrafos: el mobiliario de banda de una retransmisión.
-    add(0, 0.3, -W / 2 - 1.5, 4.6, 0.16, 0.55, 'bench');
-    for (const x of [-2, -0.7, 0.7, 2]) add(x, 0.62, -W / 2 - 1.5, 0.44, 0.5, 0.42, 'benchPly');
-    add(0, 0.36, W / 2 + 1.5, 5.4, 0.14, 0.6, 'table');
-    for (let i = 0; i < 4; i++) add(-1.8 + i * 1.2, 0.72, W / 2 + 1.5, 0.42, 0.6, 0.4, i % 2 ? 'tablePly' : 'tablePly2');
+    // Banquillos a ambos lados de la mesa (lado opuesto a la cámara) con suplentes sentados.
+    for (const bx of [-6.2, 6.2]) {
+      add(bx, 0.3, -W / 2 - 1.5, 4.6, 0.16, 0.55, 'bench');
+      for (const x of [-1.7, -0.6, 0.5, 1.6]) { add(bx + x, 0.62, -W / 2 - 1.55, 0.44, 0.5, 0.42, bx < 0 ? 'home' : 'away'); add(bx + x, 1.02, -W / 2 - 1.55, 0.26, 0.26, 0.26, (x > 0) ? 'skinA' : 'skinB'); }
+      add(bx + (bx < 0 ? 2.6 : -2.6), 0.95, -W / 2 - 1.0, 0.4, 1.0, 0.36, 'post');
+    }
+    add(0, 0.42, -W / 2 - 1.3, 5.4, 0.7, 0.6, 'table');
+    add(0, 0.62, -W / 2 - 0.99, 5.2, 0.22, 0.02, 'ledBoard');
+    for (let i = 0; i < 4; i++) add(-1.8 + i * 1.2, 0.98, -W / 2 - 1.55, 0.42, 0.5, 0.4, i % 2 ? 'tablePly' : 'tablePly2');
     for (let i = 0; i < 5; i++) { const x = -6 + i * 3; add(x, 0.24, W / 2 + 0.95, 0.42, 0.4, 0.36, i % 2 ? 'crowdC' : 'crowdA'); add(x + 0.2, 0.5, W / 2 + 0.95, 0.22, 0.22, 0.22, 'post'); }
   }
   // Red deformable: anillos de cubos bajo el aro que se estiran al entrar el balón.
@@ -371,58 +381,76 @@
   // Figura de jugador en pista: ~26 cubos con zapatilla, calcetín, pierna, pantalón, camiseta con dorsal, cuello,
   // cabeza, pelo y brazos. Se ve desde la cámara de retransmisión, así que el gesto importa más que el detalle fino.
   function figureAt(add, p, quality) {
+    // Figura animada: zancada al correr (piernas y brazos alternos, rebote del cuerpo), postura defensiva (piernas
+    // abiertas, cuerpo bajo, brazos fuera), brazos arriba en tiro/tapón/celebración y bote del balón con la mano fuerte.
     const detailed = quality === 'balanced';
-    const jersey = p.team ? 'away' : 'home', shorts = p.team ? 'awayShorts' : 'homeShorts', sock = p.team ? 'awaySock' : 'homeSock';
-    const skin = p.team ? 'skinB' : 'skinA';
-    const c = Math.cos(p.yaw), s = Math.sin(p.yaw), h = 1 + (p.number % 3) * 0.04;
-    const part = (x, y, z, sx, sy, sz, color) => add(p.x + x * c + z * s, p.y + y * h, p.z - x * s + z * c, sx, sy * h, sz, color, p.yaw);
+    const ref = !!p.ref;
+    const jersey = ref ? 'refShirt' : p.team ? 'away' : 'home', shorts = ref ? 'refPants' : p.team ? 'awayShorts' : 'homeShorts', sock = ref ? 'refPants' : p.team ? 'awaySock' : 'homeSock';
+    const skin = ['skinA', 'skinB', 'skinC'][((p.number || 0) * 7 + (p.team || 0) * 3) % 3];
+    const c = Math.cos(p.yaw), s = Math.sin(p.yaw), h = (p.big ? 1.1 : 1) + ((p.number || 0) % 3) * 0.03;
+    const run = clamp((p.speed || 0) / 6.5, 0, 1), ph = (p.stride || 0) * 2.1, st = p.stance ? 1 : 0, up = clamp(p.armsUp || 0, 0, 1);
+    const bob = Math.abs(Math.sin(ph)) * 0.06 * run - st * 0.12;
+    const part = (x, y, z, sx, sy, sz, color) => add(p.x + x * c + z * s, p.y + (y + (y > 0.82 ? bob : bob * 0.5)) * h, p.z - x * s + z * c, sx, sy * h, sz, color, p.yaw);
     add(p.x, 0.075, p.z, 0.92, 0.02, 0.74, 'shadow');
     add(p.x, 0.055, p.z, 0.56, 0.02, 0.46, 'shadowDeep');
     for (const s2 of [-1, 1]) {
-      part(s2 * 0.16, 0.06, 0.06, 0.26, 0.1, 0.44, 'shoeSole');
-      part(s2 * 0.16, 0.15, 0.06, 0.25, 0.13, 0.42, 'shoes');
-      part(s2 * 0.16, 0.28, 0.01, 0.23, 0.16, 0.26, sock);
-      part(s2 * 0.16, 0.44, 0, 0.21, 0.18, 0.25, skin);
-      part(s2 * 0.16, 0.62, 0, 0.22, 0.18, 0.25, skin);
-      part(s2 * 0.16, 0.78, 0, 0.24, 0.16, 0.26, skin);
+      const swing = Math.sin(ph) * s2 * 0.34 * run, lift = Math.max(0, Math.sin(ph) * s2) * 0.14 * run, lx = s2 * (0.16 + st * 0.12);
+      part(lx, 0.06 + lift, 0.06 + swing, 0.26, 0.1, 0.44, 'shoeSole');
+      part(lx, 0.15 + lift, 0.06 + swing, 0.25, 0.13, 0.42, 'shoes');
+      part(lx, 0.28 + lift, 0.01 + swing * 0.85, 0.23, 0.16, 0.26, sock);
+      part(lx, 0.44 + lift * 0.7, swing * 0.7, 0.21, 0.18, 0.25, skin);
+      part(lx * 0.95, 0.62 + lift * 0.4, swing * 0.45, 0.22, 0.18, 0.25, ref ? shorts : skin);
+      part(lx * 0.9, 0.78, swing * 0.2, 0.24, 0.16, 0.26, ref ? shorts : skin);
     }
     part(0, 0.9, 0, 0.64, 0.24, 0.38, shorts);
     part(-0.19, 0.83, 0.01, 0.24, 0.16, 0.36, shorts); part(0.19, 0.83, 0.01, 0.24, 0.16, 0.36, shorts);
-    part(0, 1.16, 0, 0.66, 0.24, 0.4, jersey);
-    part(0, 1.38, 0, 0.68, 0.24, 0.42, jersey);
-    part(0, 1.5, 0, 0.62, 0.06, 0.4, 'jerseyTrim');
-    if (detailed) { part(0, 1.3, 0.215, 0.28, 0.26, 0.02, 'shortsTrim'); part(0, 1.5, 0, 0.72, 0.07, 0.44, jersey); }
-    part(0, 1.57, 0, 0.19, 0.1, 0.19, skin);
-    part(0, 1.78, 0, 0.42, 0.4, 0.4, skin);
-    part(0, 1.65, 0.03, 0.34, 0.08, 0.34, skin);
-    part(0, 1.94, -0.02, 0.44, 0.12, 0.42, 'hair');
-    if (detailed) { part(-0.09, 1.82, 0.205, 0.06, 0.06, 0.03, 'hair'); part(0.09, 1.82, 0.205, 0.06, 0.06, 0.03, 'hair'); }
-    const armY = 1.16 + p.armsUp * 0.5, armZ = p.armsUp * 0.16;
-    part(-0.43, armY, armZ, 0.19, 0.4, 0.22, skin); part(0.43, armY, armZ, 0.19, 0.4, 0.22, skin);
-    part(-0.43, armY + 0.36, armZ + 0.02, 0.17, 0.16, 0.2, skin); part(0.43, armY + 0.36, armZ + 0.02, 0.17, 0.16, 0.2, skin);
+    const lean = run * 0.08 + st * 0.06;
+    part(0, 1.16, lean * 0.5, 0.66, 0.24, 0.4, jersey);
+    part(0, 1.38, lean, 0.68, 0.24, 0.42, jersey);
+    part(0, 1.5, lean, 0.62, 0.06, 0.4, ref ? 'refStripe' : 'jerseyTrim');
+    if (ref) for (const x of [-0.2, 0, 0.2]) part(x, 1.27, lean + 0.005, 0.07, 0.44, 0.43, 'refStripe');
+    else { part(0, 1.3, lean + 0.215, 0.24, 0.22, 0.02, 'shortsTrim'); part(0, 1.3, lean - 0.215, 0.26, 0.24, 0.02, 'shortsTrim'); }
+    if (detailed) part(0, 1.5, lean, 0.72, 0.07, 0.44, jersey);
+    part(0, 1.57, lean, 0.19, 0.1, 0.19, skin);
+    part(0, 1.78, lean, 0.42, 0.4, 0.4, skin);
+    part(0, 1.65, lean + 0.03, 0.34, 0.08, 0.34, skin);
+    part(0, 1.94, lean - 0.02, 0.44, 0.12, 0.42, 'hair');
+    part(-0.09, 1.82, lean + 0.205, 0.06, 0.06, 0.03, 'hair'); part(0.09, 1.82, lean + 0.205, 0.06, 0.06, 0.03, 'hair');
+    // Brazos: arriba (tiro), abiertos (defensa), bote (mano fuerte delante-abajo) o balanceo al correr.
+    for (const s2 of [-1, 1]) {
+      const sw = -Math.sin(ph) * s2 * 0.3 * run;
+      let ax = s2 * 0.43, ay = 1.16, az = sw;
+      if (up > 0.05) { ay = 1.16 + up * 0.62; az = up * 0.12; ax = s2 * (0.43 - up * 0.08); }
+      else if (st) { ax = s2 * 0.62; ay = 1.22; az = 0.14; }
+      else if (p.dribble && s2 === 1) { ax = 0.4; ay = 1.0; az = 0.26; }
+      part(ax, ay, az, 0.19, 0.4, 0.22, ref ? jersey : skin);
+      part(ax, ay + (up > 0.05 ? 0.36 : -0.3), az + 0.02, 0.17, 0.16, 0.2, skin);
+    }
     if (p.women) { part(0, 1.9, -0.24, 0.16, 0.13, 0.11, 'hair'); part(0, 1.68, -0.27, 0.12, 0.26, 0.1, 'hair'); }
   }
   function geometry(match, index, progress, options = {}) {
     const quality = options.quality === 'balanced' ? 'balanced' : 'low';
-    const court = courtGeometry(match && match.ruleSetId, quality), f = frameAt(match, index, progress, options), colors = palette(options);
+    const court = courtGeometry(match && match.ruleSetId, quality), f = options.frame || frameAt(match, index, progress, options), colors = palette(options);
+    if (options.kits) for (const [k, kit] of [['home', options.kits[0]], ['away', options.kits[1]]]) if (kit) { colors[k] = kit.jersey; colors[k + 'Shorts'] = kit.shorts; colors.jerseyTrim = colors.jerseyTrim || [1, 1, 1]; }
     if (/^#[0-9a-f]{6}$/i.test(options.ball || '')) colors.ball = [parseInt(options.ball.slice(1, 3), 16) / 255, parseInt(options.ball.slice(3, 5), 16) / 255, parseInt(options.ball.slice(5, 7), 16) / 255];
     const cubes = court.cubes.slice();
     const add = (x, y, z, sx, sy, sz, color, yaw = 0) => { if (cubes.length < MAX_CUBES) cubes.push({ x, y, z, sx, sy, sz, color, yaw }); };
     for (const p of f.players) figureAt(add, Object.assign({ women: !!options.women }, p), quality);
+    for (const r of f.refs || []) figureAt(add, r, quality);
     if (options.arena !== false) {
       const L = court.dimensions.length, W = court.dimensions.width;
       const e = f.event || {}, made = (e.type === 'shot' && e.made) || (e.type === 'ft' && e.made);
-      for (const side of [-1, 1]) { const hx = side * (L / 2 - 1.575); const near = Math.hypot(f.ball.x - hx, f.ball.y - 3.05, f.ball.z) < 1.2; rimAndNet(add, hx, made && near ? 1 : 0, options.t || 0, { ring: false }); }
-      arenaDressing(add, L, W, { t: options.t || 0, hype: options.hype == null ? ((e.period || 1) >= 4 && (e.clock || 9999) <= 1200 ? 1 : 0.3) : options.hype, reducedMotion: options.reducedMotion, quality });
+      for (const side of [-1, 1]) { const hx = side * (L / 2 - 1.575); const near = Math.hypot(f.ball.x - hx, f.ball.y - 3.05, f.ball.z) < 1.2; const kick = f.net ? f.net[side > 0 ? 0 : 1] : made && near ? 1 : 0; rimAndNet(add, hx, kick, options.t || 0, { ring: false }); }
+      arenaDressing(add, L, W, { nearOpen: !!options.frame, rows: options.frame ? 5 : 0, cols: options.frame ? 22 : 0, t: options.t || 0, hype: options.hype == null ? ((e.period || 1) >= 4 && (e.clock || 9999) <= 1200 ? 1 : 0.3) : options.hype, reducedMotion: options.reducedMotion, quality });
     }
     // Balón: dos cubos cruzados (se lee como esfera) + estela del tiro + sombra en el suelo.
-    const bx = f.ball.x, by = f.ball.y, bz = f.ball.z, rot = f.progress * Math.PI;
+    const bx = f.ball.x, by = f.ball.y, bz = f.ball.z, rot = f.spin != null ? f.spin : f.progress * Math.PI;
     add(bx, by, bz, 0.24, 0.24, 0.24, 'ball', rot);
     add(bx, by, bz, 0.2, 0.27, 0.2, 'ball', rot + 0.78);
     add(bx, by + 0.02, bz, 0.255, 0.02, 0.255, 'ballSeam', rot);
     const ballShadow = clamp(0.36 - by * 0.045, 0.1, 0.36);
     add(bx, 0.1, bz, ballShadow, 0.02, ballShadow, 'shadowDeep');
-    const shot = f.event && (f.event.type === 'shot' || f.event.type === 'ft');
+    const shot = !options.frame && f.event && (f.event.type === 'shot' || f.event.type === 'ft');
     if (shot && f.origin && f.progress > 0.06) {
       const o = f.origin, tg = f.target, miss = f.event.type === 'block' || f.event.made === false;
       for (let k = 1; k <= 4; k++) {
@@ -474,7 +502,7 @@
   function studioLight(eye, target) {
     const d = normalize([eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]]);
     const side = normalize(cross([0, 1, 0], d));
-    return { key: [d[0] * 0.8 - side[0] * 0.45, d[1] * 0.8 + 0.6, d[2] * 0.8 - side[2] * 0.45], fill: [-d[0] + side[0] * 0.6, 0.25, -d[2] + side[2] * 0.6], ambient: 0.42, aoMin: 0.82 };
+    return { key: [d[0] * 0.8 - side[0] * 0.45, d[1] * 0.8 + 0.6, d[2] * 0.8 - side[2] * 0.45], fill: [-d[0] + side[0] * 0.6, 0.25, -d[2] + side[2] * 0.6], ambient: 0.52, aoMin: 0.86 };
   }
   function vertexData(scene, options = {}) {
     const cubes = scene.cubes, total = cubes.length;
@@ -484,12 +512,12 @@
     const fogColor = (fog && fog.color) || HAZE;
     const fogNear = fog ? fog.near : 0, fogSpan = fog ? Math.max(0.001, fog.far - fog.near) : 1;
     const fallback = scene.colors.line || [1, 1, 1];
-    const gain = scene.gain || 1;
+    const gain = (scene.gain || 1) * 1.12;
     // Luz de estudio opcional (avatar y escenas): la principal sigue a la cámara para que lo que mira al espectador
     // quede iluminado; ambiental más alta y oclusión de contacto más suave.
     const L = scene.light || null;
     const KEY = L && L.key ? normalize(L.key) : KEY_LIGHT, FILL = L && L.fill ? normalize(L.fill) : FILL_LIGHT;
-    const amb = L && L.ambient != null ? L.ambient : 0.24, aoMin = L && L.aoMin != null ? L.aoMin : 0.6;
+    const amb = L && L.ambient != null ? L.ambient : 0.4, aoMin = L && L.aoMin != null ? L.aoMin : 0.76;
     let offset = 0;
     for (let ci = 0; ci < total; ci++) {
       const cube = cubes[ci], color = scene.colors[cube.color] || fallback;
@@ -502,7 +530,8 @@
         const key = Math.max(0, nx * KEY[0] + ny * KEY[1] + nz * KEY[2]);
         const fill = Math.max(0, nx * FILL[0] + ny * FILL[1] + nz * FILL[2]);
         const hemi = 0.5 + 0.5 * ny;
-        const shade = (amb + key * 0.66 + fill * 0.13 + hemi * 0.15) * ao * gain;
+        // Curva suave: levanta las sombras sin quemar las caras que miran a la luz.
+        const raw = (amb + key * 0.66 + fill * 0.13 + hemi * 0.15) * ao * gain, shade = raw < 0.86 ? raw : 0.86 + (raw - 0.86) * 0.42;
         // Tinte de cielo en caras superiores y rebote cálido del parqué en las inferiores.
         const tr = shade * (1 + ny * 0.02 - Math.max(0, -ny) * 0.04);
         const tg = shade * (1 + ny * 0.05);

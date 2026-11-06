@@ -263,6 +263,11 @@
       "worker": false
     },
     {
+      "id": "live-sim",
+      "path": "src/render/livesim.js",
+      "worker": false
+    },
+    {
       "id": "icons",
       "path": "src/render/icons.js",
       "worker": false

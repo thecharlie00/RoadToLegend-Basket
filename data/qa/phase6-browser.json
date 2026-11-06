@@ -1,6 +1,6 @@
 {
   "title": "Baketball: Road to legend",
-  "date": "2026-11-06T09:45:50.279Z",
+  "date": "2026-11-06T10:15:54.207Z",
   "browser": "153.0.8010.0",
   "scenarios": [
     {
@@ -355,14 +355,14 @@
   "performance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-06T09:46:32.575Z",
+    "measuredAt": "2026-11-06T10:16:38.786Z",
     "frames": 180,
-    "meanFrameMs": 16.666,
+    "meanFrameMs": 16.759,
     "medianFrameMs": 16.7,
-    "p95FrameMs": 16.8,
-    "maxFrameMs": 16.8,
-    "meanFps": 60,
-    "framesOver16_67Ms": 107,
+    "p95FrameMs": 16.7,
+    "maxFrameMs": 33.3,
+    "meanFps": 59.67,
+    "framesOver16_67Ms": 117,
     "framesOver33_34Ms": 0,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
@@ -381,8 +381,8 @@
   },
   "voxel": {
     "version": "voxel-2",
-    "cubes": 781,
-    "vertices": 28116,
+    "cubes": 837,
+    "vertices": 30132,
     "drawCalls": 1,
     "quality": "low",
     "lost": false,
@@ -391,15 +391,15 @@
   "voxelPerformance": {
     "schemaVersion": 1,
     "kind": "frame-sample",
-    "measuredAt": "2026-11-06T09:48:08.317Z",
+    "measuredAt": "2026-11-06T10:18:15.446Z",
     "frames": 180,
-    "meanFrameMs": 87.589,
-    "medianFrameMs": 33.4,
-    "p95FrameMs": 216.7,
-    "maxFrameMs": 400,
-    "meanFps": 11.42,
-    "framesOver16_67Ms": 155,
-    "framesOver33_34Ms": 99,
+    "meanFrameMs": 87.867,
+    "medianFrameMs": 33.3,
+    "p95FrameMs": 266.6,
+    "maxFrameMs": 416.7,
+    "meanFps": 11.38,
+    "framesOver16_67Ms": 150,
+    "framesOver33_34Ms": 89,
     "deviceCertified": false,
     "note": "Browser sample only; not a low-end Android certification.",
     "context": {
@@ -413,7 +413,7 @@
     },
     "longTasks": [],
     "stopped": false,
-    "jsHeapUsedBytes": 37300000
+    "jsHeapUsedBytes": 31200000
   },
   "avatar": {
     "version": "voxel-2",
@@ -447,7 +447,7 @@
       85
     ]
   },
-  "arcade": 7,
+  "arcade": 6,
   "locales": {
     "es": 1650,
     "en": 1650
