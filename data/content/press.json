@@ -155,6 +155,366 @@
       "fr": "Semaine de travail à {club} avant {next}.",
       "de": "Arbeitswoche bei {club} vor {next}.",
       "it": "Settimana di lavoro a {club} in vista di {next}."
+    },
+    {
+      "id": "injury-17",
+      "condition": "injury",
+      "es": "{player}, en la enfermería: el cuerpo técnico del {club} rehace la rotación.",
+      "en": "{player} in the treatment room: the {club} staff rework the rotation.",
+      "fr": "{player} à l’infirmerie : le staff du {club} remanie la rotation.",
+      "de": "{player} im Behandlungsraum: Der Trainerstab von {club} baut die Rotation um.",
+      "it": "{player} in infermeria: lo staff del {club} rivede le rotazioni."
+    },
+    {
+      "id": "injury-18",
+      "condition": "injury",
+      "es": "Sin {player}, el {club} busca respuestas antes de jugar contra {next}.",
+      "en": "Without {player}, {club} looks for answers before facing {next}.",
+      "fr": "Sans {player}, le {club} cherche des réponses avant d’affronter {next}.",
+      "de": "Ohne {player} sucht {club} Antworten vor dem Spiel gegen {next}.",
+      "it": "Senza {player}, il {club} cerca risposte prima di affrontare {next}."
+    },
+    {
+      "id": "injury-19",
+      "condition": "injury",
+      "es": "Recuperación a contrarreloj: {player} ya trabaja en solitario.",
+      "en": "Race against time: {player} is already working alone.",
+      "fr": "Course contre la montre : {player} travaille déjà seul.",
+      "de": "Wettlauf gegen die Zeit: {player} trainiert bereits individuell.",
+      "it": "Corsa contro il tempo: {player} lavora già da solo."
+    },
+    {
+      "id": "my-big-20",
+      "condition": "my-big",
+      "es": "{player} firma {myPts} puntos y se lleva la ovación de la noche.",
+      "en": "{player} drops {myPts} points and takes the ovation of the night.",
+      "fr": "{player} inscrit {myPts} points et reçoit l’ovation de la soirée.",
+      "de": "{player} erzielt {myPts} Punkte und bekommt den Applaus des Abends.",
+      "it": "{player} firma {myPts} punti e si prende l’ovazione della serata."
+    },
+    {
+      "id": "my-big-21",
+      "condition": "my-big",
+      "es": "Nadie pudo con {player}: {myPts} puntos ante {opponent}.",
+      "en": "Nobody could handle {player}: {myPts} points against {opponent}.",
+      "fr": "Personne n’a pu arrêter {player} : {myPts} points face à {opponent}.",
+      "de": "Niemand kam gegen {player} an: {myPts} Punkte gegen {opponent}.",
+      "it": "Nessuno ha fermato {player}: {myPts} punti contro {opponent}."
+    },
+    {
+      "id": "my-big-22",
+      "condition": "my-big",
+      "es": "Los ojeadores toman nota: {player} anota {myPts} y sube su cotización.",
+      "en": "Scouts take note: {player} scores {myPts} and his value climbs.",
+      "fr": "Les recruteurs prennent note : {player} marque {myPts} et sa cote grimpe.",
+      "de": "Die Scouts notieren: {player} macht {myPts} Punkte und sein Marktwert steigt.",
+      "it": "Gli osservatori prendono nota: {player} segna {myPts} e la sua quotazione sale."
+    },
+    {
+      "id": "my-quiet-23",
+      "condition": "my-quiet",
+      "es": "{player} se queda en {myPts} puntos: noche de pocos tiros y mucha defensa rival.",
+      "en": "{player} stays on {myPts} points: few shots and a lot of defence against him.",
+      "fr": "{player} reste à {myPts} points : peu de tirs et beaucoup de défense adverse.",
+      "de": "{player} bleibt bei {myPts} Punkten: wenige Würfe, viel gegnerische Verteidigung.",
+      "it": "{player} si ferma a {myPts} punti: pochi tiri e tanta difesa avversaria."
+    },
+    {
+      "id": "my-quiet-24",
+      "condition": "my-quiet",
+      "es": "El técnico sale en defensa de {player}: «Volverá a su nivel».",
+      "en": "The coach defends {player}: “He will be back to his level.”",
+      "fr": "L’entraîneur défend {player} : « Il retrouvera son niveau. »",
+      "de": "Der Trainer verteidigt {player}: „Er findet zu seiner Form zurück.“",
+      "it": "L’allenatore difende {player}: «Tornerà al suo livello»."
+    },
+    {
+      "id": "win-close-25",
+      "condition": "win-close",
+      "es": "Un tiro libre, un rebote y mucho corazón: el {club} gana {us}-{them}.",
+      "en": "A free throw, a rebound and a lot of heart: {club} wins {us}-{them}.",
+      "fr": "Un lancer franc, un rebond et beaucoup de cœur : le {club} gagne {us}-{them}.",
+      "de": "Ein Freiwurf, ein Rebound und viel Herz: {club} gewinnt {us}:{them}.",
+      "it": "Un tiro libero, un rimbalzo e tanto cuore: il {club} vince {us}-{them}."
+    },
+    {
+      "id": "win-close-26",
+      "condition": "win-close",
+      "es": "El {club} aguanta el último ataque de {opponent} y celebra ({us}-{them}).",
+      "en": "{club} survives the last possession from {opponent} and celebrates ({us}-{them}).",
+      "fr": "Le {club} résiste à la dernière attaque de {opponent} et jubile ({us}-{them}).",
+      "de": "{club} übersteht den letzten Angriff von {opponent} und jubelt ({us}:{them}).",
+      "it": "Il {club} regge l’ultimo attacco di {opponent} e festeggia ({us}-{them})."
+    },
+    {
+      "id": "win-big-27",
+      "condition": "win-big",
+      "es": "Paliza del {club}: {us}-{them} y minutos para el fondo del banquillo.",
+      "en": "{club} blowout: {us}-{them} and minutes for the end of the bench.",
+      "fr": "Correction du {club} : {us}-{them} et du temps de jeu pour le bout du banc.",
+      "de": "Kantersieg für {club}: {us}:{them} und Minuten für die hinteren Bankspieler.",
+      "it": "Goleada del {club}: {us}-{them} e minuti per il fondo della panchina."
+    },
+    {
+      "id": "win-big-28",
+      "condition": "win-big",
+      "es": "{opponent} no encontró respuesta: el {club} gana por {us}-{them}.",
+      "en": "{opponent} had no answer: {club} wins {us}-{them}.",
+      "fr": "{opponent} n’a trouvé aucune réponse : le {club} gagne {us}-{them}.",
+      "de": "{opponent} fand keine Antwort: {club} gewinnt {us}:{them}.",
+      "it": "{opponent} non ha trovato risposte: il {club} vince {us}-{them}."
+    },
+    {
+      "id": "loss-close-29",
+      "condition": "loss-close",
+      "es": "Se escapó en el último minuto: el {club} pierde {us}-{them} con {opponent}.",
+      "en": "It slipped away in the last minute: {club} loses {us}-{them} to {opponent}.",
+      "fr": "Ça s’est joué dans la dernière minute : le {club} perd {us}-{them} contre {opponent}.",
+      "de": "In der letzten Minute verspielt: {club} verliert {us}:{them} gegen {opponent}.",
+      "it": "Sfuggita nell’ultimo minuto: il {club} perde {us}-{them} con {opponent}."
+    },
+    {
+      "id": "loss-close-30",
+      "condition": "loss-close",
+      "es": "El vestuario del {club}, tocado tras caer por la mínima ante {opponent}.",
+      "en": "The {club} locker room is hurting after losing by a hair to {opponent}.",
+      "fr": "Le vestiaire du {club} est touché après une défaite d’un rien face à {opponent}.",
+      "de": "Die Kabine von {club} ist getroffen nach der knappen Niederlage gegen {opponent}.",
+      "it": "Lo spogliatoio del {club} è scosso dopo la sconfitta di misura con {opponent}."
+    },
+    {
+      "id": "loss-close-31",
+      "condition": "loss-close",
+      "es": "Polémica arbitral en el final: el {club} cae {us}-{them}.",
+      "en": "Refereeing row at the end: {club} falls {us}-{them}.",
+      "fr": "Polémique arbitrale en fin de match : le {club} s’incline {us}-{them}.",
+      "de": "Schiedsrichterärger am Ende: {club} unterliegt {us}:{them}.",
+      "it": "Polemica arbitrale nel finale: il {club} cade {us}-{them}."
+    },
+    {
+      "id": "loss-big-32",
+      "condition": "loss-big",
+      "es": "Correctivo para el {club}: {opponent} gana {them}-{us} y abre el debate.",
+      "en": "A lesson for {club}: {opponent} wins {them}-{us} and opens the debate.",
+      "fr": "Leçon pour le {club} : {opponent} gagne {them}-{us} et ouvre le débat.",
+      "de": "Lehrstunde für {club}: {opponent} gewinnt {them}:{us} und die Debatte beginnt.",
+      "it": "Lezione per il {club}: {opponent} vince {them}-{us} e si apre il dibattito."
+    },
+    {
+      "id": "loss-big-33",
+      "condition": "loss-big",
+      "es": "Pitos en la grada tras el {us}-{them}: el {club} tiene que dar la cara.",
+      "en": "Boos from the stands after the {us}-{them}: {club} must answer back.",
+      "fr": "Sifflets en tribune après le {us}-{them} : le {club} doit réagir.",
+      "de": "Pfiffe nach dem {us}:{them}: {club} muss Gesicht zeigen.",
+      "it": "Fischi dagli spalti dopo il {us}-{them}: il {club} deve reagire."
+    },
+    {
+      "id": "loss-big-34",
+      "condition": "loss-big",
+      "es": "Reunión de urgencia en el {club} tras la derrota ante {opponent}.",
+      "en": "Emergency meeting at {club} after the defeat to {opponent}.",
+      "fr": "Réunion d’urgence au {club} après la défaite contre {opponent}.",
+      "de": "Krisensitzung bei {club} nach der Niederlage gegen {opponent}.",
+      "it": "Riunione d’urgenza al {club} dopo la sconfitta con {opponent}."
+    },
+    {
+      "id": "streak-win-35",
+      "condition": "streak-win",
+      "es": "{streakAbs} seguidas: el {club} es el equipo más en forma del momento.",
+      "en": "{streakAbs} in a row: {club} is the form team right now.",
+      "fr": "{streakAbs} de suite : le {club} est l’équipe en forme du moment.",
+      "de": "{streakAbs} in Folge: {club} ist das Team der Stunde.",
+      "it": "{streakAbs} di fila: il {club} è la squadra più in forma del momento."
+    },
+    {
+      "id": "streak-win-36",
+      "condition": "streak-win",
+      "es": "La racha del {club} llena el pabellón: entradas agotadas para recibir a {next}.",
+      "en": "The {club} run fills the arena: sold out for the visit of {next}.",
+      "fr": "La série du {club} remplit la salle : guichets fermés pour recevoir {next}.",
+      "de": "Die Serie von {club} füllt die Halle: ausverkauft gegen {next}.",
+      "it": "La striscia del {club} riempie il palazzetto: tutto esaurito contro {next}."
+    },
+    {
+      "id": "streak-win-37",
+      "condition": "streak-win",
+      "es": "Nadie frena al {club}: {streakAbs} triunfos y la confianza por las nubes.",
+      "en": "Nobody stops {club}: {streakAbs} wins and confidence sky-high.",
+      "fr": "Personne n’arrête le {club} : {streakAbs} victoires et une confiance au sommet.",
+      "de": "Niemand stoppt {club}: {streakAbs} Siege und Selbstvertrauen pur.",
+      "it": "Nessuno ferma il {club}: {streakAbs} vittorie e fiducia alle stelle."
+    },
+    {
+      "id": "streak-loss-38",
+      "condition": "streak-loss",
+      "es": "{streakAbs} derrotas seguidas: el {club} busca un golpe de timón.",
+      "en": "{streakAbs} straight losses: {club} needs a change of course.",
+      "fr": "{streakAbs} défaites de suite : le {club} cherche un coup de barre.",
+      "de": "{streakAbs} Niederlagen in Folge: {club} braucht eine Kurskorrektur.",
+      "it": "{streakAbs} sconfitte di fila: il {club} cerca una svolta."
+    },
+    {
+      "id": "streak-loss-39",
+      "condition": "streak-loss",
+      "es": "La grada del {club} pide explicaciones tras la última derrota.",
+      "en": "The {club} fans demand answers after the latest defeat.",
+      "fr": "Les supporters du {club} demandent des explications après la dernière défaite.",
+      "de": "Die Fans von {club} fordern Erklärungen nach der jüngsten Niederlage.",
+      "it": "I tifosi del {club} chiedono spiegazioni dopo l’ultima sconfitta."
+    },
+    {
+      "id": "streak-loss-40",
+      "condition": "streak-loss",
+      "es": "Contra {next}, el {club} se juega cortar la mala racha.",
+      "en": "Against {next}, {club} has a chance to end the slump.",
+      "fr": "Face à {next}, le {club} joue gros pour stopper la série noire.",
+      "de": "Gegen {next} will {club} die Negativserie beenden.",
+      "it": "Contro {next}, il {club} si gioca la fine della serie negativa."
+    },
+    {
+      "id": "top-41",
+      "condition": "top",
+      "es": "Líderes o casi: el {club}, {rank}.º, ya es candidato.",
+      "en": "Leaders or close: {club}, {rank}th, is now a contender.",
+      "fr": "Leaders ou presque : le {club}, {rank}e, est désormais candidat.",
+      "de": "Fast an der Spitze: {club}, Platz {rank}, ist jetzt ein Titelkandidat.",
+      "it": "In vetta o quasi: il {club}, {rank}°, è ormai candidato."
+    },
+    {
+      "id": "top-42",
+      "condition": "top",
+      "es": "El {club} mira a todos desde arriba ({rank}.º). ¿Hasta dónde puede llegar?",
+      "en": "{club} looks down on everyone ({rank}th). How far can they go?",
+      "fr": "Le {club} regarde tout le monde d’en haut ({rank}e). Jusqu’où peut-il aller ?",
+      "de": "{club} blickt von oben auf alle herab (Platz {rank}). Wie weit kann es gehen?",
+      "it": "Il {club} guarda tutti dall’alto ({rank}°). Fin dove può arrivare?"
+    },
+    {
+      "id": "top-43",
+      "condition": "top",
+      "es": "Los rivales ya preparan partidos específicos contra el {club}.",
+      "en": "Rivals are now preparing special game plans against {club}.",
+      "fr": "Les adversaires préparent désormais des plans spécifiques contre le {club}.",
+      "de": "Die Gegner bereiten jetzt spezielle Pläne gegen {club} vor.",
+      "it": "Gli avversari preparano ormai piani specifici contro il {club}."
+    },
+    {
+      "id": "bottom-44",
+      "condition": "bottom",
+      "es": "Zona roja: el {club} ({rank}.º) mira de reojo el descenso.",
+      "en": "Danger zone: {club} ({rank}th) glances nervously at relegation.",
+      "fr": "Zone rouge : le {club} ({rank}e) lorgne la relégation.",
+      "de": "Rote Zone: {club} (Platz {rank}) schielt auf den Abstieg.",
+      "it": "Zona rossa: il {club} ({rank}°) guarda con ansia la retrocessione."
+    },
+    {
+      "id": "bottom-45",
+      "condition": "bottom",
+      "es": "Cada partido es una final para el {club}: el próximo, contra {next}.",
+      "en": "Every game is a final for {club}: next up, {next}.",
+      "fr": "Chaque match est une finale pour le {club} : prochain rendez-vous, {next}.",
+      "de": "Jedes Spiel ist ein Endspiel für {club}: als Nächstes {next}.",
+      "it": "Ogni partita è una finale per il {club}: la prossima contro {next}."
+    },
+    {
+      "id": "bottom-46",
+      "condition": "bottom",
+      "es": "La directiva del {club} pide calma pese a ser {rank}.º.",
+      "en": "The {club} board calls for calm despite sitting {rank}th.",
+      "fr": "La direction du {club} appelle au calme malgré la {rank}e place.",
+      "de": "Die Führung von {club} ruft trotz Platz {rank} zur Ruhe auf.",
+      "it": "La dirigenza del {club} chiede calma nonostante il {rank}° posto."
+    },
+    {
+      "id": "win-47",
+      "condition": "win",
+      "es": "El {club} suma ante {opponent} ({us}-{them}) y ya piensa en {next}.",
+      "en": "{club} gets the win over {opponent} ({us}-{them}) and turns to {next}.",
+      "fr": "Le {club} s’impose face à {opponent} ({us}-{them}) et pense déjà à {next}.",
+      "de": "{club} siegt gegen {opponent} ({us}:{them}) und denkt schon an {next}.",
+      "it": "Il {club} vince contro {opponent} ({us}-{them}) e pensa già a {next}."
+    },
+    {
+      "id": "win-48",
+      "condition": "win",
+      "es": "Victoria trabajada del {club}: defensa, rebote y paciencia.",
+      "en": "A hard-earned {club} win: defence, rebounding and patience.",
+      "fr": "Victoire laborieuse du {club} : défense, rebond et patience.",
+      "de": "Hart erarbeiteter Sieg von {club}: Verteidigung, Rebound und Geduld.",
+      "it": "Vittoria sudata del {club}: difesa, rimbalzi e pazienza."
+    },
+    {
+      "id": "win-49",
+      "condition": "win",
+      "es": "Buenas sensaciones en el {club}: {us}-{them} y un vestuario sonriente.",
+      "en": "Good vibes at {club}: {us}-{them} and a smiling locker room.",
+      "fr": "Bonnes sensations au {club} : {us}-{them} et un vestiaire souriant.",
+      "de": "Gute Stimmung bei {club}: {us}:{them} und eine lächelnde Kabine.",
+      "it": "Buone sensazioni al {club}: {us}-{them} e uno spogliatoio sorridente."
+    },
+    {
+      "id": "loss-50",
+      "condition": "loss",
+      "es": "El {club} no encuentra el ritmo y cae ante {opponent} ({us}-{them}).",
+      "en": "{club} cannot find its rhythm and falls to {opponent} ({us}-{them}).",
+      "fr": "Le {club} ne trouve pas son rythme et tombe face à {opponent} ({us}-{them}).",
+      "de": "{club} findet keinen Rhythmus und verliert gegen {opponent} ({us}:{them}).",
+      "it": "Il {club} non trova il ritmo e cade contro {opponent} ({us}-{them})."
+    },
+    {
+      "id": "loss-51",
+      "condition": "loss",
+      "es": "Demasiadas pérdidas: el {club} regala el partido a {opponent}.",
+      "en": "Too many turnovers: {club} hands the game to {opponent}.",
+      "fr": "Trop de pertes de balle : le {club} offre le match à {opponent}.",
+      "de": "Zu viele Ballverluste: {club} schenkt {opponent} das Spiel.",
+      "it": "Troppe palle perse: il {club} regala la partita a {opponent}."
+    },
+    {
+      "id": "loss-52",
+      "condition": "loss",
+      "es": "Derrota y lección: el {club} promete corregir antes de jugar contra {next}.",
+      "en": "Defeat and a lesson: {club} promises to fix things before facing {next}.",
+      "fr": "Défaite et leçon : le {club} promet de corriger le tir avant {next}.",
+      "de": "Niederlage und Lehre: {club} verspricht Besserung vor dem Spiel gegen {next}.",
+      "it": "Sconfitta e lezione: il {club} promette di correggersi prima di {next}."
+    },
+    {
+      "id": "always-53",
+      "condition": "always",
+      "es": "El {club} prepara a puerta cerrada el partido contra {next}.",
+      "en": "{club} prepares behind closed doors for {next}.",
+      "fr": "Le {club} prépare à huis clos le match contre {next}.",
+      "de": "{club} bereitet sich hinter verschlossenen Türen auf {next} auf.",
+      "it": "Il {club} prepara a porte chiuse la partita contro {next}."
+    },
+    {
+      "id": "always-54",
+      "condition": "always",
+      "es": "Vídeo, pizarra y tiro: así ha sido la semana en el {club}.",
+      "en": "Film, whiteboard and shooting: that was the week at {club}.",
+      "fr": "Vidéo, tableau et tirs : voilà la semaine au {club}.",
+      "de": "Video, Taktiktafel und Wurftraining: So lief die Woche bei {club}.",
+      "it": "Video, lavagna e tiro: ecco la settimana al {club}."
+    },
+    {
+      "id": "always-55",
+      "condition": "always",
+      "es": "Ambiente de partido grande en la ciudad: llega {next}.",
+      "en": "Big-game atmosphere in town: {next} is coming.",
+      "fr": "Ambiance de grand match en ville : {next} arrive.",
+      "de": "Großspiel-Stimmung in der Stadt: {next} kommt.",
+      "it": "Atmosfera da grande partita in città: arriva {next}."
+    },
+    {
+      "id": "always-56",
+      "condition": "always",
+      "es": "El {club} abre el entrenamiento a los niños de la cantera.",
+      "en": "{club} opens practice to the academy kids.",
+      "fr": "Le {club} ouvre l’entraînement aux jeunes du centre de formation.",
+      "de": "{club} öffnet das Training für die Kinder der Akademie.",
+      "it": "Il {club} apre l’allenamento ai bambini del vivaio."
     }
   ]
 }

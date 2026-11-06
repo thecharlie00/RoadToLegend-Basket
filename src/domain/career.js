@@ -17,6 +17,7 @@
   const Family = CAA.Family || (typeof require === 'function' ? require('./family.js') : null);
   const Gear = CAA.Gear || (typeof require === 'function' ? require('./gear.js') : null);
   const Eras = CAA.Eras || (typeof require === 'function' ? require('./eras.js') : null);
+  const World = CAA.LiveWorld || (typeof require === 'function' ? require('./world.js') : null);
   const Market = CAA.Market || (typeof require === 'function' ? require('./market.js') : null);
   const Finance = CAA.Finance || (typeof require === 'function' ? require('./finance.js') : null);
   const National = CAA.National || (typeof require === 'function' ? require('./national.js') : null);
@@ -128,6 +129,7 @@
     }
     if (config.quick) state.quick = 10;
     if (state.era) { if (!Eras.available(Season.LEAGUES[leagueId], eraYear)) throw new Error('league not founded yet'); eraApply(state, false); eraLegends(state); }
+    if (!config.quick && !config.eraYear) try { World.summer(state); } catch (_) { /* el torneo de verano nunca bloquea una carrera nueva */ }
     return state;
   }
   function record(state, event) {
@@ -169,6 +171,7 @@
       if (Cup.due(season)) {
         const cup = Cup.play(season, state.seed + ':' + state.year, state.clubId, state.player && state.player.id);
         state.inbox.push({ type: 'cup', week: state.week, detail: { club: cup.championName, mine: cup.mine } });
+        if (cup.mine !== 'out') state.cupDraw = { year: state.year, week: state.week, seen: false }; // ceremonia del sorteo (draw.js)
         if (cup.champion === state.clubId) { const lc = Content.ensureLife(state).counters; lc.cups = (lc.cups || 0) + 1; }
       }
       const len = season.schedule.length;
@@ -332,6 +335,7 @@
     record(state, { type: 'live', hash: o.hash, decisions: live.decisions.filter(d => !d.auto).map(d => d.type + ':' + d.choice) });
   }
   function endSeason(state, rng) {
+    World.youth(state, RNG.create(state.seed + ':youth-cup:' + state.year));
     const season = state.season;
     const table = Season.standings(season.clubs);
     if (!season.awards) season.awards = Playoffs.awards(season, season.schedule.length);
@@ -432,6 +436,7 @@
     if (state.era) { eraApply(state, true); if (Eras.decadeOf(state.year) !== state.era.decade) eraLegends(state); }
     if (state.player) National.summer(state, state.year);
     refillRosters(state);
+    World.summer(state);
     applyEdits(state);
     if (state.quick && state.history.length >= state.quick && !(state.retirement && state.retirement.pending)) { state.careerOver = true; state.quickEnd = true; }
     // Noticias del mundo: campeones del resto de ligas (simulación ligera).
@@ -545,6 +550,18 @@
     record(state, { type: 'club', op: config.op, key: config.key || null });
     Content.evaluateAchievements(state);
     return Finance.view(state);
+  }
+  // Mundo vivo: torneo de verano visto, subir al juvenil de la cantera y fichajes del día de cierre.
+  function worldOp(state, config = {}) {
+    let out = null;
+    if (config.op === 'summer-seen') { if (state.summerCup) state.summerCup.seen = true; }
+    else if (config.op === 'draw-seen') { if (state.cupDraw) state.cupDraw.seen = true; }
+    else if (config.op === 'youth-seen') { if (state.youthCup) state.youthCup.seen = true; }
+    else if (config.op === 'promote') out = World.promoteProspect(state);
+    else if (config.op === 'deadline-sign') out = World.deadlineSign(state, config.id);
+    else throw new Error('unknown world op');
+    record(state, { type: 'world', op: config.op, id: config.id || null });
+    return out;
   }
   function marketOp(state, config = {}) {
     Market.op(state, config);
@@ -924,7 +941,7 @@
       leagueId: state.season.leagueId, league: { cup: league.cup || null, country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
       round: state.season.round, club: { id: club.id, name: club.name, custom: club.custom || null, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },
       player: state.player ? { id: state.player.id, name: state.player.name, pos: state.player.pos, number: state.player.number == null ? 7 : state.player.number, nationality: state.player.nationality, potential: state.player.potential, attrs: state.player.attrs, wingspan: state.player.wingspan, weight: state.player.weight, coachTrust: state.player.coachTrust, confidence: state.player.confidence || 0, morale: state.player.morale, form: state.player.form, archetype: state.player.archetype, handedness: state.player.handedness, height: state.player.height, ovr: state.player.ovr, age: state.player.age, load: state.player.load, injury: state.player.injury, contract: state.player.contract, stats: state.player.stats } : null,
-      gear: state.life ? Gear.view(state) : null, clubFin: state.mode === 'coach' ? Finance.view(state) : null, transfers: state.mode === 'coach' && state.clubFin ? Market.view(state) : null, national: state.player ? National.view(state) : null, cup: state.season.cup || null, look: state.life ? Gear.avatarLook(state) : null,
+      gear: state.life ? Gear.view(state) : null, clubFin: state.mode === 'coach' ? Finance.view(state) : null, transfers: state.mode === 'coach' && state.clubFin ? Market.view(state) : null, summerCup: state.summerCup && state.summerCup.year === state.year && !state.summerCup.seen ? state.summerCup : null, cupDraw: state.cupDraw && !state.cupDraw.seen && state.cupDraw.year === state.year && state.season.cup ? { balls: state.season.cup.draw.map(id => ({ id, name: state.season.clubsById[id].name, mine: id === state.clubId })), rounds: state.season.cup.rounds.map(r => ({ name: r.name, games: r.games.map(g => ({ a: state.season.clubsById[g.a].name, b: state.season.clubsById[g.b].name, score: g.score, mine: g.a === state.clubId || g.b === state.clubId })) })), champion: state.season.clubsById[state.season.cup.champion] && state.season.clubsById[state.season.cup.champion].name } : null, youthCup: state.youthCup && state.youthCup.played && !state.youthCup.seen ? state.youthCup : null, academy: state.academy ? state.academy.prospect && { name: state.academy.prospect.name, pos: state.academy.prospect.pos, ovr: state.academy.prospect.ovr, potential: state.academy.prospect.potential } : null, deadline: state.clubFin ? World.deadline(state) : null, national: state.player ? National.view(state) : null, cup: state.season.cup || null, look: state.life ? Gear.avatarLook(state) : null,
       event: Content.pendingView(state), pet: state.pet || null, family: state.family || null, retirement: state.retirement || null, careerOver: !!state.careerOver, lastSeason: state.lastSeasonSummary && !state.lastSeasonSummary.dismissed ? state.lastSeasonSummary : null,
       playoffs: state.season.playoffs ? { format: state.season.playoffs.format, round: Playoffs.current(state.season.playoffs).name, done: state.season.playoffs.done, series: Playoffs.seriesOf(state.season.playoffs, state.clubId), status: Playoffs.status(state.season.playoffs, state.clubId), result: Playoffs.resultOf(state.season.playoffs, state.clubId) } : null,
       awards: state.season.awards || null, coach: state.coach,
@@ -1005,6 +1022,6 @@
     if (s.life.pendingPractice == null) s.life.pendingPractice = null;
     return s;
   }
-  CAA.Career = { MODES, ROUTES, CHALLENGES, arcadeChallenges, CONTEST_TYPES, gearOp, clubOp, marketOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  CAA.Career = { worldOp, MODES, ROUTES, CHALLENGES, arcadeChallenges, CONTEST_TYPES, gearOp, clubOp, marketOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

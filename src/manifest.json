@@ -158,6 +158,11 @@
       "worker": true
     },
     {
+      "id": "living-world",
+      "path": "src/domain/world.js",
+      "worker": true
+    },
+    {
       "id": "market",
       "path": "src/domain/market.js",
       "worker": true
@@ -180,6 +185,11 @@
     {
       "id": "content-i18n",
       "path": "src/domain/content-i18n.js",
+      "worker": true
+    },
+    {
+      "id": "social-more",
+      "path": "src/domain/social-more.js",
       "worker": true
     },
     {

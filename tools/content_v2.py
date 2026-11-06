@@ -42,6 +42,8 @@ PRESS = [
  ('loss', 'Derrota del {club} ante {opponent} ({us}-{them}). Toca mirar el vídeo.', '{club} loses to {opponent} ({us}-{them}). Time to watch the film.'),
  ('always', 'Semana de trabajo en el {club} antes de medirse a {next}.', 'Work week at {club} ahead of {next}.'),
 ]
+import content_press_social as _cps
+_cps.register(); PRESS += [r[:3] for r in _cps.PRESS_MORE]
 dump('press.json', {'schemaVersion': 2, 'packId': 'baloncesto-prensa', 'version': '2.0.0', 'templates': [{'id': f'{c}-{i}', 'condition': c, 'es': es, 'en': en} for i, (c, es, en) in enumerate(PRESS)]})
 print(len(events), 'events ·', len(ach), 'trophies ·', len(PRESS), 'press')
 

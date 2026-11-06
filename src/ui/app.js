@@ -168,6 +168,20 @@
     } catch (_) { canvas.hidden = true; }
   }
   // Escena vóxel de la decisión pendiente (como las escenas de eventos del fútbol). Se dibuja una vez por evento.
+  let dlTimer = null;
+  function deadlineClock() {
+    const card = doc.getElementById('deadline-card'); if (dlTimer) { root.clearInterval(dlTimer); dlTimer = null; }
+    if (!card) return;
+    const start = state.dlStart || (state.dlStart = root.performance.now());
+    const tick = () => {
+      const el = doc.getElementById('dl-clock'); if (!el) { root.clearInterval(dlTimer); dlTimer = null; return; }
+      const mins = Math.min(24 * 60, 18 * 60 + Math.floor((root.performance.now() - start) / 1000 * 9));
+      el.textContent = mins >= 24 * 60 ? t('deadline.closed') : String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+      for (const li of card.querySelectorAll('.dl-offer')) { const due = Number(li.dataset.at) <= mins, b = li.querySelector('button'); li.classList.toggle('arrived', due); if (b && !b.textContent.includes(t('deadline.signed'))) b.disabled = !due || mins >= 24 * 60 || b.hasAttribute('data-nocash'); }
+      if (mins >= 24 * 60) { root.clearInterval(dlTimer); dlTimer = null; }
+    };
+    tick(); dlTimer = root.setInterval(tick, 500);
+  }
   let sceneRenderer = null, sceneCanvas = null;
   function drawScene() {
     const canvas = doc.getElementById('ev3d');
@@ -229,6 +243,31 @@
     const other = m.teams[1 - e.team] ? m.teams[1 - e.team].players : [];
     const nm = id => (other.find(p => p.id === id) || {}).name || '';
     return t('live.view3dCap', { period: e.period, clock: clockText(e.clock), text: feedText({ type: e.type, made: e.made, points: e.points, player: who.name || '', teamName: team, steal: e.steal, defender: nm(e.defender), shooter: nm(e.shooter) }) });
+  }
+  // ===== Vista táctica 2D (como la pizarra del directo del fútbol): pista entera en SVG, los 10 jugadores en
+  // formación y el balón siguiendo cada jugada; las posiciones se animan con transiciones CSS. =====
+  const TAC_OFF = [[70, 27], [76, 9], [76, 45], [88, 17], [88, 37]], TAC_DEF = [[75, 27], [80, 12], [80, 42], [89, 21], [89, 33]];
+  const ZONE_PT = { restricted: [92, 27], paint: [86, 24], midrange: [80, 15], corner3: [92, 3], above3: [70, 20] };
+  function tacticalSvg(raw) {
+    const m = raw.match, i = liveKeyIndex(m, pbSeq(raw)), e = m.events[i] || { team: 0 }, me = raw.userTeam;
+    const off = e.team === 1 ? 1 : 0, flip = (team, xy) => team === 0 ? xy : [100 - xy[0], xy[1]];
+    const five = team => { const tm = m.teams[team]; let ids = (tm.onCourt || tm.players.slice(0, 5).map(p => p.id)).slice(0, 5); if (team === e.team && e.player && !ids.includes(e.player)) ids[0] = e.player; return ids.map(id => tm.players.find(p => p.id === id) || { id, name: '?' }); };
+    const dots = [], cols = [careerWomen() ? '#ff6fae' : '#ffb21e', '#5fb8ff'];
+    let ball = flip(off, [70, 27]);
+    for (const team of [0, 1]) {
+      const att = team === off;
+      five(team).forEach((p, k) => {
+        let xy = (att ? TAC_OFF : TAC_DEF)[k].slice();
+        if (att && p.id === e.player) { if (e.type === 'shot' && ZONE_PT[e.zone]) xy = ZONE_PT[e.zone].slice(); else if (e.type === 'ft') xy = [81, 27]; ball = flip(off, [xy[0] + 1.5, xy[1] - 1.5]); }
+        if (!att && e.type === 'shot' && e.zone && k === 0) { const z = ZONE_PT[e.zone] || [80, 27]; xy = [z[0] + (z[0] > 88 ? -2 : 2.5), z[1] + 1.5]; }
+        const [x, y] = flip(off, xy), num = (p.name || '?').split(' ').pop().slice(0, 1);
+        dots.push(`<g class="tac-p${p.id === e.player ? ' hot' : ''}" style="transform:translate(${x}px,${y}px)"><circle r="2.4" fill="${cols[team === me ? 0 : 1]}"/><text y=".9" text-anchor="middle">${esc(num)}</text></g>`);
+      });
+    }
+    if (e.type === 'shot' && e.made) ball = flip(off, [94.5, 27]);
+    const rim = x => `<circle cx="${x}" cy="27" r="1" class="rim"/>`;
+    const half = x => x > 50 ? `<path d="M100 3H90A24 24 0 0 0 90 51H100"/><rect x="81" y="19.5" width="19" height="15"/><circle cx="81" cy="27" r="6"/>${rim(94.5)}` : `<path d="M0 3H10A24 24 0 0 1 10 51H0"/><rect x="0" y="19.5" width="19" height="15"/><circle cx="19" cy="27" r="6"/>${rim(5.5)}`;
+    return `<svg viewBox="0 0 100 54" class="tac-svg" role="img" aria-label="${esc(t('live.view2d'))}"><rect x="0" y="0" width="100" height="54" class="floor"/><g class="lines"><rect x="0.5" y="0.5" width="99" height="53"/><path d="M50 0.5v53"/><circle cx="50" cy="27" r="6"/>${half(100)}${half(0)}</g>${dots.join('')}<circle class="tac-ball" r="1.1" style="transform:translate(${ball[0]}px,${ball[1]}px)"/></svg>`;
   }
   let liveRenderer = null, liveCanvas = null, liveRaf = null, liveAnim = { key: null, start: 0 };
   function drawLive3d(ts) {
@@ -344,6 +383,7 @@
     }
     set('pb-clock', `${esc(v.periodLabel)} · ${clockText(v.clock)}`);
     if (full) { set('pb-feed', liveFeedHtml(v)); set('pb-top', liveTopHtml(v)); set('pb-stats', liveStatsHtml(v)); const mm = doc.getElementById('pb-mom'); if (mm) { mm.style.setProperty('--mom', String(v.momentum)); mm.setAttribute('aria-valuenow', String(Math.round(v.momentum * 100))); } const cap = doc.getElementById('live3d-cap'); if (cap) cap.textContent = live3dCaption(raw); }
+    { const tac = doc.getElementById('pb-tac'), tk = raw.match.matchId + ':' + liveKeyIndex(raw.match, pbSeq(raw)); if (tac && tac.dataset.k !== tk) { tac.dataset.k = tk; const sv = tac.querySelector('svg'), tmp = doc.createElement('div'); tmp.innerHTML = tacticalSvg(raw); const nv = tmp.querySelector('svg'); if (sv && nv) { const a = sv.querySelectorAll('g.tac-p'), b = nv.querySelectorAll('g.tac-p'); if (a.length === b.length) { a.forEach((g, k) => { g.setAttribute('style', b[k].getAttribute('style')); g.setAttribute('class', b[k].getAttribute('class')); g.innerHTML = b[k].innerHTML; }); const ob = sv.querySelector('.tac-ball'), nb = nv.querySelector('.tac-ball'); if (ob && nb) ob.setAttribute('style', nb.getAttribute('style')); } else tac.innerHTML = tmp.innerHTML; } } }
   }
   function pbStart() { if (pbTimer == null) { pbLast = root.performance.now(); pbTimer = root.setInterval(pbTick, 100); } }
   function pbStop() { if (pbTimer != null) { root.clearInterval(pbTimer); pbTimer = null; } }
@@ -380,7 +420,8 @@
       <strong id="pb-score" role="status" aria-live="off">${v.score[me]} – ${v.score[opp]}</strong>
       <div class="sb-team">${crest({ name: v.teams[opp] }, 30)}<b>${esc(abbrOf(v.teams[opp]))}</b><small>${esc(v.teams[opp])}</small></div>
       <span class="sb-clock"><span id="pb-clock">${esc(v.periodLabel)} · ${clockText(v.clock)}</span> · ${t('live.timeouts')}: ${v.timeouts}</span></div>
-      <div class="live3d"><canvas id="live3d" role="img" aria-label="${t('live.view3d')}" aria-describedby="live3d-cap"></canvas><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p></div>
+      <div class="row view-tog" role="group" aria-label="${t('live.viewMode')}"><button class="speed${state.liveView !== '2d' ? ' on' : ''}" data-action="live-view" data-view="3d" aria-pressed="${state.liveView !== '2d'}">3D</button><button class="speed${state.liveView === '2d' ? ' on' : ''}" data-action="live-view" data-view="2d" aria-pressed="${state.liveView === '2d'}">${t('live.view2dShort')}</button></div>
+      ${state.liveView === '2d' ? `<div class="tac" id="pb-tac">${tacticalSvg(raw)}</div><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p>` : `<div class="live3d"><canvas id="live3d" role="img" aria-label="${t('live.view3d')}" aria-describedby="live3d-cap"></canvas><p id="live3d-cap" class="muted small">${esc(live3dCaption(raw))}</p></div>`}
       <div class="momentum" id="pb-mom" role="meter" aria-label="${t('live.momentum')}" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="${Math.round(v.momentum * 100)}" style="--mom:${v.momentum}"><span>${esc(v.teams[opp])}</span><i aria-hidden="true"></i><span>${esc(v.teams[me])}</span></div>
       ${controls}${momentHtml}${outcomeHtml}
       <details class="live-stats" open><summary>${t('live.statsTitle')}</summary><div id="pb-stats">${liveStatsHtml(v)}</div></details>
@@ -643,6 +684,41 @@
         <button class="option" data-action="retire-end"><b>🏁 ${t('ret.end')}</b><span class="muted small">${t('ret.endDesc')}</span></button>
       </div></section>`;
   }
+  // ===== Mundo vivo (world45 del fútbol) y sorteo en directo (draw.js) =====
+  function liveWorldCards(s) {
+    const out = [], money = n => Math.round(n).toLocaleString(CAA.I18N.getLocale()) + ' €';
+    const RN = { qf: 'cup.qf', sf: 'cup.sf', final: 'cup.final' };
+    if (s.cupDraw) {
+      const d = s.cupDraw, step = state.drawStep || 'draw';
+      const balls = d.balls.map((b, i) => `<li class="ball ${b.mine ? 'me' : ''}" style="--i:${i}">${crest({ name: b.name }, 22)}<span>${esc(b.name)}</span></li>`).join('');
+      const pairs = [0, 2, 4, 6].map(i => `<li class="pair" style="--i:${i + 1}"><span class="${d.balls[i].mine ? 'me' : ''}">${esc(d.balls[i].name)}</span> <b>vs</b> <span class="${d.balls[i + 1].mine ? 'me' : ''}">${esc(d.balls[i + 1].name)}</span></li>`).join('');
+      const results = d.rounds.map(r => `<h4>${t(RN[r.name])}</h4><ul class="news">${r.games.map(g => `<li class="${g.mine ? 'me' : ''}">${esc(g.a)} <b>${g.score[0]}–${g.score[1]}</b> ${esc(g.b)}</li>`).join('')}</ul>`).join('');
+      out.push(`<section class="card draw-card"><span class="eyebrow">${t('draw.kicker')}</span><h3>${esc(s.league && s.league.cup ? s.league.cup : t('cup.title'))}</h3>
+        ${step === 'draw' ? `<p class="muted small">${t('draw.desc')}</p><ol class="draw-balls">${balls}</ol><h4>${t('draw.pairs')}</h4><ul class="draw-pairs">${pairs}</ul><button class="cta" data-action="draw-results">${t('draw.results')}</button>`
+          : `${results}<p class="small">${t('draw.champion', { club: esc(d.champion || '') })}</p><button class="cta" data-action="world-op" data-op="draw-seen">${t('common.continue')}</button>`}</section>`);
+    }
+    if (s.deadline) {
+      const d = s.deadline, f = s.clubFin;
+      out.push(`<section class="card deadline" id="deadline-card"><span class="eyebrow">${t('deadline.kicker')}</span><h3>${t('deadline.title')}</h3>
+        <p class="clock" aria-live="polite"><b id="dl-clock">18:00</b> · ${t('deadline.cash', { v: money(f.cash) })}</p><p class="muted small">${t('deadline.desc')}</p>
+        <ul class="news mkt">${d.offers.map(o => `<li class="dl-offer" data-at="${o.at}">${face({ id: o.id, name: o.name, nationality: o.nat })} <b>${esc(o.name)}</b> · ${o.pos} · ${t('mkt.ovr', { n: o.ovr })} · ${t('mkt.age', { n: o.age })}<br><small class="muted">${t('deadline.at', { h: String(Math.floor(o.at / 60)).padStart(2, '0') + ':' + String(o.at % 60).padStart(2, '0') })} · ${t('mkt.fee', { v: money(o.fee) })}</small>
+          <button class="small-btn" data-action="world-op" data-op="deadline-sign" data-id="${esc(o.id)}" ${f.cash < o.fee ? 'data-nocash' : ''} ${d.signed.includes(o.id) || f.cash < o.fee ? 'disabled' : ''}>${d.signed.includes(o.id) ? t('deadline.signed') : t('mkt.sign')}</button></li>`).join('')}</ul></section>`);
+    }
+    if (s.summerCup) {
+      const sc = s.summerCup;
+      out.push(`<section class="card"><span class="eyebrow">${t('summer.kicker')}</span><h3>${t('summer.title', { place: sc.place })}</h3>
+        <ul class="news">${sc.games.map((g, i) => `<li><small class="muted">${t(['summer.sf', 'summer.sf', 'summer.third', 'summer.final'][i])}</small> ${esc(g.a)} <b>${g.score[0]}–${g.score[1]}</b> ${esc(g.b)}</li>`).join('')}</ul>
+        ${sc.pts != null ? `<p class="small">${t('summer.pts', { n: sc.pts })}</p>` : ''}<button class="small-btn" data-action="world-op" data-op="summer-seen">${t('common.continue')}</button></section>`);
+    }
+    if (s.youthCup) {
+      const y = s.youthCup;
+      out.push(`<section class="card"><span class="eyebrow">${t('youth.kicker')}</span><h3>${t('youth.' + y.kind + '.' + y.stage)}</h3>
+        ${y.kind === 'player' ? `<p class="small">${t('youth.pts', { n: y.pts })}</p>` : ''}
+        ${y.kind === 'coach' && s.academy ? `<p class="small">${t('youth.prospect', { name: esc(s.academy.name), pos: s.academy.pos, ovr: s.academy.ovr, pot: s.academy.potential })}</p><button class="small-btn" data-action="world-op" data-op="promote">${t('youth.promote')}</button>` : ''}
+        <button class="small-btn ghost" data-action="world-op" data-op="youth-seen">${t('common.continue')}</button></section>`);
+    }
+    return out.join('');
+  }
   function renderHome() {
     if (hasCareer() && state.career.summary.retirement) return renderRetirement(state.career.summary);
     if (hasCareer() && state.career.summary.careerOver && state.career.summary.quickEnd) return `<section class="card retire"><h2>${t('ret.overTitle')}</h2><p>${t('sum.quickEnd')}</p>${(state.career.summary.history || []).map(h => `<p class="small">${seasonLabel(h.year)} · ${esc(leagueName(h.leagueId))} · ${h.clubRank}.º</p>`).join('')}<button class="cta" data-action="boot-new">${t('boot.new')} ▶</button></section>`;
@@ -696,14 +772,14 @@
     // Lo urgente primero: partido en directo y decisión pendiente antes que la guía o la familia.
     // Inicio simplificado: una franja dice siempre qué pasa y qué toca hacer. Si hay decisión, va sola y lo demás se pliega.
     const liveNow = !!(c.state.live && c.state.live.week === c.state.week);
-    const nowKey = liveNow ? 'live' : ev ? 'decision' : s.lastSeason ? 'summary' : po && !po.done ? 'playoffs' : s.next ? 'next' : 'idle';
+    const nowKey = liveNow ? 'live' : ev ? 'decision' : s.cupDraw ? 'draw' : s.deadline ? 'deadline' : s.lastSeason ? 'summary' : po && !po.done ? 'playoffs' : s.next ? 'next' : 'idle';
     const nowVars = { opp: s.next ? s.next.opponent.name : '', where: s.next ? t(s.next.home ? 'home.atHome' : 'home.away') : '' };
     const nowStrip = `<section class="now-strip ${nowKey}" aria-live="polite"><span class="eyebrow">${po && !po.done ? t('po.kicker') : t('home.nowWeek', { n: s.round + 1, total: s.totalRounds })}</span><b>${esc(t('home.now.' + nowKey, nowVars))}</b><small>${esc(t('home.nowHint.' + nowKey, nowVars))}</small></section>`;
     const extra = `<details class="card more-week"><summary>${t('home.moreWeek')}</summary>${socialCard(s)}<h3>${t('home.news')}</h3><ul class="news">${news.split('</li>').slice(0, 6).join('</li>')}</ul></details>`;
     if (liveNow) return `${eraBanner(s)}${nowStrip}${renderLive(c)}`;
-    if (ev) return `${eraBanner(s)}${nowStrip}${decision}<details class="card more-week"><summary>${t('home.restWeek')}</summary>${market}${recent}${next}${season}${famSetup}</details>`;
+    if (ev) return `${eraBanner(s)}${nowStrip}${decision}<details class="card more-week"><summary>${t('home.restWeek')}</summary>${liveWorldCards(s)}${market}${recent}${next}${season}${famSetup}</details>`;
     const famFold = famSetup ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}</details>` : '';
-    return `${eraBanner(s)}${nowStrip}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
+    return `${eraBanner(s)}${nowStrip}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -1234,6 +1310,7 @@
     drawAvatar();
     drawPet();
     drawScene();
+    deadlineClock();
     if (state.arcade && state.tab === 'arcade' && arcadeRaf == null) arcadeSync();
     if (state.heroShot && heroRaf == null) heroRaf = root.requestAnimationFrame(heroDraw);
     if (liveRaf != null) { root.cancelAnimationFrame(liveRaf); liveRaf = null; }
@@ -1575,6 +1652,13 @@
       } else if (name === 'sim-season') {
         const res = await worker.send('career.simSeason', { state: state.career.state });
         await acceptCareer(res); state.tab = 'career'; notify(t('more.simDone'));
+      } else if (name === 'live-view') { state.liveView = el.dataset.view; if (el.dataset.view === '2d') state.liveViewOff = false;
+      } else if (name === 'draw-results') { state.drawStep = 'results';
+      } else if (name === 'world-op') {
+        const res = await worker.send('career.world', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id } });
+        if (el.dataset.op === 'draw-seen') state.drawStep = null;
+        await acceptCareer(res); if (audio) audio.play('success');
+        if (el.dataset.op === 'deadline-sign' || el.dataset.op === 'promote') notify(t('mkt.done.sign'));
       } else if (name === 'mkt-op') {
         const res = await worker.send('career.market', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id, role: el.dataset.role, level: el.dataset.level } });
         await acceptCareer(res); if (audio) audio.play('success'); notify(t('mkt.done.' + el.dataset.op));

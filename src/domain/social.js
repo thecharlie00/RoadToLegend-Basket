@@ -38,9 +38,10 @@
   };
   function fill(text, v) { return String(text).replace(/\{(\w+)\}/g, (_, k) => v[k] == null ? '' : String(v[k])); }
   function post(rng, key, v, week) {
-    const list = T[key]; if (!list) return null;
+    const more = CAA.SocialMore || (typeof require === 'function' ? (() => { try { return require('./social-more.js'); } catch (_) { return null; } })() : null);
+    const list = (T[key] || []).concat(more && more.templates[key] || []); if (!list.length) return null;
     const [acc, es, en] = list[rng.int(0, list.length - 1)];
-    const a = ACCOUNTS.find(x => x.id === acc);
+    const a = ACCOUNTS.concat(more ? more.accounts : []).find(x => x.id === acc);
     return { acc, name: fill(a.name, v), handle: a.handle === 'oficial' ? String(v.club || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15) : a.handle, av: a.av, verified: a.verified, text: Object.assign({ es: fill(es, v), en: fill(en, v) }, ...['fr', 'de', 'it'].map(l => { const tr = CI() && CI().tr(l, en); return tr ? { [l]: fill(tr, v) } : {}; })), week, likes: Math.round(40 + rng.float() * (key === 'title' ? 9000 : 1800)) };
   }
   // Mensajes de la semana a partir del último partido y del contexto de la carrera.

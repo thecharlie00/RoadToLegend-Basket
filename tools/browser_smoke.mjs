@@ -541,6 +541,25 @@ try {
     await page.waitForFunction(() => !CAA_APP.state.busy && CAA_APP.state.career.summary.pet && CAA_APP.state.career.summary.pet.species === 'parrot');
     assert.equal(await page.locator('#parrot').count(), 1);
   }
+  await scenario('Living world: summer tournament card and 2D tactical live board', { viewport: { width: 390, height: 844 } }, async page => {
+    await newCareer(page, { mode: 'coach', seed: 'world-browser' });
+    await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
+    assert.ok(await page.evaluate(() => !!CAA_APP.state.career.summary.summerCup), 'summer cup on a new career');
+    await openFolds(page);
+    await page.locator('[data-op="summer-seen"]').first().screenshot({ path: 'data/qa/world-summer.png' }).catch(() => {});
+    const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ name: 'world-summer', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await page.locator('[data-action="world-op"][data-op="summer-seen"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.summerCup), null);
+    while (await page.locator('[data-action="life-event"]').count()) { await page.locator('[data-action="life-event"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
+    await click(page, 'live-start');
+    await page.locator('[data-action="live-view"][data-view="2d"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    await page.locator('[data-action="live-speed"][data-speed="4"]').click();
+    await page.waitForFunction(() => document.querySelectorAll('#pb-tac g.tac-p').length === 10 && document.querySelector('#pb-tac').dataset.k, null, { timeout: 8000 });
+    await page.waitForTimeout(1500);
+    await page.locator('#live-panel').screenshot({ path: 'data/qa/world-tactical.png' });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  });
   await scenario('Parrot: records the player, trims silence and repeats it distorted', { permissions: ['microphone'], viewport: { width: 360, height: 800 } }, async page => {
     await parrotCareer(page);
     const bond0 = await page.evaluate(() => CAA_APP.state.career.summary.pet.bond);

@@ -9,8 +9,12 @@
   function due(season) { return !season.cup && season.round === Math.floor(season.schedule.length / 2); }
   function play(season, seed, myClubId, myPlayerId) {
     const table = S().standings(season.clubs).slice(0, 8).map(r => r.id);
-    const cup = { seeds: table.slice(), rounds: [], champion: null, runnerUp: null, mine: table.includes(myClubId) ? 'qf' : 'out', myPts: 0 };
-    let alive = table.slice();
+    // Sorteo puro de cuartos (determinista): el orden de las bolas se guarda para la ceremonia en directo.
+    const rng = (CAA.RNG || require('../core/rng.js')).create(seed + ':cup-draw'), pot = table.slice(), drawn = [];
+    while (pot.length) drawn.push(pot.splice(rng.int(0, pot.length - 1), 1)[0]);
+    const cup = { seeds: table.slice(), draw: drawn.slice(), rounds: [], champion: null, runnerUp: null, mine: table.includes(myClubId) ? 'qf' : 'out', myPts: 0 };
+    // Emparejamientos: 1.ª bola contra 2.ª, 3.ª contra 4.ª… (el cuadro va en este orden).
+    let alive = [drawn[0], drawn[2], drawn[4], drawn[6], drawn[7], drawn[5], drawn[3], drawn[1]];
     for (const name of ['qf', 'sf', 'final']) {
       const games = [], next = [];
       for (let i = 0; i < alive.length / 2; i++) {

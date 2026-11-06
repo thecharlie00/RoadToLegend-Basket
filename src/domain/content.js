@@ -161,6 +161,11 @@
     if (c.minFame != null && ctx.fame < c.minFame) return false;
     if (c.contractYears != null && ctx.contractYears !== c.contractYears) return false;
     if (c.lateSeason && state.week < ctx.rounds * 0.6) return false;
+    // Mundo vivo: torneo de verano, día de cierre, cantera y sorteo de copa.
+    if (c.summerCup && !(state.summerCup && state.summerCup.year === state.year && state.summerCup.place <= 2)) return false;
+    if (c.deadline) { const LW = CAA.LiveWorld || (typeof require === 'function' ? require('./world.js') : null); if (!LW || !state.season || !LW.deadlineWeek(state)) return false; }
+    if (c.academy && !state.academy) return false;
+    if (c.cupDraw && !(state.cupDraw && state.cupDraw.year === state.year && state.week - state.cupDraw.week <= 2)) return false;
     if (c.agent != null && (c.agent === 'none' ? life.agent : life.agent !== c.agent)) return false;
     if (c.noSponsor && life.sponsor) return false;
     if (c.hasSponsor && !life.sponsor) return false;
@@ -311,7 +316,13 @@
       win: won === true, loss: won === false, always: true })[c] || false;
     const recent = new Set(life.press.slice(0, 4).map(x => x.id));
     const matching = p.press.templates.filter(t => test(t.condition));
-    const t = matching.find(x => !recent.has(x.id)) || matching[0] || p.press.templates[p.press.templates.length - 1];
+    // Prioridad por situación (la más concreta primero) y, dentro de ella, una plantilla al azar que no se haya
+    // leído hace poco; a veces salta a la siguiente situación para variar.
+    const prng = RNG.create(state.seed + ':press:' + state.year + ':' + state.week);
+    const order = []; for (const x of matching) if (!order.includes(x.condition)) order.push(x.condition);
+    const cond = order.length > 1 && prng.float() < 0.3 ? order[1] : order[0];
+    const pool = matching.filter(x => x.condition === cond && !recent.has(x.id));
+    const t = (pool.length ? pool[prng.int(0, pool.length - 1)] : null) || matching.find(x => !recent.has(x.id)) || matching[0] || p.press.templates[p.press.templates.length - 1];
     const fillT = txt => txt.replace(/\{(\w+)\}/g, (_, k) => ctx[k] == null ? '' : ctx[k]);
     const line = { id: t.id, week: state.week, es: fillT(t.es), en: fillT(t.en) };
     for (const l of XL) if (t[l]) line[l] = fillT(t[l]);
