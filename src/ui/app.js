@@ -564,7 +564,9 @@
     if (state.screen === 'modes') {
       const card = (mode, ok) => `<button class="mode-card" data-action="boot-mode" data-mode="${mode}" ${ok ? '' : 'disabled'}><b>${t('modes.' + mode)}</b><span>${t('modes.' + mode + 'Desc')}</span>${ok ? '' : `<em>${t('modes.soon')}</em>`}</button>`;
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.new')}</p><h1 class="boot-title small">${t('modes.title')}</h1>
-        <div class="seg" role="group" aria-label="${t('modes.league')}"><button data-action="mode-gender" data-gender="m" aria-pressed="${state.career.gender !== 'f'}">${t('modes.men')}</button><button data-action="mode-gender" data-gender="f" aria-pressed="${state.career.gender === 'f'}">${t('modes.women')}</button></div>
+        <h2 class="eyebrow" id="gender-h">${t('modes.genderTitle')}</h2>
+        <div class="gender-pick" role="group" aria-labelledby="gender-h">${['m', 'f'].map(g => `<button class="gender-card${(state.career.gender === 'f') === (g === 'f') ? ' on' : ''}" data-action="mode-gender" data-gender="${g}" aria-pressed="${(state.career.gender === 'f') === (g === 'f')}"><b>${t(g === 'f' ? 'modes.genderF' : 'modes.genderM')}</b><span>${t(g === 'f' ? 'modes.womenDesc' : 'modes.menDesc')}</span></button>`).join('')}</div>
+        <h2 class="eyebrow">${t('modes.modeTitle')}</h2>
         <div class="mode-grid">${card('player', true)}${card('coach', true)}${card('club', true)}</div>
         <details class="mode-more"><summary>${t('modes.more')}</summary><div class="mode-grid">${card('eras', true)}${card('challenge', true)}</div></details>
         <button class="ghost-btn" data-action="boot-back">${t('wiz.back')}</button></main>`;
@@ -588,7 +590,6 @@
       body = `<p class="muted">${t('era.intro')}</p><div class="pick-list">${CAA.Eras.DECADES.map(d => pick('eraYear', d.start, t('era.d.' + d.id), t('era.d.' + d.id + 'Desc'))).join('')}</div>`;
     } else if (stepKey === 'who') {
       body = `<label for="career-name">${t(player ? 'wiz.name' : 'wiz.coachName')}<input id="career-name" value="${esc(draft('career-name', c.name))}" maxlength="40" autocomplete="off" placeholder="${t('career.namePlaceholder')}"></label>
-        <h3 class="eyebrow">${t(player ? 'wiz.gender' : 'wiz.genderCoach')}</h3><div class="pick-grid two">${pick('gender', 'm', t(player ? 'wiz.genderM' : 'wiz.teamM'))}${pick('gender', 'f', t(player ? 'wiz.genderF' : 'wiz.teamF'))}</div>
         ${c.newClub ? `<h3 class="eyebrow">${t('club.found')}</h3><label for="club-name">${t('club.name')}<input id="club-name" value="${esc(draft('club-name', c.newClub.name))}" maxlength="30" autocomplete="off" placeholder="${t('club.namePh')}"></label>
           <label for="club-abbr">${t('club.abbr')}<input id="club-abbr" value="${esc(draft('club-abbr', c.newClub.abbr))}" maxlength="4" autocomplete="off"></label>
           <div class="pick-grid two"><label for="club-primary">${t('club.primary')}<input id="club-primary" type="color" value="${esc(c.newClub.primary)}"></label><label for="club-secondary">${t('club.secondary')}<input id="club-secondary" type="color" value="${esc(c.newClub.secondary)}"></label></div>` : ''}

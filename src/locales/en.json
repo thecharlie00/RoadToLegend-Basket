@@ -1648,5 +1648,11 @@
   "inbox.youth-cup": "Youth cup played.",
   "live.view2d": "Tactical board: positions of the ten players and the ball",
   "live.view2dShort": "2D board",
-  "live.viewMode": "Match view"
+  "live.viewMode": "Match view",
+  "modes.genderTitle": "Which basketball do you want to play?",
+  "modes.menDesc": "Men’s leagues, clubs and competitions.",
+  "modes.womenDesc": "Women’s leagues, clubs and competitions.",
+  "modes.modeTitle": "Choose the game mode",
+  "modes.genderM": "Men",
+  "modes.genderF": "Women"
 }

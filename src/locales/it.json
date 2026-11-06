@@ -1648,5 +1648,11 @@
   "inbox.youth-cup": "Coppa giovanile disputata.",
   "live.view2d": "Lavagna tattica: posizioni dei dieci giocatori e della palla",
   "live.view2dShort": "Lavagna 2D",
-  "live.viewMode": "Vista della partita"
+  "live.viewMode": "Vista della partita",
+  "modes.genderTitle": "Che basket vuoi giocare?",
+  "modes.menDesc": "Campionati, club e competizioni maschili.",
+  "modes.womenDesc": "Campionati, club e competizioni femminili.",
+  "modes.modeTitle": "Scegli la modalità di gioco",
+  "modes.genderM": "Maschile",
+  "modes.genderF": "Femminile"
 }

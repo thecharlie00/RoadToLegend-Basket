@@ -1648,5 +1648,11 @@
   "inbox.youth-cup": "Jugendpokal gespielt.",
   "live.view2d": "Taktiktafel: Positionen der zehn Spieler und des Balls",
   "live.view2dShort": "2D-Tafel",
-  "live.viewMode": "Spielansicht"
+  "live.viewMode": "Spielansicht",
+  "modes.genderTitle": "Welchen Basketball willst du spielen?",
+  "modes.menDesc": "Ligen, Klubs und Wettbewerbe der Männer.",
+  "modes.womenDesc": "Ligen, Klubs und Wettbewerbe der Frauen.",
+  "modes.modeTitle": "Wähle den Spielmodus",
+  "modes.genderM": "Männer",
+  "modes.genderF": "Frauen"
 }

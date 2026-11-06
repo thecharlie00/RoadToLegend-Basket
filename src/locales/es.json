@@ -1648,5 +1648,11 @@
   "inbox.youth-cup": "Copa juvenil disputada.",
   "live.view2d": "Pizarra táctica: posiciones de los diez jugadores y del balón",
   "live.view2dShort": "Pizarra 2D",
-  "live.viewMode": "Vista del partido"
+  "live.viewMode": "Vista del partido",
+  "modes.genderTitle": "¿Qué baloncesto quieres jugar?",
+  "modes.menDesc": "Ligas, clubes y competiciones masculinas.",
+  "modes.womenDesc": "Ligas, clubes y competiciones femeninas.",
+  "modes.modeTitle": "Elige el modo de juego",
+  "modes.genderM": "Masculino",
+  "modes.genderF": "Femenino"
 }

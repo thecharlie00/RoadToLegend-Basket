@@ -46,11 +46,12 @@ async function newCareer(page, o = {}) {
   // Eras y retos viven en «Más modos» para que la primera pantalla no agobie.
   const moreModes = page.locator('details.mode-more');
   if (await moreModes.count() && !(await moreModes.evaluate(d => d.open))) await moreModes.locator('summary').click();
+  // Masculino o femenino se elige en la pantalla de modos.
+  await page.locator(`[data-action="mode-gender"][data-gender="${o.gender || 'm'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
   await page.locator(`[data-action="boot-mode"][data-mode="${o.mode || 'player'}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy);
   if (o.name) await page.locator('#career-name').fill(o.name);
   if (o.nationality) await page.locator('#career-nationality').selectOption(o.nationality);
   if (o.eraYear) { await page.locator(`[data-action="wiz-set"][data-field="eraYear"][data-value="${o.eraYear}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
-  if (o.gender) { await page.locator(`[data-action="wiz-set"][data-field="gender"][data-value="${o.gender}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy); }
   const set = async (field, value) => { await page.locator(`[data-action="wiz-set"][data-field="${field}"][data-value="${value}"]`).click(); await page.waitForFunction(() => !CAA_APP.state.busy && !CAA_APP.state.career.clubsLoading); };
   while (!(await page.locator('[data-action="career-create"]').count())) {
     if (o.archetype && await page.locator('[data-field="archetype"]').count()) {

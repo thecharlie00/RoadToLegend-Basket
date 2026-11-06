@@ -1648,5 +1648,11 @@
   "inbox.youth-cup": "Coupe des jeunes disputée.",
   "live.view2d": "Tableau tactique : positions des dix joueurs et du ballon",
   "live.view2dShort": "Tableau 2D",
-  "live.viewMode": "Vue du match"
+  "live.viewMode": "Vue du match",
+  "modes.genderTitle": "Quel basket veux-tu jouer ?",
+  "modes.menDesc": "Ligues, clubs et compétitions masculines.",
+  "modes.womenDesc": "Ligues, clubs et compétitions féminines.",
+  "modes.modeTitle": "Choisis le mode de jeu",
+  "modes.genderM": "Masculin",
+  "modes.genderF": "Féminin"
 }
