@@ -1654,5 +1654,8 @@
   "modes.womenDesc": "Ligen, Klubs und Wettbewerbe der Frauen.",
   "modes.modeTitle": "Wähle den Spielmodus",
   "modes.genderM": "Männer",
-  "modes.genderF": "Frauen"
+  "modes.genderF": "Frauen",
+  "route.na-draftDescW": "Du beendest das College und meldest dich zum WNBA-Draft: 3 Runden und 15 Teams. Die Lotterie entscheidet nur die ersten beiden Picks.",
+  "route.na-undraftedDescW": "Niemand wählt dich im WNBA-Draft. Ein nicht garantierter Trainingslagervertrag, und du kämpfst um deinen Platz.",
+  "route.na-draftDescCoachW": "Du trainierst in der WNBA: 15 Franchises, ein Draft mit 3 Runden und Playoffs."
 }

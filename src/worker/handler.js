@@ -79,7 +79,7 @@
         case 'career.clubs': {
           const route = msg.payload && msg.payload.route || 'eu-academy';
           const wanted = msg.payload && msg.payload.leagueId;
-          const leagueId = route === 'world' && CAA.Season.LEAGUES[wanted] ? wanted : route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
+          const leagueId = route === 'world' && CAA.Season.LEAGUES[wanted] ? wanted : route === 'eu-academy' ? 'es-ascenso-iberico' : wanted === 'na-boreal-women' || (msg.payload && msg.payload.gender === 'f') ? 'na-boreal-women' : 'na-boreal-men';
           result = { route, leagueId, clubs: CAA.Season.clubCatalog(leagueId) };
           break;
         }

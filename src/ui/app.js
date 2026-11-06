@@ -20,11 +20,13 @@
   function syncEraLook() { const s = hasCareer() && state.screen === 'game' ? state.career.summary : null; const v = s && s.era ? s.era.look : ''; if (doc.body.dataset.era !== v) doc.body.dataset.era = v; }
   function femOpts() {
     const c = state.career && state.career.state;
-    if (!c || state.screen !== 'game') return null;
+    // Al crear la carrera: si se elige femenino, los textos ya salen en femenino (jugadora, compañeras…).
+    if (state.screen !== 'game') return state.career && state.career.gender === 'f' && (state.screen === 'modes' || state.screen === 'create') ? CAA.Fem.opts(true, state.career.mode !== 'coach', null) : null;
+    if (!c) return null;
     const team = CAA.Season.genderOf(c.season.leagueId) === 'women', self = !!(c.player && c.player.gender === 'women');
     return team || self ? CAA.Fem.opts(team, self, null) : null;
   }
-  function t(key, vars) { const s = CAA.I18N.t(key, vars), l = CAA.I18N.getLocale(), o = (l === 'es' || l === 'en') ? femOpts() : null; return o ? CAA.Fem.apply(s, l, o) : s; }
+  function t(key, vars) { const s = CAA.I18N.t(key, vars), o = femOpts(); return o ? CAA.Fem.apply(s, CAA.I18N.getLocale(), o) : s; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
   function loadSettings() {
@@ -120,7 +122,7 @@
     if (!obj) return '';
     const l = CAA.I18N.getLocale(), own = obj[l] || (l !== 'es' && l !== 'en' && CAA.ContentI18n ? CAA.ContentI18n.tr(l, obj.en) : null);
     const v = own || (l === 'es' ? obj.es : obj.en) || obj.es || '', lang = own ? l : (l === 'es' ? 'es' : 'en');
-    const o = (lang === 'es' || lang === 'en') ? femOpts() : null; // el femenino automático solo existe en es/en
+    const o = femOpts();
     return o && v ? CAA.Fem.apply(v, lang, o) : v;
   }
   async function ensureClubs(route) {
@@ -130,7 +132,7 @@
     const token = ++clubRequest;
     c.clubsLoading = true; c.clubs = []; c.clubsRoute = null; render();
     try {
-      const res = await worker.send('career.clubs', { route, leagueId: c.leagueId });
+      const res = await worker.send('career.clubs', { route, leagueId: c.leagueId, gender: c.gender });
       if (token !== clubRequest) return;
       c.clubs = res.clubs; c.clubsRoute = key;
       if (!c.clubs.some(x => x.id === c.clubId)) c.clubId = c.clubs.length ? c.clubs[0].id : '';
@@ -603,9 +605,9 @@
     } else if (stepKey === 'talent') {
       body = `<div class="pick-list">${['promise', 'gem', 'chosen', 'mystery'].map(k => pick('talent', k, t('talent.' + k), t('talent.' + k + 'Desc'))).join('')}</div>`;
     } else {
-      const routes = c.gender === 'f' || era ? ['world'] : player ? ['eu-academy', 'na-draft', 'na-undrafted', 'world'] : ['eu-academy', 'na-draft', 'world'];
-      const clubLeague = c.route === 'world' ? c.leagueId : c.route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men';
-      body = `<h3 class="eyebrow">${t('wiz.path')}</h3><div class="pick-list">${routes.map(r => pick('route', r, t('route.' + r), t('route.' + r + 'Desc'))).join('')}</div>
+      const routes = era ? ['world'] : c.gender === 'f' ? (player ? ['na-draft', 'na-undrafted', 'world'] : ['na-draft', 'world']) : player ? ['eu-academy', 'na-draft', 'na-undrafted', 'world'] : ['eu-academy', 'na-draft', 'world'];
+      const clubLeague = c.route === 'world' ? c.leagueId : c.route === 'eu-academy' ? 'es-ascenso-iberico' : c.gender === 'f' ? 'na-boreal-women' : 'na-boreal-men';
+      body = `<h3 class="eyebrow">${t('wiz.path')}</h3><div class="pick-list">${routes.map(r => pick('route', r, t('route.' + r), t('route.' + r + (c.gender === 'f' && r !== 'world' ? (player ? 'DescW' : r === 'na-draft' ? 'DescCoachW' : 'Desc') : 'Desc')))).join('')}</div>
         ${c.route === 'world' ? `${leaguePicker('career', c.gender, c.leagueId, null, c.eraYear, c.leagueCountry)}${era ? `<p class="muted small">${t('era.leaguesNote', { year: c.eraYear })}</p>` : ''}` : ''}
         ${c.newClub ? `<p class="muted small">${t('club.foundNote')}</p>` : `<h3 class="eyebrow">${t(c.route === 'na-draft' ? 'wiz.preferredClub' : 'wiz.firstClub')}</h3>`}
         ${c.newClub ? '' : c.clubsLoading ? `<p class="muted">${t('status.working')}</p>` : `<div class="pick-list clubs">${c.clubs.map(x => `<button class="pick club" data-action="wiz-set" data-field="clubId" data-value="${esc(x.id)}" aria-pressed="${x.id === c.clubId}">${crest(x)}<b>${esc(x.name)}</b><small>${esc(c.route === 'world' ? leagueLabel(clubLeague) : t('league.' + clubLeague))}</small></button>`).join('')}</div>`}
@@ -1530,7 +1532,7 @@
       else if (name === 'mode-gender') {
         const c = state.career; c.gender = el.dataset.gender === 'f' ? 'f' : 'm';
         if (CAA.Season.LEAGUES[c.leagueId].gender !== c.gender) c.leagueId = c.gender === 'f' ? 'es-iberica-women' : 'fr-hexagone-men';
-        if (c.gender === 'f') c.route = 'world'; c.clubId = ''; c.clubsRoute = null;
+        if (c.gender === 'f' && c.route === 'eu-academy') c.route = 'world'; c.clubId = ''; c.clubsRoute = null;
       } else if (name === 'boot-mode') {
         state.navDir = 'fwd';
         state.career.eraYear = el.dataset.mode === 'eras' ? (state.career.eraYear || 1952) : null;
@@ -1556,7 +1558,7 @@
         else if (field === 'gender') {
           const c = state.career; c.gender = value === 'f' ? 'f' : 'm';
           if (CAA.Season.LEAGUES[c.leagueId].gender !== c.gender) c.leagueId = c.gender === 'f' ? 'es-iberica-women' : 'fr-hexagone-men';
-          if (c.gender === 'f') c.route = 'world';
+          if (c.gender === 'f' && c.route === 'eu-academy') c.route = 'world';
           c.clubId = ''; c.clubsRoute = null; eraDefaultLeague(); state.busy = false; await ensureClubs(c.route);
         }
         else if (field === 'pos') {
@@ -1648,7 +1650,7 @@
         if (state.career.challenge && state.career.mode === 'coach') state.career.clubId = state.career.clubId || 'auto';
         if (!state.career.clubId && state.career.clubs.length && String(state.career.clubsRoute || '').endsWith(state.career.route === 'world' ? state.career.leagueId : state.career.route)) state.career.clubId = state.career.clubs[0].id;
         if (!state.career.clubId) throw new Error(t('career.clubRequired'));
-        const created = await worker.send('career.create', { mode: state.career.mode, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, eraYear: state.career.eraYear || undefined, newClub: state.career.newClub || undefined, challenge: state.career.challenge && state.career.mode === 'coach' ? state.career.challenge : undefined, quick: !!state.career.quick, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
+        const created = await worker.send('career.create', { mode: state.career.mode, gender: state.career.gender, route: state.career.route, leagueId: state.career.route === 'world' ? state.career.leagueId : undefined, eraYear: state.career.eraYear || undefined, newClub: state.career.newClub || undefined, challenge: state.career.challenge && state.career.mode === 'coach' ? state.career.challenge : undefined, quick: !!state.career.quick, seed: state.career.seed, nationality: state.career.nationality, pos: state.career.pos, clubId: state.career.clubId, archetype: state.career.archetype, handedness: state.career.handedness, name: state.career.name || undefined, number: state.career.number, quality });
         if (audio) audio.play('success'); haptic('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
         state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t(state.career.mode === 'coach' ? 'wiz.welcomeCoach' : 'wiz.welcome'));

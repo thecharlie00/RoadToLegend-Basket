@@ -1654,5 +1654,8 @@
   "modes.womenDesc": "Campionati, club e competizioni femminili.",
   "modes.modeTitle": "Scegli la modalità di gioco",
   "modes.genderM": "Maschile",
-  "modes.genderF": "Femminile"
+  "modes.genderF": "Femminile",
+  "route.na-draftDescW": "Finisci il college e ti presenti al draft WNBA: 3 giri e 15 squadre. La lotteria decide solo le prime due scelte.",
+  "route.na-undraftedDescW": "Nessuno ti sceglie al draft WNBA. Contratto di precampionato non garantito e il posto te lo devi guadagnare.",
+  "route.na-draftDescCoachW": "Alleni in WNBA: 15 franchigie, draft in 3 giri e playoff."
 }

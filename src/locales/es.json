@@ -685,7 +685,7 @@
   "ach.perfects": "Consigue {n} lanzamientos perfectos",
   "live.heroCanvas": "Tiro final: suelta en lo más alto del salto.",
   "pet.title": "Tu mascota",
-  "pet.adoptDesc": "Adopta un compañero: cuídalo cada semana, enséñale trucos de baloncesto y llévalo a concursos. Si está feliz, tú también.",
+  "pet.adoptDesc": "Adopta una mascota: cuídala cada semana, enséñale trucos de baloncesto y llévala a concursos. Si está feliz, tú también.",
   "pet.species.dog": "Perro",
   "pet.species.cat": "Gato",
   "pet.species.bunny": "Conejo",
@@ -1654,5 +1654,8 @@
   "modes.womenDesc": "Ligas, clubes y competiciones femeninas.",
   "modes.modeTitle": "Elige el modo de juego",
   "modes.genderM": "Masculino",
-  "modes.genderF": "Femenino"
+  "modes.genderF": "Femenino",
+  "route.na-draftDescW": "Terminas la universidad y te presentas al draft de la WNBA: 3 rondas y 15 equipos. La lotería solo decide los dos primeros puestos.",
+  "route.na-undraftedDescW": "Nadie te elige en el draft de la WNBA. Contrato de pretemporada no garantizado y a ganarte el sitio.",
+  "route.na-draftDescCoachW": "Entrenas en la WNBA: 15 franquicias, draft de 3 rondas y playoffs."
 }

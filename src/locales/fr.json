@@ -1654,5 +1654,8 @@
   "modes.womenDesc": "Ligues, clubs et compétitions féminines.",
   "modes.modeTitle": "Choisis le mode de jeu",
   "modes.genderM": "Masculin",
-  "modes.genderF": "Féminin"
+  "modes.genderF": "Féminin",
+  "route.na-draftDescW": "Tu termines l’université et te présentes à la draft WNBA : 3 tours et 15 équipes. La loterie ne décide que les deux premiers choix.",
+  "route.na-undraftedDescW": "Personne ne te choisit à la draft WNBA. Contrat de présaison non garanti et à toi de gagner ta place.",
+  "route.na-draftDescCoachW": "Tu entraînes en WNBA : 15 franchises, une draft en 3 tours et des playoffs."
 }

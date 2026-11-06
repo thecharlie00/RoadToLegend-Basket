@@ -1654,5 +1654,8 @@
   "modes.womenDesc": "Women’s leagues, clubs and competitions.",
   "modes.modeTitle": "Choose the game mode",
   "modes.genderM": "Men",
-  "modes.genderF": "Women"
+  "modes.genderF": "Women",
+  "route.na-draftDescW": "You finish college and enter the WNBA draft: 3 rounds and 15 teams. The lottery only decides the first two picks.",
+  "route.na-undraftedDescW": "Nobody picks you in the WNBA draft. A non-guaranteed training-camp deal, and you earn your spot.",
+  "route.na-draftDescCoachW": "You coach in the WNBA: 15 franchises, a 3-round draft and playoffs."
 }

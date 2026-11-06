@@ -60,7 +60,7 @@
     const rng = RNG.create(seed);
     if (config.leagueId && !Season.LEAGUES[config.leagueId]) throw new Error('unknown league');
     const eraYear = Number.isInteger(config.eraYear) && config.eraYear >= 1920 && config.eraYear <= 2025 ? config.eraYear : null;
-    const leagueId = config.leagueId || (route === 'eu-academy' ? 'es-ascenso-iberico' : 'na-boreal-men');
+    const leagueId = config.leagueId || (route === 'eu-academy' ? 'es-ascenso-iberico' : config.gender === 'f' ? 'na-boreal-women' : 'na-boreal-men');
     const season = Season.createSeason(leagueId, seed + ':season');
     const pair = Season.LEAGUES[leagueId].pair;
     const topSeason = pair ? Season.createSeason(pair, seed + ':season-top') : null;
@@ -85,13 +85,17 @@
       state.coach = { name: config.name || 'Coach', authority: config.authority || 'coach', morale: 70, trust: 65 };
       state.inbox.push({ type: 'welcome', text: 'welcome-coach', week: 0 });
     }
-    if ((route === 'na-draft' || route === 'na-undrafted') && leagueId === 'na-boreal-men') {
+    const wnba = leagueId === 'na-boreal-women';
+    if ((route === 'na-draft' || route === 'na-undrafted') && (leagueId === 'na-boreal-men' || wnba)) {
       const table = Season.standings(season.clubs);
-      const lottery = Draft.lotteryOrder(table.slice(-14).map(r => r.id), seed + ':lottery');
-      const order = Draft.draftOrder(lottery, table.slice(0, 16).map(r => r.id));
+      const order = wnba ? Draft.wnbaOrder(table.slice().reverse().map(r => r.id), seed + ':lottery')
+        : Draft.draftOrder(Draft.lotteryOrder(table.slice(-14).map(r => r.id), seed + ':lottery'), table.slice(0, 16).map(r => r.id));
+      // WNBA: se entra al draft al cumplir 22 años (o tras la universidad); las internacionales, con 20.
+      if (wnba && state.player) { const intl = !['US', 'CA'].includes(state.player.nationality); state.player.age = Math.max(state.player.age, intl ? 20 : 22); }
       if (mode === 'player' && route === 'na-draft') {
-        const prospects = Draft.generateProspects(seed + ':class', 79);
-        state.player.draftProjection = Math.max(1, Math.min(60, 31 - Math.round((state.player.ovr - 50) / 2)));
+        const per = order.round1.length, total = per * (order.rounds ? order.rounds.length : 2);
+        const prospects = wnba ? Draft.generateProspects(seed + ':class', per * 4 - 1, { women: true }) : Draft.generateProspects(seed + ':class', 79);
+        state.player.draftProjection = Math.max(1, Math.min(total, Math.round(total / 2) + 1 - Math.round((state.player.ovr - 50) / 2)));
         prospects.push(state.player);
         prospects.sort((a, b) => a.draftProjection - b.draftProjection);
         state.draft = Draft.runDraft({ seed: seed + ':draft', order, prospects });
@@ -372,6 +376,11 @@
       if (state.challenge.medal === 'gold') lc.challengeGolds = (lc.challengeGolds || 0) + 1;
     }
     Content.evaluateAchievements(state);
+    if (season.leagueId === 'na-boreal-women') {
+      const order = Draft.wnbaOrder(table.slice().reverse().map(r => r.id), state.seed + ':lottery:' + state.year);
+      state.draft = Draft.runDraft({ seed: state.seed + ':draft:' + state.year, order });
+      state.inbox.push({ type: 'draft', week: state.week, year: state.year });
+    }
     if (season.leagueId === 'na-boreal-men') {
       const seeds = Season.naPlayoffSeeds(season);
       const lottery = Draft.lotteryOrder(seeds.lottery, state.seed + ':lottery:' + state.year);
@@ -694,7 +703,7 @@
     club.roster.push(p);
     state.clubId = club.id; state.live = null;
     p.coachTrust = Math.min(p.coachTrust == null ? 55 : p.coachTrust, 55);
-    state.route = leagueId === 'na-boreal-men' ? (state.route === 'na-draft' ? 'na-draft' : 'na-undrafted') : leagueId === 'es-ascenso-iberico' || leagueId === 'es-iberica-men' ? 'eu-academy' : 'world';
+    state.route = leagueId === 'na-boreal-men' || leagueId === 'na-boreal-women' ? (state.route === 'na-draft' ? 'na-draft' : 'na-undrafted') : leagueId === 'es-ascenso-iberico' || leagueId === 'es-iberica-men' ? 'eu-academy' : 'world';
     state.inbox.push({ type: 'moved', week: state.week, detail: { leagueId, club: club.name } });
     eraApply(state, false);
     return club;
@@ -744,7 +753,7 @@
       const pair = Season.LEAGUES[leagueId].pair;
       state.season = Season.createSeason(leagueId, state.seed + ':gen' + gen + ':season', null);
       state.topSeason = pair ? Season.createSeason(pair, state.seed + ':gen' + gen + ':top') : null;
-      state.route = leagueId === 'na-boreal-men' ? 'na-undrafted' : leagueId === 'es-ascenso-iberico' ? 'eu-academy' : 'world';
+      state.route = leagueId === 'na-boreal-men' || leagueId === 'na-boreal-women' ? 'na-undrafted' : leagueId === 'es-ascenso-iberico' ? 'eu-academy' : 'world';
       const homeClub = state.season.clubsById[legend.lastClub] || state.season.clubs[state.season.clubs.length - 1];
       const rng = RNG.create(state.seed + ':heir:' + gen);
       const quality = Math.max(46, Math.min(62, 50 + Family.legacyBonus(legend) + Math.round((child.talent - 55) / 5)));
