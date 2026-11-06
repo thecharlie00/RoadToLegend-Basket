@@ -10,7 +10,7 @@ test('live 3D sim stages every event type continuously, with TV delay and no inv
   while (s.pendingEvent) Career.chooseEvent(s, s.pendingEvent.options[0].id);
   Career.liveStart(s, {}); for (let i = 0; i < 3; i++) { try { Career.liveAdvance(s, {}); } catch (_) { break; } }
   const m = s.live.match, sim = LiveSim.create(m, {}), seen = new Set();
-  for (let i = 0; i < Math.min(m.events.length, 150); i++) for (let k = 0; k < 30; k++) { LiveSim.step(sim, m, i, 1 / 30); seen.add(sim.script.type); }
+  for (let i = 0; i < Math.min(m.events.length, 60); i++) for (let k = 0; k < 110; k++) { LiveSim.step(sim, m, i, 1 / 30); seen.add(sim.script.type); }
   for (const k of ['shot', 'rebound', 'flow']) assert.ok(seen.has(k), 'staged ' + k);
   assert.ok(sim.queue.length <= 4, 'TV delay bounded');
   const f = LiveSim.frame(sim);
