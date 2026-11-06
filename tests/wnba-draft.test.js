@@ -13,6 +13,9 @@ test('WNBA draft: 3 rounds, one pick per team, lottery only for the first two pi
   assert.deepEqual(o.round1.slice(2), ids.filter(id => !o.lottery.includes(id)));
   const d = Draft.runDraft({ seed: 'd', order: o });
   assert.equal(d.picks.length, 45);
+  // Convenio de 2026: la n.º 1 cobra 500.000 $ y la segunda y la tercera ronda, 270.000 $.
+  const all = d.prospects.filter(p => p.drafted);
+  assert.ok(all.length === 45);
 });
 
 test('women player can enter the WNBA draft (age 22, or 20 if international) or go undrafted', () => {

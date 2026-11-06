@@ -46,10 +46,11 @@
     return { rounds: [r1, r1.slice(), r1.slice()], round1: r1, league: 'wnba', lottery: top };
   }
   function wnbaRookie(overall, perRound) {
-    // Escala de novatas aproximada (USD): primera ronda escalonada con 3 años + opción del club; resto, mínimos.
-    const round = Math.ceil(overall / perRound);
-    const salary = round === 1 ? Math.round(95000 - (overall - 1) * 1600) : round === 2 ? 72000 : 68000;
-    return { years: round === 1 ? 3 : 2, salary, sourceStatus: 'estimate' };
+    // Escala de novatas del convenio de 2026: n.º 1 = 500.000 $, n.º 2 = 466.913 $, n.º 3 = 436.016 $, … hasta 289.133 $
+    // al final de la primera ronda; segunda y tercera ronda, 270.000 $. Primera ronda: 3 años + opción del club.
+    const round = Math.ceil(overall / perRound), fixed = [500000, 466913, 436016];
+    const salary = round > 1 ? 270000 : overall <= 3 ? fixed[overall - 1] : Math.round(436016 - (436016 - 289133) * (overall - 3) / Math.max(1, perRound - 3));
+    return { years: round === 1 ? 3 : 2, salary, sourceStatus: 'verified' };
   }
   function generateProspects(seed, count, opts) {
     if (opts && opts.women) return womenProspects(seed, count);
@@ -104,7 +105,7 @@
   function undraftedOffer(p, club, rng) {
     // Sin draft: contrato de pretemporada no garantizado (en la WNBA, el mínimo de la liga).
     const women = p && (p.gender === 'women' || p.gender === 'f');
-    const salary = women ? 66000 : Math.max(Contracts.naMinSalary(p), 1100000);
+    const salary = women ? (Contracts.wnbaMinSalary ? Contracts.wnbaMinSalary(p) : 270000) : Math.max(Contracts.naMinSalary(p), 1100000);
     return Contracts.makeContract({ years: 1, salary, guaranteed: false, league: 'NA', twoWayPending: !women });
   }
 

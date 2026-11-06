@@ -49,7 +49,17 @@
     if (c.years < 1 || c.salary < 0) throw new Error('invalid contract');
     return c;
   }
+  // WNBA con el convenio de 2026 (7 años): tope salarial de 7 M$, máximo 1,19 M$ y supermáximo 1,4 M$; mínimo de
+  // 270.000 $ (novatas) a 300.000 $ (10+ años). Fuente: ESPN, abril de 2026.
+  const WNBA_ECONOMY_2026 = { season: '2026', salaryCap: 7000000, max: 1190000, supermax: 1400000, minRookie: 270000, minVet: 300000, sourceStatus: 'verified', sourceUrl: 'https://www.espn.com/wnba/story/_/id/48271630/' };
+  function wnbaMinSalary(p) { const yrs = Math.max(0, Math.min(10, (p.age || 22) - 22)); return Math.round(WNBA_ECONOMY_2026.minRookie + (WNBA_ECONOMY_2026.minVet - WNBA_ECONOMY_2026.minRookie) * yrs / 10); }
   function offerForPlayer(p, club, rng, economy) {
+    if (club.league === 'na-boreal-women') {
+      const ovr = p.ovr || 50, min = wnbaMinSalary(p), max = ovr >= 92 ? WNBA_ECONOMY_2026.supermax : WNBA_ECONOMY_2026.max;
+      const target = Math.round(min + (max - min) * Math.pow(Math.max(0, ovr - 45) / 50, 2.4));
+      const salary = Math.max(min, Math.min(max, target + rng.int(-30000, 30000)));
+      return makeContract({ years: rng.int(1, 4), salary, option: rng.float() < 0.2 ? 'team' : 'none', league: 'NA' });
+    }
     const isNA = club.league === 'na-boreal-men';
     const ovr = p.ovr || 50;
     if (isNA) {
@@ -85,6 +95,6 @@
   function expiring(p, season) { return p.contract && p.contract.years <= 1; }
   function tickContract(p) { if (p.contract) { p.contract.years--; if (p.contract.years <= 0) p.contract = null; } return p; }
 
-  CAA.Contracts = { NA_ECONOMY_2026_27, EU_ECONOMY_DEFAULT, naMaxSalary, naMinSalary, rookieScale, teamSalary, capState, makeContract, offerForPlayer, canSign, tradeMatch, buyoutCost, expiring, tickContract };
+  CAA.Contracts = { WNBA_ECONOMY_2026, wnbaMinSalary, NA_ECONOMY_2026_27, EU_ECONOMY_DEFAULT, naMaxSalary, naMinSalary, rookieScale, teamSalary, capState, makeContract, offerForPlayer, canSign, tradeMatch, buyoutCost, expiring, tickContract };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Contracts;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

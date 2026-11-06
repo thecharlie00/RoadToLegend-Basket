@@ -44,7 +44,11 @@
     { id: 'm2023', year: 2023, gender: 'm', kind: 'world', teams: [T('DE', 'Alemania', 'Germany', 86), T('RS', 'Serbia', 'Serbia', 85)], real: 0, score: [83, 77],
       fact: { es: 'Alemania ganó su primer Mundial, invicta, en el torneo disputado entre Filipinas, Japón e Indonesia.', en: 'Germany won its first World Cup, unbeaten, at the tournament held across the Philippines, Japan and Indonesia.' } },
     { id: 'm2024', year: 2024, gender: 'm', kind: 'games', teams: [T('US', 'Estados Unidos', 'United States', 95), T('FR', 'Francia', 'France', 87)], real: 0, score: [98, 87],
-      fact: { es: 'En París, la anfitriona llegó a la final y plantó cara a Estados Unidos hasta el último cuarto.', en: 'In Paris the hosts reached the final and pushed the United States into the last quarter.' } }
+      fact: { es: 'En París, la anfitriona llegó a la final y plantó cara a Estados Unidos hasta el último cuarto.', en: 'In Paris the hosts reached the final and pushed the United States into the last quarter.' } },
+    { id: 'm2022w', year: 2022, gender: 'f', kind: 'world', teams: [T('US', 'Estados Unidos', 'United States', 95), T('CN', 'China', 'China', 85)], real: 0, score: [83, 61],
+      fact: { es: 'En Sídney, China llegó a su primera final mundial en casi tres décadas; Estados Unidos sumó su cuarto título seguido.', en: 'In Sydney, China reached its first world final in almost three decades; the United States took a fourth straight title.' } },
+    { id: 'm2026w', year: 2026, gender: 'f', kind: 'world', teams: [T('US', 'Estados Unidos', 'United States', 95), T('FR', 'Francia', 'France', 87)], real: 0, score: [97, 79],
+      fact: { es: 'En Berlín, Estados Unidos ganó su quinto Mundial seguido ante Francia; España se colgó el bronce ante la anfitriona Alemania y Breanna Stewart fue MVP.', en: 'In Berlin the United States won a fifth straight World Cup against France; Spain took bronze against hosts Germany and Breanna Stewart was MVP.' } }
   ];
   const NAT = { SU: 'RU', YU: 'RS' };
   const TACTICS = { slow: { pace: 0.3, threeRate: 0.25, insideRate: 0.48 }, normal: null, fast: { pace: 0.72, threeRate: 0.4, insideRate: 0.38 } };

@@ -1541,7 +1541,7 @@
         state.career.mode = el.dataset.mode === 'coach' || el.dataset.mode === 'club' || el.dataset.mode === 'challenge' ? 'coach' : 'player'; state.wizard = { step: 1 };
         if (state.career.newClub) { state.career.route = 'world'; if (CAA.Season.LEAGUES[state.career.leagueId].level !== 2 && state.career.gender !== 'f') state.career.leagueId = 'es-ascenso-iberico'; state.career.clubId = ''; state.career.clubsRoute = null; }
         if (state.career.eraYear) { state.career.route = 'world'; eraDefaultLeague(); }
-        if (state.career.mode === 'coach' && state.career.route === 'na-undrafted') state.career.route = 'eu-academy';
+        if (state.career.mode === 'coach' && state.career.route === 'na-undrafted') state.career.route = state.career.gender === 'f' ? 'na-draft' : 'eu-academy';
         state.screen = 'create'; ensureClubs(state.career.route);
       } else if (name === 'wiz-next' || name === 'wiz-back' || name === 'wiz-cancel') {
         const nameEl = doc.getElementById('career-name'); if (nameEl) state.career.name = nameEl.value;
