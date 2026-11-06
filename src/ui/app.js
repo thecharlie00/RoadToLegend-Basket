@@ -306,7 +306,7 @@
       const m = raw.match, seq = Math.max(0, (pbSeq(raw) || 1) - 1);
       const reduced = CAA.A11Y.reduced(state.settings);
       if (!liveSim || liveSim.id !== m.matchId) { liveSim = CAA.LiveSim.create(m, { women: careerWomen() }); liveSimT = ts; }
-      const dt = Math.max(0, (ts - (liveSimT || ts)) / 1000) * (pb.speed > 1 ? Math.min(2, pb.speed * 0.7) : 1); liveSimT = ts;
+      const dt = Math.max(0, (ts - (liveSimT || ts)) / 1000) * (pb.speed > 1 ? Math.min(3, pb.speed * 0.75) : 1); liveSimT = ts;
       CAA.LiveSim.step(liveSim, m, seq, reduced ? 0.05 : dt);
       const fr = CAA.LiveSim.frame(liveSim);
       const diff = Math.abs(m.score[0] - m.score[1]), clutch = m.period >= 4 && m.gameClock <= 1800 && diff <= 8;
@@ -324,6 +324,7 @@
   }
   // ===== Directo en tiempo real (como el fútbol): el motor ya ha calculado hasta el próximo momento clave;
   // la interfaz lo reproduce con el reloj corriendo (⏸ ▶ ▶▶ ▶▶▶) y solo enseña la decisión al llegar a ella. =====
+  const STAGED = { shot: 1, block: 1, ft: 1, turnover: 1, rebound: 1, foul: 1 };
   const PB_RATE = { 1: 200, 2: 420, 4: 900 }; // décimas de partido por segundo real (×1 ≈ un minuto cada 3 s)
   let pb = { key: null, seq: 0, cursor: 0, speed: 1, hold: 0 }, pbTimer = null, pbLast = 0, pbFetching = false;
   function pbProfile(m) { return CAA.Rules.getProfile(m.ruleSetId); }
@@ -395,6 +396,10 @@
     if (!p.speed) return;
     if (p.hold > 0) { p.hold -= dt; return; }
     const m = raw.match, prof = pbProfile(m);
+    // Con el 3D a la vista, el directo espera a que la retransmisión escenifique la jugada anterior: así cada punto del
+    // marcador llega con su canasta (como en la tele) y no se ven puntos sin jugada.
+    const tv = state.liveView !== '2d' && liveSim && liveSim.id === m.matchId && doc.getElementById('live3d') && !CAA.A11Y.reduced(state.settings);
+    if (tv && (liveSim.queue.length || !liveSim.script.done && liveSim.script.type !== 'flow' && liveSim.script.type !== 'final' && liveSim.script.t < 5.2)) return;
     p.cursor += dt / 1000 * PB_RATE[p.speed];
     let changed = false;
     while (p.seq < m.events.length) {
@@ -402,6 +407,7 @@
       if (evAbs(prof, e.period, e.clock) > p.cursor) break;
       p.seq++; changed = true;
       if (e.type === 'periodEnd') { p.hold = 1400 / p.speed; if (audio) audio.play('buzzer'); break; }
+      if (tv && STAGED[e.type]) { p.cursor = Math.max(p.cursor, evAbs(prof, e.period, e.clock)); break; }
       if (e.type === 'shot' && e.made && audio && e.team === raw.userTeam) audio.play('click');
     }
     if (p.seq >= m.events.length && (raw.moment || raw.finished)) { pbStop(); render(); return; }

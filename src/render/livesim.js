@@ -16,7 +16,7 @@
     [[6.8, 1.8], [1.0, -6.4], [6.6, -3.6], [4.8, -1.5], [1.6, 2.2]],
     [[7.2, -1.2], [5.8, 4.4], [1.0, 6.4], [1.8, -2.2], [4.4, 1.6]]
   ];
-  const MAXDUR = { jump: 2.6, shot: 4.6, rebound: 2.0, turnover: 2.6, foul: 1.2, ft: 2.6, flow: 0.3, final: 1e9 };
+  const MAXDUR = { jump: 2.6, shot: 4.4, rebound: 1.6, turnover: 2.2, foul: 1.0, ft: 2.2, flow: 0.3, final: 1e9 };
   const FILLER = { foul: 1, rebound: 1, ft: 1, turnover: 1 };
   const ZONE = { restricted: [0.9, 0.5], paint: [2.6, -1.4], midShort: [4.3, 2.4], midLong: [5.6, -3.4], corner3: [0.9, 6.55], above3: [7.4, 0.8] };
 
@@ -153,7 +153,7 @@
         else { passTo(sim, s.shooter); s.gotBall = true; }
       }
       const near = Math.hypot(sh.x - x, sh.z - zz) < 0.7;
-      if (s.gotBall && b.holder === s.shooter && !b.flight && (near || s.t > 3.2) && !s.released) {
+      if (s.gotBall && b.holder === s.shooter && !b.flight && (near || s.t > 2.7) && !s.released) {
         s.released = true; s.relT = s.t; sh.jumpT = 0; sh.arms = 1; df.jumpT = 0.05; df.arms = 1;
         const hx = hoopX(sim, off), dist = Math.hypot(hx - sh.x, sh.z);
         if (s.blocked) { sim.fx.push({ k: 'block', team: 1 - off, player: df.name }); sim.cam.shake = 0.25; } if (s.blocked) fly(sim, [sh.x, 2.4, sh.z], [sh.x + side(off) * 0.6, 3.0, sh.z + 0.4], 0.22, 0.2, () => { fly(sim, [b.x, b.y, b.z], [sh.x - side(off) * 2.5, 0.12, sh.z + 1.5], 0.7, 0.8, () => { b.loose = true; }); });
@@ -165,11 +165,11 @@
       if (s.released && !b.flight) {
         // Tras el tiro: bajan a por el rebote (fallo) o vuelven a defender (canasta).
         for (const a of sim.actors) {
-          if (s.made) { const [hx2, z2] = spot(sim, 1 - a.team, 6 + a.slot * 0.6, (a.slot - 2) * 2.4); a.tx = -hx2; a.tz = z2; a.face = null; a.stance = 0; }
+          if (s.made) continue;
           else if (a.slot >= 3) { a.tx = lerp(a.x, b.x, 0.55); a.tz = lerp(a.z, b.z, 0.55); }
         }
         if (!s.made && s.t > (s.relT || 0) + 1.3) s.done = true;
-        if (s.made && s.t > (s.relT || 0) + 1.8 && !s.handed) { s.handed = true; sim.poss = 1 - off; sim.script = { type: 'flow', t: 0, inbound: true }; }
+        if (s.made && s.t > (s.relT || 0) + 1.1 && !s.handed) { s.handed = true; sim.poss = 1 - off; sim.script = { type: 'flow', t: 0, inbound: true }; }
       }
     } else if (s.type === 'rebound') {
       const r = sim.actors[s.who >= 0 ? s.who : s.off * 5 + 4];
@@ -236,7 +236,7 @@
     const list = sim.actors.concat(sim.refs);
     for (const a of list) {
       const dx = a.tx - a.x, dz = a.tz - a.z, d = Math.hypot(dx, dz);
-      const top = (a.ref ? 4.6 : 6.8) * (a.run || 1) * (a.stance ? 0.72 : 1);
+      const top = (a.ref ? 5 : 7.6) * (a.run || 1) * (a.stance ? 0.72 : 1);
       const want = d < 0.08 ? 0 : Math.min(top, d * 3.2);
       const vx = d > 0 ? dx / d * want : 0, vz = d > 0 ? dz / d * want : 0;
       const k = 1 - Math.exp(-dt * 7);
@@ -285,7 +285,7 @@
   function camera(sim, aspect) {
     const c = sim.cam, W = sim.W, far = aspect < 1.2 ? 1.18 : 1;
     const sh = c.shake || 0, jx = sh ? Math.sin(sim.t * 61) * sh : 0, jy = sh ? Math.cos(sim.t * 47) * sh * 0.6 : 0;
-    return { eye: [c.x * 0.92 + jx, 11.2 * far + jy, W / 2 + 15.5 * far], target: [c.x + jx * 0.5, 0.4 + jy * 0.5, -0.9], fov: c.fov * 0.94 * (aspect < 1.2 ? 1.15 : 1), near: 0.5, far: 95 };
+    return { eye: [c.x * 0.9 + jx, 9.8 * far + jy, W / 2 + 13.2 * far], target: [c.x + jx * 0.5, 0.6 + jy * 0.5, -0.6], fov: c.fov * 0.9 * (aspect < 1.2 ? 1.15 : 1), near: 0.5, far: 95 };
   }
   function drain(sim) { const f = sim.fx; sim.fx = []; return f; }
   CAA.LiveSim = { create, step, frame, camera, drain, SETS };

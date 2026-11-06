@@ -387,10 +387,12 @@
     const ref = !!p.ref;
     const jersey = ref ? 'refShirt' : p.team ? 'away' : 'home', shorts = ref ? 'refPants' : p.team ? 'awayShorts' : 'homeShorts', sock = ref ? 'refPants' : p.team ? 'awaySock' : 'homeSock';
     const skin = ['skinA', 'skinB', 'skinC'][((p.number || 0) * 7 + (p.team || 0) * 3) % 3];
-    const c = Math.cos(p.yaw), s = Math.sin(p.yaw), h = (p.big ? 1.1 : 1) + ((p.number || 0) % 3) * 0.03;
+    // Jugadoras: algo más bajas y estilizadas (hombros, torso y caderas más estrechos), con peinado propio.
+    const fw = p.women && !ref ? 0.88 : 1;
+    const c = Math.cos(p.yaw), s = Math.sin(p.yaw), h = ((p.big ? 1.1 : 1) + ((p.number || 0) % 3) * 0.03) * (p.women && !ref ? 0.94 : 1);
     const run = clamp((p.speed || 0) / 6.5, 0, 1), ph = (p.stride || 0) * 2.1, st = p.stance ? 1 : 0, up = clamp(p.armsUp || 0, 0, 1);
     const bob = Math.abs(Math.sin(ph)) * 0.06 * run - st * 0.12;
-    const part = (x, y, z, sx, sy, sz, color) => add(p.x + x * c + z * s, p.y + (y + (y > 0.82 ? bob : bob * 0.5)) * h, p.z - x * s + z * c, sx, sy * h, sz, color, p.yaw);
+    const part = (x, y, z, sx, sy, sz, color) => { const k = y > 0.84 && y < 1.62 ? fw : 1; add(p.x + x * k * c + z * s, p.y + (y + (y > 0.82 ? bob : bob * 0.5)) * h, p.z - x * k * s + z * c, sx * k, sy * h, sz * (k < 1 ? 0.94 : 1), color, p.yaw); };
     add(p.x, 0.075, p.z, 0.92, 0.02, 0.74, 'shadow');
     add(p.x, 0.055, p.z, 0.56, 0.02, 0.46, 'shadowDeep');
     for (const s2 of [-1, 1]) {
@@ -426,7 +428,16 @@
       part(ax, ay, az, 0.19, 0.4, 0.22, ref ? jersey : skin);
       part(ax, ay + (up > 0.05 ? 0.36 : -0.3), az + 0.02, 0.17, 0.16, 0.2, skin);
     }
-    if (p.women) { part(0, 1.9, -0.24, 0.16, 0.13, 0.11, 'hair'); part(0, 1.68, -0.27, 0.12, 0.26, 0.1, 'hair'); }
+    if (p.women && !ref) {
+      // Tres peinados según la jugadora: coleta alta que se balancea al correr, moño o trenzas; cinta en el pelo.
+      const style = ((p.number || 0) * 5 + (p.team || 0)) % 3, sw = Math.sin(ph) * 0.06 * run;
+      part(0, 1.95, lean - 0.02, 0.46, 0.14, 0.44, 'hair');
+      part(-0.22, 1.8, lean - 0.04, 0.05, 0.3, 0.36, 'hair'); part(0.22, 1.8, lean - 0.04, 0.05, 0.3, 0.36, 'hair');
+      part(0, 1.9, lean + 0.02, 0.45, 0.05, 0.43, jersey);
+      if (style === 0) { part(sw, 1.92, lean - 0.25, 0.15, 0.14, 0.12, 'hair'); part(sw * 1.6, 1.7, lean - 0.31, 0.12, 0.32, 0.1, 'hair'); part(sw * 2, 1.5, lean - 0.33, 0.09, 0.14, 0.08, 'hair'); }
+      else if (style === 1) { part(0, 2.06, lean - 0.16, 0.22, 0.17, 0.2, 'hair'); }
+      else { part(-0.12 + sw, 1.62, lean - 0.24, 0.08, 0.42, 0.08, 'hair'); part(0.12 + sw, 1.62, lean - 0.24, 0.08, 0.42, 0.08, 'hair'); }
+    }
   }
   function geometry(match, index, progress, options = {}) {
     const quality = options.quality === 'balanced' ? 'balanced' : 'low';

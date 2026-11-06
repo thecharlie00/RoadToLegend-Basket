@@ -44,7 +44,7 @@
     const budget = leagueBudget(league), gender = league.gender === 'f' ? 'women' : 'men';
     const nat = () => league.pool ? (rng.float() < league.share ? league.pool[0] : rng.pick(league.pool.slice(1))) : league.region === 'EU' ? (rng.float() < 0.6 ? 'ES' : rng.pick(['FR', 'DE', 'IT', 'TR', 'GR', 'LT', 'RS', 'AR', 'BR'])) : rng.pick(['US', 'US', 'US', 'CA', 'FR', 'AU', 'CN', 'JP', 'KR', 'PH', 'ZA']);
     // Plantilla real versionada (estilo PES) si el club la tiene; el resto hasta 12 se genera.
-    const real = league.realClubs && RealRosters && RealRosters.ROSTERS[name];
+    const real = league.realClubs && RealRosters && (RealRosters.forClub ? RealRosters.forClub(name, gender) : RealRosters.ROSTERS[name]);
     if (real) real.slice(0, 12).forEach((r, j) => {
       const p = Player.createPlayer({ seed: clubSeed(leagueId, index) + ':r' + j, name: r[0], pos: r[1], age: r[2], quality: r[3], nationality: r[4], gender });
       p.real = true; p.contract = Contracts.offerForPlayer(p, { league: leagueId, budget }, rng, Contracts.NA_ECONOMY_2026_27);
