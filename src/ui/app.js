@@ -29,6 +29,7 @@
   function t(key, vars) { const s = CAA.I18N.t(key, vars), o = femOpts(); return o ? CAA.Fem.apply(s, CAA.I18N.getLocale(), o) : s; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+  if (CAA.Juice) CAA.Juice.setReduced(() => CAA.A11Y.reduced(state.settings));
   function loadSettings() {
     try { state.settings = CAA.A11Y.normalize(JSON.parse(root.localStorage.getItem('caa.settings') || '{}')); } catch (_) { state.settings = CAA.A11Y.normalize({}); }
     try { const loc = root.localStorage.getItem('caa.locale'); if (loc && payload.locales[loc]) CAA.I18N.setLocale(loc); } catch (_) {}
@@ -274,6 +275,27 @@
     const half = x => x > 50 ? `<path d="M100 3H90A24 24 0 0 0 90 51H100"/><rect x="81" y="19.5" width="19" height="15"/><circle cx="81" cy="27" r="6"/>${rim(94.5)}` : `<path d="M0 3H10A24 24 0 0 1 10 51H0"/><rect x="0" y="19.5" width="19" height="15"/><circle cx="19" cy="27" r="6"/>${rim(5.5)}`;
     return `<svg viewBox="0 0 100 54" class="tac-svg" role="img" aria-label="${esc(t('live.view2d'))}"><rect x="0" y="0" width="100" height="54" class="floor"/><g class="lines"><rect x="0.5" y="0.5" width="99" height="53"/><path d="M50 0.5v53"/><circle cx="50" cy="27" r="6"/>${half(100)}${half(0)}</g>${dots.join('')}<circle class="tac-ball" r="1.1" style="transform:translate(${ball[0]}px,${ball[1]}px)"/></svg>`;
   }
+  // Jugadas del 3D con «juice»: rótulo de televisión (¡TRIPLE!, ¡MATE!, TAPÓN, ROBO), sonido, vibración y destello.
+  function liveFx(list, raw) {
+    if (!list.length) return;
+    const box = doc.querySelector('.live3d'), me = raw.userTeam, J = CAA.Juice;
+    for (const f of list) {
+      const mine = f.team === me;
+      let label = '', cls = mine ? 'good' : 'bad';
+      if (f.k === 'made') { label = f.dunk ? t('fx.dunk') : f.pts === 3 ? t('fx.three') : ''; if (audio) audio.play(f.pts === 3 || f.dunk ? 'cheer' : 'swish'); if (mine) haptic('score'); }
+      else if (f.k === 'block') { label = t('fx.block'); if (audio) audio.play('pop'); }
+      else if (f.k === 'steal') { label = t('fx.steal'); }
+      else if (f.k === 'rim') { if (audio) audio.play('bounce'); }
+      else if (f.k === 'whistle') { if (audio) audio.play('whistle'); }
+      else if (f.k === 'ft') { if (audio) audio.play('swish'); }
+      if (label && box) {
+        const el = doc.createElement('div'); el.className = 'tv-callout ' + cls; el.setAttribute('aria-hidden', 'true');
+        el.innerHTML = `<b>${esc(label)}</b>${f.player ? `<span>${esc(f.player)}</span>` : ''}`;
+        box.appendChild(el); root.setTimeout(() => el.remove(), 1700);
+        if (J && f.k === 'made' && mine) J.flash(box, 'rgba(255,178,30,.55)');
+      }
+    }
+  }
   let liveSim = null, liveSimT = 0, liveRenderer = null, liveCanvas = null, liveRaf = null, liveAnim = { key: null, start: 0 };
   function drawLive3d(ts) {
     const canvas = doc.getElementById('live3d'), raw = state.career.state && state.career.state.live;
@@ -292,10 +314,11 @@
       const kitOf = name => { const c = CAA.Crest ? CAA.Crest.colors({ name }) : ['#36b98a', '#ffffff']; const h = x => [parseInt(x.slice(1, 3), 16) / 255, parseInt(x.slice(3, 5), 16) / 255, parseInt(x.slice(5, 7), 16) / 255]; return { jersey: h(c[0]), shorts: h(c[0]).map(v => v * 0.7), alt: h(c[1]) }; };
       const k0 = kitOf(m.teams[0].name), k1 = kitOf(m.teams[1].name), dist = Math.hypot(...k0.jersey.map((v, q) => v - k1.jersey[q]));
       if (dist < 0.35) { k1.jersey = [0.94, 0.93, 0.9]; k1.shorts = [0.86, 0.85, 0.82]; }
-      const g = CAA.Voxel.geometry(m, 0, 1, { frame: fr, kits: [k0, k1], ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: careerWomen(), quality: 'balanced', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : 0.35 });
+      const g = CAA.Voxel.geometry(m, 0, 1, { frame: fr, kits: [k0, k1], ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: careerWomen(), quality: 'balanced', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : liveSim.cam.shake > 0.05 ? 0.95 : 0.35 });
       const cam = CAA.LiveSim.camera(liveSim, canvas.clientWidth / Math.max(1, canvas.clientHeight || canvas.clientWidth * 9 / 16));
       g.light = Object.assign(CAA.Voxel.studioLight(cam.eye, cam.target), { ambient: 0.5, aoMin: 0.8 }); g.gain = 1.1; g.fog = { near: 30, far: 95, color: [0.08, 0.09, 0.16], eye: cam.eye };
       liveRenderer.draw(g, cam);
+      liveFx(CAA.LiveSim.drain(liveSim), raw);
       liveRaf = reduced ? null : root.requestAnimationFrame(drawLive3d);
     } catch (_) { state.liveViewOff = true; canvas.hidden = true; liveRaf = null; }
   }
@@ -393,7 +416,24 @@
       if (scoreEl.textContent !== next) {
         scoreEl.textContent = next;
         scoreEl.classList.remove('bump'); void scoreEl.offsetWidth; scoreEl.classList.add('bump');
-        if (Number.isFinite(before) && v.score[me] > before) haptic('score');
+        // Parciales (8-0 o más) y cambios de líder con su golpe visual.
+        const run = state.liveRun && state.liveRun.id === raw.match.matchId ? state.liveRun : (state.liveRun = { id: raw.match.matchId, me: 0, opp: 0, lead: 0 }), lead = Math.sign(v.score[me] - v.score[opp]);
+        const before2 = scoreEl.dataset.opp != null ? +scoreEl.dataset.opp : v.score[opp]; scoreEl.dataset.opp = v.score[opp];
+        if (Number.isFinite(before) && v.score[me] > before) { run.me += v.score[me] - before; run.opp = 0; }
+        if (v.score[opp] > before2) { run.opp += v.score[opp] - before2; run.me = 0; }
+        if (CAA.Juice) {
+          const sb = doc.querySelector('.scoreboard') || scoreEl;
+          if (run.me >= 8 && !run.shownMe) { run.shownMe = true; CAA.Juice.floatText(t('fx.run', { a: run.me }), scoreEl, 'gold'); CAA.Juice.pop(sb, 1.05); if (audio) audio.play('cheer'); }
+          if (run.me < 8) run.shownMe = false;
+          if (run.opp >= 8 && !run.shownOpp) { run.shownOpp = true; CAA.Juice.shake(sb, 0.6); CAA.Juice.floatText(t('fx.runOpp', { a: run.opp }), scoreEl, 'bad'); }
+          if (run.opp < 8) run.shownOpp = false;
+          if (lead !== run.lead && lead !== 0 && Number.isFinite(before)) { CAA.Juice.flash(sb, lead > 0 ? 'rgba(54,185,138,.6)' : 'rgba(255,91,102,.55)'); if (lead > 0) CAA.Juice.floatText(t('fx.lead'), scoreEl, 'good'); }
+          run.lead = lead || run.lead;
+        }
+        if (Number.isFinite(before) && v.score[me] > before) {
+          haptic('score'); const d = v.score[me] - before;
+          if (CAA.Juice && d <= 4) { CAA.Juice.floatText('+' + d, scoreEl, d >= 3 ? 'gold' : 'good'); if (d >= 3) CAA.Juice.burstAt(scoreEl, { count: 16, speed: 200, colors: ['#ffb21e', '#ffffff'] }); }
+        }
       }
     }
     set('pb-clock', `${esc(v.periodLabel)} · ${clockText(v.clock)}`);
@@ -1327,6 +1367,7 @@
     drawMatchFrame();
     drawAvatar();
     drawPet();
+    if (state.juice && !state.busy) { const q = state.juice; state.juice = null; root.requestAnimationFrame(() => runJuice(q)); }
     drawScene();
     deadlineClock();
     if (state.arcade && state.tab === 'arcade' && arcadeRaf == null) arcadeSync();
@@ -1432,7 +1473,8 @@
     a.lastText = a.label;
     a.anim = { start: root.performance.now(), made: r.made, perfect: r.perfect };
     a.phase = 'flight'; a.flash = r.perfect || (a.type === 'dunk' && r.judge >= 9) ? 1 : 0;
-    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim'); haptic(r.made ? (r.perfect ? 'success' : 'tap') : 'fail');
+    if (audio) audio.play(r.made ? (r.perfect ? 'success' : 'swish') : 'rim');
+    if (CAA.Juice && r.made) { const cv = doc.getElementById('arcade3d') || doc.querySelector('.arcade canvas'); CAA.Juice.burstAt(cv, { count: r.perfect ? 34 : 12, colors: r.perfect ? ['#ffb21e', '#ffffff', '#ff5b66'] : ['#ffffff', '#5fb8ff'] }); if (r.perfect) CAA.Juice.floatText(t('juice.perfect'), cv, 'gold'); } haptic(r.made ? (r.perfect ? 'success' : 'tap') : 'fail');
     a.done = tally.complete;
     render(); arcadeSync();
     const wait = CAA.A11Y.reduced(state.settings) ? 350 : 900;
@@ -1509,7 +1551,37 @@
       try { root.localStorage.setItem('caa.lastSlot', state.slot); } catch (_) {}
     } catch (err) { state.saveState = 'error'; state.saveError = t('save.failed') + ': ' + err.message; notify(state.saveError, true); }
   }
-  async function acceptCareer(result) { state.career.state = result.state; state.career.summary = result.summary; await persistCareer(); }
+  async function acceptCareer(result) { const prev = state.career.summary; state.career.state = result.state; state.career.summary = result.summary; try { const q = juiceDiff(prev, result.summary); if (q.length) state.juice = (state.juice || []).concat(q); } catch (_) {} await persistCareer(); }
+  // ===== Juice: qué ha cambiado y cómo celebrarlo (resultado, media, dinero, logros, títulos). =====
+  function juiceDiff(a, b) {
+    const q = [];
+    if (!a || !b || a.careerId !== b.careerId) return q;
+    const r0 = a.recent && a.recent[0], r1 = b.recent && b.recent[0];
+    if (r1 && (!r0 || r0.round !== r1.round || r0.opponent !== r1.opponent || r0.us !== r1.us)) q.push({ k: 'result', won: r1.won, margin: Math.abs(r1.us - r1.them) });
+    if (a.player && b.player && b.player.ovr > a.player.ovr) q.push({ k: 'ovr', d: b.player.ovr - a.player.ovr });
+    const cash = x => x.mode === 'coach' ? (x.clubFin && x.clubFin.cash) : (x.life && x.life.cash);
+    const c0 = cash(a), c1 = cash(b); if (Number.isFinite(c0) && Number.isFinite(c1) && Math.abs(c1 - c0) >= 1) q.push({ k: 'cash', d: c1 - c0 });
+    const n0 = a.life && a.life.achievements ? a.life.achievements.length : 0, n1 = b.life && b.life.achievements ? b.life.achievements.length : 0;
+    if (n1 > n0) q.push({ k: 'ach', n: n1 - n0 });
+    if (b.lastSeason && b.lastSeason.myChampion && !(a.lastSeason && a.lastSeason.myChampion)) q.push({ k: 'title' });
+    if (b.summerCup && b.summerCup.place === 1 && !(a.summerCup && a.summerCup.year === b.summerCup.year)) q.push({ k: 'cup' });
+    return q;
+  }
+  function tabEnter() { const p = doc.getElementById('panel'); if (!p) return; p.classList.remove('tab-enter'); void p.offsetWidth; p.classList.add('tab-enter'); root.setTimeout(() => p.classList.remove('tab-enter'), 700); }
+  function runJuice(q) {
+    const J = CAA.Juice; if (!J) return;
+    const $ = sel => doc.querySelector(sel);
+    const money = n => (n > 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString(CAA.I18N.getLocale()) + ' €';
+    let delay = 0;
+    const later = fn => { root.setTimeout(fn, delay); delay += 260; };
+    for (const e of q) {
+      if (e.k === 'result') later(() => { const el = $('.now-strip') || $('#panel'); if (e.won) { J.burstAt(el, { count: e.margin >= 15 ? 46 : 26, colors: ['#36b98a', '#ffffff', '#ffb21e'] }); J.pop(el, 1.03); if (audio) audio.play('cheer'); } else { J.shake(el, 0.7); if (audio) audio.play('fail'); } });
+      if (e.k === 'ovr') later(() => { const el = $('.pc-ovr') || $('.cromo .ovr'); J.floatText('+' + e.d + ' ' + t('juice.ovr'), el, 'gold'); J.pop(el, 1.3); J.burstAt(el, { count: 22, colors: ['#ffb21e', '#fff3c4', '#ffffff'] }); if (audio) audio.play('levelup'); haptic('success'); });
+      if (e.k === 'cash') later(() => { J.floatText(money(e.d), $('.cromo') || $('#panel'), e.d > 0 ? 'good' : 'bad'); if (audio && e.d > 0) audio.play('coin'); });
+      if (e.k === 'ach') later(() => { J.confetti(0.5); J.floatText(t('juice.ach', { n: e.n }), $('.cromo') || $('#panel'), 'gold'); if (audio) audio.play('levelup'); });
+      if (e.k === 'title' || e.k === 'cup') later(() => { J.confetti(e.k === 'title' ? 1.6 : 0.8); if (audio) audio.play('cheer'); haptic('success'); });
+    }
+  }
   function requestConfirm(name, el, text) { state.confirm = { name, el: el ? { dataset: Object.assign({}, el.dataset) } : null, text }; }
   async function action(name, el) {
     if (state.busy) return;
@@ -1607,6 +1679,7 @@
         const optionId = el && el.dataset.option;
         const res = await worker.send('career.event', { state: state.career.state, optionId });
         await acceptCareer(res);
+        root.requestAnimationFrame(() => { const card = doc.querySelector('.outcome'), J = CAA.Juice; if (!card || !J) return; if (card.classList.contains('bad')) { J.shake(card, 0.6); if (audio) audio.play('fail'); } else { J.pop(card, 1.03); J.burstAt(card, { count: 18, colors: ['#36b98a', '#ffffff', '#ffb21e'] }); if (audio) audio.play('success'); } });
       } else if (name === 'life-buy' || name === 'life-equip') {
         const itemId = el && el.dataset.item;
         const res = await worker.send(name === 'life-buy' ? 'career.buy' : 'career.equip', { state: state.career.state, itemId });
@@ -1679,7 +1752,8 @@
         if (el.dataset.op === 'deadline-sign' || el.dataset.op === 'promote') notify(t('mkt.done.sign'));
       } else if (name === 'mkt-op') {
         const res = await worker.send('career.market', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id, role: el.dataset.role, level: el.dataset.level } });
-        await acceptCareer(res); if (audio) audio.play('success'); notify(t('mkt.done.' + el.dataset.op));
+        await acceptCareer(res); if (audio) audio.play(el.dataset.op === 'sign' || el.dataset.op === 'sell' ? 'coin' : 'success'); notify(t('mkt.done.' + el.dataset.op));
+        root.requestAnimationFrame(() => { const at = doc.querySelector('.notice, .toast, #panel'); if (CAA.Juice && at) CAA.Juice.burstAt(at, { count: 22, colors: ['#ffb21e', '#fff3c4', '#36b98a'] }); });
       } else if (name === 'club-op') {
         const res = await worker.send('career.club', { state: state.career.state, config: { op: el.dataset.op, key: el.dataset.key, value: el.dataset.value } });
         await acceptCareer(res); if (audio) audio.play('success');
@@ -1701,7 +1775,8 @@
         if (name === 'live-start') { if (!pb.speed) pb.speed = 1; state.liveFocus = true; }
         const caught = pbCaught(state.career.state.live);
         if (audio && name !== 'live-next') audio.play(caught && res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : 'whistle');
-        if (caught && res.live.finished) haptic(res.live.outcome && res.live.outcome.won ? 'success' : 'fail');
+        // Bocina final; si ganas, confeti (el resultado de la semana ya celebra o tiembla por su cuenta).
+        if (caught && res.live.finished) { const won = res.live.outcome && res.live.outcome.won; if (won && CAA.Juice) CAA.Juice.confetti(0.9); haptic(won ? 'success' : 'fail'); if (audio) audio.play('buzzer'); if (won) state.juice = (state.juice || []).concat([{ k: 'cup' }]); }
         if (name === 'live-start') notify(t('live.started')); else if (caught && res.live.finished) notify(t(res.live.outcome.won ? 'live.won' : 'live.lost'));
       } else if (name === 'pet-species') { state.petSpecies = el.dataset.species;
       } else if (name === 'pet-view') { state.petView = el.dataset.view;
@@ -1737,6 +1812,7 @@
           : { op: name === 'pet-buy' ? 'buy' : name === 'pet-supply' ? 'supply' : 'equip', item: el.dataset.item };
         const res = await worker.send('career.pet', { state: state.career.state, config });
         await acceptCareer(res);
+        if (name === 'pet-act' && CAA.Juice) root.requestAnimationFrame(() => { const at = doc.querySelector('#pet3d, .pet-stage, .pet canvas'); if (at) { CAA.Juice.floatText('♥', at, 'good'); CAA.Juice.burstAt(at, { count: 12, speed: 140, colors: ['#ff6fae', '#ffffff', '#ffb21e'] }); } });
         if (audio) audio.play(name === 'pet-contest' ? (res.pet.place === 1 ? 'success' : 'click') : 'bounce'); if (name === 'pet-contest') haptic(res.pet.place === 1 ? 'success' : 'tap');
         if (name === 'pet-contest') notify(t('pet.contestResult', { place: res.pet.place, score: res.pet.score, tier: t('pet.tier.' + res.pet.tier) }));
       } else if (name === 'live-hero') {
@@ -1832,8 +1908,8 @@
       if (state.heroShot && (e.target.id === 'hero-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'live-hero-release'))) { heroRelease(); return; }
       if (e.target.id === 'arcade-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'arcade-release')) { arcadeRelease(); return; }
       const go = e.target.closest('[data-tab-go]'); if (go) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, go.dataset.tabGo); state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
-      const tab = e.target.closest('[data-tab]'); if (tab) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, tab.dataset.tab); state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
-      const btn = e.target.closest('[data-action]'); if (btn) { haptic('tap'); if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
+      const tab = e.target.closest('[data-tab]'); if (tab) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, tab.dataset.tab); state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); tabEnter(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
+      const btn = e.target.closest('[data-action]'); if (btn) { haptic('tap'); if (CAA.Juice && btn.dataset.action === 'life-event') { CAA.Juice.pop(btn, 1.04); CAA.Juice.burstAt(btn, { count: 14, speed: 180 }); if (audio) audio.play('pop'); } if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
     });
     doc.getElementById('app').addEventListener('keydown', e => {
       if (state.confirm) {
@@ -1843,7 +1919,7 @@
       }
       const tab = e.target.closest('[role=tab][data-tab]'); if (!tab) return;
       const next = CAA.A11Y.tabKey(e.key, PRIMARY_TABS.indexOf(tab.dataset.tab), PRIMARY_TABS.length); if (next == null) return;
-      e.preventDefault(); haptic('select'); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); doc.getElementById('tab-' + state.tab).focus();
+      e.preventDefault(); haptic('select'); state.tab = PRIMARY_TABS[next]; state.match.playing = false; render(); syncAnimation(); tabEnter(); doc.getElementById('tab-' + state.tab).focus();
     });
     doc.getElementById('app').addEventListener('input', e => { if (e.target.id) state.drafts[e.target.id] = e.target.value; if (e.target.id === 'save-import') { state.importText = e.target.value; state.importPreview = null; const b = doc.querySelector('[data-action="save-import"]'); if (b) b.disabled = true; } });
     doc.getElementById('app').addEventListener('change', async e => {

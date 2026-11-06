@@ -21,5 +21,5 @@ await page.waitForFunction(() => CAA_APP.state.screen === 'game' && CAA_APP.stat
 while (await page.locator('[data-action="life-event"]').count()) await click('[data-action="life-event"]');
 await click('[data-action="live-start"]');
 await page.locator('[data-action="live-speed"][data-speed="1"]').click();
-for (let i = 0; i < 8; i++) { await page.waitForTimeout(i ? 2300 : 4500); await page.locator('#live3d').screenshot({ path: `${out}-${i}.png` }); }
+for (let i = 0; i < 12; i++) { await page.waitForTimeout(i ? 1300 : 4500); await page.locator('#live3d').screenshot({ path: `${out}-${i}.png` }); }
 await browser.close();

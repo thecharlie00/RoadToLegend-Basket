@@ -10,7 +10,12 @@
     whistle: { kind: 'tone', freq: 1800, end: 2200, dur: 0.22, gain: 0.18 },
     buzzer: { kind: 'tone', freq: 140, end: 120, dur: 0.6, gain: 0.4 },
     success: { kind: 'tone', freq: 520, end: 880, dur: 0.16, gain: 0.3 },
-    fail: { kind: 'tone', freq: 260, end: 160, dur: 0.18, gain: 0.3 }
+    fail: { kind: 'tone', freq: 260, end: 160, dur: 0.18, gain: 0.3 },
+    // «Juice»: subida de media (arpegio), moneda, pop de interfaz y ovación de la grada.
+    levelup: { kind: 'arp', notes: [523, 659, 784, 1047], step: 0.07, dur: 0.12, gain: 0.26 },
+    coin: { kind: 'arp', notes: [988, 1319], step: 0.06, dur: 0.1, gain: 0.22 },
+    pop: { kind: 'tone', freq: 900, end: 1300, dur: 0.05, gain: 0.16 },
+    cheer: { kind: 'noise', dur: 0.9, gain: 0.3, filter: 900 }
   };
   function createAudio(options = {}) {
     const win = options.window || root;
@@ -52,8 +57,21 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, now + cue.dur);
         gain.connect(master);
         let source;
+        if (cue.kind === 'arp') {
+          // Notas encadenadas; cada una con su envolvente.
+          cue.notes.forEach((f, i) => {
+            const t0 = now + i * cue.step, g = ctx.createGain(), o = ctx.createOscillator();
+            g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(cue.gain, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + cue.dur);
+            o.type = 'triangle'; o.frequency.setValueAtTime(f, t0); o.connect(g); g.connect(master);
+            o.onended = () => { try { o.disconnect(); g.disconnect(); } catch (_) {} };
+            o.start(t0); o.stop(t0 + cue.dur + 0.02);
+          });
+          try { gain.disconnect(); } catch (_) {}
+          played++; counts[name] = (counts[name] || 0) + 1;
+          return true;
+        }
         if (cue.kind === 'noise') {
-          source = ctx.createBufferSource(); source.buffer = noise;
+          source = ctx.createBufferSource(); source.buffer = noise; source.loop = cue.dur > 0.25;
           const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = cue.filter; filter.Q.value = 0.8;
           source.connect(filter); filter.connect(gain);
         } else {

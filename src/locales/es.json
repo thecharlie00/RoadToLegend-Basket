@@ -1657,5 +1657,15 @@
   "modes.genderF": "Femenino",
   "route.na-draftDescW": "Terminas la universidad y te presentas al draft de la WNBA: 3 rondas y 15 equipos. La lotería solo decide los dos primeros puestos.",
   "route.na-undraftedDescW": "Nadie te elige en el draft de la WNBA. Contrato de pretemporada no garantizado y a ganarte el sitio.",
-  "route.na-draftDescCoachW": "Entrenas en la WNBA: 15 franquicias, draft de 3 rondas y playoffs."
+  "route.na-draftDescCoachW": "Entrenas en la WNBA: 15 franquicias, draft de 3 rondas y playoffs.",
+  "juice.ovr": "MEDIA",
+  "juice.ach": "¡{n} logro nuevo!",
+  "juice.perfect": "¡PERFECTO!",
+  "fx.three": "¡TRIPLE!",
+  "fx.dunk": "¡MATE!",
+  "fx.block": "¡TAPÓN!",
+  "fx.steal": "¡ROBO!",
+  "fx.run": "Parcial {a}-0",
+  "fx.runOpp": "Parcial rival {a}-0",
+  "fx.lead": "¡Por delante!"
 }

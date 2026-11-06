@@ -591,3 +591,37 @@ details.more-week .card.family{padding:0;border:0;background:none;box-shadow:non
 @media (prefers-reduced-motion:reduce){.tac-p,.tac-ball{transition:none}}.view-tog{justify-content:flex-end;margin:4px 0}
 .gender-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 16px}.gender-card{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px;border-radius:14px;border:2px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;font:inherit;cursor:pointer}
 .gender-card b{font-size:1.05rem}.gender-card span{font-size:.82rem;opacity:.75}.gender-card.on{border-color:#ffb21e;background:rgba(255,178,30,.12)}.gender-card:focus-visible{outline:3px solid #ffb21e;outline-offset:2px}
+/* ===== Juice ===== */
+.juice-layer{position:fixed;inset:0;pointer-events:none;z-index:9999;background:transparent!important;border:0!important;border-radius:0!important;max-width:none!important;max-height:none!important}
+.juice-float{position:fixed;z-index:10000;pointer-events:none;transform:translate(-50%,-50%);font:800 1.35rem/1 var(--disp,'Bebas Neue',system-ui,sans-serif);letter-spacing:.04em;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45),0 0 14px rgba(0,0,0,.35);animation:juiceUp 1.4s cubic-bezier(.2,.8,.3,1) forwards;white-space:nowrap}
+.juice-float.good{color:#5ef0b0}.juice-float.bad{color:#ff7a84}.juice-float.gold{color:#ffcf4a;font-size:1.6rem}
+.juice-float.static{animation:juiceFade 1.4s linear forwards}
+@keyframes juiceUp{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-70%) scale(1.15)}30%{transform:translate(-50%,-85%) scale(1)}100%{opacity:0;transform:translate(-50%,-190%) scale(1)}}
+@keyframes juiceFade{0%,70%{opacity:1}100%{opacity:0}}
+/* Botones con respuesta física al pulsar */
+button,.option,.tile,.mode-card,.gender-card,.pick{transition:transform .09s ease,filter .12s ease}
+button:not(:disabled):active,.option:active,.tile:active,.mode-card:not(:disabled):active,.gender-card:active{transform:scale(.965);filter:brightness(1.12)}
+@media (prefers-reduced-motion:reduce){button:active,.option:active,.tile:active,.mode-card:active,.gender-card:active{transform:none}}
+[data-reduced-motion="true"] button:active,[data-reduced-motion="true"] .option:active{transform:none}
+/* ===== Juice ===== */
+/* Rótulos de televisión sobre el directo 3D. */
+.live3d{position:relative}.tv-callout{position:absolute;left:50%;top:18%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;animation:tvIn 1.6s cubic-bezier(.2,1.4,.3,1) forwards;z-index:3}
+.tv-callout b{font:800 clamp(1.6rem,6vw,3rem)/1 var(--disp,'Bebas Neue',sans-serif);letter-spacing:.06em;padding:.12em .5em;border-radius:6px;background:linear-gradient(90deg,#ffb21e,#ff7a1f);color:#140b00;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:skewX(-8deg)}
+.tv-callout.bad b{background:linear-gradient(90deg,#5fb8ff,#3a6bff);color:#fff}.tv-callout span{margin-top:4px;font:700 .8rem system-ui,sans-serif;color:#fff;text-shadow:0 1px 3px #000;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:4px}
+@keyframes tvIn{0%{opacity:0;transform:translateX(-50%) scale(.4)}14%{opacity:1;transform:translateX(-50%) scale(1.12)}22%{transform:translateX(-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-14px)}}
+/* Botones con respuesta física. */
+button,.option,.cta,.small-btn{transition:transform .08s ease,filter .12s ease,box-shadow .12s ease}
+button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);filter:brightness(1.12)}
+.cta:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 6px 18px rgba(255,178,30,.25)}
+/* Entrada escalonada de las tarjetas al cambiar de pestaña. */
+.tab-enter .card{animation:cardIn .38s cubic-bezier(.2,.9,.3,1.1) both}.tab-enter .card:nth-child(2){animation-delay:.04s}.tab-enter .card:nth-child(3){animation-delay:.08s}.tab-enter .card:nth-child(4){animation-delay:.12s}.tab-enter .card:nth-child(n+5){animation-delay:.16s}
+@keyframes cardIn{from{transform:translateY(14px) scale(.97)}to{transform:none}}
+/* Resultado de una decisión: las fichas de efecto entran una a una. */
+.outcome .chips>*{animation:chipIn .35s cubic-bezier(.2,1.5,.4,1) both}.outcome .chips>*:nth-child(2){animation-delay:.07s}.outcome .chips>*:nth-child(3){animation-delay:.14s}.outcome .chips>*:nth-child(4){animation-delay:.21s}.outcome .chips>*:nth-child(n+5){animation-delay:.28s}
+@keyframes chipIn{from{transform:scale(.5) translateY(6px)}to{transform:none}}
+/* Barras que se llenan y avisos que rebotan. */
+.bar>i,.meter>i,.progress>i{transition:width .7s cubic-bezier(.2,.9,.3,1)}
+.notice,.toast{animation:toastIn .42s cubic-bezier(.2,1.5,.4,1) both}@keyframes toastIn{from{transform:translateY(-10px) scale(.9)}to{transform:none}}
+/* Opción de decisión: brillo al pasar por encima. */
+.option{position:relative;overflow:hidden}.option::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.12) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}.option:hover::after{transform:translateX(100%)}
+@media (prefers-reduced-motion:reduce){.tv-callout,.tab-enter .card,.outcome .chips>*,.notice,.toast{animation:none}.option::after{display:none}button:active,.option:active,.cta:active{transform:none}}

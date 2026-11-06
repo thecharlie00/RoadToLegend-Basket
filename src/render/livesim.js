@@ -23,7 +23,7 @@
   function create(match, opts = {}) {
     const prof = CAA.Rules ? CAA.Rules.getProfile(match.ruleSetId || 'FIBA-2026') : { court: { length: 28, width: 15 } };
     const L = prof.court.length, W = prof.court.width;
-    const sim = { id: match.matchId, L, W, t: 0, idx: -1, fed: -1, queue: [], poss: 0, script: { type: 'jump', t: 0 }, actors: [], refs: [], ball: { x: 0, y: 1.2, z: 0, holder: -1, flight: null, vy: 0, spin: 0 }, net: [0, 0], cam: { x: 0, fov: 34, shake: 0 }, women: !!opts.women };
+    const sim = { id: match.matchId, L, W, t: 0, idx: -1, fed: -1, queue: [], fx: [], poss: 0, script: { type: 'jump', t: 0 }, actors: [], refs: [], ball: { x: 0, y: 1.2, z: 0, holder: -1, flight: null, vy: 0, spin: 0 }, net: [0, 0], cam: { x: 0, fov: 34, shake: 0 }, women: !!opts.women };
     for (let team = 0; team < 2; team++) for (let slot = 0; slot < 5; slot++) {
       const side = team ? -1 : 1;
       sim.actors.push({ team, slot, id: null, name: '', number: slot + 1, x: -side * (2 + slot * 0.9), z: (slot - 2) * 2.4, y: 0, vx: 0, vz: 0, yaw: side > 0 ? Math.PI / 2 : -Math.PI / 2, stride: slot, speed: 0, jump: 0, jumpT: -1, arms: 0, stance: 0, tx: 0, tz: 0, face: null, run: 1 });
@@ -156,10 +156,10 @@
       if (s.gotBall && b.holder === s.shooter && !b.flight && (near || s.t > 3.2) && !s.released) {
         s.released = true; s.relT = s.t; sh.jumpT = 0; sh.arms = 1; df.jumpT = 0.05; df.arms = 1;
         const hx = hoopX(sim, off), dist = Math.hypot(hx - sh.x, sh.z);
-        if (s.blocked) fly(sim, [sh.x, 2.4, sh.z], [sh.x + side(off) * 0.6, 3.0, sh.z + 0.4], 0.22, 0.2, () => { fly(sim, [b.x, b.y, b.z], [sh.x - side(off) * 2.5, 0.12, sh.z + 1.5], 0.7, 0.8, () => { b.loose = true; }); });
+        if (s.blocked) { sim.fx.push({ k: 'block', team: 1 - off, player: df.name }); sim.cam.shake = 0.25; } if (s.blocked) fly(sim, [sh.x, 2.4, sh.z], [sh.x + side(off) * 0.6, 3.0, sh.z + 0.4], 0.22, 0.2, () => { fly(sim, [b.x, b.y, b.z], [sh.x - side(off) * 2.5, 0.12, sh.z + 1.5], 0.7, 0.8, () => { b.loose = true; }); });
         else fly(sim, [sh.x, 2.35, sh.z], [hx, 3.15, 0], clamp(0.75 + dist * 0.06, 0.8, 1.35), clamp(1.4 + dist * 0.17, 1.6, 2.9), () => {
-          if (s.made) { sim.net[off] = 1; fly(sim, [hx, 3.0, 0], [hx - side(off) * 0.3, 0.12, 0.2], 0.45, 0, () => { b.loose = true; s.inbound = true; }); }
-          else { const k = hash(sim.idx) % 3 - 1; fly(sim, [hx, 3.1, 0], [hx - side(off) * (1.4 + Math.abs(k)), 0.12, k * 1.8], 0.8, 1.3, () => { b.loose = true; }); }
+          if (s.made) { sim.net[off] = 1; const pts = s.zone === 'corner3' || s.zone === 'above3' ? 3 : 2; sim.fx.push({ k: 'made', team: off, pts, dunk: s.zone === 'restricted' && sh.big, player: sh.name }); sim.cam.shake = pts === 3 ? 0.35 : 0.22; fly(sim, [hx, 3.0, 0], [hx - side(off) * 0.3, 0.12, 0.2], 0.45, 0, () => { b.loose = true; s.inbound = true; }); }
+          else { sim.fx.push({ k: 'rim', team: off }); const k = hash(sim.idx) % 3 - 1; fly(sim, [hx, 3.1, 0], [hx - side(off) * (1.4 + Math.abs(k)), 0.12, k * 1.8], 0.8, 1.3, () => { b.loose = true; }); }
         });
       }
       if (s.released && !b.flight) {
@@ -183,7 +183,7 @@
       const off = s.off, newOff = 1 - off; flowTargets(sim, off);
       if (s.thief >= 0) {
         const th = sim.actors[s.thief];
-        if (!s.stolen) { th.tx = b.x; th.tz = b.z; if (Math.hypot(th.x - b.x, th.z - b.z) < 1 || s.t > 0.9) { s.stolen = true; b.flight = null; b.holder = s.thief; } }
+        if (!s.stolen) { th.tx = b.x; th.tz = b.z; if (Math.hypot(th.x - b.x, th.z - b.z) < 1 || s.t > 0.9) { s.stolen = true; b.flight = null; b.holder = s.thief; sim.fx.push({ k: 'steal', team: th.team, player: th.name }); } }
         else { const [x, z] = spot(sim, newOff, 1.2, 0); th.tx = x; th.tz = z; th.run = 1.35; for (const a of sim.actors) if (a !== th) { const [ax, az] = spot(sim, newOff, 5 + a.slot, (a.slot - 2) * 2.6); a.tx = ax; a.tz = az; a.stance = 0; a.face = null; } }
       } else if (!s.out) { s.out = true; fly(sim, [b.x, b.y, b.z], [b.x + 1.5, 0.12, sim.W / 2 + 0.8], 0.6, 0.6, () => { b.loose = true; }); }
       if (s.t > 1.8) s.done = true;
@@ -191,6 +191,7 @@
     } else if (s.type === 'foul') {
       // Silbato: el juego se para, el infractor levanta la mano y el árbitro señala.
       for (const a of sim.actors) { a.tx = a.x; a.tz = a.z; a.stance = 0; }
+      if (!s.blew) { s.blew = true; sim.fx.push({ k: 'whistle' }); }
       const f = sim.actors[s.who]; if (f) f.arms = Math.min(1, s.t * 3) * 0.8;
       sim.refs[1].arms = Math.min(1, s.t * 3); if (s.t > 1) s.done = true;
     } else if (s.type === 'ft') {
@@ -209,7 +210,7 @@
       if ((set || s.t > 1.6) && s.t > 0.9 && !s.released) {
         s.released = true; sh.arms = 1; sh.jumpT = 0.25;
         fly(sim, [sh.x, 2.3, sh.z], [hx, 3.15, 0], 0.95, 1.45, () => {
-          if (s.made) { sim.net[off] = 1; fly(sim, [hx, 3.0, 0], [hx - sd * 0.3, 0.12, 0.1], 0.45, 0, () => { b.loose = true; }); }
+          if (s.made) { sim.net[off] = 1; sim.fx.push({ k: 'ft', team: off }); fly(sim, [hx, 3.0, 0], [hx - sd * 0.3, 0.12, 0.1], 0.45, 0, () => { b.loose = true; }); }
           else fly(sim, [hx, 3.1, 0], [hx - sd * 1.6, 0.12, 1.2], 0.75, 1.2, () => { b.loose = true; });
         });
       }
@@ -228,6 +229,7 @@
     const shooting = s.type === 'shot' || s.type === 'ft';
     sim.cam.x = lerp(sim.cam.x, clamp(b.x * 0.82, -sim.L / 2 + 6, sim.L / 2 - 6), 1 - Math.exp(-dt * 2.2));
     sim.cam.fov = lerp(sim.cam.fov, shooting ? 29 : 34, 1 - Math.exp(-dt * 1.5));
+    sim.cam.shake = Math.max(0, (sim.cam.shake || 0) - dt * 0.9);
     return sim;
   }
   function move(sim, dt) {
@@ -282,8 +284,10 @@
   }
   function camera(sim, aspect) {
     const c = sim.cam, W = sim.W, far = aspect < 1.2 ? 1.18 : 1;
-    return { eye: [c.x * 0.92, 11.2 * far, W / 2 + 15.5 * far], target: [c.x, 0.4, -0.9], fov: c.fov * 0.94 * (aspect < 1.2 ? 1.15 : 1), near: 0.5, far: 95 };
+    const sh = c.shake || 0, jx = sh ? Math.sin(sim.t * 61) * sh : 0, jy = sh ? Math.cos(sim.t * 47) * sh * 0.6 : 0;
+    return { eye: [c.x * 0.92 + jx, 11.2 * far + jy, W / 2 + 15.5 * far], target: [c.x + jx * 0.5, 0.4 + jy * 0.5, -0.9], fov: c.fov * 0.94 * (aspect < 1.2 ? 1.15 : 1), near: 0.5, far: 95 };
   }
-  CAA.LiveSim = { create, step, frame, camera, SETS };
+  function drain(sim) { const f = sim.fx; sim.fx = []; return f; }
+  CAA.LiveSim = { create, step, frame, camera, drain, SETS };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.LiveSim;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

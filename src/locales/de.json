@@ -1657,5 +1657,15 @@
   "modes.genderF": "Frauen",
   "route.na-draftDescW": "Du beendest das College und meldest dich zum WNBA-Draft: 3 Runden und 15 Teams. Die Lotterie entscheidet nur die ersten beiden Picks.",
   "route.na-undraftedDescW": "Niemand wählt dich im WNBA-Draft. Ein nicht garantierter Trainingslagervertrag, und du kämpfst um deinen Platz.",
-  "route.na-draftDescCoachW": "Du trainierst in der WNBA: 15 Franchises, ein Draft mit 3 Runden und Playoffs."
+  "route.na-draftDescCoachW": "Du trainierst in der WNBA: 15 Franchises, ein Draft mit 3 Runden und Playoffs.",
+  "juice.ovr": "GES",
+  "juice.ach": "{n} neuer Erfolg!",
+  "juice.perfect": "PERFEKT!",
+  "fx.three": "DREIER!",
+  "fx.dunk": "DUNK!",
+  "fx.block": "BLOCK!",
+  "fx.steal": "STEAL!",
+  "fx.run": "{a}:0-Lauf",
+  "fx.runOpp": "Gegnerischer {a}:0-Lauf",
+  "fx.lead": "Ihr führt!"
 }

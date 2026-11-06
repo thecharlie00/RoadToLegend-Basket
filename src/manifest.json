@@ -303,6 +303,11 @@
       "worker": false
     },
     {
+      "id": "juice",
+      "path": "src/ui/juice.js",
+      "worker": false
+    },
+    {
       "id": "app",
       "path": "src/ui/app.js",
       "worker": false
