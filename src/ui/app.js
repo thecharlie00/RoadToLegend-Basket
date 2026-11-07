@@ -609,6 +609,7 @@
         </div>
         <p class="version">v${esc(payload.manifest.version)} · ${root.CAAAndroid ? 'ANDROID' : 'WEB'}</p></main>`;
     }
+    if (state.screen === 'eras') return renderEraMenu();
     if (state.screen === 'modes') {
       const card = (mode, ok) => `<button class="mode-card" data-action="boot-mode" data-mode="${mode}" ${ok ? '' : 'disabled'}><b>${t('modes.' + mode)}</b><span>${t('modes.' + mode + 'Desc')}</span>${ok ? '' : `<em>${t('modes.soon')}</em>`}</button>`;
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.new')}</p><h1 class="boot-title small">${t('modes.title')}</h1>
@@ -627,11 +628,11 @@
     const player = c.mode === 'player';
     const era = !!c.eraYear;
     const chal = !!c.challenge && !player;
-    const total = chal ? 2 : (player ? 4 : 2) + (era ? 1 : 0);
+    const total = chal ? 2 : (player ? 4 : 2);
     const step = Math.min(w.step, total);
     const pick = (field, value, label, sub) => `<button class="pick" data-action="wiz-set" data-field="${field}" data-value="${esc(value)}" aria-pressed="${String(c[field]) === String(value)}"><b>${label}</b>${sub ? `<small>${sub}</small>` : ''}</button>`;
     let body = '';
-    const stepKey = chal ? ['challenge', 'who'][step - 1] : (era ? ['era'] : []).concat(player ? ['who', 'position', 'talent', 'club'] : ['who', 'club'])[step - 1];
+    const stepKey = chal ? ['challenge', 'who'][step - 1] : (player ? ['who', 'position', 'talent', 'club'] : ['who', 'club'])[step - 1];
     if (stepKey === 'challenge') {
       body = `<p class="muted">${t('chal.intro')}</p><div class="pick-list">${Object.keys(CAA.Career.CHALLENGES).map(k => pick('challenge', k, t('chal.' + k), t('chal.' + k + 'Desc') + ' ' + t('chal.' + k + 'Goal'))).join('')}</div>`;
     } else if (stepKey === 'era') {
@@ -687,8 +688,9 @@
     c.clubId = ''; c.clubsRoute = null;
   }
   function careerWomen() { const s = state.career.summary; return !!(s && s.league && s.league.gender === 'f'); }
-  function leagueName(id) { const L = CAA.Season.LEAGUES[id]; return L ? L.name : id; }
-  function leagueLabel(id) { const L = CAA.Season.LEAGUES[id]; return L ? (L.country === 'AF' ? '🌍' : flag(L.country)) + ' ' + L.name : id; }
+  function eraYearNow() { const s = hasCareer() && state.career.summary; return s && s.era ? s.year : null; }
+  function leagueName(id, year) { const L = CAA.Season.LEAGUES[id], y = year || eraYearNow(); const h = y && CAA.EraWorld ? CAA.EraWorld.leagueNameAt(id, y) : null; return h || (L ? L.name : id); }
+  function leagueLabel(id, year) { const L = CAA.Season.LEAGUES[id]; return L ? (L.country === 'AF' ? '🌍' : flag(L.country)) + ' ' + leagueName(id, year) : id; }
   const CONTINENTS = ['europe', 'americas', 'asia', 'oceania', 'africa'];
   // Selector en dos pasos (país → liga) para las más de 200 ligas del mundo.
   function leaguePicker(prefix, gender, selected, exclude, year, countryState) {
@@ -757,7 +759,7 @@
       const balls = d.balls.map((b, i) => `<li class="ball ${b.mine ? 'me' : ''}" style="--i:${i}">${crest({ name: b.name }, 22)}<span>${esc(b.name)}</span></li>`).join('');
       const pairs = [0, 2, 4, 6].map(i => `<li class="pair" style="--i:${i + 1}"><span class="${d.balls[i].mine ? 'me' : ''}">${esc(d.balls[i].name)}</span> <b>vs</b> <span class="${d.balls[i + 1].mine ? 'me' : ''}">${esc(d.balls[i + 1].name)}</span></li>`).join('');
       const results = d.rounds.map(r => `<h4>${t(RN[r.name])}</h4><ul class="news">${r.games.map(g => `<li class="${g.mine ? 'me' : ''}">${esc(g.a)} <b>${g.score[0]}–${g.score[1]}</b> ${esc(g.b)}</li>`).join('')}</ul>`).join('');
-      out.push(`<section class="card draw-card"><span class="eyebrow">${t('draw.kicker')}</span><h3>${esc(s.league && s.league.cup ? s.league.cup : t('cup.title'))}</h3>
+      out.push(`<section class="card draw-card"><span class="eyebrow">${t('draw.kicker')}</span><h3>${esc(s.league && s.league.cup && s.league.cup !== '@generic' ? s.league.cup : t('cup.title'))}</h3>
         ${step === 'draw' ? `<p class="muted small">${t('draw.desc')}</p><ol class="draw-balls">${balls}</ol><h4>${t('draw.pairs')}</h4><ul class="draw-pairs">${pairs}</ul><button class="cta" data-action="draw-results">${t('draw.results')}</button>`
           : `${results}<p class="small">${t('draw.champion', { club: esc(d.champion || '') })}</p><button class="cta" data-action="world-op" data-op="draw-seen">${t('common.continue')}</button>`}</section>`);
     }
@@ -987,6 +989,41 @@
       <h4 class="eyebrow">${t('era.moments')}</h4><p class="muted small">${t('era.momentsHint')}</p><ul class="news era-moments">${moments}</ul>
       ${al ? `<details><summary class="eyebrow">${t('era.album', { decade: al.decade, got: al.got, total: al.total })}</summary><ul class="album">${cards}</ul></details>` : ''}
       <details><summary class="eyebrow">${t('era.annual', { d: w.diverged || 0, r: w.rewritten || 0 })}</summary>${annual ? `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('era.annualTitle')}"><table><caption class="muted">${t('era.annualTitle')}</caption><thead><tr><th>${t('era.col.year')}</th><th>${t('era.col.you')}</th><th>${t('era.col.game')}</th><th>${t('era.col.real')}</th></tr></thead><tbody>${annual}</tbody></table></div>` : `<p class="muted small">${t('era.annualEmpty')}</p>`}<p class="muted small">${t('era.sourcesNote')}</p></details></section>`;
+  }
+  // ===== Menú del Modo Épocas (como el del fútbol): portada de la década, década, año exacto y tipo de carrera,
+  // reglas de ese año, lo que pasó ese año en la historia real y tus carreras históricas guardadas. =====
+  function renderEraMenu() {
+    const em = state.eraMenu, E = CAA.Eras, W = CAA.EraWorld, y = em.year, dec = E.decadeOf(y), d0 = Number(dec.slice(0, 4));
+    const years = []; for (let k = Math.max(1920, d0); k <= Math.min(2025, d0 + 9); k++) years.push(k);
+    const fiba = E.traits(y, { ruleSet: 'FIBA-2026' }), na = E.traits(y, { ruleSet: 'NA-2026' }), women = state.career.gender === 'f';
+    const tr = x => [x.shotClock ? t('era.clock', { n: x.shotClock }) : t('era.noClock'), x.three ? t('era.three') : t('era.noThree'), x.quarters ? t('era.quarters') : t('era.halves')];
+    const es = CAA.Season.LEAGUES[women ? 'es-iberica-women' : 'es-iberica-men'] || CAA.Season.LEAGUES['es-iberica-men'];
+    const comps = W ? W.compsFor(es, y).map(c => t(c.nameKey)) : [];
+    const leagues = CAA.Season.leagueList(state.career.gender).filter(l => E.available(CAA.Season.LEAGUES[l.id], y)).length;
+    const R = W ? W.REAL : {}, hist = women ? [['WNBA', R['na-boreal-women'] && R['na-boreal-women'][y]], [t('comp.euroLeagueW'), R['eu-cup-f'] && R['eu-cup-f'][y]]] : [['NBA', R['na-boreal-men'] && R['na-boreal-men'][y]], [t('eraMenu.spain'), R['es-iberica-men'] && R['es-iberica-men'][y]], [t('comp.euroCup'), R['eu-cup-m'] && R['eu-cup-m'][y]]];
+    const mech = y < 1996 ? (y < 1980 ? t('eraMenu.foreign1') : t('eraMenu.foreign2')) : y < 2000 ? t('era.bosman') : '';
+    const saves = Object.entries(eraIndexRead()).filter(([slot]) => state.slots.some(x => x.slot === slot));
+    const tags = list => list.map(x => `<span class="era-tag">${esc(x)}</span>`).join('');
+    return `<main id="panel" class="boot era-menu" data-era-decade="${dec}" tabindex="-1"><section class="era-dialog">
+      <div class="era-cover" aria-hidden="true"><span class="era-cover-years">${d0} — ${Math.min(d0 + 9, 2025)}</span><span class="era-cover-decade">${t('era.d.' + dec)}</span><span class="era-cover-stamp">${y}</span></div>
+      <p class="eyebrow era-kicker">${t('eraMenu.kicker')}</p><h1 class="boot-title small">${t('modes.eras')}</h1><p class="muted">${t('eraMenu.lead')}</p>
+      <div class="era-grid">
+        <label class="era-field">${t('eraMenu.decade')}<select id="era-decade">${E.DECADES.map(x => `<option value="${x.id}" ${x.id === dec ? 'selected' : ''}>${x.id}</option>`).join('')}</select></label>
+        <label class="era-field">${t('eraMenu.year')}<select id="era-year">${years.map(k => `<option value="${k}" ${k === y ? 'selected' : ''}>${k}</option>`).join('')}</select></label>
+        <label class="era-field">${t('eraMenu.mode')}<select id="era-mode"><option value="player" ${em.mode !== 'coach' ? 'selected' : ''}>${t(state.career.gender === 'f' ? 'eraMenu.playerF' : 'eraMenu.player')}</option><option value="coach" ${em.mode === 'coach' ? 'selected' : ''}>${t('eraMenu.coach')}</option></select></label>
+      </div>
+      <div class="era-summary"><b>${t('eraMenu.rules', { year: y })}</b>
+        <p class="small era-sub">${t('eraMenu.fiba')}</p><div class="era-tags">${tags(tr(fiba))}</div>
+        <p class="small era-sub">${t('eraMenu.na')}</p><div class="era-tags">${tags(tr(na))}</div>
+        ${mech ? `<p class="small"><b>${t('eraMenu.mech')}:</b> ${esc(mech)}</p>` : ''}
+        <p class="small"><b>${t('eraMenu.comps')}:</b> ${comps.length ? esc(comps.join(' · ')) : t('eraMenu.noComps')}</p>
+        <p class="small"><b>${t('eraMenu.leagues')}:</b> ${t('eraMenu.leaguesN', { n: leagues })} · <b>${t('eraMenu.tv')}:</b> ${t('eraMenu.look.' + E.look(y))}</p>
+        <p class="muted small">${t('era.d.' + dec + 'Desc')}</p>
+      </div>
+      <div class="era-summary era-history"><b>${t('eraMenu.history', { year: y })}</b><ul class="news">${hist.map(([k, v]) => `<li>🏆 <b>${esc(k)}</b> · ${v ? esc(v) : `<span class="muted">${t('eraMenu.notPlayed')}</span>`}</li>`).join('')}</ul></div>
+      <div class="era-actions"><button class="cta" data-action="era-start">${t('eraMenu.start', { year: y })}</button><button class="ghost-btn" data-action="era-back">${t('wiz.back')}</button><button class="ghost-btn" data-action="era-moments">${t('eraMenu.moments')}</button></div>
+      <h3 class="era-h3">${t('eraMenu.saves')}</h3>${saves.length ? `<div class="era-saves">${saves.map(([slot, e]) => `<div class="era-save"><div><b>${esc(e.name || t('eraMenu.career'))}</b><small class="muted">${esc(e.decade || '')} · ${t('eraMenu.since', { y: e.start })} · ${esc(e.club || '')} · ${e.year}</small></div><button class="small-btn" data-action="era-load" data-slot="${esc(slot)}">${t('eraMenu.load')}</button></div>`).join('')}</div>` : `<p class="muted small">${t('eraMenu.noSaves')}</p>`}
+    </section></main>`;
   }
   function renderWorldNews(s) {
     if (!s.world || !s.world.champions.length) return `<section class="card"><h3>${t('world.leagues')}</h3><p class="muted small">${t('world.leaguesEmpty', { n: Object.keys(CAA.Season.LEAGUES).length })}</p></section>`;
@@ -1280,7 +1317,7 @@
   function cupCard(s) {
     const c = s.cup; if (!c) return '';
     const nm = id => (s.table.find(r => r.id === id) || {}).name || id;
-    return `<section class="card"><h3>🏆 ${esc(s.league && s.league.cup ? s.league.cup : t('cup.title'))}</h3><p class="${c.champion === s.club.id ? 'ok' : ''}">${t('cup.champion', { club: esc(c.championName) })}${c.mine !== 'out' ? ' · ' + t('cup.mine.' + c.mine) : ''}</p>
+    return `<section class="card"><h3>🏆 ${esc(s.league && s.league.cup && s.league.cup !== '@generic' ? s.league.cup : t('cup.title'))}</h3><p class="${c.champion === s.club.id ? 'ok' : ''}">${t('cup.champion', { club: esc(c.championName) })}${c.mine !== 'out' ? ' · ' + t('cup.mine.' + c.mine) : ''}</p>
       <ul class="news">${c.rounds.map(r => r.games.map(g => `<li><span class="muted">${t('cup.' + r.name)}</span> ${esc(nm(g.a))} ${g.score[0]}–${g.score[1]} ${esc(nm(g.b))}</li>`).join('')).join('')}</ul></section>`;
   }
   // ===== Editor (edit35) =====
@@ -1575,6 +1612,15 @@
       text: { power: t('arcade.cue.power'), buzzer: t('arcade.cue.buzzer'), clock: t('arcade.cue.clock') } }, { colorMode: state.settings.colorMode });
     heroRaf = root.requestAnimationFrame(heroDraw);
   }
+  function eraIndexRead() { try { return JSON.parse(root.localStorage.getItem('caa.eraIndex') || '{}') || {}; } catch (_) { return {}; } }
+  function eraIndexUpdate() {
+    try {
+      const st = state.career.state, sm = state.career.summary, idx = eraIndexRead();
+      if (st && st.era && sm) idx[state.slot] = { name: sm.player ? sm.player.name : sm.coach ? sm.coach.name : '', decade: st.era.decade, start: st.era.start, year: st.year, club: sm.club ? sm.club.name : '', mode: st.mode };
+      else delete idx[state.slot];
+      root.localStorage.setItem('caa.eraIndex', JSON.stringify(idx));
+    } catch (_) { /* conveniencia local: nunca bloquea el guardado */ }
+  }
   async function persistCareer() {
     if (!state.career.state) return;
     state.saveState = 'saving';
@@ -1582,6 +1628,7 @@
       const snapshot = CAA.Career.serialize(state.career.state);
       const env = CAA.Save.createEnvelope(state.slot, { career: snapshot }, { seed: snapshot.seed, packVersions: { world: world.version, game: payload.manifest.version }, rngCounters: snapshot.rng });
       await storage.save(state.slot, env); state.slots = await storage.list();
+      eraIndexUpdate();
       state.saveState = storage.persistent ? 'saved' : 'memory'; state.saveError = '';
       try { root.localStorage.setItem('caa.lastSlot', state.slot); } catch (_) {}
     } catch (err) { state.saveState = 'error'; state.saveError = t('save.failed') + ': ' + err.message; notify(state.saveError, true); }
@@ -1649,14 +1696,23 @@
         if (state.career.newClub) { state.career.route = 'world'; if (CAA.Season.LEAGUES[state.career.leagueId].level !== 2 && state.career.gender !== 'f') state.career.leagueId = 'es-ascenso-iberico'; state.career.clubId = ''; state.career.clubsRoute = null; }
         if (state.career.eraYear) { state.career.route = 'world'; eraDefaultLeague(); }
         if (state.career.mode === 'coach' && state.career.route === 'na-undrafted') state.career.route = state.career.gender === 'f' ? 'na-draft' : 'eu-academy';
-        state.screen = 'create'; ensureClubs(state.career.route);
+        if (el.dataset.mode === 'eras') { state.eraMenu = state.eraMenu || { year: state.career.eraYear || 1975, mode: 'player' }; state.screen = 'eras'; }
+        else { state.screen = 'create'; ensureClubs(state.career.route); }
+      } else if (name === 'era-start') {
+        const em = state.eraMenu; state.career.eraYear = em.year; state.career.mode = em.mode === 'coach' ? 'coach' : 'player'; state.career.route = 'world'; eraDefaultLeague();
+        state.wizard = { step: 1 }; state.navDir = 'fwd'; state.screen = 'create'; ensureClubs('world');
+      } else if (name === 'era-back') { state.screen = 'modes'; state.navDir = 'back';
+      } else if (name === 'era-load') {
+        state.slot = el.dataset.slot; const env = await storage.load(state.slot);
+        if (env && env.payload && env.payload.career) { state.career.state = CAA.Career.resume(env.payload.career); state.career.summary = CAA.Career.summary(state.career.state); state.screen = 'game'; state.tab = 'career'; notify(t('career.loaded')); } else notify(t('save.empty'));
+      } else if (name === 'era-moments') { state.career.challenge = 'save'; state.career.eraYear = null; state.career.mode = 'coach'; state.wizard = { step: 1 }; state.screen = 'create'; ensureClubs(state.career.route);
       } else if (name === 'wiz-next' || name === 'wiz-back' || name === 'wiz-cancel') {
         const nameEl = doc.getElementById('career-name'); if (nameEl) state.career.name = nameEl.value;
         if (state.career.newClub) for (const [id, k] of [['club-name', 'name'], ['club-abbr', 'abbr'], ['club-primary', 'primary'], ['club-secondary', 'secondary']]) { const e = doc.getElementById(id); if (e) state.career.newClub[k] = e.value; }
         const natEl = doc.getElementById('career-nationality'); if (natEl) state.career.nationality = natEl.value;
         const seedEl = doc.getElementById('career-seed'); if (seedEl) state.career.seed = seedEl.value;
         state.navDir = name === 'wiz-next' ? 'fwd' : 'back';
-        if (name === 'wiz-cancel') state.screen = 'modes'; else state.wizard.step = Math.max(1, state.wizard.step + (name === 'wiz-next' ? 1 : -1));
+        if (name === 'wiz-cancel') state.screen = state.career.eraYear ? 'eras' : 'modes'; else state.wizard.step = Math.max(1, state.wizard.step + (name === 'wiz-next' ? 1 : -1));
       } else if (name === 'wiz-set') {
         const field = el.dataset.field, value = el.dataset.value;
         if (field === 'number') state.career.number = Number(value);
@@ -1986,6 +2042,13 @@
       if (el.id === 'career-seed') { state.career.seed = el.value; return; }
       if (el.id === 'match-view') { state.match.view = el.value === '3d' ? '3d' : '2d'; state.match.playing = false; state.match.progress = 1; render(); syncAnimation(); return; }
       if (el.id === 'match-quality') { state.match.quality = el.value === 'balanced' ? 'balanced' : 'low'; render(); return; }
+      if (el.id === 'era-decade' || el.id === 'era-year' || el.id === 'era-mode') {
+        const em = state.eraMenu;
+        if (el.id === 'era-decade') { const d = CAA.Eras.DECADES.find(x => x.id === el.value); em.year = d ? Math.min(2025, Number(d.id.slice(0, 4)) + (em.year % 10)) : em.year; if (em.year < 1920) em.year = 1920; }
+        else if (el.id === 'era-year') em.year = Number(el.value);
+        else em.mode = el.value;
+        render(); const f = doc.getElementById(el.id); if (f) f.focus(); return;
+      }
       if (el.id === 'match-camera') { state.match.camera = el.value === 'sideline' ? 'sideline' : 'broadcast'; drawMatchFrame(); return; }
       if (el.id === 'match-key-only') { state.match.keyOnly = el.checked; state.match.playing = false; if (el.checked) { const keys = matchKeys(); if (keys.length) state.match.frame = keys[0].index; } render(); syncAnimation(); return; }
       if (el.id === 'match-rules') { state.match.ruleSetId = el.value; return; }
@@ -2024,7 +2087,8 @@
     root.addEventListener('caa:native-resume', () => { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); });
     const motion = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)'); if (motion && motion.addEventListener) motion.addEventListener('change', () => { CAA.A11Y.apply(state.settings, doc); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; syncAnimation(); });
     root.CAA_APP = { state, storage, worker, world, persistCareer, rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
-      if (state.screen === 'create') { if (state.wizard.step > 1) state.wizard.step--; else state.screen = 'modes'; render(); return true; }
+      if (state.screen === 'create') { if (state.wizard.step > 1) state.wizard.step--; else state.screen = state.career.eraYear ? 'eras' : 'modes'; render(); return true; }
+      if (state.screen === 'eras') { state.screen = 'modes'; render(); return true; }
       if (state.screen === 'modes') { state.screen = 'menu'; render(); return true; }
       if (state.screen === 'game') { if (SECONDARY_TABS.includes(state.tab)) state.tab = 'more'; else if (state.tab !== 'career') state.tab = 'career'; else state.screen = 'menu'; state.match.playing = false; render(); syncAnimation(); return true; }
       return false; } };

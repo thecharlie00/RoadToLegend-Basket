@@ -36,10 +36,10 @@
   // ---------- Competiciones de época ----------
   // Rango de años, región, género, cómo se clasifica (puestos de liga o campeón de copa) y nombre por años.
   const COMPS = [
-    { id: 'euro-champions', region: 'EU', g: 'm', from: 1958, to: 2099, qualify: { ranks: [1, 1], ranksFrom: { 1992: [1, 2], 2001: [1, 3] } }, names: [[1958, 'comp.euroCup'], [1992, 'comp.euroLeague92'], [2001, 'comp.euroLeague']], realKey: 'eu-cup-m', tier: 1 },
-    { id: 'cup-winners', region: 'EU', g: 'm', from: 1967, to: 2002, qualify: { cupWinner: true, ranks: [2, 2] }, names: [[1967, 'comp.cupWinners'], [1992, 'comp.euroCupFiba'], [1997, 'comp.saporta']], tier: 2 },
+    { id: 'euro-champions', region: 'EU', g: 'm', from: 1958, to: 2099, qualify: { ranks: [1, 1], ranksFrom: { 1992: [1, 2], 2001: [1, 3] } }, names: [[1958, 'comp.euroCup'], [1992, 'comp.euroLeague92'], [1997, 'comp.euroLeague']], realKey: 'eu-cup-m', tier: 1 },
+    { id: 'cup-winners', region: 'EU', g: 'm', from: 1967, to: 2002, qualify: { cupWinner: true, ranks: [2, 2] }, names: [[1967, 'comp.cupWinners'], [1992, 'comp.euroCupFiba'], [1998, 'comp.saporta']], tier: 2 },
     { id: 'korac', region: 'EU', g: 'm', from: 1972, to: 2002, qualify: { ranks: [3, 4] }, names: [[1972, 'comp.korac']], tier: 3 },
-    { id: 'eurocup', region: 'EU', g: 'm', from: 2003, to: 2099, qualify: { ranks: [4, 6] }, names: [[2003, 'comp.eurocup']], tier: 2 },
+    { id: 'eurocup', region: 'EU', g: 'm', from: 2003, to: 2099, qualify: { ranks: [4, 6] }, names: [[2003, 'comp.ulebCup'], [2009, 'comp.eurocup']], tier: 2 },
     { id: 'euro-champions-w', region: 'EU', g: 'f', from: 1959, to: 2099, qualify: { ranks: [1, 2] }, names: [[1959, 'comp.euroCupW'], [1996, 'comp.euroLeagueW']], realKey: 'eu-cup-f', tier: 1 },
     { id: 'ronchetti', region: 'EU', g: 'f', from: 1972, to: 2002, qualify: { ranks: [3, 4] }, names: [[1972, 'comp.ronchetti']], tier: 2 },
     { id: 'eurocup-w', region: 'EU', g: 'f', from: 2003, to: 2099, qualify: { ranks: [3, 5] }, names: [[2003, 'comp.eurocupW']], tier: 2 },
@@ -241,6 +241,23 @@
     return foreignCount(state, club) < lim + 1; // el cupo cuenta los extranjeros en plantilla (uno de margen para cubrir lesiones)
   }
 
-  CAA.EraWorld = { REAL, SOURCES, LINEAGE, lineage, COMPS, compsFor, continental, annual, duels, nemesis, momentsFor, playMoment, album, foreignLimit, canSignForeign, regionOf, INTERCONTINENTAL, TACTICS };
+  // ---------- Nombres de liga y de copa nacional según el año ----------
+  // Fuentes: Wikipedia (Liga Española de Baloncesto 1957-1983 y Liga ACB; Copa del Rey de Baloncesto; Copa de la Reina
+  // de Baloncesto; NBA/BAA). null = el nombre actual del juego. '@generic' = torneo sin nombre propio en esa época.
+  const LEAGUE_NAMES = {
+    'es-iberica-men': [[1957, 'Liga Nacional'], [1984, 'Liga ACB'], [2012, null]],
+    'na-boreal-men': [[1946, 'BAA'], [1950, null]],
+    'es-iberica-women': [[1964, 'Liga Femenina'], [2018, null]]
+  };
+  const CUP_NAMES = {
+    'es-iberica-men': [[1933, 'Copa de España'], [1940, 'Copa del Generalísimo'], [1977, null]],
+    'es-iberica-women': [[1943, 'Campeonato de España femenino'], [1978, null]],
+    'na-boreal-men': [[1946, '@generic'], [2024, 'NBA In-Season Tournament'], [2025, null]],
+    'na-boreal-women': [[1997, '@generic'], [2021, null]]
+  };
+  const at = (rows, y) => { if (!rows) return undefined; let v; for (const [from, name] of rows) if (y >= from) v = name; return v; };
+  function leagueNameAt(leagueId, year) { const v = at(LEAGUE_NAMES[leagueId], year); return v === undefined || v === null ? null : v; }
+  function cupNameAt(leagueId, year) { const v = at(CUP_NAMES[leagueId], year); return v === undefined || v === null ? null : v; }
+  CAA.EraWorld = { LEAGUE_NAMES, CUP_NAMES, leagueNameAt, cupNameAt, REAL, SOURCES, LINEAGE, lineage, COMPS, compsFor, continental, annual, duels, nemesis, momentsFor, playMoment, album, foreignLimit, canSignForeign, regionOf, INTERCONTINENTAL, TACTICS };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.EraWorld;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

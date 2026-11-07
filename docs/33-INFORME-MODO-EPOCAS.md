@@ -62,3 +62,21 @@ Cada competición existe solo los años en que existió, con su nombre de entonc
 - Nombres de clubes por año (requiere un histórico de clubes verificado).
 - Dinastía de Épocas y reto diario.
 - Recompensas cosméticas fuera del modo.
+
+## Menú del Modo Épocas (como el del fútbol)
+- **Pantalla propia** en lugar de un paso del asistente:
+  - Portada temática por década: color, trama, la década en grande, su lema y un sello con el año.
+  - Selectores de década, año exacto y tipo de carrera.
+- **Reglas de ese año**: FIBA y liga norteamericana por separado, más la mecánica de la época, las competiciones europeas vigentes, las ligas en marcha y el estilo de televisión.
+- **«Ese año en la historia real»**: campeones de la NBA, de la Liga Española y de la Copa de Europa (en femenino: WNBA y Euroliga Femenina).
+- **Botones**: «Elegir club y empezar en {año}», «Atrás» y «Momentos históricos».
+- **Tus carreras históricas**: carreras de épocas guardadas en el dispositivo, con botón para continuar.
+
+## Nombres de época
+- **Competiciones europeas**:
+  - Copa de Europa (hasta 1991), Liga Europea (1992-1996) y Euroliga (desde 1997).
+  - Recopa, Copa de Europa FIBA (1992-1997) y Copa Saporta (1998-2002).
+  - Copa ULEB (2003-2008) y Eurocup (desde 2009).
+- **Ligas**: Liga Nacional (1957-1983), Liga ACB (1984-2011) y nombre actual desde 2012; BAA (hasta 1949) y NBA; Liga Femenina.
+- **Copas nacionales**: Copa del Generalísimo (1940-1976) y Copa del Rey (desde 1977); Campeonato de España femenino (1943-1977) y Copa de la Reina (desde 1978). La copa de la NBA y la Commissioner's Cup solo llevan su nombre desde que existen.
+- **Fuentes** ([Copa del Rey](https://en.wikipedia.org/wiki/Copa_del_Rey_de_Baloncesto), [Copa de la Reina](https://en.wikipedia.org/wiki/Copa_de_la_Reina_de_Baloncesto), [EuroCup](https://en.wikipedia.org/wiki/EuroCup_Basketball), [Liga Femenina](https://en.wikipedia.org/wiki/Liga_Femenina_de_Baloncesto)): el año en que la Liga Femenina adopta el patrocinio actual es aproximado.

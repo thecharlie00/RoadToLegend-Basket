@@ -633,3 +633,30 @@ button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);fil
 .sticker span{font-size:1.4rem;opacity:.5}.sticker small{font-size:.68rem;line-height:1.15;opacity:.75}
 .sticker.got{border-style:solid;border-color:#ffb21e;background:linear-gradient(160deg,rgba(255,178,30,.18),rgba(255,122,31,.06))}.sticker.got span{opacity:1}.sticker.got small{opacity:1;font-weight:700}
 .era-comps .me,.era-moment-res .ok{color:#ffb21e}.era-moment-res .bad{opacity:.65}
+/* ===== Menú del Modo Épocas (portada temática por década, como el fútbol) ===== */
+.era-menu{--era-accent:#d99b56;--era-deep:#2b2118;--era-ink:#17120e;--era-pattern:repeating-linear-gradient(0deg,rgba(217,155,86,.08) 0 2px,transparent 2px 22px)}
+.era-menu[data-era-decade="1920s"],.era-menu[data-era-decade="1930s"]{--era-accent:#c9a46a;--era-deep:#2e2416;--era-ink:#1a140b;--era-pattern:repeating-linear-gradient(0deg,rgba(201,164,106,.1) 0 1px,transparent 1px 18px)}
+.era-menu[data-era-decade="1940s"],.era-menu[data-era-decade="1950s"]{--era-accent:#d8d2c4;--era-deep:#262626;--era-ink:#111;--era-pattern:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 14px)}
+.era-menu[data-era-decade="1960s"]{--era-accent:#e07a4f;--era-deep:#3a1f17;--era-ink:#1f0f0a;--era-pattern:radial-gradient(circle at 10px 10px,rgba(224,122,79,.16) 0 4px,transparent 5px) 0 0/22px 22px}
+.era-menu[data-era-decade="1970s"]{--era-accent:#e2a461;--era-deep:#392619;--era-ink:#21150e;--era-pattern:repeating-linear-gradient(0deg,#e2a46122 0 6px,#c0573022 6px 12px,transparent 12px 28px)}
+.era-menu[data-era-decade="1980s"]{--era-accent:#64d6cc;--era-deep:#122e38;--era-ink:#082022;--era-pattern:repeating-linear-gradient(135deg,rgba(100,214,204,.12) 0 3px,transparent 3px 16px)}
+.era-menu[data-era-decade="1990s"]{--era-accent:#b9d75c;--era-deep:#29331d;--era-ink:#19200c;--era-pattern:repeating-linear-gradient(145deg,rgba(185,215,92,.12) 0 10px,transparent 10px 30px)}
+.era-menu[data-era-decade="2000s"]{--era-accent:#68c9f1;--era-deep:#153148;--era-ink:#0c1b28;--era-pattern:linear-gradient(rgba(104,201,241,.08) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(104,201,241,.08) 1px,transparent 1px) 0 0/24px 24px}
+.era-menu[data-era-decade="2010s"]{--era-accent:#59d6ad;--era-deep:#16352f;--era-ink:#0a2119;--era-pattern:radial-gradient(circle,rgba(89,214,173,.18) 1.5px,transparent 2px) 0 0/20px 20px}
+.era-menu[data-era-decade="2020s"]{--era-accent:#b9a5ff;--era-deep:#30274a;--era-ink:#1b1630;--era-pattern:radial-gradient(circle at 1px 1px,rgba(185,165,255,.22) 1px,transparent 1.5px) 0 0/22px 22px}
+.era-dialog{position:relative;overflow:hidden;border:1px solid var(--era-accent);border-radius:16px;padding:18px;background:linear-gradient(160deg,rgba(255,255,255,.03),transparent 35%),#101c20;text-align:left}
+.era-cover{position:relative;isolation:isolate;display:flex;min-height:120px;align-items:flex-end;justify-content:space-between;gap:12px;overflow:hidden;margin:-18px -18px 16px;padding:18px;border-bottom:1px solid var(--era-accent);background:linear-gradient(135deg,var(--era-deep),#0a1316 75%)}
+.era-cover::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--era-pattern);opacity:.95}
+.era-cover::after{content:'';position:absolute;z-index:-1;top:-46px;right:42px;width:136px;height:136px;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 11px rgba(255,255,255,.025),0 0 0 25px rgba(255,255,255,.02)}
+.era-menu[data-era-decade="2000s"] .era-cover::after{border-radius:8px;transform:rotate(18deg)}.era-menu[data-era-decade="2020s"] .era-cover::after{width:150px;height:96px;top:10px;border-radius:48px;transform:rotate(-28deg)}
+.era-cover-decade{max-width:68%;font:900 clamp(26px,7vw,44px)/.95 var(--disp,'Bebas Neue',system-ui,sans-serif);letter-spacing:-.01em;text-transform:uppercase;text-shadow:0 2px 18px #0008;color:#fff}
+.era-cover-years{position:absolute;left:20px;top:16px;color:rgba(255,255,255,.72);font:700 11px/1.2 system-ui,sans-serif;letter-spacing:.17em}
+.era-cover-stamp{display:grid;place-items:center;width:62px;height:62px;flex:none;border:1px solid var(--era-accent);border-radius:50%;background:rgba(8,13,16,.55);color:var(--era-accent);font:800 17px/1 system-ui,sans-serif;transform:rotate(-8deg)}
+.era-kicker{color:var(--era-accent)}.era-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.era-field{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:rgba(255,255,255,.75)}.era-field select{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0b1417;color:#fff;font:inherit;font-size:.95rem}
+.era-summary{border-left:3px solid var(--era-accent);background:linear-gradient(100deg,var(--era-deep),#0a1316 58%);border-radius:10px;padding:12px 14px;margin:12px 0}
+.era-sub{margin:8px 0 4px;opacity:.75}.era-tags{display:flex;flex-wrap:wrap;gap:6px}.era-tag{font-size:.78rem;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
+.era-actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.era-actions .cta{background:var(--era-accent);border-color:var(--era-accent);color:var(--era-ink)}
+.era-h3{border-left:2px solid var(--era-accent);padding-left:8px;margin-top:20px}.era-saves{display:flex;flex-direction:column;gap:8px}
+.era-save{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}.era-save small{display:block}
+@media (max-width:420px){.era-dialog{padding:14px}.era-cover{min-height:104px;margin:-14px -14px 14px;padding:14px}.era-cover-stamp{width:54px;height:54px}}

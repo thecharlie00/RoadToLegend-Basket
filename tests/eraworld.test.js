@@ -50,3 +50,18 @@ test('foreign player limit before Bosman (Europe), none after 1996 or in North A
   const n = Career.createCareer({ seed: 'ew-6', mode: 'coach', eraYear: 1999, leagueId: 'es-iberica-men' });
   assert.equal(EraW.foreignLimit(n), null);
 });
+
+test('league, cup and continental names match what they were called at the time', () => {
+  assert.equal(EraW.leagueNameAt('es-iberica-men', 1970), 'Liga Nacional');
+  assert.equal(EraW.leagueNameAt('es-iberica-men', 1990), 'Liga ACB');
+  assert.equal(EraW.leagueNameAt('es-iberica-men', 2020), null);
+  assert.equal(EraW.leagueNameAt('na-boreal-men', 1948), 'BAA');
+  assert.equal(EraW.cupNameAt('es-iberica-men', 1970), 'Copa del Generalísimo');
+  assert.equal(EraW.cupNameAt('es-iberica-men', 1980), null);
+  assert.equal(EraW.cupNameAt('es-iberica-women', 1970), 'Campeonato de España femenino');
+  const es = Season.LEAGUES['es-iberica-men'], key = (y, id) => EraW.compsFor(es, y).find(c => c.id === id).nameKey;
+  assert.equal(key(2005, 'eurocup'), 'comp.ulebCup'); assert.equal(key(2012, 'eurocup'), 'comp.eurocup');
+  assert.equal(key(1995, 'cup-winners'), 'comp.euroCupFiba'); assert.equal(key(2000, 'cup-winners'), 'comp.saporta');
+  const s = Career.createCareer({ seed: 'ew-7', mode: 'coach', eraYear: 1965, leagueId: 'es-iberica-men' });
+  const sm = Career.summary(s); assert.equal(sm.leagueName, 'Liga Nacional'); assert.equal(sm.league.cup, 'Copa del Generalísimo');
+});
