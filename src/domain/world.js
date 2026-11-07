@@ -25,7 +25,7 @@
     const out = [];
     const mine = state.season.clubs.filter(c => c.id !== state.clubId);
     out.push({ club: mine[rng.int(0, Math.min(5, mine.length - 1))], league: state.season.leagueId });
-    for (const id of picks) { const s = S().createSeason(id, state.seed + ':summer:' + state.year + ':' + id); out.push({ club: s.clubs[rng.int(0, Math.min(4, s.clubs.length - 1))], league: id }); }
+    for (const id of picks) { const s = S().createSeason(id, state.seed + ':summer:' + state.year + ':' + id, null, state.era ? { noReal: true } : undefined); out.push({ club: s.clubs[rng.int(0, Math.min(4, s.clubs.length - 1))], league: id }); }
     return out;
   }
   function game(state, a, b, tag) {
@@ -112,6 +112,7 @@
     if (club.roster.length >= 15) throw new Error('roster full');
     if (fin.cash < o.fee) throw new Error('not enough cash');
     const it = CAA.Market.list(state).find(x => x.id === id);
+    if (CAA.EraWorld && !CAA.EraWorld.canSignForeign(state, club, it.player)) throw new Error('foreign limit');
     fin.cash -= o.fee; club.roster.push(it.player); d.signed.push(id);
     state.inbox.push({ type: 'signed', week: state.week, detail: { club: o.name, fee: o.fee } });
     return o;

@@ -36,7 +36,7 @@
   function leagueBudget(league) { return league.budget != null ? league.budget : league.region === 'EU' ? (league.level === 1 ? 18000000 : 3500000) : 0; }
 
   function clubSeed(leagueId, index) { return leagueId + ':club:' + index; }
-  function createClub(leagueId, index, name, rating) {
+  function createClub(leagueId, index, name, rating, opts) {
     const league = LEAGUES[leagueId];
     const rng = RNG.create(clubSeed(leagueId, index));
     const players = [];
@@ -44,7 +44,7 @@
     const budget = leagueBudget(league), gender = league.gender === 'f' ? 'women' : 'men';
     const nat = () => league.pool ? (rng.float() < league.share ? league.pool[0] : rng.pick(league.pool.slice(1))) : league.region === 'EU' ? (rng.float() < 0.6 ? 'ES' : rng.pick(['FR', 'DE', 'IT', 'TR', 'GR', 'LT', 'RS', 'AR', 'BR'])) : rng.pick(['US', 'US', 'US', 'CA', 'FR', 'AU', 'CN', 'JP', 'KR', 'PH', 'ZA']);
     // Plantilla real versionada (estilo PES) si el club la tiene; el resto hasta 12 se genera.
-    const real = league.realClubs && RealRosters && (RealRosters.forClub ? RealRosters.forClub(name, gender) : RealRosters.ROSTERS[name]);
+    const real = !(opts && opts.noReal) && league.realClubs && RealRosters && (RealRosters.forClub ? RealRosters.forClub(name, gender) : RealRosters.ROSTERS[name]);
     if (real) real.slice(0, 12).forEach((r, j) => {
       const p = Player.createPlayer({ seed: clubSeed(leagueId, index) + ':r' + j, name: r[0], pos: r[1], age: r[2], quality: r[3], nationality: r[4], gender });
       p.real = true; p.contract = Contracts.offerForPlayer(p, { league: leagueId, budget }, rng, Contracts.NA_ECONOMY_2026_27);
@@ -77,12 +77,12 @@
     // Las primeras ciudades del catálogo son las potencias de su liga.
     return Math.round(league.strength + (league.spread || 0) * (0.5 - i / Math.max(1, league.teams - 1)));
   }
-  function defaultClubs(leagueId) {
+  function defaultClubs(leagueId, opts) {
     const league = LEAGUES[leagueId];
     if (!league) throw new Error('unknown league ' + leagueId);
     const names = clubNames(leagueId);
     const out = [];
-    for (let i = 0; i < league.teams; i++) out.push(createClub(leagueId, i, names[i] || league.name + ' ' + (i + 1), clubRating(league, i)));
+    for (let i = 0; i < league.teams; i++) out.push(createClub(leagueId, i, names[i] || league.name + ' ' + (i + 1), clubRating(league, i), opts));
     if (league.inspired) Names.assignInspiredToClubs(out, leagueId + ':inspired', league.region === 'EU' ? 'eu' : 'na', league.region === 'EU' && league.level === 2 ? 18 : 0);
     return out;
   }
@@ -184,10 +184,11 @@
   function standings(clubs) {
     return clubs.slice().sort((a, b) => b.wins - a.wins || (b.pf - b.pa) - (a.pf - a.pa) || a.id.localeCompare(b.id)).map((c, i) => ({ rank: i + 1, id: c.id, name: c.name, wins: c.wins, losses: c.losses, diff: c.pf - c.pa }));
   }
-  function createSeason(leagueId, seed, clubs) {
+  // opts.noReal: sin plantillas reales versionadas (Modo Épocas: en 1972 no puede jugar una estrella de 2026).
+  function createSeason(leagueId, seed, clubs, opts) {
     const league = LEAGUES[leagueId];
     if (!league) throw new Error('unknown league ' + leagueId);
-    const list = clubs || defaultClubs(leagueId);
+    const list = clubs || defaultClubs(leagueId, opts);
     const byId = {};
     for (const c of list) { byId[c.id] = c; for (const p of c.roster) p.ovrStart = p.ovr; }
     return { leagueId, season: '2026-27', ruleSet: league.ruleSet, round: 0, clubs: list, clubsById: byId, schedule: createSchedule(leagueId, list.map(c => c.id), seed), results: [], champion: null, playoffs: null };

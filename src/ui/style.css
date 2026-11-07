@@ -625,3 +625,11 @@ button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);fil
 /* Opción de decisión: brillo al pasar por encima. */
 .option{position:relative;overflow:hidden}.option::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.12) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}.option:hover::after{transform:translateX(100%)}
 @media (prefers-reduced-motion:reduce){.tv-callout,.tab-enter .card,.outcome .chips>*,.notice,.toast{animation:none}.option::after{display:none}button:active,.option:active,.cta:active{transform:none}}
+/* ===== Modo Épocas ===== */
+.era-hub .era-sign{background:rgba(255,178,30,.08);border-left:3px solid #ffb21e;padding:6px 10px;border-radius:6px}
+.era-moments .era-mo{padding:8px 0}.era-moments .row{gap:6px;margin-top:6px;flex-wrap:wrap}.stars{color:#ffb21e;letter-spacing:.08em}
+.album{list-style:none;padding:0;margin:8px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.sticker{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border-radius:10px;border:2px dashed rgba(255,255,255,.18);text-align:center;min-height:86px}
+.sticker span{font-size:1.4rem;opacity:.5}.sticker small{font-size:.68rem;line-height:1.15;opacity:.75}
+.sticker.got{border-style:solid;border-color:#ffb21e;background:linear-gradient(160deg,rgba(255,178,30,.18),rgba(255,122,31,.06))}.sticker.got span{opacity:1}.sticker.got small{opacity:1;font-weight:700}
+.era-comps .me,.era-moment-res .ok{color:#ffb21e}.era-moment-res .bad{opacity:.65}

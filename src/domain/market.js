@@ -44,6 +44,7 @@
       const it = list(state).find(x => x.id === cfg.id); if (!it) throw new Error('not available');
       if (club.roster.some(p => p.id === it.id)) throw new Error('already signed');
       if (fin.cash < it.fee) throw new Error('not enough cash');
+      if (CAA.EraWorld && !CAA.EraWorld.canSignForeign(state, club, it.player)) throw new Error('foreign limit');
       fin.cash -= it.fee; club.roster.push(it.player); m.signed++;
       state.inbox.push({ type: 'signed', week: state.week, detail: { club: it.player.name, fee: it.fee } });
       if (state.life) state.life.counters.signings = (state.life.counters.signings || 0) + 1;

@@ -18,6 +18,7 @@
   const Gear = CAA.Gear || (typeof require === 'function' ? require('./gear.js') : null);
   const Eras = CAA.Eras || (typeof require === 'function' ? require('./eras.js') : null);
   const World = CAA.LiveWorld || (typeof require === 'function' ? require('./world.js') : null);
+  const EraW = CAA.EraWorld || (typeof require === 'function' ? require('./era-world.js') : null);
   const Market = CAA.Market || (typeof require === 'function' ? require('./market.js') : null);
   const Finance = CAA.Finance || (typeof require === 'function' ? require('./finance.js') : null);
   const National = CAA.National || (typeof require === 'function' ? require('./national.js') : null);
@@ -61,9 +62,10 @@
     if (config.leagueId && !Season.LEAGUES[config.leagueId]) throw new Error('unknown league');
     const eraYear = Number.isInteger(config.eraYear) && config.eraYear >= 1920 && config.eraYear <= 2025 ? config.eraYear : null;
     const leagueId = config.leagueId || (route === 'eu-academy' ? 'es-ascenso-iberico' : config.gender === 'f' ? 'na-boreal-women' : 'na-boreal-men');
-    const season = Season.createSeason(leagueId, seed + ':season');
+    const eraOpts = Number.isInteger(config.eraYear) ? { noReal: true } : undefined;
+    const season = Season.createSeason(leagueId, seed + ':season', null, eraOpts);
     const pair = Season.LEAGUES[leagueId].pair;
-    const topSeason = pair ? Season.createSeason(pair, seed + ':season-top') : null;
+    const topSeason = pair ? Season.createSeason(pair, seed + ':season-top', null, eraOpts) : null;
     const club = config.clubId ? season.clubs.find(c => c.id === config.clubId) : season.clubs[season.clubs.length - 1];
     if (!club) throw new Error('club not found');
     const state = {
@@ -351,6 +353,8 @@
     const myRank = table.find(r => r.id === state.clubId).rank;
     state.history.push({ year: state.year, leagueId: season.leagueId, champion: season.champion, championName: season.clubsById[season.champion].name, runnerUp: b ? b.runnerUp : null, cup: season.cup ? season.cup.championName : null,
       table: table.slice(0, 4), clubRank: myRank, result: myResult, awards: awardsList.map(a => ({ award: a.award, player: a.player || null, club: a.club })), promoted: b ? b.promoted.slice() : [] });
+    // Modo Épocas: duelos con las leyendas, competiciones de época y página del Anuario.
+    if (state.era && EraW) { EraW.duels(state); EraW.continental(state, table); EraW.annual(state, season.clubsById[season.champion].name); }
     const lc = Content.ensureLife(state).counters;
     const myAwards = [];
     if (state.player) for (const a of awardsList) if (a.playerId === state.player.id) { state.player.career.awards.push({ year: state.year, award: a.award }); myAwards.push(a.award); }
@@ -568,6 +572,9 @@
     else if (config.op === 'youth-seen') { if (state.youthCup) state.youthCup.seen = true; }
     else if (config.op === 'promote') out = World.promoteProspect(state);
     else if (config.op === 'deadline-sign') out = World.deadlineSign(state, config.id);
+    else if (config.op === 'era-moment') out = state.eraMomentLast = EraW.playMoment(state, config.id, config.tactic);
+    else if (config.op === 'era-moment-seen') state.eraMomentLast = null;
+    else if (config.op === 'era-comps-seen') state.eraCompsSeen = state.year;
     else throw new Error('unknown world op');
     record(state, { type: 'world', op: config.op, id: config.id || null });
     return out;
@@ -695,8 +702,9 @@
     if (old) old.roster = old.roster.filter(x => x.id !== p.id);
     let season = state.season.leagueId === leagueId ? state.season : state.topSeason && state.topSeason.leagueId === leagueId ? state.topSeason : null;
     if (!season) {
-      season = Season.createSeason(leagueId, state.seed + ':move:' + state.year + ':' + leagueId);
-      state.topSeason = L.pair ? Season.createSeason(L.pair, state.seed + ':move-pair:' + state.year) : null;
+      const eo = state.era ? { noReal: true } : undefined;
+      season = Season.createSeason(leagueId, state.seed + ':move:' + state.year + ':' + leagueId, null, eo);
+      state.topSeason = L.pair ? Season.createSeason(L.pair, state.seed + ':move-pair:' + state.year, null, eo) : null;
     } else if (season === state.topSeason) state.topSeason = state.season;
     state.season = season;
     const club = season.clubsById[clubId] || season.clubs[season.clubs.length - 1];
@@ -751,8 +759,9 @@
       const gen = f.generation;
       const leagueId = heirLeague(state.season.leagueId, child.gender === 'f');
       const pair = Season.LEAGUES[leagueId].pair;
-      state.season = Season.createSeason(leagueId, state.seed + ':gen' + gen + ':season', null);
-      state.topSeason = pair ? Season.createSeason(pair, state.seed + ':gen' + gen + ':top') : null;
+      const eo2 = state.era ? { noReal: true } : undefined;
+      state.season = Season.createSeason(leagueId, state.seed + ':gen' + gen + ':season', null, eo2);
+      state.topSeason = pair ? Season.createSeason(pair, state.seed + ':gen' + gen + ':top', null, eo2) : null;
       state.route = leagueId === 'na-boreal-men' || leagueId === 'na-boreal-women' ? 'na-undrafted' : leagueId === 'es-ascenso-iberico' ? 'eu-academy' : 'world';
       const homeClub = state.season.clubsById[legend.lastClub] || state.season.clubs[state.season.clubs.length - 1];
       const rng = RNG.create(state.seed + ':heir:' + gen);
@@ -946,6 +955,14 @@
       leagueName: (state.ed && state.ed.leagues[state.season.leagueId]) || league.name || state.season.leagueId, edits: state.ed || null, challenge: state.challenge || null, quick: state.quick || null, quickEnd: !!state.quickEnd, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
       era: state.era ? { start: state.era.start, decade: Eras.decadeOf(state.year), legends: state.era.legends, look: Eras.look(state.year), ball: Eras.ballColor(state.year), traits: Eras.traits(state.year, league) } : null,
+      eraWorld: state.era && EraW ? (() => {
+        EraW.duels(state);
+        const last = (state.eraComps || []).filter(c => c.year === state.year - 1);
+        return { comps: state.eraCompsSeen === state.year ? [] : last, palmares: (state.eraComps || []).filter(c => c.stage === 'champion').map(c => ({ year: c.year, nameKey: c.nameKey })),
+          upcoming: EraW.compsFor(league, state.year).map(c => ({ id: c.id, nameKey: c.nameKey })), annual: (state.annual || []).slice(-12).reverse(),
+          diverged: (state.annual || []).filter(a => a.diverged).length, rewritten: (state.annual || []).filter(a => a.rewritten).length,
+          nemesis: EraW.nemesis(state), moments: EraW.momentsFor(state), lastMoment: state.eraMomentLast || null, album: EraW.album(state), foreignLimit: EraW.foreignLimit(state), sources: EraW.SOURCES };
+      })() : null,
       rival: rivalOf(state), social: state.life && state.life.social ? state.life.social.slice(-6).reverse() : [], records: state.life ? state.life.records || null : null, diary: state.life && state.life.diary ? state.life.diary.slice(-30).reverse() : [],
       leagueId: state.season.leagueId, league: { cup: league.cup || null, country: league.country, continent: league.continent, gender: league.gender || 'm', level: league.level }, world: state.world || null, pendingMove: state.pendingMove || null,
       round: state.season.round, club: { id: club.id, name: club.name, custom: club.custom || null, wins: club.wins, losses: club.losses, rank: table.find(r => r.id === club.id).rank },

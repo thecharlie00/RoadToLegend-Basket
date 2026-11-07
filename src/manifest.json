@@ -158,6 +158,11 @@
       "worker": true
     },
     {
+      "id": "era-world",
+      "path": "src/domain/era-world.js",
+      "worker": true
+    },
+    {
       "id": "living-world",
       "path": "src/domain/world.js",
       "worker": true

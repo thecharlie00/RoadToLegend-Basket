@@ -615,8 +615,8 @@
         <h2 class="eyebrow" id="gender-h">${t('modes.genderTitle')}</h2>
         <div class="gender-pick" role="group" aria-labelledby="gender-h">${['m', 'f'].map(g => `<button class="gender-card${(state.career.gender === 'f') === (g === 'f') ? ' on' : ''}" data-action="mode-gender" data-gender="${g}" aria-pressed="${(state.career.gender === 'f') === (g === 'f')}"><b>${t(g === 'f' ? 'modes.genderF' : 'modes.genderM')}</b><span>${t(g === 'f' ? 'modes.womenDesc' : 'modes.menDesc')}</span></button>`).join('')}</div>
         <h2 class="eyebrow">${t('modes.modeTitle')}</h2>
-        <div class="mode-grid">${card('player', true)}${card('coach', true)}${card('club', true)}</div>
-        <details class="mode-more"><summary>${t('modes.more')}</summary><div class="mode-grid">${card('eras', true)}${card('challenge', true)}</div></details>
+        <div class="mode-grid">${card('player', true)}${card('coach', true)}${card('club', true)}${card('eras', true)}</div>
+        <details class="mode-more"><summary>${t('modes.more')}</summary><div class="mode-grid">${card('challenge', true)}</div></details>
         <button class="ghost-btn" data-action="boot-back">${t('wiz.back')}</button></main>`;
     }
     return renderCreate();
@@ -711,6 +711,8 @@
     const d = i.detail || {};
     const vars = { weeks: i.weeks || 0, pick: d.overall, us: i.score ? i.score.join('–') : '', team: d.team || '', club: d.clubName || d.club || '', league: leagueName(d.targetLeague || d.leagueId || ''), n: d.value || '' };
     if (i.type === 'eraRule') return t('inbox.eraRule.' + d.rule, vars);
+    if (i.type === 'era-comp') return t('inbox.eraComp', { comp: t(d.comp), stage: STAGE(d.stage) });
+    if (i.type === 'era-rewrite') return t('inbox.eraRewrite', { year: d.year, club: d.real || '' });
     if (i.type === 'cup') return t('inbox.cup', { club: d.club || '' }) + (d.mine && d.mine !== 'out' ? ' ' + t('cup.mine.' + d.mine) : '');
     if (i.type === 'nationalWindow') return t(d.win ? 'inbox.natWin' : 'inbox.natLoss', { n: d.pts });
     if (i.type === 'nationalSummer') return !d.qualified ? t('inbox.natNoQual', { kind: t('nat.kind.' + d.kind) }) : t('inbox.natSummer', { kind: t('nat.kind.' + d.kind), place: t('nat.place.' + d.place) });
@@ -843,7 +845,7 @@
     // Tiempo en familia: opcional y plegado (ya no hay plan semanal que elegir cada semana).
     const famTime = s.player && fam && (fam.partner || fam.children.length) && s.next && !(c.state.live && c.state.live.week === c.state.week) ? `<button class="option" data-action="career-family"><b>${t('home.family')}</b><span class="muted small">${t('home.familyDesc')}</span></button>` : '';
     const famFold = famSetup || famTime ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}${famTime}</details>` : '';
-    return `${eraBanner(s)}${nowStrip}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
+    return `${eraBanner(s)}${nowStrip}${eraCompsCard(s)}${eraMomentCard(s)}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${s.era ? `<details class="card more-week"><summary>${t('era.hubTitle', { decade: s.era.decade })}</summary>${eraCard(s)}</details>` : ''}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -954,10 +956,37 @@
   function clubLabel(m) { const c = CAA.Season.clubCatalog(m.leagueId).find(x => x.id === m.clubId); return c ? c.name : m.clubId; }
   function eraTraits(e) { const tr = e.traits; return [tr.shotClock ? t('era.clock', { n: tr.shotClock }) : t('era.noClock'), tr.three ? t('era.three') : t('era.noThree'), tr.quarters ? t('era.quarters') : t('era.halves')].join(' · '); }
   function eraBanner(s) { return s.era ? `<section class="card era-banner"><span class="eyebrow">${t('era.kicker', { decade: s.era.decade })}</span><p class="small">${esc(eraTraits(s.era))}</p></section>` : ''; }
+  // ===== Modo Épocas: competiciones de época, Anuario, Momentos de leyenda, némesis y álbum =====
+  const STAGE = st => st === 'champion' ? t('era.stage.champion') : st === 'final' ? t('era.stage.final') : t('era.stage.r', { n: String(st).slice(1) });
+  function eraCompsCard(s) {
+    const w = s.eraWorld; if (!w || !w.comps.length) return '';
+    return `<section class="card era-comps"><span class="eyebrow">${t('era.compsKicker', { year: w.comps[0].year })}</span>${w.comps.map(c => `<h3>${c.stage === 'champion' ? '🏆 ' : ''}${t(c.nameKey)} · ${STAGE(c.stage)}</h3>
+      ${c.rounds.map((r, k) => `<p class="eyebrow">${t('era.round', { n: k + 1 })}</p><ul class="news">${r.filter(g => g.mine || r.length <= 2).map(g => `<li class="${g.mine ? 'me' : ''}">${esc(g.a)} <b>${g.score[0]}–${g.score[1]}</b> ${esc(g.b)}</li>`).join('')}</ul>`).join('')}
+      <p class="small">${t('era.compChampion', { club: esc(c.champion) })}${c.real ? ` · <span class="muted">${t('era.realChampion', { club: esc(c.real) })}</span>` : ''}${c.pts != null ? ` · ${t('era.compPts', { n: c.pts })}` : ''}</p>`).join('')}
+      <button class="small-btn" data-action="world-op" data-op="era-comps-seen">${t('common.continue')}</button></section>`;
+  }
+  function eraMomentCard(s) {
+    const m = s.eraWorld && s.eraWorld.lastMoment; if (!m) return '';
+    return `<section class="card era-moment-res"><span class="eyebrow">${t('era.momentKicker')}</span><h3>${t('era.moment.' + m.kind)} · ${'★'.repeat(m.stars)}${'☆'.repeat(4 - m.stars)}</h3>
+      <p><b>${m.score[0]}–${m.score[1]}</b> ${t('era.vs', { club: esc(m.opp) })}</p><ul class="news">${m.goals.map(g => `<li class="${g.ok ? 'ok' : 'bad'}">${g.ok ? '✔' : '✘'} ${t('era.goal.' + g.k, { n: g.k === 'oppUnder' ? Math.round(g.n * 100) : g.n })}</li>`).join('')}</ul>
+      <button class="small-btn" data-action="world-op" data-op="era-moment-seen">${t('common.continue')}</button></section>`;
+  }
   function eraCard(s) {
     if (!s.era) return '';
-    return `<section class="card"><span class="eyebrow">${t('era.kicker', { decade: s.era.decade })}</span><h3>${t('era.d.' + s.era.decade)}</h3><p class="muted small">${t('era.d.' + s.era.decade + 'Desc')}</p><p class="small"><b>${esc(eraTraits(s.era))}</b></p>
-      ${s.era.legends && s.era.legends.length ? `<h4 class="eyebrow">${t('era.legends')}</h4><ul class="news">${s.era.legends.map(l => `<li>⭐ <b>${esc(l.name)}</b> ${flag(l.nationality)} · ${l.pos} · ${l.ovr} <small class="muted">${t('era.nick.' + l.nick)} · ${esc(l.club)}</small></li>`).join('')}</ul>` : ''}</section>`;
+    const w = s.eraWorld || {}, nem = w.nemesis, al = w.album;
+    const moments = (w.moments || []).map(m => `<li class="era-mo"><b>${t('era.moment.' + m.kind)}</b> <span class="stars" aria-label="${t('era.stars', { n: m.stars })}">${'★'.repeat(m.stars)}${'☆'.repeat(4 - m.stars)}</span><br><small class="muted">${t('era.moment.' + m.kind + 'Desc')}</small>
+      <div class="row">${['run', 'defense', 'three'].filter(k => k !== 'three' || s.era.traits.three).map(k => `<button class="small-btn" data-action="world-op" data-op="era-moment" data-id="${esc(m.id)}" data-tactic="${k}">${t('era.tactic.' + k)}</button>`).join('')}</div></li>`).join('');
+    const annual = (w.annual || []).map(a => `<tr><td>${a.year}</td><td>${esc(a.club || '')} <small class="muted">${a.rank ? a.rank + 'º' : ''}</small></td><td>${a.won ? '🏆 ' : ''}${esc(a.champion)}</td><td class="${a.diverged ? 'bad' : 'ok'}">${a.real ? esc(a.real) : '—'}</td></tr>`).join('');
+    const cards = al ? al.cards.map(c => `<li class="sticker ${c.ok ? 'got' : ''}" title="${esc(t(c.hint, { name: c.name || '', kind: c.kind ? t('era.moment.' + c.kind) : '' }))}"><span>${c.ok ? (c.id.startsWith('legend') ? '⭐' : c.id.startsWith('moment') ? '🎬' : c.id.startsWith('comp') ? '🏆' : '📅') : '?'}</span><small>${esc(c.ok ? (c.name || t('album.c.' + c.id.split(':')[0] + (c.id.split(':')[1] && !c.name ? '.' + c.id.split(':')[1].replace(/^\d+s-/, '') : ''))) : t(c.hint, { name: c.name || '', kind: c.kind ? t('era.moment.' + c.kind) : '' }))}</small></li>`).join('') : '';
+    return `<section class="card era-hub"><span class="eyebrow">${t('era.kicker', { decade: s.era.decade })}</span><h3>${t('era.d.' + s.era.decade)}</h3><p class="muted small">${t('era.d.' + s.era.decade + 'Desc')}</p><p class="small"><b>${esc(eraTraits(s.era))}</b></p>
+      ${w.foreignLimit != null ? `<p class="small era-sign">🛂 ${t('era.foreignLimit', { n: w.foreignLimit })}</p>` : s.year >= 1996 && s.era.start < 1996 ? `<p class="small era-sign">⚖️ ${t('era.bosman')}</p>` : ''}
+      ${w.upcoming && w.upcoming.length ? `<h4 class="eyebrow">${t('era.compsNow')}</h4><p class="small">${w.upcoming.map(c => esc(t(c.nameKey))).join(' · ')}</p>` : ''}
+      ${w.palmares && w.palmares.length ? `<h4 class="eyebrow">${t('era.palmares')}</h4><p class="small">${w.palmares.map(p => `🏆 ${esc(t(p.nameKey))} ${p.year}`).join(' · ')}</p>` : ''}
+      ${nem ? `<h4 class="eyebrow">${t('era.nemesis')}</h4><p class="small">⚔️ <b>${esc(nem.name)}</b> · ${esc(nem.club)} · ${t('era.nick.' + nem.nick)}<br>${t('era.duels', { w: nem.w, l: nem.l })}${nem.last ? ` · ${t('era.lastDuel', { year: nem.last.year, a: nem.last.score[0], b: nem.last.score[1] })}` : ''}</p>` : ''}
+      ${s.era.legends && s.era.legends.length ? `<details><summary class="eyebrow">${t('era.legends')}</summary><ul class="news">${s.era.legends.map(l => `<li>⭐ <b>${esc(l.name)}</b> ${flag(l.nationality)} · ${l.pos} · ${l.ovr} <small class="muted">${t('era.nick.' + l.nick)} · ${esc(l.club)}</small></li>`).join('')}</ul></details>` : ''}
+      <h4 class="eyebrow">${t('era.moments')}</h4><p class="muted small">${t('era.momentsHint')}</p><ul class="news era-moments">${moments}</ul>
+      ${al ? `<details><summary class="eyebrow">${t('era.album', { decade: al.decade, got: al.got, total: al.total })}</summary><ul class="album">${cards}</ul></details>` : ''}
+      <details><summary class="eyebrow">${t('era.annual', { d: w.diverged || 0, r: w.rewritten || 0 })}</summary>${annual ? `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('era.annualTitle')}"><table><caption class="muted">${t('era.annualTitle')}</caption><thead><tr><th>${t('era.col.year')}</th><th>${t('era.col.you')}</th><th>${t('era.col.game')}</th><th>${t('era.col.real')}</th></tr></thead><tbody>${annual}</tbody></table></div>` : `<p class="muted small">${t('era.annualEmpty')}</p>`}<p class="muted small">${t('era.sourcesNote')}</p></details></section>`;
   }
   function renderWorldNews(s) {
     if (!s.world || !s.world.champions.length) return `<section class="card"><h3>${t('world.leagues')}</h3><p class="muted small">${t('world.leaguesEmpty', { n: Object.keys(CAA.Season.LEAGUES).length })}</p></section>`;
@@ -1752,10 +1781,11 @@
       } else if (name === 'live-view') { state.liveView = el.dataset.view; if (el.dataset.view === '2d') state.liveViewOff = false;
       } else if (name === 'draw-results') { state.drawStep = 'results';
       } else if (name === 'world-op') {
-        const res = await worker.send('career.world', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id } });
+        const res = await worker.send('career.world', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id, tactic: el.dataset.tactic } });
         if (el.dataset.op === 'draw-seen') state.drawStep = null;
         await acceptCareer(res); if (audio) audio.play('success');
         if (el.dataset.op === 'deadline-sign' || el.dataset.op === 'promote') notify(t('mkt.done.sign'));
+        if (el.dataset.op === 'era-moment') root.requestAnimationFrame(() => { const m = state.career.summary.eraWorld && state.career.summary.eraWorld.lastMoment, card = doc.querySelector('.era-moment-res'); if (card) { card.scrollIntoView({ block: 'center', behavior: 'smooth' }); if (m && m.stars && CAA.Juice) { CAA.Juice.burstAt(card, { count: 10 + m.stars * 6 }); if (m.stars === 4) CAA.Juice.confetti(0.6); } else if (CAA.Juice) CAA.Juice.shake(card, 0.5); } });
       } else if (name === 'mkt-op') {
         const res = await worker.send('career.market', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id, role: el.dataset.role, level: el.dataset.level } });
         await acceptCareer(res); if (audio) audio.play(el.dataset.op === 'sign' || el.dataset.op === 'sell' ? 'coin' : 'success'); notify(t('mkt.done.' + el.dataset.op));
