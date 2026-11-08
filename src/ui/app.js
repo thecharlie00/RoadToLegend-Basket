@@ -1185,7 +1185,7 @@
   }
   const GUIDE = ['career', 'week', 'live', 'decisions', 'minigames', 'pet', 'playoffs', 'coach', 'saves', 'a11y'];
   function renderGuide() {
-    return `<section class="card"><h2>${t('guide.title')}</h2><p class="muted">${t('guide.intro')}</p>${GUIDE.map(k => `<details><summary>${t('guide.s.' + k)}</summary><p>${t('guide.b.' + k)}</p></details>`).join('')}</section>`;
+    return `<section class="card"><h2>${t('guide.title')}</h2><p class="muted">${t('guide.intro')}</p>${hasCareer() ? `<button class="small-btn primary" data-action="coach-replay">${t('tut.replay')}</button>` : ''}${GUIDE.map(k => `<details><summary>${t('guide.s.' + k)}</summary><p>${t('guide.b.' + k)}</p></details>`).join('')}</section>`;
   }
   // ===== Red social, rival, récords y diario =====
   function socialCard(s) {
@@ -1373,8 +1373,70 @@
     return `<div class="actionbar"><button class="cta" data-action="live-start">${t('home.playLive', { team: s.next.opponent.name })} <span aria-hidden="true">▶</span></button><button class="sim-btn" data-action="career-play" aria-label="${t('home.simulateLabel')}">${t('home.simulate')}</button></div>`;
   }
 
+  // ===== Recordatorios locales (solo app Android, desactivados por defecto) =====
+  function armReminders() {
+    if (!state.settings.reminders || !hasCareer() || !CAA.Reminders.available(root)) return;
+    CAA.Reminders.schedule(root, CAA.Reminders.plan(state.career.summary, Date.now(), t));
+  }
+  // ===== Tutorial de primera partida: señala la pantalla real paso a paso =====
+  function coachSteps() {
+    const s = state.career.summary || {}, coach = !!s.squad;
+    const steps = [{ id: 'welcome' }, { id: 'meters', sel: '.season', coach }];
+    if (s.event) steps.push({ id: 'decision', sel: '.card.decision .stack' });
+    steps.push({ id: 'play', sel: '.actionbar' }, { id: 'life', sel: '#tab-life', coach }, { id: 'league', sel: '#tab-league' }, { id: 'more', sel: '#tab-more' });
+    return steps;
+  }
+  function coachStep() {
+    if (!state.coach || state.screen !== 'game' || state.tab !== 'career' || !hasCareer()) return null;
+    const steps = coachSteps(); return steps[Math.min(state.coach.step, steps.length - 1)];
+  }
+  function maybeStartCoach() {
+    if (state.coach || state.coachPrompted || state.screen !== 'game' || state.tab !== 'career' || !hasCareer()) return;
+    const s = state.career.summary; if (s.retirement || s.careerOver || (s.week || 0) > 0) return;
+    state.coachPrompted = true;
+    let done = false; try { done = root.localStorage.getItem('caa.tutorialDone') === '1'; } catch (_) {}
+    if (!done) state.coach = { step: 0 };
+  }
+  function coachFinish() {
+    state.coach = null;
+    try { root.localStorage.setItem('caa.tutorialDone', '1'); if (hasCareer()) root.localStorage.setItem('caa.guideSkip.' + state.career.summary.careerId, '1'); } catch (_) {}
+  }
+  function coachAdvance(d) {
+    const n = coachSteps().length; state.coach.step += d;
+    if (state.coach.step >= n) coachFinish();
+  }
+  function renderCoach() {
+    const st = coachStep(); if (!st) return '';
+    const steps = coachSteps(), i = Math.min(state.coach.step, steps.length - 1), last = i === steps.length - 1;
+    const k = 'tut.' + st.id + (st.coach ? 'Coach' : '');
+    return `<div id="coach" class="coach${st.sel ? '' : ' center'}" data-sel="${esc(st.sel || '')}"><div class="coach-ring" aria-hidden="true"></div>
+      <section class="coach-tip" role="dialog" aria-modal="true" aria-labelledby="coach-title" aria-describedby="coach-body">
+      <div class="guide-head"><span class="eyebrow">${t('tut.kicker', { n: i + 1, total: steps.length })}</span>${last ? '' : `<button class="link" data-action="coach-skip">${t('tut.skip')}</button>`}</div>
+      <div class="steps" aria-hidden="true">${steps.map((_, j) => `<i class="${j <= i ? 'on' : ''}"></i>`).join('')}</div>
+      <h3 id="coach-title">${t(k + 'T')}</h3><p id="coach-body">${t(k + 'B')}</p>
+      <div class="row"><button id="coach-next" class="cta" data-action="coach-next">${t(last ? 'tut.start' : 'tut.next')}</button></div></section></div>`;
+  }
+  function placeCoach() {
+    const box = doc.getElementById('coach'); if (!box) return;
+    const ring = box.querySelector('.coach-ring'), tip = box.querySelector('.coach-tip');
+    const target = box.dataset.sel ? doc.querySelector(box.dataset.sel) : null;
+    // Si el elemento vive dentro de un desplegable cerrado, se abre para poder señalarlo.
+    for (let d = target && target.parentElement; d; d = d.parentElement) if (d.tagName === 'DETAILS' && !d.open) d.open = true;
+    if (!target || !target.getClientRects().length) { box.classList.add('center'); ring.style.display = 'none'; return; }
+    box.classList.remove('center'); ring.style.display = '';
+    const fixed = !!target.closest('.dock');
+    if (!fixed && target.scrollIntoView) target.scrollIntoView({ block: 'center', behavior: 'instant' });
+    const r = target.getBoundingClientRect(), pad = 6, vh = root.innerHeight, vw = root.innerWidth;
+    Object.assign(ring.style, { left: (r.left - pad) + 'px', top: (r.top - pad) + 'px', width: (r.width + pad * 2) + 'px', height: (r.height + pad * 2) + 'px' });
+    const tw = Math.min(360, vw - 32), th = tip.offsetHeight || 180;
+    const below = r.bottom + pad + 12 + th <= vh - 8;
+    const top = below ? r.bottom + pad + 12 : Math.max(8, r.top - pad - 12 - th);
+    const left = Math.max(16, Math.min(vw - tw - 16, r.left + r.width / 2 - tw / 2));
+    Object.assign(tip.style, { top: top + 'px', left: left + 'px', width: tw + 'px' });
+    tip.dataset.side = below ? 'below' : 'above';
+  }
   function renderSettings() {
-    const s = state.settings;
+    const s = state.settings, remOk = CAA.Reminders.available(root);
     const opt = (val, cur, label) => `<option value="${val}" ${val === cur ? 'selected' : ''}>${label}</option>`;
     return `<section class="panel"><h2>${t('settings.title')}</h2><div class="grid">
     <label>${t('settings.language')}<select data-setting="locale">${opt('es', CAA.I18N.getLocale(), 'Español')}${opt('en', CAA.I18N.getLocale(), 'English')}${opt('fr', CAA.I18N.getLocale(), 'Français')}${opt('de', CAA.I18N.getLocale(), 'Deutsch')}${opt('it', CAA.I18N.getLocale(), 'Italiano')}</select></label>
@@ -1384,6 +1446,8 @@
     <label>${t('settings.vibration')}<select data-setting="vibration">${opt('true', String(s.vibration), t('settings.on'))}${opt('false', String(s.vibration), t('settings.off'))}</select></label>
     <label>${t('settings.audio')}<select data-setting="audio">${opt('true', String(s.audio), t('settings.on'))}${opt('false', String(s.audio), t('settings.off'))}</select></label>
     <label>${t('settings.contrast')}<select data-setting="highContrast">${opt('true', String(s.highContrast), t('settings.on'))}${opt('false', String(s.highContrast), t('settings.off'))}</select></label>
+    <label>${t('settings.reminders')}<select data-setting="reminders" ${remOk ? '' : 'disabled aria-describedby="rem-note"'}>${opt('true', String(remOk && s.reminders), t('settings.on'))}${opt('false', String(remOk && s.reminders), t('settings.off'))}</select></label>
+    <p class="muted small" id="rem-note">${t(remOk ? 'settings.remindersNote' : 'settings.remindersAndroid')}</p>
     <p class="muted">${t('settings.audioNote')}</p><button data-action="audio-test">${t('settings.audioTest')}</button>
     </div></section>`;
   }
@@ -1402,6 +1466,7 @@
     doc.documentElement.lang = CAA.I18N.getLocale();
     const status = `<div id="global-status" role="status" aria-live="polite" aria-atomic="true" class="${state.messageError ? 'bad' : 'muted'}">${esc(state.message || (state.busy ? t('status.working') : ''))}</div>`;
     const confirm = state.confirm ? `<section class="panel confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-description"><h2 id="confirm-title">${t('confirm.title')}</h2><p id="confirm-description">${esc(state.confirm.text)}</p><div class="row"><button id="confirm-cancel" data-action="confirm-cancel">${t('confirm.cancel')}</button><button data-action="confirm-yes" class="danger">${t('confirm.yes')}</button></div></section>` : '';
+    maybeStartCoach();
     doc.body.dataset.screen = state.screen;
     // Una animación de entrada por cambio de pantalla/pestaña/paso, no en cada repintado.
     const viewKey = state.screen + ':' + (state.screen === 'game' ? state.tab : state.screen === 'create' ? 'create:' + state.wizard.step : state.screen);
@@ -1418,7 +1483,7 @@
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
       ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
       <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="${tab === 'arcade' ? 'life' : 'more'}">‹ ${t(tab === 'arcade' ? 'nav.life' : 'nav.more')}</button>` : ''}${body}</main>
-      <footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
+      ${renderCoach()}<footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
     }
     const appEl = doc.getElementById('app');
     const mainEl = doc.getElementById('panel');
@@ -1427,15 +1492,17 @@
       if (entered) { void mainEl.offsetWidth; mainEl.classList.add('view-in', 'nav-' + (state.navDir || 'fwd')); }
     }
     appEl.setAttribute('aria-busy', state.busy ? 'true' : 'false');
-    for (const child of appEl.children) child.inert = !!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status';
+    for (const child of appEl.children) child.inert = (!!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status') || (!state.confirm && !!coachStep() && child.id !== 'coach' && child.id !== 'global-status');
     doc.querySelectorAll('[data-action]').forEach(b => { b.disabled = state.busy || b.disabled || !!state.confirm; });
     if (state.confirm) doc.querySelectorAll('.confirm button').forEach(b => { b.disabled = false; });
     doc.querySelectorAll('details').forEach((d, i) => { if (openDetails[i] !== undefined) d.open = openDetails[i]; });
     let restore = focusId && doc.getElementById(focusId);
     if (!restore && focusAction) restore = Array.from(doc.querySelectorAll('[data-action]')).find(b => b.dataset.action === focusAction && Object.keys(focusData).every(k => b.dataset[k] === focusData[k]));
     if (state.confirm) restore = doc.getElementById('confirm-cancel');
+    else if (coachStep()) restore = doc.getElementById('coach-next');
     else if (focusAction === 'confirm-cancel' || focusAction === 'confirm-yes') restore = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel');
     if (restore && !restore.disabled) restore.focus({ preventScroll: true });
+    placeCoach();
     drawMatchFrame();
     drawAvatar();
     drawPet();
@@ -1732,6 +1799,9 @@
         }
         else if (['archetype', 'handedness', 'talent', 'clubId', 'challenge'].includes(field)) state.career[field] = value;
         if (audio) audio.play('click');
+      } else if (name === 'coach-next') { coachAdvance(1);
+      } else if (name === 'coach-skip') { coachFinish();
+      } else if (name === 'coach-replay') { try { root.localStorage.removeItem('caa.tutorialDone'); } catch (_) {} state.tab = 'career'; state.coach = { step: 0 }; state.coachPrompted = true;
       } else if (name === 'guide-skip') { try { root.localStorage.setItem('caa.guideSkip.' + state.career.summary.careerId, '1'); } catch (_) {} }
       else if (name === 'toggle-audio') { state.settings.audio = !state.settings.audio; CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } saveSettings(); }
       else if (name === 'save-delete') {
@@ -2004,6 +2074,10 @@
       const btn = e.target.closest('[data-action]'); if (btn) { haptic('tap'); if (CAA.Juice && btn.dataset.action === 'life-event') { CAA.Juice.pop(btn, 1.04); CAA.Juice.burstAt(btn, { count: 14, speed: 180 }); if (audio) audio.play('pop'); } if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
     });
     doc.getElementById('app').addEventListener('keydown', e => {
+      if (!state.confirm && coachStep()) {
+        if (e.key === 'Escape') { e.preventDefault(); coachFinish(); render(); return; }
+        if (e.key === 'Tab') { const b = Array.from(doc.querySelectorAll('#coach button')); const i = b.indexOf(doc.activeElement); e.preventDefault(); b[(i + (e.shiftKey ? b.length - 1 : 1) + b.length) % b.length].focus(); return; }
+      }
       if (state.confirm) {
         if (e.key === 'Escape') { e.preventDefault(); state.confirm = null; render(); }
         if (e.key === 'Tab') { const buttons = Array.from(doc.querySelectorAll('.confirm button')); const i = buttons.indexOf(doc.activeElement); e.preventDefault(); buttons[(i + (e.shiftKey ? buttons.length - 1 : 1)) % buttons.length].focus(); }
@@ -2057,6 +2131,12 @@
       if (key === 'locale') CAA.I18N.setLocale(el.value);
       else if (key === 'fontSize') state.settings.fontSize = +el.value;
       else if (key === 'vibration' || key === 'audio' || key === 'highContrast') state.settings[key] = el.value === 'true';
+      else if (key === 'reminders') {
+        state.settings.reminders = el.value === 'true' && CAA.Reminders.available(root);
+        if (state.settings.reminders && CAA.Reminders.status(root) !== 'granted') CAA.Reminders.ask(root);
+        if (!state.settings.reminders) CAA.Reminders.cancel(root);
+        if (state.settings.reminders) notify(t('settings.remindersOn'));
+      }
       else state.settings[key] = el.value;
       CAA.A11Y.apply(state.settings, doc); if (audio) { audio.setEnabled(state.settings.audio); if (state.settings.audio) { audio.unlock(); audio.play('click'); } } if (key === 'vibration') haptic('confirm'); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; saveSettings(); render(); syncAnimation();
     });
@@ -2080,13 +2160,16 @@
     state.screen = storedLocale ? 'menu' : 'lang';
     if (CAA.Parrot) CAA.Parrot.subscribe(() => paintParrot());
     bind(); render();
-    const suspend = () => { if (CAA.Parrot) CAA.Parrot.stop(); if (state.arcade && state.arcade.phase === 'aim') state.arcade.aimStart = root.performance.now(); state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); };
-    doc.addEventListener('visibilitychange', () => { if (doc.hidden) suspend(); else { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); } });
+    const suspend = () => { if (CAA.Parrot) CAA.Parrot.stop(); if (state.arcade && state.arcade.phase === 'aim') state.arcade.aimStart = root.performance.now(); state.match.playing = false; if (audio) audio.suspend(); if (state.practice && state.practice.start != null) state.practice.start = null; syncAnimation(); if (state.career.state) persistCareer(); armReminders(); };
+    doc.addEventListener('visibilitychange', () => { if (doc.hidden) suspend(); else { CAA.Reminders.cancel(root); CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); } });
+    root.addEventListener('caa:notify-permission', e => { if (e.detail !== 'granted' && state.settings.reminders) { state.settings.reminders = false; saveSettings(); notify(t('settings.remindersDenied'), true); render(); } });
+    root.addEventListener('resize', () => placeCoach());
     root.addEventListener('pagehide', suspend);
     root.addEventListener('caa:native-pause', suspend);
-    root.addEventListener('caa:native-resume', () => { CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); });
+    root.addEventListener('caa:native-resume', () => { CAA.Reminders.cancel(root); CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); });
     const motion = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)'); if (motion && motion.addEventListener) motion.addEventListener('change', () => { CAA.A11Y.apply(state.settings, doc); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; syncAnimation(); });
     root.CAA_APP = { state, storage, worker, world, persistCareer, rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
+      if (coachStep()) { coachFinish(); render(); return true; }
       if (state.screen === 'create') { if (state.wizard.step > 1) state.wizard.step--; else state.screen = state.career.eraYear ? 'eras' : 'modes'; render(); return true; }
       if (state.screen === 'eras') { state.screen = 'modes'; render(); return true; }
       if (state.screen === 'modes') { state.screen = 'menu'; render(); return true; }

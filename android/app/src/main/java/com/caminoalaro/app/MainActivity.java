@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -31,6 +32,7 @@ public final class MainActivity extends ComponentActivity {
     private static final int OPEN_SAVE = 71;
     private static final int EXPORT_SAVE = 72;
     private static final int MIC_REQUEST = 73;
+    private static final int NOTIFY_REQUEST = 74;
     private static final int MAX_SAVE_CHARS = 8 * 1024 * 1024; // Pretty-printed export; imports still enforce the stricter game limit.
     private WebView web;
     private ValueCallback<Uri[]> fileCallback;
@@ -103,6 +105,11 @@ public final class MainActivity extends ComponentActivity {
     }
     @Override public void onRequestPermissionsResult(int request, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(request, permissions, results);
+        if (request == NOTIFY_REQUEST) {
+            final String granted = results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED ? "granted" : "denied";
+            web.evaluateJavascript("window.dispatchEvent(new CustomEvent('caa:notify-permission',{detail:'" + granted + "'}))", null);
+            return;
+        }
         if (request != MIC_REQUEST || pendingMedia == null) return;
         boolean granted = results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED;
         if (granted) pendingMedia.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
@@ -143,6 +150,28 @@ public final class MainActivity extends ComponentActivity {
                     .setType("application/json").putExtra(Intent.EXTRA_TITLE, "baketball-road-to-legend.json");
                 try { startActivityForResult(intent, EXPORT_SAVE); }
                 catch (Exception e) { pendingExport = null; Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show(); }
+            });
+        }
+        /** Optional local reminders: the page passes at most three {at, title, body}; see ReminderReceiver. */
+        @JavascriptInterface public void scheduleReminders(String json) {
+            if (json == null || json.length() > 4096) return;
+            ReminderReceiver.schedule(getApplicationContext(), json);
+        }
+        @JavascriptInterface public void cancelReminders() { ReminderReceiver.cancelAll(getApplicationContext()); }
+        @JavascriptInterface public String notifyStatus() {
+            if (ReminderReceiver.allowed(MainActivity.this)) return "granted";
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return "ask";
+            return "denied"; // notifications switched off for the app in system settings
+        }
+        @JavascriptInterface public void askNotify() {
+            runOnUiThread(() -> {
+                ReminderReceiver.ensureChannel(MainActivity.this);
+                if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFY_REQUEST);
+                } else {
+                    String st = ReminderReceiver.allowed(MainActivity.this) ? "granted" : "denied";
+                    web.evaluateJavascript("window.dispatchEvent(new CustomEvent('caa:notify-permission',{detail:'" + st + "'}))", null);
+                }
             });
         }
     }

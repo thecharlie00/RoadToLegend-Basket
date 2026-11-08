@@ -660,3 +660,10 @@ button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);fil
 .era-h3{border-left:2px solid var(--era-accent);padding-left:8px;margin-top:20px}.era-saves{display:flex;flex-direction:column;gap:8px}
 .era-save{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}.era-save small{display:block}
 @media (max-width:420px){.era-dialog{padding:14px}.era-cover{min-height:104px;margin:-14px -14px 14px;padding:14px}.era-cover-stamp{width:54px;height:54px}}
+/* Tutorial de primera partida: foco sobre la pantalla real y bocadillo con pasos */
+.coach{position:fixed;inset:0;z-index:60}.coach.center{background:rgba(4,9,11,.72);display:grid;place-items:center;padding:16px}
+.coach-ring{position:fixed;border-radius:12px;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(4,9,11,.72),0 0 24px rgba(255,178,30,.45);pointer-events:none;transition:left var(--t-fast,.2s) ease,top var(--t-fast,.2s) ease,width var(--t-fast,.2s) ease,height var(--t-fast,.2s) ease}
+.coach-tip{position:fixed;background:var(--panel);border:2px solid var(--accent);border-radius:12px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:coachIn .28s cubic-bezier(.2,.8,.3,1)}
+.coach.center .coach-tip{position:relative;width:min(380px,100%)}
+.coach-tip h3{margin:6px 0 4px;font:700 1.15rem var(--disp);letter-spacing:.04em;text-transform:uppercase}.coach-tip p{margin:0 0 6px}.coach-tip .cta{margin:6px 0 0}
+@keyframes coachIn{from{transform:translateY(8px) scale(.98)}to{transform:none}}

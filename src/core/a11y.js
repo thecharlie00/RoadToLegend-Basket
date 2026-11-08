@@ -1,13 +1,13 @@
 (function (root) {
   'use strict';
   const CAA = root.CAA = root.CAA || {};
-  const DEFAULTS = Object.freeze({ fontSize: 0, colorMode: 'standard', reducedMotion: 'system', vibration: true, audio: false, highContrast: false });
+  const DEFAULTS = Object.freeze({ fontSize: 0, colorMode: 'standard', reducedMotion: 'system', vibration: true, audio: false, highContrast: false, reminders: false });
   function normalize(settings) {
     const s = Object.assign({}, DEFAULTS, settings || {});
     s.fontSize = [0, 1, 2].includes(+s.fontSize) ? +s.fontSize : 0;
     s.colorMode = s.colorMode === 'blue-orange' ? 'blue-orange' : 'standard';
     s.reducedMotion = ['system', 'reduced', 'full'].includes(s.reducedMotion) ? s.reducedMotion : 'system';
-    s.vibration = !!s.vibration; s.audio = !!s.audio; s.highContrast = !!s.highContrast;
+    s.vibration = !!s.vibration; s.audio = !!s.audio; s.highContrast = !!s.highContrast; s.reminders = !!s.reminders;
     return s;
   }
   function reduced(settings) {

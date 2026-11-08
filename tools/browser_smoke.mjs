@@ -8,11 +8,14 @@ const browser = await launchBrowser();
 const report = { title: 'Baketball: Road to legend', date: new Date().toISOString(), browser: await browser.version(), scenarios: [], consoleErrors: [], pageErrors: [], externalRequests: [], accessibility: [] };
 const url = pathToFileURL(resolve('dist/index.html')).href;
 async function scenario(name, options, fn) {
+  if (process.env.ONLY && !name.includes(process.env.ONLY)) return; // ONLY=texto ejecuta solo esos escenarios
   const context = await browser.newContext({ viewport: options.viewport || { width: 1280, height: 900 }, reducedMotion: options.reducedMotion || 'no-preference', acceptDownloads: true, permissions: options.permissions || [] });
   const page = await context.newPage();
   page.on('pageerror', e => report.pageErrors.push({ name, message: e.message }));
   page.on('console', m => { if (m.type() === 'error') report.consoleErrors.push({ name, text: m.text() }); });
   page.on('request', r => { if (/^https?:/.test(r.url())) report.externalRequests.push(r.url()); });
+  // El tutorial de primera partida tiene su propio escenario; el resto entra directo a la carrera.
+  if (!options.tutorial) await page.addInitScript(() => { try { localStorage.setItem('caa.tutorialDone', '1'); } catch (_) {} });
   if (options.init) await page.addInitScript(options.init);
   await page.goto(url);
   await page.waitForFunction(() => globalThis.CAA_APP, { timeout: 15000 });
@@ -77,6 +80,8 @@ async function newCareer(page, o = {}) {
   await click(page, 'career-create');
   if (await page.locator('[data-action="confirm-yes"]').count()) await click(page, 'confirm-yes');
   await page.waitForFunction(() => CAA_APP.state.screen === 'game' && CAA_APP.state.career.state && CAA_APP.state.saveState !== 'saving');
+  // Sin almacenamiento el tutorial no puede recordarse como visto: se salta como haría el jugador.
+  if (!o.keepTutorial && await page.locator('#coach').count()) await click(page, 'coach-skip');
 }
 try {
   await scenario('desktop career / autosave / reload / import / event / committed practice', {}, async (page, context) => {
@@ -483,6 +488,53 @@ try {
     assert.equal(await page.evaluate(() => CAA_APP.handleBack()), true);
     assert.equal(await page.evaluate(() => CAA_APP.state.screen), 'menu');
     assert.equal(await page.evaluate(() => CAA_APP.handleBack()), false);
+  });
+  await scenario('First-game tutorial: spotlight steps, keyboard, replay; optional Android reminders', { tutorial: true, viewport: { width: 390, height: 844 }, init: () => {
+    window.__rem = { scheduled: [], cancels: 0, asked: 0, perm: 'ask' };
+    window.CAAAndroid = { exportSave() {}, scheduleReminders(j) { window.__rem.scheduled.push(JSON.parse(j)); }, cancelReminders() { window.__rem.cancels++; },
+      notifyStatus() { return window.__rem.perm; }, askNotify() { window.__rem.asked++; window.__rem.perm = 'granted'; setTimeout(() => window.dispatchEvent(new CustomEvent('caa:notify-permission', { detail: 'granted' })), 0); } };
+  } }, async page => {
+    await newCareer(page, { seed: 'tutorial-browser', keepTutorial: true });
+    await page.locator('#coach .coach-tip').waitFor();
+    const total = await page.evaluate(() => document.querySelectorAll('#coach .steps i').length);
+    assert.ok(total >= 6, 'tutorial has at least 6 steps');
+    assert.equal(await page.evaluate(() => document.activeElement && document.activeElement.id), 'coach-next');
+    const first = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    assert.deepEqual(first.violations.map(v => v.id), []);
+    // Cada paso señala un elemento real de la pantalla y el bocadillo cabe en 390 px.
+    for (let i = 1; i < total; i++) {
+      await page.locator('#coach-next').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+      const g = await page.evaluate(() => { const box = document.getElementById('coach'); const t = box.dataset.sel && document.querySelector(box.dataset.sel); const ring = box.querySelector('.coach-ring').getBoundingClientRect(); const tip = box.querySelector('.coach-tip').getBoundingClientRect(); const tr = t && t.getBoundingClientRect();
+        return { sel: box.dataset.sel, found: !!t, cover: tr ? ring.left <= tr.left && ring.right >= tr.right && ring.top <= tr.top && ring.bottom >= tr.bottom : true, tipIn: tip.left >= 0 && tip.right <= innerWidth && tip.top >= 0 && tip.bottom <= innerHeight }; });
+      assert.ok(g.found, 'target exists for ' + g.sel); assert.ok(g.cover, 'ring covers ' + g.sel); assert.ok(g.tipIn, 'tip on screen for ' + g.sel);
+    }
+    await page.screenshot({ path: 'dist/smoke-tutorial.png' });
+    await page.locator('#coach-next').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.locator('#coach').count(), 0);
+    assert.equal(await page.evaluate(() => localStorage.getItem('caa.tutorialDone')), '1');
+    await reload(page);
+    assert.equal(await page.locator('#coach').count(), 0, 'tutorial does not come back after finishing');
+    // Repetir desde la guía; Escape lo cierra.
+    await tab(page, 'more'); await tab(page, 'guide'); await click(page, 'coach-replay');
+    await page.locator('#coach .coach-tip').waitFor();
+    await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
+    assert.ok(await page.evaluate(() => document.getElementById('coach').contains(document.activeElement)), 'focus stays in the tutorial');
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('#coach').count(), 0);
+    // Recordatorios: desactivados por defecto, piden permiso al activarlos y se programan al salir.
+    await tab(page, 'more'); await tab(page, 'settings');
+    assert.equal(await page.locator('[data-setting="reminders"]').inputValue(), 'false');
+    await page.locator('[data-setting="reminders"]').selectOption('true');
+    await page.waitForFunction(() => window.__rem.asked === 1);
+    assert.equal(await page.evaluate(() => CAA_APP.state.settings.reminders), true);
+    await page.evaluate(() => window.dispatchEvent(new Event('caa:native-pause')));
+    const plan = await page.evaluate(() => window.__rem.scheduled.at(-1));
+    assert.ok(plan.length >= 1 && plan.length <= 3);
+    for (const r of plan) { const h = new Date(r.at).getHours(); assert.ok(h >= 10 && h < 21, 'no night reminders'); assert.ok(r.title && r.body && !/\b(rem|tut)\./.test(r.title + r.body)); }
+    await page.evaluate(() => window.dispatchEvent(new Event('caa:native-resume')));
+    assert.ok(await page.evaluate(() => window.__rem.cancels) >= 1);
+    const st = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    assert.deepEqual(st.violations.map(v => v.id), []);
   });
   await scenario('Worker unavailable: deterministic main-thread fallback', { init: () => { window.Worker = undefined; } }, async page => {
     assert.equal(await page.evaluate(() => CAA_APP.worker.getMode()), 'main');

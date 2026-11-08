@@ -7,6 +7,7 @@
 - `MainActivity.java`: `ComponentActivity`, WebView local, `WebViewAssetLoader`, bloqueo de navegación/red externa, ciclo de vida, atrás y exportación/importación mediante Storage Access Framework.
 - Origen reservado: `https://appassets.androidplatform.net/assets/game/index.html`. No es un servidor: las respuestas proceden de assets locales. El permiso `INTERNET` no está declarado.
 - Permiso sensible: **`RECORD_AUDIO`**, solo para la voz del loro. Se pide en tiempo de ejecución la primera vez que el jugador pulsa «Grabar» (`WebChromeClient.onPermissionRequest` + `onRequestPermissionsResult`), se concede únicamente `RESOURCE_AUDIO_CAPTURE` y se deniega cualquier otro recurso. El audio no se guarda en la partida ni se sube a ningún sitio; se descarta al salir de la pantalla.
+- Recordatorios locales opcionales (`ReminderReceiver.java`): **`POST_NOTIFICATIONS`** (API 33+, se pide solo cuando el jugador activa «Recordatorios» en Ajustes; desactivados por defecto) y **`RECEIVE_BOOT_COMPLETED`** (para volver a programarlos tras reiniciar). El juego programa como mucho 3 avisos al pasar a segundo plano y los cancela al volver; alarmas inexactas (`setAndAllowWhileIdle`, sin permiso de alarma exacta), nunca entre 21:00 y 10:00, sin red. Puente JS: `scheduleReminders(json)`, `cancelReminders()`, `notifyStatus()`, `askNotify()` → evento `caa:notify-permission`.
 - Mismo HTML/CSP/juego que web; no se bifurca el dominio. JavaScript/DOM storage habilitados solo para este contenido; acceso a archivos/contenido del WebView deshabilitado. El archivo de importación llega mediante el selector del sistema, no mediante `file://`.
 - El nombre visible cambia; `applicationId`, paquete Java, base IndexedDB y formato de guardado conservan sus IDs anteriores para no perder partidas.
 
@@ -45,5 +46,6 @@ Probar API 24 y WebView actual, además del móvil gama baja que se elija como r
 5. Medir 180 frames de Canvas2D, p95, tareas largas, memoria y temperatura tras una sesión prolongada. Exportar diagnóstico desde Laboratorio.
 6. Verificar consola remota y ausencia de solicitudes externas. No basta el resultado de Chromium de escritorio.
 7. Probar la voz del loro: permiso de micrófono concedido, denegado y revocado después; grabar con el móvil en horizontal y en vertical; comprobar que el indicador de micrófono del sistema desaparece al parar y al cambiar de pestaña.
+8. Recordatorios: activar en Ajustes (permiso concedido y denegado en Android 13+), salir del juego y esperar el aviso; tocarlo abre el juego; volver cancela los pendientes; reiniciar el móvil los conserva; desactivar en Ajustes no deja avisos.
 
 No hay SDK de anuncios ni consentimiento de anuncios porque los anuncios están desactivados. Si se activan en otra fase, deberán diseñar consentimiento/privacidad y una alternativa no publicitaria antes de integrar SDK/red.

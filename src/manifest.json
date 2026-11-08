@@ -258,6 +258,11 @@
       "worker": false
     },
     {
+      "id": "reminders",
+      "path": "src/platform/reminders.js",
+      "worker": false
+    },
+    {
       "id": "court2d",
       "path": "src/render/court2d.js",
       "worker": false
