@@ -59,7 +59,7 @@ Calidad baja observada: 200 cubos, 7.200 vértices, 1 draw call. Calidad media a
 - `src/render/voxel.js`, `src/ui/app.js`, `src/ui/style.css`
 - `src/match/engine.js`, `src/domain/career.js`, `src/worker/handler.js`
 - `src/locales/{es,en}.json`, `src/manifest.json`, `tools/build.py`
-- `tests/phase6.test.js`, `tools/browser_smoke.mjs`, `data/qa/phase6-browser.json`
+- `tests/phase6.test.js`, `tools/browser_smoke.mjs`, `data/qa/phase6-browser.json` (generado, no versionado)
 - `README.md`, `android/README.md`, `docs/00`, `docs/02`, `docs/05`, `docs/06`
 
 ## 6. Assets y siguiente paso

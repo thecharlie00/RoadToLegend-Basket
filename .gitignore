@@ -12,4 +12,7 @@ android/.gradle/
 android/app/build/
 android/local.properties
 android/app/src/main/assets/game/
+# Capturas e informes que `npm run test:browser` reescribe en cada pasada: no se versionan.
 data/qa/*-screen.png
+data/qa/*-browser.json
+data/qa/world-*.png

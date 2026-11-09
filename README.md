@@ -34,6 +34,11 @@ Objetivo de mundo confirmado: **todas las ligas existentes, ecosistema completo*
 - [Informe 26: mascotas vóxel con el contenido del fútbol](docs/26-INFORME-MASCOTAS-VOXEL.md)
 - [Informe 27: el loro repite tu voz](docs/27-INFORME-LORO-VOZ.md)
 - [Informe 28: arte superior al del fútbol](docs/28-INFORME-ARTE-SUPERIOR.md)
+- [Informe 29: mundo vivo, sorteo de copa y pizarra táctica](docs/29-INFORME-MUNDO-VIVO.md)
+- [Informe 30: directo 3D continuo, animaciones y luz](docs/30-INFORME-DIRECTO-3D-Y-LUZ.md)
+- [Informe 31: jugadora en femenino y draft de la WNBA](docs/31-INFORME-JUGADORA-Y-DRAFT-WNBA.md)
+- [Informe 32: juice, respuesta y espectáculo](docs/32-INFORME-JUICE.md)
+- [Informe 33: Modo Épocas completo](docs/33-INFORME-MODO-EPOCAS.md)
 
 ## Desarrollo
 
