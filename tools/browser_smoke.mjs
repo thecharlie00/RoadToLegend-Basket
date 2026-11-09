@@ -552,7 +552,11 @@ try {
     await page.waitForFunction(() => CAA_APP.state.saveState === 'saved');
     assert.ok(await page.evaluate(() => !!CAA_APP.state.career.summary.summerCup), 'summer cup on a new career');
     await openFolds(page);
-    await page.locator('[data-op="summer-seen"]').first().screenshot({ path: 'data/qa/world-summer.png' }).catch(() => {});
+    // La captura es de la tarjeta entera, centrada en pantalla para que ni la cabecera fija ni el dock
+    // la tapen (antes apuntaba al botón «Continuar» y guardaba un PNG de 88x45).
+    await page.locator('#summer-card').evaluate(el => el.scrollIntoView({ block: 'center' })).catch(() => {});
+    await page.waitForTimeout(250);
+    await page.locator('#summer-card').screenshot({ path: 'data/qa/world-summer.png' }).catch(() => {});
     const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     report.accessibility.push({ name: 'world-summer', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
     await page.locator('[data-action="world-op"][data-op="summer-seen"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);

@@ -52,7 +52,9 @@ Comando: `npm run check:browser`.
 - Rendimiento `court2d` 1280×900: 180 frames, 60 fps medios, p95 16.7 ms, 0 frames >33.34 ms.
 - Se corrigió un flake de diagnóstico: timestamps rAF duplicados ya no reducen el contador de frames válidos.
 
-Evidencia: `data/qa/phase6-browser.json`, `data/qa/phase6b-avatar-screen.png`, `data/qa/phase6-voxel-screen.png`.
+Evidencia: `data/qa/phase6-browser.json`, `data/qa/phase6b-avatar-screen.png`, `data/qa/phase6-voxel-screen.png`
+(las genera `npm run test:browser` en local y están en `.gitignore`: el informe lleva fecha y tiempos de
+ejecución, así que versionarlo hacía ruido en cada pasada).
 
 ## Límites honestos
 

@@ -772,7 +772,7 @@
     }
     if (s.summerCup) {
       const sc = s.summerCup;
-      out.push(`<section class="card"><span class="eyebrow">${t('summer.kicker')}</span><h3>${t('summer.title', { place: sc.place })}</h3>
+      out.push(`<section class="card" id="summer-card"><span class="eyebrow">${t('summer.kicker')}</span><h3>${t('summer.title', { place: sc.place })}</h3>
         <ul class="news">${sc.games.map((g, i) => `<li><small class="muted">${t(['summer.sf', 'summer.sf', 'summer.third', 'summer.final'][i])}</small> ${esc(g.a)} <b>${g.score[0]}–${g.score[1]}</b> ${esc(g.b)}</li>`).join('')}</ul>
         ${sc.pts != null ? `<p class="small">${t('summer.pts', { n: sc.pts })}</p>` : ''}<button class="small-btn" data-action="world-op" data-op="summer-seen">${t('common.continue')}</button></section>`);
     }
