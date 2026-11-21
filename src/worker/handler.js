@@ -101,7 +101,7 @@
         case 'career.live': {
           const state = CAA.Career.resume(msg.payload.state);
           const p = msg.payload || {};
-          const live = p.start ? CAA.Career.liveStart(state) : CAA.Career.liveAdvance(state, { choice: p.choice, toEnd: !!p.toEnd, release: Number.isFinite(p.release) ? p.release : undefined });
+          const live = p.start ? CAA.Career.liveStart(state, { quick: !!p.quick }) : CAA.Career.liveAdvance(state, { choice: p.choice, toEnd: !!p.toEnd, toJm: !!p.toJm, jm: Array.isArray(p.jm) ? p.jm.slice(0, 8) : undefined, release: Number.isFinite(p.release) ? p.release : undefined });
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), live: CAA.Live.view(live) };
           break;
         }

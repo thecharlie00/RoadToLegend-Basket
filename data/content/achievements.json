@@ -2150,6 +2150,81 @@
       "rewardStyle": 16
     },
     {
+      "id": "jmPlays-1",
+      "metric": "jmPlays",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Pizarra viva",
+        "en": "Living Whiteboard",
+        "fr": "Tableau vivant",
+        "de": "Lebendige Taktiktafel",
+        "it": "Lavagna viva"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "jmPlays-10",
+      "metric": "jmPlays",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "El dibujante",
+        "en": "The Draughtsman",
+        "fr": "Le dessinateur",
+        "de": "Der Zeichner",
+        "it": "Il disegnatore"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "jmMade-1",
+      "metric": "jmMade",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Trazo perfecto",
+        "en": "Perfect Stroke",
+        "fr": "Tracé parfait",
+        "de": "Perfekter Strich",
+        "it": "Tratto perfetto"
+      },
+      "rewardStyle": 7
+    },
+    {
+      "id": "jmMade-10",
+      "metric": "jmMade",
+      "threshold": 10,
+      "mode": "any",
+      "tier": 2,
+      "title": {
+        "es": "Obra maestra",
+        "en": "Masterpiece",
+        "fr": "Chef-d’œuvre",
+        "de": "Meisterwerk",
+        "it": "Capolavoro"
+      },
+      "rewardStyle": 10
+    },
+    {
+      "id": "jmThrees-1",
+      "metric": "jmThrees",
+      "threshold": 1,
+      "mode": "any",
+      "tier": 1,
+      "title": {
+        "es": "Triple de pizarra",
+        "en": "Whiteboard Three",
+        "fr": "Trois-points au tableau",
+        "de": "Dreier von der Tafel",
+        "it": "Tripla da lavagna"
+      },
+      "rewardStyle": 7
+    },
+    {
       "id": "heroShots-1",
       "metric": "heroShots",
       "threshold": 1,
@@ -3277,7 +3352,7 @@
     {
       "id": "platinum-player",
       "metric": "achievements",
-      "threshold": 204,
+      "threshold": 209,
       "mode": "player",
       "tier": 99,
       "platinum": true,
@@ -3293,7 +3368,7 @@
     {
       "id": "platinum-coach",
       "metric": "achievements",
-      "threshold": 131,
+      "threshold": 136,
       "mode": "coach",
       "tier": 99,
       "platinum": true,

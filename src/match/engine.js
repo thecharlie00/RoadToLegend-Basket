@@ -237,12 +237,15 @@
       state.rng = state._rng.serialize();
       return state;
     }
-    const handler = chooseWeighted(state._rng, offPlayers, p => 1 + attr(p, 'manejo') / 50 + (p.pos === 'PG' ? 0.8 : 0));
+    let handler = chooseWeighted(state._rng, offPlayers, p => 1 + attr(p, 'manejo') / 50 + (p.pos === 'PG' ? 0.8 : 0));
+    if (intent && intent.turnover && intent.shooter) handler = offPlayers.find(p => p.id === intent.shooter) || handler;
     const defender = chooseWeighted(state._rng, defPlayers, p => 1 + attr(p, 'defExterior') / 60);
     const tovChance = clamp(T.tovBase + defense.tactic.press * T.tovPress + handler.fatigue * T.tovFatigue - (attr(handler, 'manejo') - 50) * T.tovManejo - (attr(handler, 'lectura') - 50) * T.tovLectura, 0.05, 0.20);
     const forced = intent && typeof intent.outcome === 'boolean';
-    if (state._rng.float() < tovChance && !forced) {
-      const steal = state._rng.float() < T.stealShare;
+    // Pérdida decidida por la Jugada Maestra (pase cortado o carga): mismo registro que una pérdida normal.
+    const forcedTov = intent && intent.turnover ? intent.turnover : null;
+    if ((state._rng.float() < tovChance && !forced) || forcedTov) {
+      const steal = forcedTov ? forcedTov === 'steal' : state._rng.float() < T.stealShare;
       handler.stats.tov++; offense.stats.tov++;
       if (steal) { defender.stats.stl++; defense.stats.stl++; }
       record(state, { type: 'turnover', team: off, player: handler.id, steal, defender: defender.id });

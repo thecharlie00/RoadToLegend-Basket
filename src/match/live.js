@@ -8,6 +8,7 @@
   const Match = CAA.Match || (typeof require === 'function' ? require('./engine.js') : null);
   const Rules = CAA.Rules || (typeof require === 'function' ? require('./rules.js') : null);
   const Arcade = CAA.Arcade || (typeof require === 'function' ? require('./arcade.js') : null);
+  const Jugada = CAA.Jugada || (typeof require === 'function' ? require('./jugada.js') : null);
 
   const MOMENTS = {
     run:         { modes: ['coach'],           options: ['timeout', 'press', 'keep'],             fallback: 'keep' },
@@ -15,7 +16,9 @@
     clutch:      { modes: ['coach'],           options: ['attackRim', 'bombs', 'slow', 'keep'],   fallback: 'keep' },
     demand:      { modes: ['player'],          options: ['demand', 'share'],                      fallback: 'share' },
     lastShot:    { modes: ['coach', 'player'], options: ['hero', 'pass', 'auto'],                 fallback: 'auto' },
-    foulGame:    { modes: ['coach'],           options: ['foul', 'defend'],                       fallback: 'defend' }
+    foulGame:    { modes: ['coach'],           options: ['foul', 'defend'],                       fallback: 'defend' },
+    // Jugada Maestra (optativa): una posesión dibujada por partido cuando la carrera la programa.
+    jm:          { modes: ['coach', 'player'], options: ['play', 'auto'],                         fallback: 'auto' }
   };
   const MAX_FOUL_GAME = 4;
 
@@ -25,7 +28,8 @@
     state.teams[userTeam].live = { benched: {}, intent: null, foulNow: false };
     return {
       schemaVersion: 1, mode: config.mode === 'player' ? 'player' : 'coach', userTeam, myPlayerId: config.myPlayerId || null,
-      match: Match.serializeMatch(state), moment: null, decisions: [], seen: {}, demand: 0, finished: false, outcome: null
+      match: Match.serializeMatch(state), moment: null, decisions: [], seen: {}, demand: 0, finished: false, outcome: null,
+      jm: config.jm && Number.isFinite(config.jm.at) ? { at: config.jm.at, done: false, result: null } : null
     };
   }
 
@@ -63,6 +67,8 @@
       && (live.mode === 'coach' || myOnCourt)) {
       return { type: 'lastShot', key: 'lastShot:' + state.period, diff, needThree: diff === -3 };
     }
+    if (live.jm && !live.jm.done && state.offense === me && (live.mode === 'coach' || myOnCourt) && !(last && clock <= 240)
+      && (state.events.length >= live.jm.at || (last && clock <= 1500))) return jmMoment(live, state, diff, last && clock <= 900);
     if (allowed('foulGame') && state.offense === opp && last && clock > 0 && clock <= 400 && diff < 0 && diff >= -6 && (live.seen.foulGameCount || 0) < MAX_FOUL_GAME) {
       return { type: 'foulGame', key: 'foulGame:' + state.events.length, diff };
     }
@@ -87,6 +93,30 @@
     return null;
   }
 
+  // Probabilidad de acierto por zona que el motor da a cada jugador (ancla de la Jugada Maestra).
+  function makeChances(p) {
+    const out = {};
+    for (const z of Match.ZONES) out[z] = Math.max(0.05, Math.min(0.92, Match.BASE[z] + (attr(p, ZONE_ATTR[z]) - 50) * 0.005 - 0.04));
+    return out;
+  }
+  const ZONE_ATTR = { restricted: 'tiroCerca', paint: 'poste', midShort: 'tiroMedia', midLong: 'tiroMedia', corner3: 'tiroTriple', above3: 'tiroTriple' };
+  function jmMoment(live, state, diff, late) {
+    const me = live.userTeam, mine = team(state, me);
+    let five = mine.onCourt.map(id => player(state, me, id)).filter(Boolean);
+    // Lleva el balón: tu jugador/a en la carrera de jugador; el mejor manejador en la de entrenador.
+    const lead = live.mode === 'player' ? five.find(p => p.id === live.myPlayerId) : five.slice().sort((a, b) => attr(b, 'manejo') - attr(a, 'manejo') || a.id.localeCompare(b.id))[0];
+    five = [lead].concat(five.filter(p => p !== lead));
+    const seed = Jugada.hashSeed(state.matchId + ':jm:' + state.events.length);
+    const players = five.map(p => ({ id: p.id, name: p.name, me: p.id === live.myPlayerId, p: makeChances(p) }));
+    const needThree = late && diff === -3;
+    return { type: 'jm', key: 'jm', diff, seed, needThree, board: Jugada.moment(seed, { players, needThree, max: 3 }) };
+  }
+  // Repite en el trabajador los trazos enviados por la interfaz sobre el tablero sellado.
+  function jmResolve(moment, actions) {
+    const st = Jugada.replay(JSON.parse(JSON.stringify(moment.board)), actions);
+    if (!st.done) Jugada.resolve(st, { k: 'shot' }); // sin terminar: la jugada acaba en tiro
+    return st;
+  }
   function options(live, state, moment) {
     const list = MOMENTS[moment.type].options.slice();
     if (moment.type === 'run' && team(state, live.userTeam).timeouts <= 0) return list.filter(o => o !== 'timeout');
@@ -98,7 +128,7 @@
     return players.slice().sort((a, b) => (attr(b, k) + attr(b, 'clutch')) - (attr(a, k) + attr(a, 'clutch')) || a.id.localeCompare(b.id))[0];
   }
 
-  function apply(live, state, moment, choice, release) {
+  function apply(live, state, moment, choice, release, extra) {
     const me = live.userTeam;
     const mine = team(state, me);
     const hooks = mine.live;
@@ -138,6 +168,16 @@
         break;
       }
       case 'foulGame:foul': hooks.foulNow = true; break;
+      case 'jm:play': {
+        const st = jmResolve(moment, extra && extra.jm);
+        const last = st.log[st.log.length - 1] || {}, token = st.players[st.handler] || st.players[0];
+        if (st.shot) hooks.intent = { zone: st.shot.zone, shooter: token.id, outcome: st.points > 0 };
+        else hooks.intent = { shooter: token.id, turnover: st.turnover === 'steal' ? 'steal' : 'lost' };
+        entry.jm = { won: st.won, points: st.points, how: st.shot ? st.shot.how : st.turnover, zone: st.shot ? st.shot.zone : null, shooter: token.id, me: !!token.me, actions: st.turn, quality: st.quality != null ? Math.round(st.quality * 100) : null, log: st.log.map(l => ({ k: l.k, ok: l.ok, msg: l.msg })), last: last.k };
+        live.jm.done = true; live.jm.result = entry.jm;
+        break;
+      }
+      case 'jm:auto': live.jm.done = true; live.jm.result = { auto: true }; break;
       default: break; // fallback options leave the engine untouched
     }
     live.decisions.push(entry);
@@ -163,7 +203,7 @@
     if (live.moment) {
       const allowedChoices = options(live, state, live.moment);
       const choice = allowedChoices.includes(opts.choice) ? opts.choice : MOMENTS[live.moment.type].fallback;
-      apply(live, state, live.moment, choice, opts.release);
+      apply(live, state, live.moment, choice, opts.release, opts);
       live.moment = null;
     }
     let guard = 0;
@@ -174,6 +214,12 @@
       }
       Match.simulatePossession(state);
       settle(live, state);
+      if (opts.toJm) {
+        const m = detect(live, state);
+        if (m && m.type === 'jm') { m.options = options(live, state, m); live.moment = m; break; }
+        if (m) apply(live, state, m, MOMENTS[m.type].fallback).auto = true;
+        continue;
+      }
       if (opts.toEnd) {
         const m = detect(live, state);
         if (m) apply(live, state, m, MOMENTS[m.type].fallback).auto = true;
@@ -201,6 +247,10 @@
       }
       if (d.type === 'lastShot' && d.choice === 'pass' && live.mode === 'player') o.trust += d.result === 'made' ? 3 : 1;
       if (d.type === 'demand' && d.choice === 'demand') o.trust += won ? 1 : -2;
+      if (d.type === 'jm' && d.jm) {
+        if (d.jm.points > 0) { o.morale += 2; o.confidence += d.jm.me ? 3 : 1; o.trust += d.jm.me ? 2 : 1; }
+        else if (d.jm.how === 'steal' || d.jm.how === 'charge' || d.jm.how === 'lost') o.trust -= 1;
+      }
       if (d.type === 'foulTrouble' && d.choice === 'keep' && state.events.some(e => e.seq >= d.seq && e.type === 'foul' && e.player === d.player && e.foulOut)) {
         o.trust -= 2; o.morale -= 2; // se arriesgó y acabó eliminado por faltas
       }

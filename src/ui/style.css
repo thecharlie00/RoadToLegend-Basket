@@ -667,3 +667,36 @@ button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);fil
 .coach.center .coach-tip{position:relative;width:min(380px,100%)}
 .coach-tip h3{margin:6px 0 4px;font:700 1.15rem var(--disp);letter-spacing:.04em;text-transform:uppercase}.coach-tip p{margin:0 0 6px}.coach-tip .cta{margin:6px 0 0}
 @keyframes coachIn{from{transform:translateY(8px) scale(.98)}to{transform:none}}
+/* Jugada Maestra: tablero de media pista, trazos y campaña */
+.jm-ov{position:fixed;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;overscroll-behavior:contain;background:rgba(6,10,16,.97);animation:coachIn .2s ease-out}
+.jm-box{width:100%;max-width:520px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;color:var(--ink)}
+.jm-head h2{margin:4px 0 2px;font:700 1.3rem var(--disp);letter-spacing:.04em;text-transform:uppercase}.jm-head h2:focus{outline:none}.jm-goal{margin:0;color:var(--muted)}
+.jm-kick{display:inline-flex;gap:6px;width:max-content;padding:3px 10px;border-radius:999px;background:rgba(255,178,30,.16);color:var(--accent);font:700 .74rem var(--disp);letter-spacing:.08em;text-transform:uppercase}
+.jm-wrap{position:relative;touch-action:none;user-select:none;-webkit-user-select:none}
+.jm-court{display:block;width:100%;max-height:min(52vh,440px);border-radius:14px;border:1px solid var(--line);background:#2a1b10;touch-action:none}
+.jm-floor{fill:#c98b4e}.jm-paint{fill:#a8643a;opacity:.85}.jm-line{stroke:#fff6e6;stroke-width:.6;opacity:.9}.jm-board{stroke:#fff;stroke-width:1.2}
+.jm-hoop{fill:none;stroke:#ff6a00;stroke-width:1}.jm-hoop-hit{cursor:pointer}
+.jm-tok circle:first-child{fill:#1f6fe0;stroke:#fff;stroke-width:.6}.jm-tok text{fill:#fff;font:700 2.6px var(--ui,sans-serif);text-anchor:middle;pointer-events:none}
+.jm-tok.me circle:first-child{fill:#ffb21e;stroke:#1d1404}.jm-tok.me text{fill:#1d1404}
+.jm-tok.handler circle:first-child{stroke-width:1}.jm-tok{cursor:pointer;transition:transform .32s cubic-bezier(.2,.8,.3,1)}
+.jm-def{transition:transform .32s cubic-bezier(.2,.8,.3,1)}.jm-def rect{fill:#d9333f;stroke:#fff;stroke-width:.5}.jm-def path{stroke:#fff;stroke-width:.7}
+.jm-ball{fill:#ff7a1f;stroke:#3a1400;stroke-width:.4}
+.jm-trace{fill:none;stroke:#fff;stroke-width:1.1;stroke-dasharray:2 1.4;stroke-linecap:round;pointer-events:none}
+.jm-trail{fill:none;stroke-width:.9;stroke-linecap:round;opacity:.75;pointer-events:none}.jm-trail.ok{stroke:#5df29b}.jm-trail.bad{stroke:#ff5b66;stroke-dasharray:1.6 1.2}
+.jm-turn{position:absolute;right:8px;top:8px;padding:3px 9px;border-radius:999px;background:rgba(6,12,14,.78);font:700 .74rem var(--disp);font-variant-numeric:tabular-nums;pointer-events:none}
+.jm-status{margin:0;min-height:2.6em;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.07);font-weight:650}.jm-status.ok{background:#e6f6e9;color:#174528}.jm-status.bad{background:#fff1df;color:#5c3614}
+.jm-tools{display:grid;gap:8px}.jm-pass-list{display:flex;flex-wrap:wrap;gap:6px}.jm-pass-list .small-btn{flex:1 1 110px;min-height:44px}.jm-tools .row button{flex:1;min-height:46px}
+.jm-medal{margin:0;font-size:1.9rem;letter-spacing:.15em;text-align:center;color:var(--gold)}.jm-medal.bad{color:var(--dim)}
+.jm-hero .jm-total{font:700 1.4rem var(--disp);margin:6px 0;color:var(--gold)}
+.jm-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jm-level{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:58px;padding:8px 4px;border-radius:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink)}
+.jm-level b{font:700 1.15rem var(--disp)}.jm-level span{font-size:.8rem;color:var(--gold);letter-spacing:.08em}.jm-level.won{border-color:var(--gold)}.jm-level:disabled{opacity:.55}
+.jm-pending{border:1px solid var(--accent)}.jm-setting{display:grid;gap:4px;margin:6px 0}
+@media (max-height:600px){.jm-court{max-height:40vh}.jm-goal{display:none}}
+@media (prefers-reduced-motion:reduce){.jm-tok,.jm-def{transition:none}.jm-ov{animation:none}}
+.jm-score{margin:2px 0;display:flex;gap:8px;align-items:baseline;font-variant-numeric:tabular-nums}.jm-score b{font:700 1.5rem var(--disp)}.jm-score span{color:var(--muted)}
+/* Temporada Viva y trofeos del historial */
+.viva-focus h3,.viva-chronicle h3{margin:6px 0 4px}.viva-focus{border-left:3px solid var(--sky)}.viva-chronicle{border-left:3px solid var(--gold)}
+.viva-moments{margin:6px 0 10px;padding-left:1.2em;display:grid;gap:6px}.viva-moments b{color:var(--gold)}
+.viva-arch{padding:6px 0;border-top:1px solid var(--line)}.viva-arch summary{cursor:pointer;font-weight:650}
+td.tro{white-space:nowrap}.tro-i{display:inline-block;margin-right:2px;font-size:1.05rem}

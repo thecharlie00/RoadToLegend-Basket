@@ -11,6 +11,7 @@
   const Content = CAA.Content || (typeof require === 'function' ? require('./content.js') : null);
   const Minigames = CAA.Minigames || (typeof require === 'function' ? require('../match/minigames.js') : null);
   const Live = CAA.Live || (typeof require === 'function' ? require('../match/live.js') : null);
+  const Jugada = CAA.Jugada || (typeof require === 'function' ? require('../match/jugada.js') : null);
   const Arcade = CAA.Arcade || (typeof require === 'function' ? require('../match/arcade.js') : null);
   const Pet = CAA.Pet || (typeof require === 'function' ? require('./pet.js') : null);
   const Playoffs = CAA.Playoffs || (typeof require === 'function' ? require('./playoffs.js') : null);
@@ -24,6 +25,7 @@
   const National = CAA.National || (typeof require === 'function' ? require('./national.js') : null);
   const Cup = CAA.Cup || (typeof require === 'function' ? require('./cup.js') : null);
   const Social = CAA.Social || (typeof require === 'function' ? require('./social.js') : null);
+  const Viva = CAA.Viva || (typeof require === 'function' ? require('./viva.js') : null);
 
   const MODES = ['player', 'coach'];
   const ROUTES = ['eu-academy', 'na-draft', 'na-undrafted', 'world'];
@@ -71,7 +73,8 @@
     const state = {
       schemaVersion: 1, careerId: config.careerId || 'career-' + Hash.hex32(Hash.hashString(String(seed))),
       era: eraYear ? { start: eraYear, decade: Eras.decadeOf(eraYear), legends: [] } : null, mode, route: config.leagueId && route !== 'na-draft' && route !== 'na-undrafted' && leagueId !== 'es-ascenso-iberico' ? 'world' : route, seed, rng: rng.serialize(), week: 0, year: eraYear || 2026, season, topSeason, clubId: club.id, startingClubId: club.id,
-      player: null, coach: null, inbox: [], market: [], draft: null, history: [], hash: '00000000'
+      player: null, coach: null, inbox: [], market: [], draft: null, history: [], hash: '00000000',
+      jm: { on: config.jm !== false, gap: 0, plays: 0, made: 0 }
     };
     if (mode === 'player') {
       const p = Player.createPlayer({ seed: seed + ':myplayer', gender: Season.genderOf(leagueId), nationality: config.nationality || 'ES', pos: config.pos || 'SG', archetype: config.archetype || (Player.profilesFor(config.pos || 'SG')[0] || { archetype: 'shooter' }).archetype, handedness: config.handedness || 'right', name: config.name || undefined, age: config.age || 19, quality: config.quality || 52 });
@@ -144,6 +147,12 @@
     return event;
   }
   function clubOf(state) { return state.season.clubsById[state.clubId] || (state.topSeason && state.topSeason.clubsById[state.clubId]); }
+  // Al cerrar la jornada con la Jugada Maestra pendiente, se aplica lo que eligió el jugador.
+  function jmFinish(live, act) {
+    const o = { toEnd: true };
+    if (live.moment && live.moment.type === 'jm' && act && act.jm) { o.choice = act.jm.choice === 'play' ? 'play' : 'auto'; o.jm = Array.isArray(act.jm.actions) ? act.jm.actions.slice(0, 8) : []; }
+    return o;
+  }
   function advanceWeek(state, action) {
     if (state.careerOver) throw new Error('career is over');
     if (state.retirement && state.retirement.pending) throw new Error('retirement decision pending');
@@ -168,10 +177,10 @@
     const season = state.season;
     if (season.round < season.schedule.length) {
       const live = currentLive(state);
-      if (live && !live.finished) Live.advance(live, { toEnd: true });
+      if (live && !live.finished) Live.advance(live, jmFinish(live, act));
       const overrides = live ? { [live.gameId]: Match.resumeMatch(live.match) } : null;
       const played = Season.playRound(season, state.seed + ':w' + state.week, overrides);
-      if (live) { applyLiveOutcome(state, live); state.live = null; }
+      if (live) { applyLiveOutcome(state, live); state.live = null; } else if (played.some(m => m.teams.some(t => t.id === state.clubId))) jmAfter(state, null);
       afterGames(state, rng, played, club);
       if (state.mode === 'coach') { Finance.weekTick(state, played, rng); Market.weekTick(state, rng); }
       if (Cup.due(season)) {
@@ -190,10 +199,10 @@
         endSeason(state, rng);
       } else {
         const live = currentLive(state);
-        if (live && !live.finished) Live.advance(live, { toEnd: true });
+        if (live && !live.finished) Live.advance(live, jmFinish(live, act));
         const overrides = live ? { [live.gameId]: Match.resumeMatch(live.match) } : null;
         const played = Playoffs.playStep(season, state.seed + ':po:' + state.week, overrides);
-        if (live) { applyLiveOutcome(state, live); state.live = null; }
+        if (live) { applyLiveOutcome(state, live); state.live = null; } else if (played.some(m => m.teams.some(t => t.id === state.clubId))) jmAfter(state, null);
         afterGames(state, rng, played, club);
         if (season.playoffs.done) endSeason(state, rng);
       }
@@ -253,6 +262,7 @@
     if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) { lc.totalWins = (lc.totalWins || 0) + 1; if (state.season.playoffs) lc.playoffWins = (lc.playoffWins || 0) + 1; } }
     if (state.coach && mine) lc.coachGames = (lc.coachGames || 0) + 1;
     chronicle(state, played, mine);
+    Viva.afterWeek(state);
     if (state.coach) coachWeek(state, rng);
     Content.weeklyIncome(state);
     const petWeek = Pet.weekTick(state, Content.ensureLife(state));
@@ -297,7 +307,24 @@
     const l = state.live, g = l && currentGame(state);
     return l && g && l.week === state.week && l.year === state.year && l.key === g.key && l.gameId === g.id ? l : null;
   }
-  function liveStart(state) {
+  // ===== Jugada Maestra en la carrera (optativa, como en el fútbol) =====
+  // La primera llega en los tres primeros partidos y después nunca pasan más de 3 seguidos sin una.
+  function jmState(state) { if (!state.jm) state.jm = { on: true, gap: 0, plays: 0, made: 0 }; return state.jm; }
+  function jmPlan(state, g) {
+    const jm = jmState(state);
+    if (!jm.on || !g || (state.player && state.player.injury && state.player.injury.weeksRemaining > 0)) return null;
+    const h = Jugada.hashSeed(state.seed + ':jm:' + g.id), u = h / 4294967296, v = Jugada.hashSeed(g.id + ':jm-at') / 4294967296;
+    return jm.gap >= 2 || u < 0.35 ? { at: 90 + Math.floor(v * 240) } : null;
+  }
+  function jmAfter(state, live) {
+    const jm = jmState(state);
+    if (live && live.jm && live.jm.done) {
+      jm.gap = 0;
+      const r = live.jm.result;
+      if (r && !r.auto) { jm.plays++; if (r.points > 0) jm.made++; const lc = Content.ensureLife(state).counters; lc.jmPlays = jm.plays; lc.jmMade = jm.made; if (r.points === 3) lc.jmThrees = (lc.jmThrees || 0) + 1; }
+    } else jm.gap++;
+  }
+  function liveStart(state, opts = {}) {
     const existing = currentLive(state);
     if (existing) return existing;
     const season = state.season;
@@ -305,8 +332,9 @@
     if (!g) throw new Error('no match this week');
     const teams = [Season.clubToMatchTeam(season.clubsById[g.home]), Season.clubToMatchTeam(season.clubsById[g.away])];
     const myId = state.player ? state.player.id : null;
-    const live = Live.create({ seed: g.seed, ruleSetId: season.ruleSet, teams, matchId: g.id, userTeam: g.home === state.clubId ? 0 : 1, mode: state.mode, myPlayerId: myId && teams.some(t => t.players.some(p => p.id === myId)) ? myId : null });
-    Object.assign(live, { week: state.week, year: state.year, round: season.round, gameId: g.id, key: g.key, playoff: !!g.playoff });
+    const live = Live.create({ seed: g.seed, ruleSetId: season.ruleSet, teams, matchId: g.id, userTeam: g.home === state.clubId ? 0 : 1, mode: state.mode, myPlayerId: myId && teams.some(t => t.players.some(p => p.id === myId)) ? myId : null, jm: jmPlan(state, g) });
+    // quick: la jornada se simula y solo se detiene en la Jugada Maestra (sin pantalla de directo).
+    Object.assign(live, { week: state.week, year: state.year, round: season.round, gameId: g.id, key: g.key, playoff: !!g.playoff, quick: !!opts.quick });
     state.live = live;
     return live;
   }
@@ -331,6 +359,7 @@
     life.counters.live = (life.counters.live || 0) + 1;
     const hero = live.decisions.find(d => !d.auto && d.type === 'lastShot' && d.result === 'made');
     if (hero) life.counters.clutchMakes = (life.counters.clutchMakes || 0) + 1;
+    jmAfter(state, live);
     const lc = life.counters, mine = live.decisions.filter(d => !d.auto);
     if (o.won) lc.liveWins = (lc.liveWins || 0) + 1;
     lc.heroShots = (lc.heroShots || 0) + mine.filter(d => d.type === 'lastShot' && d.choice === 'hero').length;
@@ -351,7 +380,7 @@
     const awardsList = season.awards.concat(fm ? [fm] : []).concat([{ award: 'coy', clubId: table[0].id, club: table[0].name }]);
     const myResult = b ? Playoffs.resultOf(b, state.clubId) : null;
     const myRank = table.find(r => r.id === state.clubId).rank;
-    state.history.push({ year: state.year, leagueId: season.leagueId, champion: season.champion, championName: season.clubsById[season.champion].name, runnerUp: b ? b.runnerUp : null, cup: season.cup ? season.cup.championName : null,
+    state.history.push({ year: state.year, leagueId: season.leagueId, champion: season.champion, championName: season.clubsById[season.champion].name, runnerUp: b ? b.runnerUp : null, cup: season.cup ? season.cup.championName : null, cupChampion: season.cup ? season.cup.champion : null, myAwards: awardsList.filter(a => a.playerId ? state.player && a.playerId === state.player.id : false).map(a => a.award),
       table: table.slice(0, 4), clubRank: myRank, result: myResult, awards: awardsList.map(a => ({ award: a.award, player: a.player || null, club: a.club })), promoted: b ? b.promoted.slice() : [] });
     // Modo Épocas: duelos con las leyendas, competiciones de época y página del Anuario.
     if (state.era && EraW) { EraW.duels(state); EraW.continental(state, table); EraW.annual(state, season.clubsById[season.champion].name); }
@@ -373,6 +402,7 @@
       stats: pl ? { gp: pl.stats.gp, pts: pl.stats.pts, reb: pl.stats.reb, ast: pl.stats.ast, ovrStart: pl.ovrStart == null ? pl.ovr : pl.ovrStart, ovr: pl.ovr } : null,
       awards: awardsList.map(a => ({ award: a.award, player: a.player || null, club: a.club, mine: myAwards.includes(a.award) && (a.playerId ? state.player && a.playerId === state.player.id : a.clubId === state.clubId) })), myAwards, dismissed: false };
     if (state.mode === 'coach') state.lastSeasonSummary.club = Finance.seasonEnd(state, myRank, rng);
+    { const lr = Content.ensureLife(state).records, hi = lr && lr.career && lr.career.gamePts; Viva.seasonEnd(state, state.lastSeasonSummary, { rival: rivalOf(state), jm: state.jm, high: hi && hi.year === state.year ? hi.v : 0 }); }
     if (state.challenge && !state.challenge.medal && state.challenge.year === state.year) {
       state.challenge.medal = challengeMedal(state.challenge.id, myRank, table.length, myResult) || 'none';
       state.lastSeasonSummary.challenge = { id: state.challenge.id, medal: state.challenge.medal };
@@ -574,6 +604,8 @@
     else if (config.op === 'deadline-sign') out = World.deadlineSign(state, config.id);
     else if (config.op === 'era-moment') out = state.eraMomentLast = EraW.playMoment(state, config.id, config.tactic);
     else if (config.op === 'era-moment-seen') state.eraMomentLast = null;
+    else if (config.op === 'viva-seen') out = Viva.markSeen(state);
+    else if (config.op === 'jm-toggle') { const jm = jmState(state); jm.on = !jm.on; out = { on: jm.on }; }
     else if (config.op === 'era-comps-seen') state.eraCompsSeen = state.year;
     else throw new Error('unknown world op');
     record(state, { type: 'world', op: config.op, id: config.id || null });
@@ -954,6 +986,11 @@
     return {
       leagueName: (state.ed && state.ed.leagues[state.season.leagueId]) || (state.era && EraW && EraW.leagueNameAt(state.season.leagueId, state.year)) || league.name || state.season.leagueId, edits: state.ed || null, challenge: state.challenge || null, quick: state.quick || null, quickEnd: !!state.quickEnd, totalRounds: state.season.schedule.length, table, next: fx.next, recent: fx.recent, meters: meters(state, club),
       careerId: state.careerId, mode: state.mode, route: state.route, year: state.year, week: state.week,
+      viva: (() => {
+        const c = clubOf(state), starters = state.mode === 'coach' ? Season.clubToMatchTeam(c).players.filter(p => p.starter).map(p => p.id) : [];
+        return { focus: Viva.focus(state, { event: !!Content.pendingView(state), live: !!currentLive(state), next: fx.next, playoffs: !!(fx.next && fx.next.playoff), starters }), chronicle: Viva.latest(state), archive: state.life && state.life.chronicles ? state.life.chronicles.slice(-12).reverse() : [] };
+      })(),
+      jm: (() => { const jm = jmState(state), g = currentGame(state); return { on: jm.on, plays: jm.plays, made: jm.made, due: !!(g && !currentLive(state) && jmPlan(state, g)) }; })(),
       era: state.era ? { start: state.era.start, decade: Eras.decadeOf(state.year), legends: state.era.legends, look: Eras.look(state.year), ball: Eras.ballColor(state.year), traits: Eras.traits(state.year, league) } : null,
       eraWorld: state.era && EraW ? (() => {
         EraW.duels(state);

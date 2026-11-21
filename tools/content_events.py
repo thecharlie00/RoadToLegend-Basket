@@ -1085,6 +1085,8 @@ import content_events_world as _world
 _world.register(ev, O, U); _world.write_tr()
 import content_events_life as _life
 _life.register(ev, O, U); _life.register2(ev, O, U); _life.write_tr()
+import content_events_universo as _uv
+_uv.register(ev, O, U); _uv.write_tr()
 
 if __name__ == '__main__':
     print(len(EVENTS))

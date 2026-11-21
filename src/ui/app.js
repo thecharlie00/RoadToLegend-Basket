@@ -466,7 +466,7 @@
     const vars = m ? { player: m.playerName || '', pts: m.pts || 0, fouls: m.fouls || 0, diff: Math.abs(m.diff || 0) } : {};
     const momentHtml = m ? `<div class="moment" role="group" aria-labelledby="moment-title"><h4 id="moment-title">${t('live.moment.' + m.type)}</h4><p>${esc(t('live.momentText.' + m.type + (m.type === 'lastShot' && !m.diff ? 'Tie' : ''), vars))}</p>
       ${state.heroShot ? `<canvas id="hero-canvas" width="640" height="420" role="img" aria-label="${t('live.heroCanvas')}" aria-describedby="hero-help"></canvas><p id="hero-help" class="muted small">${t('arcade.help.jump')}</p><button class="cta shoot" data-action="live-hero-release">${t('arcade.shoot')}</button>` : ''}
-      <div class="row" ${state.heroShot ? 'hidden' : ''}>${m.options.map(o => `<button data-action="${m.type === 'lastShot' && o === 'hero' && v.mode === 'player' ? 'live-hero' : 'live-choice'}" data-choice="${esc(o)}" class="${o === CAA.Live.MOMENTS[m.type].fallback ? '' : 'primary'}">${t('live.opt.' + m.type + '.' + o + (m.type === 'lastShot' && v.mode === 'coach' && o !== 'auto' ? 'Coach' : ''))}</button>`).join('')}</div></div>` : '';
+      <div class="row" ${state.heroShot ? 'hidden' : ''}>${m.options.map(o => `<button data-action="${m.type === 'lastShot' && o === 'hero' && v.mode === 'player' ? 'live-hero' : m.type === 'jm' && o === 'play' ? 'jm-open' : 'live-choice'}" data-choice="${esc(o)}" class="${o === CAA.Live.MOMENTS[m.type].fallback ? '' : 'primary'}">${t('live.opt.' + m.type + '.' + o + (m.type === 'lastShot' && v.mode === 'coach' && o !== 'auto' ? 'Coach' : ''))}</button>`).join('')}</div></div>` : '';
     const o = v.outcome;
     const outcomeHtml = v.finished && o ? `<div class="moment"><h4 class="${o.won ? 'ok' : 'bad'}">${t(o.won ? 'live.won' : 'live.lost')}</h4>
       <p>${t('live.consequences', { morale: (o.morale > 0 ? '+' : '') + o.morale, trust: (o.trust > 0 ? '+' : '') + o.trust, confidence: (o.confidence > 0 ? '+' : '') + o.confidence })}</p>
@@ -498,7 +498,7 @@
     if (a < 0 || b < 0 || a === b) return 'fwd';
     return b > a ? 'fwd' : 'back';
   }
-  const SECONDARY_TABS = ['match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history', 'shop', 'look', 'club', 'national', 'editor', 'moments', 'market'];
+  const SECONDARY_TABS = ['jugada', 'match', 'world', 'save', 'lab', 'settings', 'arcade', 'guide', 'history', 'shop', 'look', 'club', 'national', 'editor', 'moments', 'market'];
   const NATIONS = Array.from(new Set(['ES', 'US', 'FR', 'DE', 'IT', 'TR', 'GR', 'AR', 'BR', 'AU', 'CA', 'LT', 'RS', 'CN', 'JP', 'KR', 'PH', 'ZA', 'NG', 'SN', 'MX', 'PL', 'HR', 'CZ', 'BE', 'NL', 'PT', 'HU', 'UY', 'VE', 'PR', 'NZ', 'EG', 'MA', 'ID', 'TW', 'LB'].concat(Object.keys(CAA.LeagueCatalog.COUNTRIES).filter(c => c !== 'AF' && c !== 'FJ'), ['FJ'])));
   const NUMBERS = [0, 3, 7, 8, 11, 13, 23, 24, 30, 33, 34, 77];
   const TALENT = { promise: 50, gem: 55, chosen: 60 };
@@ -604,6 +604,7 @@
           <button class="${career ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
         </div>
         <div class="tiles boot-tiles">
+          <button class="tile" data-action="boot-open" data-target="jugada"><span class="ico" aria-hidden="true">${CAA.Icons.svg('ball')}</span><b>${t('more.jugada')}</b></button>
           <button class="tile" data-action="boot-open" data-target="settings"><span class="ico" aria-hidden="true">${CAA.Icons.svg('gear')}</span><b>${t('more.settings')}</b></button>
           <button class="tile" data-action="boot-open" data-target="more"><span class="ico" aria-hidden="true">${CAA.Icons.svg('more')}</span><b>${t('boot.more')}</b></button>
         </div>
@@ -842,12 +843,13 @@
     const nowVars = { opp: s.next ? s.next.opponent.name : '', where: s.next ? t(s.next.home ? 'home.atHome' : 'home.away') : '' };
     const nowStrip = `<section class="now-strip ${nowKey}" aria-live="polite"><span class="eyebrow">${po && !po.done ? t('po.kicker') : t('home.nowWeek', { n: s.round + 1, total: s.totalRounds })}</span><b>${esc(t('home.now.' + nowKey, nowVars))}</b><small>${esc(t('home.nowHint.' + nowKey, nowVars))}</small></section>`;
     const extra = `<details class="card more-week"><summary>${t('home.moreWeek')}</summary>${socialCard(s)}<h3>${t('home.news')}</h3><ul class="news">${news.split('</li>').slice(0, 6).join('</li>')}</ul></details>`;
+    if (liveNow && c.state.live.quick) return `${eraBanner(s)}${nowStrip}${jmPendingCard(c.state.live)}`;
     if (liveNow) return `${eraBanner(s)}${nowStrip}${renderLive(c)}`;
     if (ev) return `${eraBanner(s)}${nowStrip}${decision}<details class="card more-week"><summary>${t('home.restWeek')}</summary>${liveWorldCards(s)}${market}${recent}${next}${season}${famSetup}</details>`;
     // Tiempo en familia: opcional y plegado (ya no hay plan semanal que elegir cada semana).
     const famTime = s.player && fam && (fam.partner || fam.children.length) && s.next && !(c.state.live && c.state.live.week === c.state.week) ? `<button class="option" data-action="career-family"><b>${t('home.family')}</b><span class="muted small">${t('home.familyDesc')}</span></button>` : '';
     const famFold = famSetup || famTime ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}${famTime}</details>` : '';
-    return `${eraBanner(s)}${nowStrip}${eraCompsCard(s)}${eraMomentCard(s)}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${s.era ? `<details class="card more-week"><summary>${t('era.hubTitle', { decade: s.era.decade })}</summary>${eraCard(s)}</details>` : ''}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
+    return `${eraBanner(s)}${nowStrip}${vivaChronicleCard(s)}${vivaFocusCard(s)}${eraCompsCard(s)}${eraMomentCard(s)}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${s.era ? `<details class="card more-week"><summary>${t('era.hubTitle', { decade: s.era.decade })}</summary>${eraCard(s)}</details>` : ''}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -898,7 +900,7 @@
       <p class="small">${g.effective.total ? t('shop.effective', { stats: statText(g.effective.attrs) }) : t('shop.none')}</p>
       <div class="row"><button class="small-btn primary" data-tab="shop">🛍 ${t('more.shop')}</button><button class="small-btn" data-tab="look">🎨 ${t('more.look')}</button></div></section>` : '';
     const all = packs.achievements.achievements.filter(a => !a.mode || a.mode === 'any' || a.mode === s.mode), unlocked = all.filter(a => life.achievements.includes(a.id)).length;
-    const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div><ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
+    const trophies = `<section class="card"><div class="guide-head"><h3>${t('me.trophies')}</h3><span class="tag led">${unlocked}/${all.length}</span></div>${CAA.PlayGames.available(root) ? `<button class="small-btn" data-action="pgs-show">${t('pgs.show')}</button>` : ''}<ul class="trophies" tabindex="0" aria-label="${t('me.trophies')}">${all.map(a => { const ok = life.achievements.includes(a.id); return `<li class="${ok ? 'ok' : 'locked'}"><span aria-hidden="true">${ok ? '🏆' : '🔒'}</span><span><b>${esc(loc(a.title))}</b><small>${esc(t('ach.' + a.metric, { n: a.threshold.toLocaleString(CAA.I18N.getLocale()) }))}</small></span></li>`; }).join('')}</ul></section>`;
     const press = (life.press || []).length ? `<section class="card"><h3>${t('life.press')}</h3><ul class="news">${life.press.slice().reverse().map(x => `<li>📰 ${esc(pick(x))}</li>`).join('')}</ul></section>` : '';
     // Simplificado: arriba lo esencial; el resto, plegado con un título claro.
     const fold = (key, html) => html ? `<details class="card more-week"><summary>${t(key)}</summary>${html}</details>` : '';
@@ -1206,18 +1208,51 @@
     if (!s.diary || !s.diary.length) return '';
     return `<section class="card"><h3>📓 ${t('diary.title')}</h3><ul class="news">${s.diary.map(d => `<li><small class="muted">${seasonLabel(d.year)} · ${t('diary.week', { n: d.week })}</small> ${esc(t('diary.' + d.key + (d.key === 'season' && d.champion ? 'Champ' : ''), { v: d.v, opp: d.opp || '', rank: d.rank }))}</li>`).join('')}</ul></section>`;
   }
+  // Trofeos de cada temporada con su icono (como el historial del fútbol): liga, final, copa, ascenso y premios.
+  function seasonTrophies(h, st) {
+    const out = [], my = st.clubId;
+    if (h.champion === my) out.push({ k: 'gold', icon: '🏆', label: t('tro.league') });
+    else if (h.result === 'final' || h.runnerUp === my) out.push({ k: 'silver', icon: '🥈', label: t('tro.final') });
+    if (h.cupChampion ? h.cupChampion === my : h.cup && clubNameOf(st, my) === h.cup) out.push({ k: 'gold', icon: '🏅', label: t('tro.cup') });
+    if ((h.promoted || []).includes(my)) out.push({ k: 'up', icon: '⬆', label: t('tro.promoted') });
+    for (const a of h.myAwards || []) out.push({ k: 'award', icon: '⭐', label: t('award.' + a) });
+    return out;
+  }
+  function clubNameOf(st, id) { const c = st.season && st.season.clubsById[id]; return c ? c.name : ''; }
+  // ===== Temporada Viva: foco de jornada y crónicas de la propia partida =====
+  function vivaFocusCard(s) {
+    const f = s.viva && s.viva.focus; if (!f) return '';
+    const vars = Object.assign({}, f, { names: (f.names || []).join(', '), where: t(f.home ? 'viva.home' : 'viva.away'), streak: f.streak > 1 ? t('viva.streakW', { n: f.streak }) : f.streak < -1 ? t('viva.streakL', { n: -f.streak }) : '' });
+    return `<section class="card viva-focus" aria-labelledby="viva-focus-title"><div class="guide-head"><span class="tag">${t('viva.focus')}</span></div>
+      <h3 id="viva-focus-title">${esc(t('viva.f.' + f.key + 'T', vars))}</h3><p class="muted">${esc(t('viva.f.' + f.key + 'B', vars))}</p>
+      <button class="small-btn" data-tab-go="${esc(f.tab)}">${t('viva.f.' + f.key + 'Go')}</button></section>`;
+  }
+  function chronicleBody(ch) {
+    if (ch.kind === 'block') return `<p>${esc(t('viva.block.' + ch.tone, { w: ch.w, l: ch.l, rank: ch.rank, teams: ch.teams }))}</p>${ch.gp != null ? `<p class="muted small">${esc(t('viva.blockMe', ch))}</p>` : ''}`;
+    return `<ol class="viva-moments">${ch.moments.map(m => `<li><b>${t('viva.m.' + m.k)}</b> ${esc(t('viva.m.' + m.k + '.' + m.key, Object.assign({}, m, { result: t('sum.result.' + (m.result || 'none')), award: m.award ? t('award.' + m.award) : '' })))}</li>`).join('')}</ol>`;
+  }
+  function chronicleTitle(ch) { return ch.kind === 'block' ? t('viva.blockT' + ch.n, { season: seasonLabel(ch.year) }) : t('viva.seasonT', { season: seasonLabel(ch.year) }); }
+  function vivaChronicleCard(s) {
+    const ch = s.viva && s.viva.chronicle; if (!ch) return '';
+    return `<section class="card viva-chronicle" aria-labelledby="viva-ch-title"><span class="eyebrow">${t('viva.chronicle')}</span><h3 id="viva-ch-title">${esc(chronicleTitle(ch))}</h3>${chronicleBody(ch)}
+      <button class="small-btn" data-action="world-op" data-op="viva-seen">${t('viva.seen')}</button></section>`;
+  }
+  function chronicleArchive(s) {
+    const list = s.viva && s.viva.archive; if (!list || !list.length) return '';
+    return `<section class="card"><h3>${t('viva.archive')}</h3>${list.map(ch => `<details class="viva-arch"><summary>${esc(chronicleTitle(ch))}</summary>${chronicleBody(ch)}</details>`).join('')}</section>`;
+  }
   function renderHistory() {
     if (!hasCareer()) return renderHome();
     const st = state.career.state, s = state.career.summary, life = s.life || { achievements: [], counters: {} };
     const c = life.counters || {};
-    const rows = st.history.map(h => `<tr><td>${seasonLabel(h.year)}</td><td>${esc(leagueName(h.leagueId))}</td><td>${h.clubRank}.º</td><td>${t('sum.result.' + (h.champion === st.clubId ? 'champion' : (h.promoted || []).includes(st.clubId) ? 'promoted' : (h.result || 'none')))}</td><td>${esc(h.championName || '')}</td></tr>`).join('');
+    const rows = st.history.map(h => { const tro = seasonTrophies(h, st); return `<tr><td>${seasonLabel(h.year)}</td><td>${esc(leagueName(h.leagueId))}</td><td>${h.clubRank}.º</td><td>${t('sum.result.' + (h.champion === st.clubId ? 'champion' : (h.promoted || []).includes(st.clubId) ? 'promoted' : (h.result || 'none')))}</td><td class="tro" ${tro.length ? `aria-label="${esc(tro.map(x => x.label).join(', '))}"` : ''}>${tro.length ? tro.map(x => `<span class="tro-i ${x.k}" title="${esc(x.label)}" aria-hidden="true">${x.icon}</span>`).join('') : '<span class="muted" aria-hidden="true">—</span>'}</td><td>${esc(h.championName || '')}</td></tr>`; }).join('');
     const mine = s.player ? (st.player.career.awards || []) : [];
     const kpi = [['titles', c.titles || 0], ['playoffApps', c.playoffApps || 0], ['awards', c.awards || 0], ['trophies', life.achievements.length]];
     return `<section class="card"><span class="eyebrow">${t('hof.kicker')}</span><h2>${esc(s.player ? s.player.name : s.coach.name)}</h2>
       <div class="statline">${kpi.map(([k, v]) => `<div><b>${v}</b><small>${t('hof.' + k)}</small></div>`).join('')}</div>
       ${s.player ? `<p class="muted small">${t('hof.totals', { gp: (st.player.career.totals || {}).gp || 0, pts: (st.player.career.totals || {}).pts || 0, reb: (st.player.career.totals || {}).reb || 0, ast: (st.player.career.totals || {}).ast || 0 })}</p>` : ''}</section>
-      <section class="card"><h3>${t('hof.seasons')}</h3>${rows ? `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('hof.seasons')}"><table><thead><tr><th>${t('hof.season')}</th><th>${t('hof.league')}</th><th>#</th><th>${t('hof.result')}</th><th>${t('hof.champion')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<p class="muted">${t('hof.empty')}</p>`}</section>
-      ${mine.length ? `<section class="card"><h3>${t('hof.myAwards')}</h3><ul class="news">${mine.map(a => `<li>🏆 <b>${t('award.' + a.award)}</b> · ${seasonLabel(a.year)}</li>`).join('')}</ul></section>` : ''}${recordsCard(s)}${diaryCard(s)}`;
+      <section class="card"><h3>${t('hof.seasons')}</h3>${rows ? `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('hof.seasons')}"><table><thead><tr><th>${t('hof.season')}</th><th>${t('hof.league')}</th><th>#</th><th>${t('hof.result')}</th><th>${t('hof.trophies')}</th><th>${t('hof.champion')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<p class="muted">${t('hof.empty')}</p>`}</section>
+      ${mine.length ? `<section class="card"><h3>${t('hof.myAwards')}</h3><ul class="news">${mine.map(a => `<li>🏆 <b>${t('award.' + a.award)}</b> · ${seasonLabel(a.year)}</li>`).join('')}</ul></section>` : ''}${chronicleArchive(s)}${recordsCard(s)}${diaryCard(s)}`;
   }
   // ===== Tienda (adaptación de ui-shop del fútbol): escaparate semanal, ofertas, tiers, conjuntos y requisitos =====
   function statText(stats) { return Object.entries(stats || {}).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${t('attr.' + k)}`).join(' · '); }
@@ -1348,11 +1383,11 @@
   }
   function renderMore() {
     const s = hasCareer() ? state.career.summary : null;
-    const ico = { editor: 'edit', market: 'handshake', club: 'arena', shop: 'bag', look: 'palette', national: 'trophy', moments: 'film', history: 'hall', guide: 'book', world: 'globe', match: 'ball', save: 'save', settings: 'gear', lab: 'flask' };
+    const ico = { jugada: 'ball', editor: 'edit', market: 'handshake', club: 'arena', shop: 'bag', look: 'palette', national: 'trophy', moments: 'film', history: 'hall', guide: 'book', world: 'globe', match: 'ball', save: 'save', settings: 'gear', lab: 'flask' };
     const tile = (tab) => `<button class="tile" data-tab="${tab}" id="more-${tab}" aria-label="${esc(t('more.' + tab) + ': ' + t('more.' + tab + 'Sub'))}"><span class="ico" aria-hidden="true">${CAA.Icons.svg(ico[tab] || 'ball')}</span><b>${t('more.' + tab)}</b></button>`;
     const group = (title, tabs) => `<section class="more-group"><h3 class="eyebrow">${title}</h3><div class="tiles">${tabs.filter(Boolean).map(tile).join('')}</div></section>`;
     const club = [s ? 'editor' : '', s && s.transfers ? 'market' : '', s && s.clubFin ? 'club' : '', s ? 'shop' : '', s ? 'look' : '', s && s.national ? 'national' : ''];
-    const systemTabs = ['moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab'];
+    const systemTabs = ['jugada', 'moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab'];
     const quick = s && s.club ? `<section class="card more-hero"><div class="mh-id">${crest(s.club, 34)}<div><b>${esc(s.player ? s.player.name : s.coach.name)}</b><small class="muted">${esc(s.club.name)} · ${esc(s.leagueName)}</small></div></div>
       <div class="more-stats"><div><b>${s.week}</b><small>${t('career.week')}</small></div><div><b>${s.club.wins}-${s.club.losses}</b><small>${t('league.w')}-${t('league.l')}</small></div><div><b>${(s.life && s.life.achievements ? s.life.achievements.length : 0)}</b><small>${t('me.trophies')}</small></div><div><b>${s.table && s.table.length ? s.table.find(r => r.id === s.club.id) ? s.table.find(r => r.id === s.club.id).rank + 'º' : '—' : '—'}</b><small>${t('league.table')}</small></div></div>
       ${s.life && s.life.pendingArcade ? `<p class="small ok">▶ ${t('arcade.pending', { game: t('arcade.' + s.life.pendingArcade.type) })}</p>` : ''}</section>` : '';
@@ -1373,6 +1408,121 @@
     return `<div class="actionbar"><button class="cta" data-action="live-start">${t('home.playLive', { team: s.next.opponent.name })} <span aria-hidden="true">▶</span></button><button class="sim-btn" data-action="career-play" aria-label="${t('home.simulateLabel')}">${t('home.simulate')}</button></div>`;
   }
 
+  // ===== Jugada Maestra: campaña de jugadas dibujadas y momento clave en los partidos =====
+  const JM_MEDAL = n => '★'.repeat(n) + '☆'.repeat(3 - n);
+  function renderJugadaCampaign() {
+    const all = CAA.JugadaUI.medals(), levels = CAA.Jugada.levels();
+    const stars = levels.reduce((a, l) => a + (all[l.id] || 0), 0);
+    const chapters = CAA.Jugada.CHAPTERS.map((key, ci) => {
+      const list = levels.filter(l => l.chapter === ci + 1);
+      return `<section class="card jm-chapter"><h3><span class="eyebrow">${t('jm.chapterN', { n: ci + 1 })}</span> ${t('jm.chapter.' + key)}</h3><p class="muted small">${t('jm.goal.' + key)}</p>
+        <div class="jm-levels">${list.map(l => { const open = CAA.JugadaUI.unlocked(l.id, all), m = all[l.id] || 0;
+          return `<button class="jm-level${m ? ' won' : ''}" data-action="jm-level" data-id="${l.id}" ${open ? '' : 'disabled'} aria-label="${esc(t('jm.levelLabel', { n: l.n, stars: m }) + (open ? '' : ' · ' + t('jm.locked')))}"><b>${l.n}</b><span aria-hidden="true">${open ? JM_MEDAL(m) : '🔒'}</span></button>`; }).join('')}</div></section>`;
+    }).join('');
+    return `<section class="card jm-hero"><span class="eyebrow">${t('jm.kicker')}</span><h2>${t('more.jugada')}</h2><p>${t('jm.intro')}</p>
+      <p class="jm-total"><b>${stars}</b> / ${levels.length * 3} ★</p><p class="muted small">${t('jm.howTo')}</p></section>${chapters}`;
+  }
+  function jmPendingCard(live) {
+    const m = live.moment;
+    if (!m || m.type !== 'jm') return `<section class="card"><p>${t('live.started')}</p><button class="cta" data-action="career-play">${t('home.simulate')} ▶</button></section>`;
+    return `<section class="card jm-pending" aria-labelledby="jm-pending-title"><span class="jm-kick">★ ${t('jm.kicker')}</span><h2 id="jm-pending-title">${t('jm.momentTitle')}</h2>
+      <p>${t(m.needThree ? 'jm.matchGoalThree' : 'jm.matchGoal')}</p>
+      <div class="row"><button class="cta" data-action="jm-open">${t('jm.playIt')}</button><button data-action="jm-auto">${t('jm.letTeam')}</button></div></section>`;
+  }
+  function jmBoardFromLive() { const lv = state.career.state && state.career.state.live; return lv && lv.moment && lv.moment.type === 'jm' ? lv : null; }
+  async function jmQuickStart() {
+    const s = state.career.summary;
+    if (!s.jm || !s.jm.due || !s.next) return false;
+    let res = await worker.send('career.live', { state: state.career.state, start: true, quick: true });
+    await acceptCareer(res);
+    res = await worker.send('career.live', { state: state.career.state, toJm: true });
+    await acceptCareer(res);
+    const lv = jmBoardFromLive();
+    if (!lv) return false;
+    jmOpen('sim', lv);
+    return true;
+  }
+  function jmOpen(kind, lv) {
+    state.jmPanel = { kind, id: kind === 'level' ? lv : 'match', st: kind === 'level' ? CAA.Jugada.fresh(lv) : JSON.parse(JSON.stringify(lv.moment.board)), actions: [], msg: '', anim: false, needThree: kind === 'level' ? CAA.Jugada.level(lv).needThree : !!lv.moment.needThree };
+    if (audio) audio.play('whistle');
+  }
+  const jmRound = a => Object.assign({}, a, a.path ? { path: a.path.slice(-40).map(p => [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]) } : {});
+  function jmDo(raw) {
+    const P = state.jmPanel; if (!P || P.anim || P.st.done) return;
+    const action = jmRound(raw), r = CAA.Jugada.resolve(P.st, action);
+    if (!r.ok) { P.msg = t('jm.msg.target'); render(); return; }
+    P.actions.push(action);
+    const entry = P.st.log[P.st.log.length - 1];
+    P.msg = t('jm.msg.' + (entry ? entry.msg : r.msg), { pts: P.st.points });
+    if (P.st.done && P.kind === 'level' && P.st.won) CAA.JugadaUI.saveMedal(P.id, CAA.Jugada.result(P.st).medal);
+    P.anim = true; P.juice = entry;
+    const host = doc.getElementById('jm-board');
+    CAA.JugadaUI.fly(host, entry, () => { if (state.jmPanel === P) { P.anim = false; render(); } });
+  }
+  function renderJm() {
+    const P = state.jmPanel; if (!P) return '';
+    const st = P.st, res = CAA.Jugada.result(st), lvl = P.kind === 'level' ? CAA.Jugada.level(P.id) : null;
+    const title = lvl ? `${t('jm.chapter.' + lvl.chapterKey)} · ${t('jm.playN', { n: lvl.n })}` : t('jm.momentTitle');
+    const goal = lvl ? t(lvl.needThree ? 'jm.goal.three' : 'jm.goal.' + lvl.chapterKey) + (lvl.needThree ? '' : '') : t(P.needThree ? 'jm.matchGoalThree' : 'jm.matchGoal');
+    const nameOf = i => st.players && st.players[i] ? st.players[i].name : t('jm.mate', { n: i + 1 });
+    const tools = !st.done ? `<div class="jm-tools"><p class="muted small">${t('jm.howTo')}</p>
+      <div class="jm-pass-list" role="group" aria-label="${t('jm.passTo')}">${st.mates.map(m => `<button class="small-btn" data-action="jm-act" data-k="pass" data-to="${m.i}">${t('jm.passBtn', { name: nameOf(m.i) })}</button>`).join('')}</div>
+      <div class="row"><button data-action="jm-act" data-k="drive">${t('jm.driveBtn')}</button><button class="primary" data-action="jm-act" data-k="shot">${t('jm.shotBtn')}</button></div>
+      ${P.kind !== 'level' && !P.actions.length ? `<button class="link" data-action="jm-auto">${t('jm.letTeam')}</button>` : ''}</div>` : '';
+    const medal = P.kind === 'level' && st.done ? `<p class="jm-medal ${st.won ? 'ok' : 'bad'}" aria-label="${esc(t('jm.medalLabel', { n: res.medal }))}">${JM_MEDAL(res.medal)}</p>` : '';
+    const levels = CAA.Jugada.levels(), idx = lvl ? levels.findIndex(l => l.id === lvl.id) : -1, next = idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
+    const after = st.done ? (P.kind === 'level'
+      ? `<div class="row">${st.won && next ? `<button class="cta" data-action="jm-level" data-id="${next.id}">${t('jm.next')} ▶</button>` : ''}<button class="${st.won ? '' : 'primary'}" data-action="jm-level" data-id="${P.id}">${t('jm.retry')}</button><button class="link" data-action="jm-close">${t('jm.close')}</button></div>`
+      : `<button class="cta" data-action="jm-finish">${t(P.kind === 'live' ? 'jm.backLive' : 'jm.backSim')} ▶</button>`) : '';
+    const meLine = st.players && st.players.some(p => p.me) ? `<p class="muted small">${t('jm.youAre', { name: st.players.find(p => p.me).name })}</p>` : '';
+    const lvm = P.kind !== 'level' && state.career.state && state.career.state.live ? state.career.state.live.match : null;
+    const scoreLine = lvm ? (() => { const me = state.career.state.live.userTeam, prof = CAA.Rules.getProfile(lvm.ruleSetId); return `<p class="jm-score"><b>${lvm.score[me]}–${lvm.score[1 - me]}</b> <span>${esc(lvm.teams[1 - me].name)} · ${esc(CAA.Rules.periodLabel(prof, lvm.period))} ${clockText(lvm.gameClock)}</span></p>`; })() : '';
+    return `<div id="jm" class="jm-ov"><section class="jm-box" role="dialog" aria-modal="true" aria-labelledby="jm-title" aria-describedby="jm-goal">
+      <div class="jm-head"><span class="jm-kick">★ ${t('jm.kicker')}</span><h2 id="jm-title" tabindex="-1">${esc(title)}</h2>${scoreLine}<p id="jm-goal" class="jm-goal">${esc(goal)}</p>${meLine}</div>
+      <div id="jm-board" class="jm-wrap${st.done ? ' done' : ''}">${CAA.JugadaUI.svg(st, { t })}<span class="jm-turn">${t('jm.actions', { n: st.turn, max: st.max })}</span></div>
+      <p class="jm-status ${st.done ? (st.won || st.points ? 'ok' : 'bad') : ''}" id="jm-status" role="status" aria-live="polite">${esc(P.msg || t('jm.start'))}</p>
+      ${medal}${tools}${after}${P.kind === 'level' && !st.done ? `<button class="link" data-action="jm-close">${t('jm.close')}</button>` : ''}</section></div>`;
+  }
+  let jmUnbind = null;
+  function jmAfterRender() {
+    if (jmUnbind) { jmUnbind(); jmUnbind = null; }
+    const P = state.jmPanel; if (!P) return;
+    const host = doc.getElementById('jm-board');
+    if (host && !P.anim) jmUnbind = CAA.JugadaUI.bind(host, P.st, a => jmDo(a));
+    const j = P.juice; P.juice = null;
+    if (j && host && !P.anim) {
+      const hoop = host.querySelector('.jm-hoop');
+      if (j.k === 'shot' && j.ok) { haptic('success'); if (audio) audio.play('swish'); if (CAA.Juice && hoop) { CAA.Juice.burstAt(hoop, { count: j.points === 3 ? 30 : 18, colors: ['#ffb21e', '#fff3c4', '#ffffff'] }); CAA.Juice.floatText('+' + j.points, hoop, j.points === 3 ? 'gold' : 'good'); if (P.st.won && P.kind === 'level' && CAA.Jugada.result(P.st).medal === 3) CAA.Juice.confetti(0.5); } }
+      else if (!j.ok) { haptic('fail'); if (audio) audio.play(j.k === 'shot' ? 'buzzer' : 'fail'); if (CAA.Juice) CAA.Juice.shake(host, 0.5); }
+      else if (audio) audio.play(j.k === 'pass' ? 'pop' : 'bounce');
+    }
+  }
+  // Los botones del tablero no pasan por action(): así el vuelo del balón no se corta con un repintado.
+  function jmActButton(el) {
+    const P = state.jmPanel; if (!P) return;
+    const k = el.dataset.k, st = P.st;
+    if (k === 'pass') jmDo({ k: 'pass', to: Number(el.dataset.to) });
+    else if (k === 'drive') { const H = CAA.Jugada.HOOP, d = CAA.Jugada.dist(st.ball, H) || 1, L = Math.min(16, d - 4); jmDo({ k: 'drive', path: [[st.ball[0] + (H[0] - st.ball[0]) / d * L, st.ball[1] + (H[1] - st.ball[1]) / d * L]] }); }
+    else jmDo({ k: 'shot' });
+  }
+  async function jmAction(name, el) {
+    const P = state.jmPanel;
+    if (name === 'jm-level') { if (CAA.JugadaUI.unlocked(el.dataset.id)) jmOpen('level', el.dataset.id); return; }
+    if (name === 'jm-close') { state.jmPanel = null; return; }
+    if (name === 'jm-open') { const lv = jmBoardFromLive(); if (lv) jmOpen(lv.quick ? 'sim' : 'live', lv); return; }
+    if (name === 'jm-act') { jmActButton(el); return; }
+    const lv = state.career.state && state.career.state.live, kind = P ? P.kind : lv && lv.quick ? 'sim' : 'live';
+    if (name === 'jm-finish' || name === 'jm-auto') {
+      const play = name === 'jm-finish' && P && P.actions.length;
+      const jm = { choice: play ? 'play' : 'auto', actions: play ? P.actions : [] };
+      const res = kind === 'sim'
+        ? await worker.send('career.advance', { state: state.career.state, action: { type: 'play', jm } })
+        : await worker.send('career.live', { state: state.career.state, choice: jm.choice, jm: jm.actions });
+      state.jmPanel = null;
+      await acceptCareer(res);
+      if (kind === 'sim') { state.tab = 'career'; if (audio) audio.play('whistle'); }
+    }
+  }
   // ===== Recordatorios locales (solo app Android, desactivados por defecto) =====
   function armReminders() {
     if (!state.settings.reminders || !hasCareer() || !CAA.Reminders.available(root)) return;
@@ -1448,6 +1598,7 @@
     <label>${t('settings.contrast')}<select data-setting="highContrast">${opt('true', String(s.highContrast), t('settings.on'))}${opt('false', String(s.highContrast), t('settings.off'))}</select></label>
     <label>${t('settings.reminders')}<select data-setting="reminders" ${remOk ? '' : 'disabled aria-describedby="rem-note"'}>${opt('true', String(remOk && s.reminders), t('settings.on'))}${opt('false', String(remOk && s.reminders), t('settings.off'))}</select></label>
     <p class="muted small" id="rem-note">${t(remOk ? 'settings.remindersNote' : 'settings.remindersAndroid')}</p>
+    ${hasCareer() ? `<div class="jm-setting"><b>${t('jm.setting')}</b><p class="muted small">${t('jm.settingNote')}</p><button class="small-btn" data-action="world-op" data-op="jm-toggle" aria-pressed="${state.career.summary.jm && state.career.summary.jm.on ? 'true' : 'false'}">${t(state.career.summary.jm && state.career.summary.jm.on ? 'settings.on' : 'settings.off')}</button></div>` : ''}
     <p class="muted">${t('settings.audioNote')}</p><button data-action="audio-test">${t('settings.audioTest')}</button>
     </div></section>`;
   }
@@ -1476,14 +1627,14 @@
       doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
-      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'moments' ? renderMoments() : tab === 'editor' ? renderEditor() : tab === 'club' ? renderClub() : tab === 'market' ? renderMarket() : tab === 'national' ? renderNational() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
+      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'jugada' ? renderJugadaCampaign() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'moments' ? renderMoments() : tab === 'editor' ? renderEditor() : tab === 'club' ? renderClub() : tab === 'market' ? renderMarket() : tab === 'national' ? renderNational() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
       const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' ? 'life' : 'more';
       const icons = { career: CAA.Icons.svg('career'), life: CAA.Icons.svg('life'), league: CAA.Icons.svg('league'), more: CAA.Icons.svg('more') };
       doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
       ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
       <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="${tab === 'arcade' ? 'life' : 'more'}">‹ ${t(tab === 'arcade' ? 'nav.life' : 'nav.more')}</button>` : ''}${body}</main>
-      ${renderCoach()}<footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
+      ${renderCoach()}${renderJm()}<footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
     }
     const appEl = doc.getElementById('app');
     const mainEl = doc.getElementById('panel');
@@ -1492,7 +1643,7 @@
       if (entered) { void mainEl.offsetWidth; mainEl.classList.add('view-in', 'nav-' + (state.navDir || 'fwd')); }
     }
     appEl.setAttribute('aria-busy', state.busy ? 'true' : 'false');
-    for (const child of appEl.children) child.inert = (!!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status') || (!state.confirm && !!coachStep() && child.id !== 'coach' && child.id !== 'global-status');
+    for (const child of appEl.children) child.inert = (!!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status') || (!state.confirm && !!coachStep() && child.id !== 'coach' && child.id !== 'global-status') || (!state.confirm && !!state.jmPanel && child.id !== 'jm' && child.id !== 'global-status');
     doc.querySelectorAll('[data-action]').forEach(b => { b.disabled = state.busy || b.disabled || !!state.confirm; });
     if (state.confirm) doc.querySelectorAll('.confirm button').forEach(b => { b.disabled = false; });
     doc.querySelectorAll('details').forEach((d, i) => { if (openDetails[i] !== undefined) d.open = openDetails[i]; });
@@ -1500,9 +1651,11 @@
     if (!restore && focusAction) restore = Array.from(doc.querySelectorAll('[data-action]')).find(b => b.dataset.action === focusAction && Object.keys(focusData).every(k => b.dataset[k] === focusData[k]));
     if (state.confirm) restore = doc.getElementById('confirm-cancel');
     else if (coachStep()) restore = doc.getElementById('coach-next');
+    else if (state.jmPanel && !doc.getElementById('jm').contains(doc.activeElement)) restore = doc.getElementById('jm-title');
     else if (focusAction === 'confirm-cancel' || focusAction === 'confirm-yes') restore = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel');
     if (restore && !restore.disabled) restore.focus({ preventScroll: true });
     placeCoach();
+    jmAfterRender();
     drawMatchFrame();
     drawAvatar();
     drawPet();
@@ -1702,6 +1855,14 @@
   }
   async function acceptCareer(result) { const prev = state.career.summary; state.career.state = result.state; state.career.summary = result.summary; try { const q = juiceDiff(prev, result.summary); if (q.length) state.juice = (state.juice || []).concat(q); } catch (_) {} await persistCareer(); }
   // ===== Juice: qué ha cambiado y cómo celebrarlo (resultado, media, dinero, logros, títulos). =====
+  const achId = x => typeof x === 'string' ? x : x && (x.id || x.key);
+  function achFirstTime(ids) {
+    let seen = [];
+    try { seen = JSON.parse(root.localStorage.getItem('caa.ach.seen') || '[]'); if (!Array.isArray(seen)) seen = []; } catch (_) { seen = state.achSeen || []; }
+    const out = ids.filter(id => id && !seen.includes(id));
+    if (out.length) { seen = seen.concat(out).slice(-600); state.achSeen = seen; try { root.localStorage.setItem('caa.ach.seen', JSON.stringify(seen)); } catch (_) {} }
+    return out;
+  }
   function juiceDiff(a, b) {
     const q = [];
     if (!a || !b || a.careerId !== b.careerId) return q;
@@ -1710,8 +1871,10 @@
     if (a.player && b.player && b.player.ovr > a.player.ovr) q.push({ k: 'ovr', d: b.player.ovr - a.player.ovr });
     const cash = x => x.mode === 'coach' ? (x.clubFin && x.clubFin.cash) : (x.life && x.life.cash);
     const c0 = cash(a), c1 = cash(b); if (Number.isFinite(c0) && Number.isFinite(c1) && Math.abs(c1 - c0) >= 1) q.push({ k: 'cash', d: c1 - c0 });
-    const n0 = a.life && a.life.achievements ? a.life.achievements.length : 0, n1 = b.life && b.life.achievements ? b.life.achievements.length : 0;
-    if (n1 > n0) q.push({ k: 'ach', n: n1 - n0 });
+    // Logros: solo se celebran la primera vez en este dispositivo; en otras partidas se desbloquean en silencio.
+    const had = new Set(a.life && a.life.achievements ? a.life.achievements.map(achId) : []);
+    const fresh = (b.life && b.life.achievements ? b.life.achievements.map(achId) : []).filter(id => !had.has(id));
+    if (fresh.length) { const firstTime = achFirstTime(fresh); if (firstTime.length) q.push({ k: 'ach', n: firstTime.length }); if (CAA.PlayGames) CAA.PlayGames.unlock(root, fresh); }
     if (b.lastSeason && b.lastSeason.myChampion && !(a.lastSeason && a.lastSeason.myChampion)) q.push({ k: 'title' });
     if (b.summerCup && b.summerCup.place === 1 && !(a.summerCup && a.summerCup.year === b.summerCup.year)) q.push({ k: 'cup' });
     return q;
@@ -1799,6 +1962,8 @@
         }
         else if (['archetype', 'handedness', 'talent', 'clubId', 'challenge'].includes(field)) state.career[field] = value;
         if (audio) audio.play('click');
+      } else if (name === 'pgs-show') { CAA.PlayGames.show(root); if (hasCareer() && state.career.summary.life) CAA.PlayGames.unlock(root, state.career.summary.life.achievements);
+      } else if (/^jm-/.test(name)) { await jmAction(name, el);
       } else if (name === 'coach-next') { coachAdvance(1);
       } else if (name === 'coach-skip') { coachFinish();
       } else if (name === 'coach-replay') { try { root.localStorage.removeItem('caa.tutorialDone'); } catch (_) {} state.tab = 'career'; state.coach = { step: 0 }; state.coachPrompted = true;
@@ -1891,6 +2056,7 @@
       } else if (name === 'career-play' || name === 'career-train' || name === 'career-rest') {
         if (!state.career.state) throw new Error(t('career.empty'));
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };
+        if (await jmQuickStart()) { state.busy = false; render(); return; }
         const res = await worker.send('career.advance', { state: state.career.state, action });
         await acceptCareer(res);
       } else if (name === 'moment-open') { state.moment = { id: el.dataset.id, side: 1, tactic: 'normal', result: null }; root.scrollTo && root.scrollTo(0, 0);
@@ -2071,6 +2237,7 @@
       if (e.target.id === 'arcade-canvas' || (e.target.closest('[data-action]') && e.target.closest('[data-action]').dataset.action === 'arcade-release')) { arcadeRelease(); return; }
       const go = e.target.closest('[data-tab-go]'); if (go) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, go.dataset.tabGo); state.tab = go.dataset.tabGo; render(); const f = doc.getElementById('tab-' + state.tab); if (f) f.focus(); return; }
       const tab = e.target.closest('[data-tab]'); if (tab) { if (CAA.Parrot) CAA.Parrot.stop(); haptic('select'); state.navDir = tabDir(state.tab, tab.dataset.tab); state.tab = tab.dataset.tab; state.match.playing = false; render(); syncAnimation(); tabEnter(); const f = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel'); if (f) f.focus(); root.scrollTo && root.scrollTo(0, 0); return; }
+      { const jb = e.target.closest('[data-action="jm-act"]'); if (jb && state.jmPanel) { haptic('tap'); jmActButton(jb); return; } }
       const btn = e.target.closest('[data-action]'); if (btn) { haptic('tap'); if (CAA.Juice && btn.dataset.action === 'life-event') { CAA.Juice.pop(btn, 1.04); CAA.Juice.burstAt(btn, { count: 14, speed: 180 }); if (audio) audio.play('pop'); } if (btn.dataset.index != null) state.career.signIndex = +btn.dataset.index; action(btn.dataset.action, btn); }
     });
     doc.getElementById('app').addEventListener('keydown', e => {
@@ -2170,6 +2337,7 @@
     const motion = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)'); if (motion && motion.addEventListener) motion.addEventListener('change', () => { CAA.A11Y.apply(state.settings, doc); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; syncAnimation(); });
     root.CAA_APP = { state, storage, worker, world, persistCareer, rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
       if (coachStep()) { coachFinish(); render(); return true; }
+      if (state.jmPanel) { state.jmPanel = null; render(); return true; }
       if (state.screen === 'create') { if (state.wizard.step > 1) state.wizard.step--; else state.screen = state.career.eraYear ? 'eras' : 'modes'; render(); return true; }
       if (state.screen === 'eras') { state.screen = 'modes'; render(); return true; }
       if (state.screen === 'modes') { state.screen = 'menu'; render(); return true; }

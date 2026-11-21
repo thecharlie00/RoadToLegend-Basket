@@ -80,6 +80,9 @@ async function newCareer(page, o = {}) {
   await click(page, 'career-create');
   if (await page.locator('[data-action="confirm-yes"]').count()) await click(page, 'confirm-yes');
   await page.waitForFunction(() => CAA_APP.state.screen === 'game' && CAA_APP.state.career.state && CAA_APP.state.saveState !== 'saving');
+  // La Jugada Maestra tiene su propio escenario; en el resto se apaga para que «Simular» avance siempre.
+  if (!o.jm) await page.evaluate(async () => { const c = CAA_APP.state.career; if (c.summary && c.summary.jm && c.summary.jm.on) { const btn = document.createElement('button'); btn.dataset.action = 'world-op'; btn.dataset.op = 'jm-toggle'; btn.hidden = true; document.getElementById('app').appendChild(btn); btn.click(); } });
+  await page.waitForFunction(() => !CAA_APP.state.busy && !(CAA_APP.state.career.summary && CAA_APP.state.career.summary.jm && CAA_APP.state.career.summary.jm.on) || CAA_APP.state.career.summary.jm.on === undefined, null, { timeout: 15000 }).catch(() => {});
   // Sin almacenamiento el tutorial no puede recordarse como visto: se salta como haría el jugador.
   if (!o.keepTutorial && await page.locator('#coach').count()) await click(page, 'coach-skip');
 }
@@ -535,6 +538,50 @@ try {
     assert.ok(await page.evaluate(() => window.__rem.cancels) >= 1);
     const st = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     assert.deepEqual(st.violations.map(v => v.id), []);
+  });
+  await scenario('Jugada Maestra: drawn campaign play with real gestures, and the key moment of a simulated game', { viewport: { width: 390, height: 844 } }, async page => {
+    await click(page, 'boot-lang"][data-locale="es');
+    await page.locator('[data-action="boot-open"][data-target="jugada"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.locator('.jm-level').count(), 30);
+    assert.equal(await page.locator('.jm-level:disabled').count(), 29, 'only the first play starts unlocked');
+    await page.locator('[data-action="jm-level"][data-id="jm-01"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    assert.deepEqual(a11y.violations.map(v => v.id), []);
+    // La solución del solucionador, jugada arrastrando el dedo sobre la pista.
+    const sol = await page.evaluate(() => CAA.Jugada.solve('jm-01'));
+    const toClient = pt => page.evaluate(([x, y]) => { const svg = document.querySelector('svg.jm-court'), m = svg.getScreenCTM(), q = svg.createSVGPoint(); q.x = y; q.y = 94 - x; const r = q.matrixTransform(m); return [r.x, r.y]; }, pt);
+    for (const a of sol.actions) {
+      const st = await page.evaluate(() => CAA_APP.state.jmPanel.st);
+      let pts = a.k === 'shot' ? [[88.5, 50]] : a.path || [];
+      if (a.k === 'pass') pts = pts.concat([st.mates.find(m => m.i === a.to).p]);
+      const from = await toClient(st.ball);
+      await page.mouse.move(from[0], from[1]); await page.mouse.down();
+      for (const q of pts) { const c = await toClient(q); await page.mouse.move(c[0], c[1], { steps: 6 }); }
+      await page.mouse.up();
+      await page.waitForFunction(() => !CAA_APP.state.jmPanel.anim, null, { timeout: 5000 });
+    }
+    assert.equal(await page.evaluate(() => CAA_APP.state.jmPanel.st.won), true);
+    assert.equal(await page.evaluate(() => CAA.JugadaUI.medals()['jm-01']), 3);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await page.screenshot({ path: 'dist/smoke-jugada.png' });
+    await click(page, 'jm-close');
+    assert.equal(await page.locator('[data-action="jm-level"][data-id="jm-02"]:disabled').count(), 0, 'winning unlocks the next play');
+    // Carrera: la Jugada Maestra llega como mucho en el tercer partido y «Simular» se detiene en ella.
+    await newCareer(page, { seed: 'jm-browser', jm: true });
+    let guard = 0;
+    while (guard++ < 8 && !(await page.evaluate(() => !!CAA_APP.state.jmPanel))) {
+      if (await page.locator('.card.decision [data-action="life-event"]').count()) { await page.locator('.card.decision [data-action="life-event"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy); continue; }
+      await click(page, 'career-play');
+    }
+    assert.equal(await page.evaluate(() => CAA_APP.state.jmPanel && CAA_APP.state.jmPanel.kind), 'sim');
+    assert.ok(await page.evaluate(() => CAA_APP.state.career.summary.week) <= 2, 'first Master Play within the first three games');
+    const week = await page.evaluate(() => CAA_APP.state.career.summary.week);
+    await page.locator('#jm [data-action="jm-act"][data-k="shot"]').click();
+    await page.waitForFunction(() => CAA_APP.state.jmPanel.st.done && !CAA_APP.state.jmPanel.anim);
+    await click(page, 'jm-finish');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.week), week + 1);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.jm.plays), 1);
+    assert.equal(await page.locator('#jm').count(), 0);
   });
   await scenario('Worker unavailable: deterministic main-thread fallback', { init: () => { window.Worker = undefined; } }, async page => {
     assert.equal(await page.evaluate(() => CAA_APP.worker.getMode()), 'main');
