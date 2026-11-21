@@ -2,7 +2,6 @@
   'use strict';
   const CAA = root.CAA = root.CAA || {};
   const Rules = CAA.Rules || (typeof require === 'function' ? require('../match/rules.js') : null);
-  const Hash = CAA.Hash || (typeof require === 'function' ? require('../core/hash.js') : null);
   const VERSION = 'voxel-2';
   const MAX_CUBES = 2600;
   const FLOATS_PER_VERTEX = 9;

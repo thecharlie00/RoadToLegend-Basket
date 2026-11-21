@@ -2,7 +2,6 @@
   'use strict';
   const CAA = root.CAA = root.CAA || {};
   const Match = CAA.Match || (typeof require === 'function' ? require('./engine.js') : null);
-  const Rules = CAA.Rules || (typeof require === 'function' ? require('./rules.js') : null);
 
   const NBA_TARGET = { pts: 115.61, fga: 89.09, fgm: 41.97, '3pa': 36.97, '3pm': 13.30, fta: 23.49, ftm: 18.38, orb: 11.38, drb: 32.39, ast: 26.74, stl: 8.42, blk: 4.84, tov: 14.51, pf: 19.87, possessions: 99.4 };
 

@@ -19,7 +19,6 @@
     return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
   }
   function pathDist(p, pts) { let d = 1e9; for (let i = 1; i < pts.length; i++) d = Math.min(d, segDist(p, pts[i - 1], pts[i])); return d; }
-  function pathLen(pts) { let L = 0; for (let i = 1; i < pts.length; i++) L += dist(pts[i - 1], pts[i]); return L; }
   // Trazo limpio: empieza en el balón, sin puntos repetidos y, si se pide, termina en `end`.
   function cleanPath(path, start, end) {
     const out = [start.slice()];

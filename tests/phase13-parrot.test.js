@@ -80,7 +80,9 @@ test('without a microphone the module degrades instead of throwing or hanging', 
 });
 
 test('every parrot label the interface asks for exists in all five languages', () => {
-  const ui = fs.readFileSync(path.join(ROOT, 'src/ui/app.js'), 'utf8');
+  // La interfaz vive en app.js y en sus vistas (src/ui/views).
+  const views = path.join(ROOT, 'src/ui/views');
+  const ui = [path.join(ROOT, 'src/ui/app.js')].concat(fs.readdirSync(views).map(f => path.join(views, f))).map(f => fs.readFileSync(f, 'utf8')).join('\n');
   const keys = new Set();
   for (const m of ui.matchAll(/pet\.parrot\.[a-zA-Z]+/g)) keys.add(m[0]);
   for (const k of ['pet.act.speak', 'pet.msg.speak', 'pet.msg.speakAgain', 'pet.album.speak']) keys.add(k);

@@ -57,11 +57,7 @@
       return g;
     } catch (_) { return stops[0][1]; }
   }
-  function roundRect(ctx, x, y, w, h, r) {
-    const rr = Math.min(r, w / 2, h / 2);
-    ctx.beginPath(); ctx.moveTo(x + rr, y); ctx.arcTo(x + w, y, x + w, y + h, rr); ctx.arcTo(x + w, y + h, x, y + h, rr);
-    ctx.arcTo(x, y + h, x, y, rr); ctx.arcTo(x, y, x + w, y, rr); ctx.closePath();
-  }
+
 
   function drawCourt(ctx, w, h, frame, options = {}) {
     const cb = options.colorMode === 'blue-orange';
@@ -141,7 +137,6 @@
     ctx.beginPath(); ctx.arc(X(L / 2), Y(W / 2), (FT_CIRCLE / L) * cw, 0, TAU); ctx.stroke();
     for (const side of [-1, 1]) {
       const hoopM = side > 0 ? L - HOOP : HOOP;
-      const baseM = side > 0 ? L : 0;
       const keyX0 = side > 0 ? L - KEY_L : 0;
       // Zona y semicírculo de tiros libres.
       ctx.strokeRect(Math.min(X(keyX0), X(keyX0 + KEY_L)), Y(W / 2 - KEY_W / 2), (KEY_L / L) * cw, (KEY_W / W) * ch);

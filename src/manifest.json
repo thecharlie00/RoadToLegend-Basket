@@ -213,6 +213,26 @@
       "worker": true
     },
     {
+      "id": "career-life",
+      "path": "src/domain/career-life.js",
+      "worker": true
+    },
+    {
+      "id": "career-world",
+      "path": "src/domain/career-world.js",
+      "worker": true
+    },
+    {
+      "id": "career-club",
+      "path": "src/domain/career-club.js",
+      "worker": true
+    },
+    {
+      "id": "career-view",
+      "path": "src/domain/career-view.js",
+      "worker": true
+    },
+    {
       "id": "career",
       "path": "src/domain/career.js",
       "worker": true
@@ -340,6 +360,111 @@
     {
       "id": "juice",
       "path": "src/ui/juice.js",
+      "worker": false
+    },
+    {
+      "id": "view-live",
+      "path": "src/ui/views/live.js",
+      "worker": false
+    },
+    {
+      "id": "view-boot",
+      "path": "src/ui/views/boot.js",
+      "worker": false
+    },
+    {
+      "id": "view-home",
+      "path": "src/ui/views/home.js",
+      "worker": false
+    },
+    {
+      "id": "view-me",
+      "path": "src/ui/views/me.js",
+      "worker": false
+    },
+    {
+      "id": "view-league",
+      "path": "src/ui/views/league.js",
+      "worker": false
+    },
+    {
+      "id": "view-era",
+      "path": "src/ui/views/era.js",
+      "worker": false
+    },
+    {
+      "id": "view-more",
+      "path": "src/ui/views/more.js",
+      "worker": false
+    },
+    {
+      "id": "view-viva",
+      "path": "src/ui/views/viva.js",
+      "worker": false
+    },
+    {
+      "id": "view-jugada",
+      "path": "src/ui/views/jugada.js",
+      "worker": false
+    },
+    {
+      "id": "view-assist",
+      "path": "src/ui/views/assist.js",
+      "worker": false
+    },
+    {
+      "id": "view-arcade",
+      "path": "src/ui/views/arcade.js",
+      "worker": false
+    },
+    {
+      "id": "view-matchlab",
+      "path": "src/ui/views/matchlab.js",
+      "worker": false
+    },
+    {
+      "id": "view-juice",
+      "path": "src/ui/views/juice.js",
+      "worker": false
+    },
+    {
+      "id": "actions-nav",
+      "path": "src/ui/actions/nav.js",
+      "worker": false
+    },
+    {
+      "id": "actions-system",
+      "path": "src/ui/actions/system.js",
+      "worker": false
+    },
+    {
+      "id": "actions-jugada",
+      "path": "src/ui/actions/jugada.js",
+      "worker": false
+    },
+    {
+      "id": "actions-saves",
+      "path": "src/ui/actions/saves.js",
+      "worker": false
+    },
+    {
+      "id": "actions-lab",
+      "path": "src/ui/actions/lab.js",
+      "worker": false
+    },
+    {
+      "id": "actions-life",
+      "path": "src/ui/actions/life.js",
+      "worker": false
+    },
+    {
+      "id": "actions-career",
+      "path": "src/ui/actions/career.js",
+      "worker": false
+    },
+    {
+      "id": "actions-live",
+      "path": "src/ui/actions/live.js",
       "worker": false
     },
     {

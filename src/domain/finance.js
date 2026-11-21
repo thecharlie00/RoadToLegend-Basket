@@ -4,7 +4,6 @@
   // precio de las entradas, objetivos de la directiva y juego limpio financiero. Activo en las carreras de
   // entrenador y en «Crea tu club», donde además fundas el club (nombre, siglas y colores).
   const CAA = root.CAA = root.CAA || {};
-  const RNG = CAA.RNG || (typeof require === 'function' ? require('../core/rng.js') : null);
   const Player = CAA.Player || (typeof require === 'function' ? require('./player.js') : null);
   const Contracts = CAA.Contracts || (typeof require === 'function' ? require('./contracts.js') : null);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));

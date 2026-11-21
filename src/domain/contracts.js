@@ -1,7 +1,6 @@
 (function (root) {
   'use strict';
   const CAA = root.CAA = root.CAA || {};
-  const RNG = CAA.RNG || (typeof require === 'function' ? require('../core/rng.js') : null);
 
   // Cifras NA verificadas 2026-27. Rookie scale / max-min exactos pendientes de CBA completo.
   const NA_ECONOMY_2026_27 = {
