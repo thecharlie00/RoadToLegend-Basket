@@ -7,7 +7,8 @@
   //    que el motor de partido daba a ese tiro, así que jugar bien mejora y forzar empeora.
   // Coordenadas: x = 0 (medio campo) … 94 (línea de fondo), y = 0 … 100 (ancho). 1 unidad ≈ 0,15 m.
   const CAA = root.CAA = root.CAA || {};
-  const HOOP = [88.5, 50], ARC = 45, CORNER = 44, LEN = 94, WIDTH = 100;
+  // Aro a 1,575 m del fondo (10,5 unidades), triple a 6,75 m (45) y 6,6 m en las esquinas (44).
+  const HOOP = [83.5, 50], ARC = 45, CORNER = 44, LEN = 94, WIDTH = 100, PERFECT = 3;
   const DRIVE_MAX = 24, REACH = 3.2, LANE_OK = 4, RECEIVER_OK = 3, HOOP_PICK = 9, MATE_PICK = 11;
 
   const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -73,13 +74,17 @@
   // balón, 4 compañeros/as, 5 defensores, acciones máximas. Capítulos: espacios, penetración,
   // juego interior, triple obligado y última posesión (menos acciones).
   const CHAPTERS = ['spacing', 'drive', 'inside', 'three', 'clutch'];
-  const DATA = /*levels*/[[[41,58.4],[[63.6,84],[88.5,95.2],[88.6,3.4],[79.5,35.4]],[[46.2,58.3],[68.1,77.4],[89.5,91.7],[89.8,7.5],[82.3,44.8]],4],[[46.8,47.1],[[85.8,4],[63,91.2],[63.4,14.7],[66.9,46.4]],[[52.3,47.4],[87.3,14.3],[70.9,85.1],[65.9,16.2],[76,50.8]],4],[[38.4,41.2],[[62.1,13.7],[81.3,33.3],[84.6,96.7],[67.5,59.9]],[[43.9,42.6],[63.5,16.2],[81.3,44],[85.8,93.1],[71.5,58.3]],4],[[38.3,33],[[78.7,39.1],[65.4,87.2],[60.1,12.5],[79.5,61.3]],[[41.6,35.7],[86.4,46.9],[74,81.6],[61.5,15],[86.7,55.2]],4],[[43.7,33.8],[[64,90.9],[79.7,63.8],[86.4,3.2],[64.9,14.6]],[[46.8,36.8],[64.8,81.3],[84.6,60.7],[83.3,12.2],[66.2,21.7]],4],[[45.1,57.1],[[78.2,67],[88.9,5],[69.6,54.3],[61.3,88]],[[48.5,54.9],[79.3,58.3],[90.9,14.9],[80.5,51.2],[64.7,81.8]],5],[[47.8,69.4],[[86.5,4.8],[67,37.9],[80.7,69.6],[85.6,96.5]],[[50.7,66.6],[87.8,12.3],[82.2,47.3],[83.3,67.2],[83.9,89.7]],4],[[45.7,67.3],[[61.9,91.4],[87.9,95.6],[81.7,38],[85.9,5.4]],[[50.9,66.1],[63.3,83.3],[86.8,88.1],[82.6,44.4],[86.5,8.5]],4],[[44.9,46.8],[[60.2,88.3],[83.6,37.4],[79.9,62.3],[87.4,96.8]],[[49.1,46.8],[63.3,85.6],[85.8,39.6],[82.6,46.9],[86.3,87.3]],4],[[43.2,68.7],[[89.3,3.8],[68.6,46.2],[62.9,85.4],[82.3,39.1]],[[46.3,65.9],[82.1,51.8],[78.7,46.2],[63.9,80],[85.8,41.8]],4],[[47,69.4],[[88.6,4.9],[61.8,89.8],[83.4,60.6],[83.3,38.2]],[[49.9,66.4],[88.4,10.7],[63.3,86.8],[90.5,52.4],[82.2,51.8]],4],[[45,41.6],[[63.2,86.1],[69.9,60.7],[84.1,3.3],[63.3,17]],[[48.6,44.2],[83,55.2],[74.4,55.8],[83.9,11.1],[65.6,23.2]],5],[[38.7,41],[[78.9,66.6],[89.9,4.5],[85.7,94.7],[61.9,8.8]],[[44.1,41.4],[80,55.4],[91.5,12.9],[82.2,46.5],[68.1,15.8]],4],[[43.6,45.5],[[86.8,4.8],[62.2,90],[67,59.2],[82.5,67]],[[48.6,45],[86.3,12.1],[63.8,87.3],[69.1,57.6],[82.5,55]],4],[[39.7,39.6],[[80.3,66.4],[62,87.5],[85,94.6],[79.5,36.5]],[[45.2,39.3],[88.7,59.1],[66.1,76.7],[88.9,86.6],[81.1,48.9]],4],[[42.5,62.9],[[80.4,39.4],[61.7,82.7],[69.7,56.6],[79.4,67.4]],[[46.5,60.6],[82,43.4],[67.9,76.7],[80.3,54.7],[81.8,57]],4],[[41,47.8],[[89.6,4.4],[80.6,35.9],[68.3,42.1],[65.6,17.5]],[[45.8,50],[89.6,7.3],[82.9,38.6],[81.1,50.4],[66.4,21.1]],4],[[39.3,64.4],[[67.8,57],[64.6,8.4],[79.9,36.9],[87.1,3.3]],[[44.3,62.3],[83.2,48.4],[66.8,17],[83.7,46.1],[87,9.9]],5],[[41.3,36.6],[[87.1,95.4],[84.4,4.7],[64,89.1],[62.8,10.8]],[[46,39.9],[89.4,87.6],[86.6,10.3],[69.4,82.6],[67.3,14.4]],4],[[41,32.2],[[84.9,94],[81.1,68],[70,51.9],[89.5,4.5]],[[45.6,34],[87.4,85.8],[82,62.5],[78.4,54.1],[90.8,11.4]],4],[[43.5,53.1],[[84.6,95.9],[65.2,16.2],[66.8,39.7],[82.5,63.5]],[[47.7,52.3],[87.9,87],[66.9,18.6],[74.6,44.1],[88.1,58.6]],4],[[40.9,53.7],[[64.9,14],[86.5,4.2],[79.7,60.2],[68.6,52.1]],[[45.7,54.5],[66.6,16.9],[89.1,12.4],[82,56.9],[75.6,52.3]],4],[[43.8,41.1],[[79.8,62.7],[66,49.2],[64.3,83.7],[62.5,10.3]],[[47.8,43.7],[82.8,59.6],[69.5,49],[68.5,80.7],[68,16.9]],4],[[42.1,60.8],[[86.4,96.8],[89.1,5.2],[63.8,11.2],[63.9,83.2]],[[46.2,59.3],[86,92.8],[86.5,13.1],[70.3,18.1],[65.2,77.3]],5],[[39.8,35.5],[[86.4,95.6],[87.7,6],[65.3,12.7],[80.4,37.4]],[[44.2,36.2],[85.8,90.5],[90.2,12.2],[71.8,17.3],[81.8,45]],3],[[44.5,51.8],[[61,90],[64.9,8.6],[84.9,5.1],[78.7,35.8]],[[49,51.7],[63,81.8],[69.7,12.7],[87.2,13.3],[87.5,41.3]],3],[[43.2,68.8],[[84.5,5.5],[82,65.4],[60.8,84.4],[81.4,33.1]],[[47.6,65.9],[88.8,13.4],[84,58.3],[67.6,79.6],[87.2,39.6]],3],[[44.6,33.7],[[67.8,59.4],[85.2,94.9],[79.7,38.8],[63.2,83.6]],[[48.8,36.6],[71.2,57.3],[87.8,83.7],[81.6,42.9],[65.7,74.4]],3],[[47.8,31.1],[[64.2,91.9],[65.6,10.9],[67.9,53.1],[83.1,64]],[[52.4,34],[66.8,89.3],[67.3,13.6],[74.1,49.1],[84,54.5]],3],[[41.1,48.1],[[65.1,10.1],[86.4,94.9],[67.5,41.7],[78.6,61.1]],[[45.7,48.2],[68.7,13.3],[89.3,84.3],[72.9,43.3],[83.6,56.1]],3]]/*end*/;
+  // Tres estrellas por jugada, al estilo de los juegos de jugadas dibujadas: anotar, hacerlo en las
+  // acciones justas (par) y el objetivo extra del capítulo.
+  const BONUS = ['allTouch', 'perfect', 'dunk', 'noDrive', 'dunk'];
+  const DATA = /*levels*/[[[37.5,51.5],[[85.6,4.4],[62.1,10.6],[85.6,95.5],[63,88.4]],[[42.7,52],[86.3,8.8],[66.3,19.1],[81.2,85.8],[66.3,80.1]],4],[[39.1,41.5],[[62,82],[77.5,61.3],[84.5,96.8],[85.1,5.7]],[[44.4,41.6],[66.3,74.9],[78.7,53],[88.3,87.7],[84.1,9.8]],4],[[34.4,41.2],[[59.4,13.7],[75.3,34.6],[84.6,96.7],[63.9,59.9]],[[39.9,42.6],[60.7,16.3],[76.2,45.3],[85.4,93],[67.8,58.2]],4],[[34.3,33],[[72.7,39.2],[63.3,87.2],[57.1,12.5],[73.5,61]],[[37.6,35.7],[80.8,46.7],[71.6,81.1],[58.4,15.1],[81.1,55.4]],4],[[34.7,64.2],[[58,16.9],[85.6,4.3],[57.3,88.5],[73.2,34.2]],[[38.1,61.8],[62.6,20],[85,9.4],[58.8,82.1],[74.6,40.3]],4],[[35.3,34.4],[[61.7,17.5],[86.2,96.8],[76.6,36.8],[63,38.4]],[[38.6,36.9],[62.5,20.9],[87,90.1],[76.9,39.6],[65.6,39.9]],5],[[43.8,69.4],[[86.5,4.8],[63.3,37.9],[74.7,67.7],[85.6,96.5]],[[46.7,66.6],[87,12.4],[78.2,47.3],[77.4,65.5],[83.2,89.9]],4],[[41.7,67.3],[[59.2,91.4],[87.9,95.6],[75.7,38.4],[85.9,5.4]],[[46.9,66],[60.3,83.3],[86,88.3],[78.6,44.4],[86.1,8.5]],4],[[40.9,46.8],[[57.2,88.3],[77.6,37.9],[73.9,61.8],[87.4,96.8]],[[45.1,46.8],[60.3,85.5],[79.9,39.9],[78.6,46.9],[85.3,87.4]],4],[[39.2,68.7],[[89.3,3.8],[65.2,46.2],[60.3,85.4],[76.3,39.3]],[[42.2,65.8],[78.1,51.8],[75.3,46.4],[61.2,80],[80,41.7]],4],[[37.2,32.6],[[73.3,60.8],[63.5,10.6],[62.9,86.7],[64.3,63.7]],[[40.1,35.6],[78.2,57.2],[64.8,18.7],[76.5,48],[67.1,61]],4],[[35.9,66.9],[[58.3,85.5],[60.1,9.9],[72.5,33.6],[88,95.4]],[[38.9,64.3],[63.3,81.4],[77.8,52.5],[75.9,37.3],[85.4,88.5]],5],[[34.7,41],[[72.9,65.3],[89.9,4.5],[85.7,94.7],[59.3,8.8]],[[40.1,41.5],[74.9,54.2],[90.6,13],[78.2,46.5],[65.1,16]],4],[[39.6,45.5],[[86.8,4.8],[59.6,90],[63.2,59.2],[76.5,65.6]],[[44.6,45],[85.5,12],[61.1,87.3],[65.3,57.6],[78.5,55]],4],[[35.7,39.6],[[74.3,65.1],[59.3,87.5],[85,94.6],[73.5,37.2]],[[41.2,39.3],[83.3,58.5],[63,76.5],[88,86.2],[77.1,48.9]],4],[[43.8,66.6],[[73.7,65.8],[62.2,11.1],[84.8,5.4],[62.3,47.7]],[[48.8,65.3],[78.5,60.3],[63.4,13.9],[83.8,10.1],[79.3,48.6]],4],[[37,47.8],[[89.6,4.4],[74.6,36.7],[64.9,42.1],[63.5,17.5]],[[41.8,50],[89.3,7.3],[77.1,39.2],[77.1,50.4],[64.1,21.2]],4],[[35.3,64.4],[[64.2,57],[62.4,8.4],[73.9,37.5],[87.1,3.3]],[[40.3,62.3],[79.2,48.4],[64.2,17.1],[78.3,46.4],[86.3,9.8]],5],[[37.3,36.6],[[87.1,95.4],[84.4,4.7],[61.6,89.1],[60.3,10.8]],[[42,39.9],[88.5,87.4],[85.9,10.5],[66.7,82.4],[64.6,14.6]],4],[[37.4,64.3],[[60.9,83],[64.5,36.6],[87.8,96.6],[73.9,33.8]],[[42.9,64],[64,76.6],[73.1,39.3],[88.5,92.8],[79.7,39.2]],4],[[34.3,30.8],[[61.3,88.6],[74.6,62.7],[86.7,3.2],[75.8,39.4]],[[38.2,35],[64.3,81.6],[76.7,56.4],[85.3,8.3],[80.3,43.6]],4],[[36.9,53.7],[[62.7,14],[86.5,4.2],[73.7,60.2],[65.2,52.1]],[[41.7,54.5],[64.3,17],[88.1,12.7],[76.2,57],[72.2,52.2]],4],[[39.8,41.1],[[73.8,62.2],[62,49.2],[62,83.7],[60,10.3]],[[43.8,43.7],[77,59.3],[65.5,49],[66,80.5],[65.1,17.1]],4],[[38.1,60.8],[[86.4,96.8],[89.1,5.2],[61.4,11.2],[61.5,83.2]],[[42.2,59.3],[85.6,92.9],[85.6,12.8],[67.6,18.4],[62.5,77.2]],5],[[37.1,34.2],[[63.9,90.3],[87.5,5.8],[62,55.5],[58.2,12.9]],[[40.8,36.6],[69.6,85.5],[89.2,11.2],[65.4,55.1],[64.2,18.8]],3],[[35.9,41.6],[[57.8,17.3],[65.7,44.8],[60.9,86.1],[73.1,34.4]],[[40.7,44.2],[63.8,21.8],[75.4,45.2],[65.8,81.8],[73.9,39.1]],3],[[37.2,39.7],[[87.9,94.7],[73.8,32.1],[76.4,67.6],[63.9,85.1]],[[42.8,39],[88.9,87.5],[75.3,43.4],[76.2,58.9],[64.8,74.4]],3],[[42.9,45.7],[[57.5,15.8],[86.6,95.1],[72.4,32.6],[60.2,82.4]],[[47.7,44.2],[59.8,18.5],[86.7,91.6],[73.6,37.7],[67.4,74.9]],3],[[36.2,54.5],[[73.4,65.2],[72.1,34],[59.3,83.7],[62.2,45.7]],[[41.3,54.8],[75.7,62.7],[81.6,39.2],[67.3,76.5],[67,48.7]],3],[[38.5,55.9],[[58.4,86.4],[77.5,32.7],[88,4.3],[73.4,67.9]],[[43.5,54.2],[60.3,75.1],[76.8,41],[89.6,12.8],[75.1,61.6]],3]]/*end*/;
   const LEVELS = DATA.map((d, i) => ({ id: 'jm-' + String(i + 1).padStart(2, '0'), n: i + 1, chapter: Math.floor(i / 6) + 1, chapterKey: CHAPTERS[Math.floor(i / 6)],
-    ball: d[0], mates: d[1], rivals: d[2], max: d[3], needThree: Math.floor(i / 6) === 3, seedOffset: (i + 1) * 7919 }));
+    ball: d[0], mates: d[1], rivals: d[2], max: d[3], needThree: Math.floor(i / 6) === 3, bonus: BONUS[Math.floor(i / 6)], seedOffset: (i + 1) * 7919 }));
   function level(id) { return LEVELS.find(l => l.id === id) || null; }
   function fromLayout(l, id) {
     return { id: id || 'free', match: false, seed: (l.seedOffset || 1) >>> 0, ball: l.ball.slice(), handler: 0, mates: l.mates.map((p, i) => ({ p: p.slice(), i: i + 1 })),
-      rivals: l.rivals.map(p => p.slice()), turn: 0, max: l.max, needThree: !!l.needThree, done: false, won: false, points: 0, chain: 0, log: [] };
+      rivals: l.rivals.map(p => p.slice()), turn: 0, max: l.max, needThree: !!l.needThree, bonus: l.bonus || null, done: false, won: false, points: 0, chain: 0, log: [],
+      touched: [0], drives: 0, lastK: null };
   }
   function fresh(id) { const l = level(id); return l ? fromLayout(l, id) : null; }
 
@@ -88,7 +93,7 @@
   // defensor cerca de su par. players = 5 en pista ({id, name, p: {restricted…above3}}); el primero lleva el balón.
   function moment(seed, o = {}) {
     const s = (seed >>> 0) || 7, r = k => noise(s, 500 + k, k * 3 + 1);
-    const spots = [[40 + r(1) * 6, 44 + r(2) * 12], [60 + r(3) * 6, 12 + r(4) * 8], [62 + r(5) * 6, 82 + r(6) * 8], [84 + r(7) * 6, r(8) < 0.5 ? 5 : 95], [80 + r(9) * 4, 36 + r(10) * 28]];
+    const spots = [[36 + r(1) * 7, 42 + r(2) * 16], [58 + r(3) * 6, 10 + r(4) * 8], [58 + r(5) * 6, 82 + r(6) * 8], [84 + r(7) * 6, r(8) < 0.5 ? 5 : 95], [73 + r(9) * 5, r(10) < 0.5 ? 36 + r(11) * 6 : 58 + r(11) * 6]];
     const players = (o.players || []).slice(0, 5);
     const rivals = spots.map((p, i) => {
       const gap = i === 0 ? 4 + r(20) * 3 : 3.5 + r(21 + i) * 7, ang = r(30 + i) * Math.PI * 2;
@@ -99,7 +104,7 @@
     return {
       id: o.id || 'match', match: true, seed: s, ball: clampPt(spots[0]), handler: 0,
       mates: spots.slice(1).map((p, i) => ({ p: clampPt(p), i: i + 1 })), rivals, turn: 0, max: o.max || 3,
-      needThree: !!o.needThree, done: false, won: false, points: 0, chain: 0, log: [],
+      needThree: !!o.needThree, done: false, won: false, points: 0, chain: 0, log: [], touched: [0], drives: 0, lastK: null,
       players: players.map(p => ({ id: p.id, name: p.name, me: !!p.me, p: p.p || {} }))
     };
   }
@@ -118,26 +123,30 @@
     s.rivals.forEach((r, i) => { const d = dist(r, focus); if (d < nd) { nd = d; nearest = i; } });
     s.rivals = s.rivals.map((r, i) => { const k = i === nearest ? strong : 0.1; return clampPt([r[0] + (focus[0] - r[0]) * k, r[1] + (focus[1] - r[1]) * k]); });
   }
-  function shoot(s, start) {
+  // aim: a cuánto del centro del aro terminó el gesto de tiro (en unidades). Un tiro limpio (≤ 3)
+  // perdona algo más de defensa, como apuntar a la escuadra.
+  function shoot(s, start, aim) {
     const zone = zoneOf(start), three = isThree(start), c = contestOf(s, start), d = dist(start, HOOP), rim = zone === 'restricted' && rimProtected(s, start);
+    const perfect = Number.isFinite(aim) && aim <= PERFECT;
     let how;
     if (c < 3.5 || rim) how = 'block';
     else if (!s.match) {
-      if (three) how = d > 55 ? 'short' : c >= 9 ? 'made' : 'rim';
+      if (three) how = d > 55 ? 'short' : c >= 9 || (perfect && c >= 7) ? 'made' : 'rim';
       else if (zone === 'restricted') how = 'made';
-      else if (zone === 'paint') how = c >= 6 ? 'made' : 'rim';
-      else how = c >= 8 ? 'made' : 'rim';
+      else if (zone === 'paint') how = c >= 6 || (perfect && c >= 4.5) ? 'made' : 'rim';
+      else how = c >= 8 || (perfect && c >= 6) ? 'made' : 'rim';
     } else {
       const f = c < 6 ? 0.72 : c < 9 ? 0.97 : 1.15, deep = three && d > 55 ? 0.6 : 1;
-      const q = clamp(anchor(s, s.handler, zone) * f * deep + 0.04 * Math.min(2, s.chain), 0.03, 0.95);
+      const q = clamp(anchor(s, s.handler, zone) * f * deep + 0.04 * Math.min(2, s.chain) + (perfect ? 0.06 : 0), 0.03, 0.95);
       s.quality = q;
       how = noise(s.seed, s.turn, 911) < q ? 'made' : noise(s.seed, s.turn, 912) < 0.3 ? 'rim' : 'miss';
     }
     const made = how === 'made', points = made ? (three ? 3 : 2) : 0;
     s.done = true; s.points = points; s.won = made && (!s.needThree || three);
-    s.shot = { zone, three, contest: Math.round(c * 10) / 10, how };
-    const msg = !made ? how : s.needThree && !three ? 'two' : three ? 'three' : 'made';
-    s.log.push({ k: 'shot', ok: made, how, msg, from: start.slice(), to: HOOP.slice(), token: s.handler, zone, points });
+    const dunk = made && zone === 'restricted' && s.lastK === 'pass';
+    s.shot = { zone, three, contest: Math.round(c * 10) / 10, how, perfect, dunk };
+    const msg = !made ? how : s.needThree && !three ? 'two' : dunk ? 'dunk' : three ? 'three' : 'made';
+    s.log.push({ k: 'shot', ok: made, how, msg, from: start.slice(), to: HOOP.slice(), token: s.handler, zone, points, perfect, dunk });
     return { ok: true, shot: true, made, points, how, msg, zone, state: s };
   }
   function resolve(s, action) {
@@ -146,7 +155,7 @@
     let k = a.k;
     const tip = path.length ? clampPt(path[path.length - 1]) : null;
     if (!k) k = tip && dist(tip, HOOP) <= HOOP_PICK ? 'shot' : tip && s.mates.some(m => dist(m.p, tip) <= MATE_PICK) ? 'pass' : 'drive';
-    if (k === 'shot') { s.turn++; return shoot(s, start); }
+    if (k === 'shot') { s.turn++; return shoot(s, start, tip ? dist(tip, HOOP) : (Number.isFinite(a.aim) ? a.aim : null)); }
     if (k === 'pass') {
       let mate = Number.isInteger(a.to) ? s.mates.find(m => m.i === a.to) : null;
       if (!mate && tip) { let bd = 1e9; for (const m of s.mates) { const d = dist(m.p, tip); if (d < bd) { bd = d; mate = m; } } if (bd > MATE_PICK + 6) mate = null; }
@@ -157,8 +166,12 @@
       const close = contestOf(s, mate.p);
       if (lane >= LANE_OK && close >= RECEIVER_OK) {
         const from = s.handler; s.handler = mate.i; mate.i = from; const target = mate.p.slice(); mate.p = start; s.ball = target; s.chain++;
+        if (!s.touched.includes(s.handler)) s.touched.push(s.handler);
+        s.lastK = 'pass';
         shiftDefense(s, s.ball, 0.35);
         s.log.push({ k: 'pass', ok: true, msg: 'pass', from: start, to: target, path: pts, token: s.handler });
+        const run = cut(s);
+        if (run) s.log.push(run);
         if (s.turn >= s.max) return endPossession(s, { ok: true, completed: true, msg: 'pass' });
         return { ok: true, completed: true, msg: 'pass', state: s };
       }
@@ -181,11 +194,34 @@
       s.log.push({ k: 'drive', ok: false, msg: 'charge', from: start, to: end, path: pts });
       return { ok: true, completed: false, msg: 'charge', state: s };
     }
-    s.ball = end.slice();
+    s.ball = end.slice(); s.drives++; s.lastK = 'drive';
     shiftDefense(s, s.ball, 0.5); // la ayuda sale al balón y deja a alguien libre
     s.log.push({ k: 'drive', ok: true, msg: 'drive', from: start, to: end, path: pts, token: s.handler });
     if (s.turn >= s.max) return endPossession(s, { ok: true, completed: true, msg: 'drive' });
     return { ok: true, completed: true, msg: 'drive', state: s };
+  }
+  // Corte: tras un pase, el compañero más libre ataca el aro si tiene el camino despejado
+  // (como los desmarques de los juegos de jugadas dibujadas). Así nacen los pases a la canasta.
+  function cut(s) {
+    let best = null, bo = -1;
+    for (const m of s.mates) {
+      const open = contestOf(s, m.p), d = dist(m.p, HOOP);
+      if (d < 14 || open <= bo) continue;
+      const k = Math.min(0.62, (d - 6) / d), to = clampPt([m.p[0] + (HOOP[0] - m.p[0]) * k, m.p[1] + (HOOP[1] - m.p[1]) * k]);
+      if (s.rivals.some(r => segDist(r, m.p, to) < REACH) || dist(to, s.ball) < 6) continue;
+      best = { m, to }; bo = open;
+    }
+    if (!best) return null;
+    const from = best.m.p.slice(); best.m.p = best.to;
+    return { k: 'cut', ok: true, msg: 'cut', from, to: best.to.slice(), token: best.m.i };
+  }
+  function bonusMet(s) {
+    if (!s.won || !s.bonus) return false;
+    if (s.bonus === 'allTouch') return s.touched.length >= 3;
+    if (s.bonus === 'perfect') return !!(s.shot && s.shot.perfect);
+    if (s.bonus === 'dunk') return !!(s.shot && s.shot.dunk);
+    if (s.bonus === 'noDrive') return s.drives === 0;
+    return false;
   }
   function endPossession(s, res) {
     s.done = true; s.won = false; s.turnover = 'clock';
@@ -206,7 +242,7 @@
     return pts;
   }
   function candidates(s) {
-    const out = [{ k: 'shot' }];
+    const out = [{ k: 'shot', aim: 0 }];
     for (const m of s.mates) for (const o of [0, -8, 8, -15, 15]) out.push({ k: 'pass', to: m.i, path: o ? bend(s.ball, m.p, o) : [m.p] });
     for (const ang of [-1.2, -0.7, -0.3, 0, 0.3, 0.7, 1.2]) {
       const dir = Math.atan2(HOOP[1] - s.ball[1], HOOP[0] - s.ball[0]) + ang;
@@ -217,7 +253,8 @@
   const copy = o => JSON.parse(JSON.stringify(o));
   // Acciones mínimas con las que se gana la jugada (búsqueda pequeña y memorizada); null si no hay solución.
   function solve(id, depthMax) { const l = level(id); return l ? solveState(fresh(id), depthMax) : null; }
-  function solveState(start, depthMax) {
+  // accept: condición extra del final (p. ej. el objetivo de la tercera estrella).
+  function solveState(start, depthMax, accept) {
     let layer = [{ st: copy(start), seq: [] }];
     const limit = Math.min(start.max, depthMax || start.max);
     for (let d = 1; d <= limit; d++) {
@@ -225,7 +262,7 @@
       for (const node of layer) for (const a of candidates(node.st)) {
         const c = copy(node.st); const r = resolve(c, a);
         if (!r.ok) continue;
-        if (c.done) { if (c.won) return { par: d, actions: node.seq.concat([a]) }; continue; }
+        if (c.done) { if (c.won && (!accept || accept(c))) return { par: d, actions: node.seq.concat([a]) }; continue; }
         next.push({ st: c, seq: node.seq.concat([a]) });
       }
       layer = next.slice(0, 600);
@@ -236,11 +273,12 @@
   function result(s) {
     if (!s) return null;
     const p = s.match ? 2 : par(s.id);
-    return { done: !!s.done, won: !!s.won, actions: s.turn, par: p, points: s.points, medal: s.won ? (s.turn <= p ? 3 : s.turn <= p + 1 ? 2 : 1) : 0 };
+    const stars = [!!s.won, !!s.won && s.turn <= p, bonusMet(s)];
+    return { done: !!s.done, won: !!s.won, actions: s.turn, par: p, points: s.points, stars, medal: stars.filter(Boolean).length, bonus: s.bonus };
   }
-  function levels() { return LEVELS.map(l => ({ id: l.id, n: l.n, chapter: l.chapter, chapterKey: l.chapterKey, key: l.key, max: l.max, needThree: l.needThree })); }
+  function levels() { return LEVELS.map(l => ({ id: l.id, n: l.n, chapter: l.chapter, chapterKey: l.chapterKey, max: l.max, needThree: l.needThree, bonus: l.bonus })); }
 
   CAA.Jugada = { HOOP, ARC, CORNER, LEN, WIDTH, DRIVE_MAX, HOOP_PICK, MATE_PICK, CHAPTERS: CHAPTERS.slice(), levels, level, fresh, fromLayout, solveState, moment, resolve, replay, result, par, solve,
-    isThree, zoneOf, tokenAt, hashSeed, dist, cleanPath, clipPath };
+    isThree, zoneOf, tokenAt, hashSeed, dist, cleanPath, clipPath, bonusMet, BONUS: BONUS.slice(), PERFECT };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Jugada;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

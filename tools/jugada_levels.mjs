@@ -10,18 +10,18 @@ const H = J.HOOP;
 function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const r1 = v => Math.round(v * 10) / 10;
 const SPOTS = [
-  r => [60 + r() * 6, 8 + r() * 10], r => [60 + r() * 6, 82 + r() * 10], r => [84 + r() * 6, 3 + r() * 3], r => [84 + r() * 6, 94 + r() * 3],
-  r => [78 + r() * 6, 30 + r() * 10], r => [78 + r() * 6, 60 + r() * 10], r => [66 + r() * 4, 36 + r() * 28]
+  r => [57 + r() * 7, 8 + r() * 10], r => [57 + r() * 7, 82 + r() * 10], r => [84 + r() * 6, 3 + r() * 3], r => [84 + r() * 6, 94 + r() * 3],
+  r => [72 + r() * 6, 32 + r() * 8], r => [72 + r() * 6, 60 + r() * 8], r => [62 + r() * 5, 36 + r() * 28]
 ];
 function layout(r, ch) {
-  const ball = [38 + r() * 10, 30 + r() * 40];
+  const ball = [34 + r() * 10, 30 + r() * 40];
   const idx = []; while (idx.length < 4) { const k = Math.floor(r() * SPOTS.length); if (!idx.includes(k)) idx.push(k); }
   const mates = idx.map(k => SPOTS[k](r));
   const guard = (p, gap) => { const dx = H[0] - p[0], dy = H[1] - p[1], L = Math.hypot(dx, dy) || 1, a = (r() - 0.5) * 0.9; const c = Math.cos(a), s = Math.sin(a); return [p[0] + (dx * c - dy * s) / L * gap, p[1] + (dx * s + dy * c) / L * gap]; };
   const rivals = [guard(ball, 4 + r() * 1.8)];
   const sagger = Math.floor(r() * 4);
   mates.forEach((m, i) => {
-    if ((ch === 1 || ch === 2) && i === sagger) rivals.push([80 + r() * 4, 44 + r() * 12]); // protector del aro
+    if ((ch === 1 || ch === 2) && i === sagger) rivals.push([76 + r() * 4, 44 + r() * 12]); // protector del aro
     else rivals.push(guard(m, 2.6 + r() * (ch === 3 ? 7 : 9)));
   });
   return { ball, mates, rivals };
@@ -38,7 +38,9 @@ for (let i = 0; i < 30; i++) {
   const ch = Math.floor(i / 6), max = ch === 4 ? 3 : i % 6 === 5 ? 5 : 4;
   for (let k = 0; k < 20000; k++) {
     const r = rng((i + 1) * 100003 + k * 7);
-    const l = layout(r, ch); l.max = max; l.needThree = ch === 3;
+    const l = layout(r, ch); l.max = max; l.needThree = ch === 3; l.bonus = J.BONUS[ch];
+    // se comprueba con las posiciones ya redondeadas, que son las que se guardan
+    l.ball = l.ball.map(r1); l.mates = l.mates.map(p => p.map(r1)); l.rivals = l.rivals.map(p => p.map(r1));
     const st0 = J.fromLayout(l, 'gen');
     const direct = J.resolve(JSON.parse(JSON.stringify(st0)), { k: 'shot' });
     if (direct.state.won) continue;
@@ -48,8 +50,11 @@ for (let i = 0; i < 30; i++) {
     if (sol.par < minPar || sol.par > max - (ch === 4 ? 0 : 1)) continue;
     const played = J.replay(JSON.parse(JSON.stringify(st0)), sol.actions);
     if (!wants[ch](sol, played)) continue;
+    // La tercera estrella tiene que poder conseguirse dentro de las acciones de la jugada.
+    const star3 = J.solveState(st0, max, st => J.bonusMet(st));
+    if (!star3) continue;
     out.push([l.ball.map(r1), l.mates.map(p => p.map(r1)), l.rivals.map(p => p.map(r1)), max]);
-    console.log('jm-' + String(i + 1).padStart(2, '0'), 'ch' + (ch + 1), 'max', max, 'par', sol.par, sol.actions.map(a => a.k).join('>'), 'try', k);
+    console.log('jm-' + String(i + 1).padStart(2, '0'), 'ch' + (ch + 1), 'max', max, 'par', sol.par, sol.actions.map(a => a.k).join('>'), '★3', star3.actions.map(a => a.k).join('>'), 'try', k);
     break;
   }
   if (out.length !== i + 1) throw new Error('no layout for level ' + (i + 1));

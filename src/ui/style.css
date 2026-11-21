@@ -701,3 +701,21 @@ button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);fil
 .viva-arch{padding:6px 0;border-top:1px solid var(--line)}.viva-arch summary{cursor:pointer;font-weight:650}
 td.tro{white-space:nowrap}.tro-i{display:inline-block;margin-right:2px;font-size:1.05rem}
 .update-bar{display:flex;align-items:center;gap:10px;border:1px solid var(--accent)}.update-bar span:nth-child(2){flex:1;display:grid}
+/* Jugada Maestra estilo jugadas dibujadas: vista 3D, tarjeta previa, estrellas y gritos */
+.jm3d-slot{height:min(58vh,480px);min-height:280px;border-radius:14px;border:1px solid var(--line);background:#0b1220;overflow:hidden}
+.jm3d-layer{position:fixed;z-index:72;border-radius:14px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.jm3d-layer canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.jm3d-ov{touch-action:none;cursor:crosshair}
+.jm3d-shout{position:absolute;left:50%;top:22%;transform:translate(-50%,-50%) scale(.6);opacity:0;font:800 clamp(1.8rem,9vw,3.2rem) var(--disp);letter-spacing:.06em;text-transform:uppercase;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.45),0 0 24px rgba(255,178,30,.7);pointer-events:none;white-space:nowrap}
+.jm3d-shout.on{animation:jmShout 1.5s cubic-bezier(.2,.9,.3,1.2) forwards}.jm3d-shout.good{color:#ffd166}.jm3d-shout.bad{color:#ff8a8a}
+@keyframes jmShout{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}30%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+.jm-intro{gap:14px}.jm-story{margin:0;padding:12px 14px;border-left:3px solid var(--accent);background:rgba(255,178,30,.08);border-radius:10px;font-style:italic}
+.jm-objs{list-style:none;margin:0;padding:0;display:grid;gap:6px}.jm-objs li{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05)}
+.jm-objs li.got{background:rgba(255,209,102,.14)}.jm-star{color:var(--gold);font-size:1.1rem;width:1.2em;text-align:center}
+.jm-objchips .jm-objs{grid-template-columns:repeat(3,1fr);gap:4px}.jm-objchips .jm-objs li{padding:5px 6px;font-size:.72rem;line-height:1.25;flex-direction:column;text-align:center}
+.jm-result{display:grid;gap:8px}.jm-medal{display:flex;justify-content:center;gap:10px;margin:4px 0}
+.jm-bigstar{font-size:2.6rem;color:var(--line);transform:scale(.4);opacity:.4;animation:jmStar .5s cubic-bezier(.2,.9,.3,1.4) forwards;animation-delay:calc(var(--i) * .28s + .2s)}
+.jm-bigstar.on{color:var(--gold);text-shadow:0 0 18px rgba(255,209,102,.7)}
+@keyframes jmStar{to{transform:scale(1);opacity:1}}
+.jm-level.full{background:linear-gradient(160deg,rgba(255,209,102,.22),var(--raise))}.jm-viewbtn{align-self:flex-end;margin-top:-4px}
+@media (prefers-reduced-motion:reduce){.jm3d-shout.on{animation:none;opacity:1;transform:translate(-50%,-50%)}.jm-bigstar{animation:none;transform:none;opacity:1}}
+.jm3d-layer canvas{max-width:none!important;background:transparent!important}.jm3d-layer canvas.jm3d-gl{background:#0b1220!important}

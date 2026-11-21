@@ -545,23 +545,33 @@ try {
     assert.equal(await page.locator('.jm-level').count(), 30);
     assert.equal(await page.locator('.jm-level:disabled').count(), 29, 'only the first play starts unlocked');
     await page.locator('[data-action="jm-level"][data-id="jm-01"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    // Tarjeta previa: historia del capítulo, situación y las tres estrellas.
+    assert.equal(await page.locator('#jm .jm-objs li').count(), 3);
+    assert.ok(await page.locator('#jm .jm-story').count());
     const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     assert.deepEqual(a11y.violations.map(v => v.id), []);
-    // La solución del solucionador, jugada arrastrando el dedo sobre la pista.
-    const sol = await page.evaluate(() => CAA.Jugada.solve('jm-01'));
-    const toClient = pt => page.evaluate(([x, y]) => { const svg = document.querySelector('svg.jm-court'), m = svg.getScreenCTM(), q = svg.createSVGPoint(); q.x = y; q.y = 94 - x; const r = q.matrixTransform(m); return [r.x, r.y]; }, pt);
+    await page.locator('#jm-go').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    // Vista 3D con cámara tras el balón: la jugada de tres estrellas, dibujada con el dedo sobre la pista.
+    await page.waitForFunction(() => !!document.querySelector('#jm3d-layer canvas.jm3d-gl'));
+    const sol = await page.evaluate(() => CAA.Jugada.solveState(CAA.Jugada.fresh('jm-01'), 4, s => CAA.Jugada.bonusMet(s)));
+    const at = pt => page.evaluate(q => CAA_APP.jm3dClient(q), pt);
     for (const a of sol.actions) {
       const st = await page.evaluate(() => CAA_APP.state.jmPanel.st);
-      let pts = a.k === 'shot' ? [[88.5, 50]] : a.path || [];
-      if (a.k === 'pass') pts = pts.concat([st.mates.find(m => m.i === a.to).p]);
-      const from = await toClient(st.ball);
+      const from = await at(st.ball);
+      const to = a.k === 'shot' ? await at('rim') : a.k === 'pass' ? await at(st.mates.find(m => m.i === a.to).p) : await at(a.path[a.path.length - 1]);
       await page.mouse.move(from[0], from[1]); await page.mouse.down();
-      for (const q of pts) { const c = await toClient(q); await page.mouse.move(c[0], c[1], { steps: 6 }); }
-      await page.mouse.up();
-      await page.waitForFunction(() => !CAA_APP.state.jmPanel.anim, null, { timeout: 5000 });
+      if (a.path && a.k !== 'shot') for (const q of a.path) { const c = await at(q); await page.mouse.move(c[0], c[1], { steps: 3 }); }
+      await page.mouse.move(to[0], to[1], { steps: 6 }); await page.mouse.up();
+      await page.waitForFunction(() => !CAA_APP.state.jmPanel.anim, null, { timeout: 10000 });
     }
+    assert.deepEqual(await page.evaluate(() => CAA.Jugada.result(CAA_APP.state.jmPanel.st).stars.map((x, i) => i === 1 || x)), [true, true, true], 'scores and earns the chapter star');
+    await page.locator('[data-action="jm-replay"]').click(); await page.waitForFunction(() => !CAA_APP.state.jmPanel.anim, null, { timeout: 15000 });
+    await click(page, 'jm-view');
+    assert.ok(await page.locator('#jm svg.jm-court').count(), 'the 2D board is still there');
+    assert.equal(await page.locator('#jm3d-layer').count(), 0);
+    await click(page, 'jm-view');
     assert.equal(await page.evaluate(() => CAA_APP.state.jmPanel.st.won), true);
-    assert.equal(await page.evaluate(() => CAA.JugadaUI.medals()['jm-01']), 3);
+    assert.ok(await page.evaluate(() => CAA.JugadaUI.medals()['jm-01']) >= 2);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.screenshot({ path: 'dist/smoke-jugada.png' });
     await click(page, 'jm-close');
@@ -576,8 +586,9 @@ try {
     assert.equal(await page.evaluate(() => CAA_APP.state.jmPanel && CAA_APP.state.jmPanel.kind), 'sim');
     assert.ok(await page.evaluate(() => CAA_APP.state.career.summary.week) <= 2, 'first Master Play within the first three games');
     const week = await page.evaluate(() => CAA_APP.state.career.summary.week);
+    await page.locator('#jm-go').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     await page.locator('#jm [data-action="jm-act"][data-k="shot"]').click();
-    await page.waitForFunction(() => CAA_APP.state.jmPanel.st.done && !CAA_APP.state.jmPanel.anim);
+    await page.waitForFunction(() => CAA_APP.state.jmPanel.st.done && !CAA_APP.state.jmPanel.anim, null, { timeout: 10000 });
     await click(page, 'jm-finish');
     assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.week), week + 1);
     assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.jm.plays), 1);

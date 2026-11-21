@@ -18,8 +18,12 @@ test('campaign: 30 plays in 5 chapters, each solvable, none won by a direct shot
     assert.ok(sol.par >= 2 && sol.par <= l.max, l.id + ' par');
     const st = J.replay(J.fresh(l.id), sol.actions);
     assert.equal(st.won, true);
-    assert.equal(J.result(st).medal, 3);
+    assert.deepEqual(J.result(st).stars.slice(0, 2), [true, true]);
     if (l.needThree) assert.equal(st.points, 3);
+    // La tercera estrella (objetivo del capítulo) se puede conseguir dentro de las acciones de la jugada.
+    const s3 = J.solveState(J.fresh(l.id), l.max, x => J.bonusMet(x));
+    assert.ok(s3, l.id + ' third star reachable (' + l.bonus + ')');
+    assert.equal(J.result(J.replay(J.fresh(l.id), s3.actions)).stars[2], true);
   }
 });
 
@@ -40,11 +44,29 @@ test('rules: a pass through a defender is cut, a drive into a defender is a char
 });
 
 test('threes and zones follow the court lines', () => {
-  assert.equal(J.isThree([40, 50]), true);
-  assert.equal(J.isThree([80, 50]), false);
+  assert.equal(J.isThree([36, 50]), true);
+  assert.equal(J.isThree([75, 50]), false);
   assert.equal(J.isThree([88, 3]), true);
-  assert.equal(J.zoneOf([86, 50]), 'restricted');
+  assert.equal(J.zoneOf([80, 50]), 'restricted');
   assert.equal(J.zoneOf([88, 3]), 'corner3');
+});
+
+test('a clean shot (aimed at the centre of the rim) forgives a little more defence', () => {
+  const lay = { ball: [62, 50], mates: [[40, 10], [40, 90], [86, 4], [86, 96]], rivals: [[62, 55.2], [40, 20], [40, 80], [80, 10], [80, 90]], max: 3 };
+  const loose = J.resolve(J.fromLayout(lay, 'x'), { k: 'shot', aim: 7 });
+  const clean = J.resolve(J.fromLayout(lay, 'x'), { k: 'shot', aim: 1 });
+  assert.equal(loose.made, false); assert.equal(clean.made, true); assert.equal(clean.state.shot.perfect, true);
+});
+
+test('after a pass the most open teammate cuts to the rim; a pass to the cutter ends in a dunk', () => {
+  const lay = { ball: [40, 50], mates: [[60, 12], [60, 88], [86, 96], [70, 30]], rivals: [[45, 50], [62, 22], [62, 84], [84, 90], [76, 70]], max: 4 };
+  const st = J.fromLayout(lay, 'x');
+  J.resolve(st, { k: 'pass', to: 1 });
+  const cut = st.log.find(l => l.k === 'cut');
+  assert.ok(cut, 'someone cuts');
+  const cutter = st.mates.find(m => m.i === cut.token);
+  J.resolve(st, { k: 'pass', to: cutter.i });
+  if (!st.done) { const r = J.resolve(st, { k: 'shot', aim: 0 }); if (r.made && r.zone === 'restricted') assert.equal(st.shot.dunk, true); }
 });
 
 function liveWithJm(seed, mode) {

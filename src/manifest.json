@@ -308,6 +308,11 @@
       "worker": false
     },
     {
+      "id": "jugada-3d",
+      "path": "src/ui/jugada-3d.js",
+      "worker": false
+    },
+    {
       "id": "court2d",
       "path": "src/render/court2d.js",
       "worker": false
