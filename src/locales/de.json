@@ -1938,5 +1938,13 @@
   "ach.jmPlays": "Zeichne {n} Meisterspielzüge in Spielen",
   "ach.jmMade": "Erziele {n} Körbe mit dem Meisterspielzug",
   "ach.jmThrees": "Triff {n} Dreier mit dem Meisterspielzug",
-  "pgs.show": "Google-Play-Erfolge"
+  "pgs.show": "Google-Play-Erfolge",
+  "upd.title": "Neue Version verfügbar",
+  "upd.body": "Aktualisiere über Google Play. Deine Spielstände bleiben erhalten.",
+  "upd.go": "Aktualisieren",
+  "rate.title": "Gefällt dir das Spiel?",
+  "rate.body": "Wenn es dir gefällt, hilft uns eine Bewertung bei Google Play sehr, es weiter zu verbessern.",
+  "rate.yes": "Bei Google Play bewerten",
+  "rate.later": "Jetzt nicht",
+  "ads.privacy": "Datenschutz bei Werbung"
 }

@@ -1938,5 +1938,13 @@
   "ach.jmPlays": "Dibuja {n} Jugadas Maestras en partidos",
   "ach.jmMade": "Anota {n} canastas con la Jugada Maestra",
   "ach.jmThrees": "Anota {n} triples con la Jugada Maestra",
-  "pgs.show": "Logros de Google Play"
+  "pgs.show": "Logros de Google Play",
+  "upd.title": "Nueva versión disponible",
+  "upd.body": "Actualiza desde Google Play. Tus partidas se conservan.",
+  "upd.go": "Actualizar",
+  "rate.title": "¿Te está gustando el juego?",
+  "rate.body": "Si te gusta, una valoración en Google Play nos ayuda muchísimo a seguir mejorándolo.",
+  "rate.yes": "Valorar en Google Play",
+  "rate.later": "Ahora no",
+  "ads.privacy": "Privacidad de los anuncios"
 }

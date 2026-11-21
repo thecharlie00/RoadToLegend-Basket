@@ -1938,5 +1938,13 @@
   "ach.jmPlays": "Draw {n} Master Plays in games",
   "ach.jmMade": "Score {n} baskets with the Master Play",
   "ach.jmThrees": "Hit {n} threes with the Master Play",
-  "pgs.show": "Google Play achievements"
+  "pgs.show": "Google Play achievements",
+  "upd.title": "New version available",
+  "upd.body": "Update from Google Play. Your saves are kept.",
+  "upd.go": "Update",
+  "rate.title": "Enjoying the game?",
+  "rate.body": "If you like it, a rating on Google Play helps us a lot to keep improving it.",
+  "rate.yes": "Rate on Google Play",
+  "rate.later": "Not now",
+  "ads.privacy": "Ad privacy"
 }

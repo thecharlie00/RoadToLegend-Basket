@@ -25,7 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-/** Offline shell. Java/Gradle sources are prepared, not compiled or signed in this phase. */
+/** Offline game shell: the page never reaches the network; only the native Play SDKs (ads, updates, Play Games) do. */
 public final class MainActivity extends ComponentActivity {
     private static final String ORIGIN = "https://appassets.androidplatform.net";
     private static final String GAME_URL = ORIGIN + "/assets/game/index.html";
@@ -38,6 +38,7 @@ public final class MainActivity extends ComponentActivity {
     private ValueCallback<Uri[]> fileCallback;
     private String pendingExport;
     private PermissionRequest pendingMedia;
+    private PlayServices services;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -102,6 +103,8 @@ public final class MainActivity extends ComponentActivity {
             }
         });
         web.loadUrl(GAME_URL);
+        services = new PlayServices(this, code -> runOnUiThread(() -> { if (web != null) web.evaluateJavascript(code, null); }));
+        services.start();
     }
     @Override public void onRequestPermissionsResult(int request, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(request, permissions, results);
@@ -158,6 +161,17 @@ public final class MainActivity extends ComponentActivity {
             ReminderReceiver.schedule(getApplicationContext(), json);
         }
         @JavascriptInterface public void cancelReminders() { ReminderReceiver.cancelAll(getApplicationContext()); }
+        // Google Play: anuncios en transiciones seguras, opciones de privacidad, versión nueva y Play Juegos (ver PlayServices).
+        @JavascriptInterface public void showAd(String where) { if (services != null) services.showAd(where); }
+        @JavascriptInterface public boolean isFullScreenAdShowing() { return services != null && services.fullScreenShowing(); }
+        @JavascriptInterface public boolean privacyOptionsRequired() { return services != null && services.privacyOptionsRequired(); }
+        @JavascriptInterface public void showPrivacyOptions() { if (services != null) services.showPrivacyOptions(); }
+        @JavascriptInterface public int versionCode() { return services != null ? services.installedVersion() : 0; }
+        @JavascriptInterface public int updateAvailable() { return services != null ? services.updateAvailable() : 0; }
+        @JavascriptInterface public void openStore() { if (services != null) services.openStore(); }
+        @JavascriptInterface public String pgsState() { return services != null ? services.pgsState() : "off"; }
+        @JavascriptInterface public boolean pgsUnlock(String key) { return services != null && services.pgsUnlock(key); }
+        @JavascriptInterface public void pgsShow() { if (services != null) services.pgsShow(); }
         @JavascriptInterface public String notifyStatus() {
             if (ReminderReceiver.allowed(MainActivity.this)) return "granted";
             if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return "ask";
@@ -177,6 +191,7 @@ public final class MainActivity extends ComponentActivity {
     }
     @Override protected void onResume() {
         super.onResume(); web.onResume(); web.evaluateJavascript("window.dispatchEvent(new Event('caa:native-resume'))", null);
+        if (services != null) services.checkUpdate();
     }
     @Override protected void onPause() {
         web.evaluateJavascript("window.dispatchEvent(new Event('caa:native-pause'))", null);
@@ -185,6 +200,7 @@ public final class MainActivity extends ComponentActivity {
     @Override protected void onDestroy() {
         finishFiles(null); pendingExport = null;
         if (pendingMedia != null) { pendingMedia.deny(); pendingMedia = null; }
+        if (services != null) services.destroy();
         web.removeJavascriptInterface("CAAAndroid"); web.destroy(); super.onDestroy();
     }
 }

@@ -9,7 +9,12 @@ android {
         targetSdk 36
         versionCode 1
         versionName '0.1.0'
+        // AdMob: IDs propios en gradle.properties (admobAppId, admobInterstitialId). Sin ellos, la app de
+        // pruebas de Google en debug y ningún anuncio en release.
+        manifestPlaceholders = [admobAppId: (findProperty('admobAppId') ?: 'ca-app-pub-3940256099942544~3347511713')]
+        buildConfigField 'String', 'ADMOB_INTERSTITIAL_ID', "\"${findProperty('admobInterstitialId') ?: ''}\""
     }
+    buildFeatures { buildConfig true }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -17,11 +22,15 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            // Deliberately no signing config, publishing task, ad SDK or network dependency.
+            // No signing config or publishing task here; the store build is signed outside the repo.
         }
     }
 }
 dependencies {
     implementation 'androidx.webkit:webkit:1.14.0'
     implementation 'androidx.activity:activity:1.10.1'
+    implementation 'com.google.android.gms:play-services-ads:24.7.0'
+    implementation 'com.google.android.ump:user-messaging-platform:3.2.0'
+    implementation 'com.google.android.play:app-update:2.1.0'
+    implementation 'com.google.android.gms:play-services-games-v2:22.1.0'
 }

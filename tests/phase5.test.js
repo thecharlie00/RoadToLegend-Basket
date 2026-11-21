@@ -147,14 +147,20 @@ test('a11y keyboard wrapping, explicit motion and diagnostic percentiles', () =>
   assert.equal(d.frames, 4); assert.equal(d.p95FrameMs, 50); assert.equal(d.framesOver33_34Ms, 1); assert.equal(d.deviceCertified, false);
 });
 
-test('Android shell is source-only, offline, local-asset backed and lifecycle wired', () => {
+test('Android shell: the page stays offline and local-asset backed; only Play SDKs use the network', () => {
   const root = path.join(__dirname, '..', 'android');
   const manifest = fs.readFileSync(path.join(root, 'app/src/main/AndroidManifest.xml'), 'utf8');
   const java = fs.readFileSync(path.join(root, 'app/src/main/java/com/caminoalaro/app/MainActivity.java'), 'utf8');
   const gradle = fs.readFileSync(path.join(root, 'app/build.gradle'), 'utf8');
-  assert.ok(!manifest.includes('android.permission.INTERNET')); assert.ok(manifest.includes('android:allowBackup="false"'));
+  assert.ok(manifest.includes('android:allowBackup="false"'));
+  // INTERNET solo para los SDK nativos de Google Play (anuncios con consentimiento, versión nueva, Play Juegos):
+  // la página del juego sigue bloqueada fuera de sus propios archivos.
+  const play = fs.readFileSync(path.join(root, 'app/src/main/java/com/caminoalaro/app/PlayServices.java'), 'utf8');
+  if (manifest.includes('android.permission.INTERNET')) { assert.ok(java.includes('return response == null ? blocked() : response')); assert.ok(play.includes('canRequestAds')); }
+  for (const token of ['allowedPlacement', 'MIN_INTERVAL_MS', 'loadAndShowConsentFormIfRequired', 'showPrivacyOptionsForm']) assert.ok(play.includes(token), token);
+  assert.ok(!/"live"|"jm"|"match_live"/.test(play), 'no ad placement during a match');
   for (const token of ['WebViewAssetLoader', 'setAllowFileAccess(false)', 'setAllowContentAccess(false)', 'MIXED_CONTENT_NEVER_ALLOW', 'shouldInterceptRequest', 'caa:native-pause', 'caa:native-resume', 'handleBack', 'ACTION_OPEN_DOCUMENT', 'ACTION_CREATE_DOCUMENT', 'onDestroy']) assert.ok(java.includes(token), token);
-  assert.ok(!gradle.includes('signingConfig')); assert.ok(!/广告|adsdk|admob/i.test(java));
+  assert.ok(!gradle.includes('signingConfig')); assert.ok(!/InterstitialAd|MobileAds/.test(java), 'ads live in PlayServices, not in MainActivity');
   assert.ok(!fs.existsSync(path.join(root, 'app/build/outputs/bundle')));
   const wrapper = fs.readFileSync(path.join(root, 'gradle/wrapper/gradle-wrapper.properties'), 'utf8');
   assert.ok(wrapper.includes('gradle-8.13-bin.zip')); assert.ok(wrapper.includes('distributionSha256Sum=20f1b117'));

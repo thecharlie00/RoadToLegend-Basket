@@ -599,7 +599,7 @@
       const career = hasCareer() ? state.career.summary : null;
       return `<main id="panel" class="boot" tabindex="-1"><p class="eyebrow">${t('boot.kicker')}</p><h1 class="boot-title">${t('boot.title1')}<br><span>${t('boot.title2')}</span></h1>
         <p class="boot-lead">${t('boot.lead')}</p>${bootArt()}<p class="boot-stats"><b>${leagues} ${t('boot.leagues')}</b> <b>${clubs} ${t('boot.clubs')}</b> <b>${new Set(Object.values(CAA.Season.LEAGUES).map(l => l.country)).size} ${t('boot.countries')}</b></p>
-        <div class="boot-actions">
+        ${updateBar()}<div class="boot-actions">
           ${career ? `<button class="cta" data-action="boot-continue">${t('boot.continue')} <span aria-hidden="true">▶</span></button><p class="muted small">${esc(career.player ? career.player.name : career.coach.name)} · ${esc(career.club.name)} · ${t('career.week')} ${career.week}</p>` : ''}
           <button class="${career ? 'cta ghost' : 'cta'}" data-action="boot-new">${t('boot.new')} <span aria-hidden="true">▶</span></button>
         </div>
@@ -849,7 +849,7 @@
     // Tiempo en familia: opcional y plegado (ya no hay plan semanal que elegir cada semana).
     const famTime = s.player && fam && (fam.partner || fam.children.length) && s.next && !(c.state.live && c.state.live.week === c.state.week) ? `<button class="option" data-action="career-family"><b>${t('home.family')}</b><span class="muted small">${t('home.familyDesc')}</span></button>` : '';
     const famFold = famSetup || famTime ? `<details class="card more-week"><summary>${t('fam.title')}</summary>${famSetup}${famTime}</details>` : '';
-    return `${eraBanner(s)}${nowStrip}${vivaChronicleCard(s)}${vivaFocusCard(s)}${eraCompsCard(s)}${eraMomentCard(s)}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${s.era ? `<details class="card more-week"><summary>${t('era.hubTitle', { decade: s.era.decade })}</summary>${eraCard(s)}</details>` : ''}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
+    return `${updateBar()}${eraBanner(s)}${nowStrip}${vivaChronicleCard(s)}${vivaFocusCard(s)}${eraCompsCard(s)}${eraMomentCard(s)}${liveWorldCards(s)}${outcome}${seasonCard}${poCard}${market}${recent}${next}${week}${coachWeek}${season}${famFold}${s.era ? `<details class="card more-week"><summary>${t('era.hubTitle', { decade: s.era.decade })}</summary>${eraCard(s)}</details>` : ''}${guide}${scout ? `<details class="card more-week"><summary>${t('coach.scout')}</summary>${scout}</details>` : ''}${extra}`;
   }
 
   // Cromo del jugador (como la carta del fútbol): color por media, dorsal, escudo y seis valoraciones.
@@ -1523,6 +1523,22 @@
       if (kind === 'sim') { state.tab = 'career'; if (audio) audio.play('whistle'); }
     }
   }
+  // ===== Google Play: versión nueva y valoración (solo en la app de Android) =====
+  function updateBar() {
+    const code = CAA.PlayStore.updateAvailable(root);
+    return code > 0 ? `<section class="card update-bar" role="status"><span class="ico" aria-hidden="true">${CAA.Icons.svg('fastForward')}</span><span><b>${t('upd.title')}</b><small class="muted">${t('upd.body')}</small></span><button class="small-btn primary" data-action="store-update">${t('upd.go')}</button></section>` : '';
+  }
+  function renderRate() {
+    if (!state.rate) return '';
+    return `<section id="rate" class="panel confirm" role="alertdialog" aria-modal="true" aria-labelledby="rate-title" aria-describedby="rate-body"><h2 id="rate-title">${t('rate.title')}</h2><p id="rate-body">${t('rate.body')}</p>
+      <div class="row"><button id="rate-yes" class="cta" data-action="rate-yes">${t('rate.yes')}</button><button data-action="rate-later">${t('rate.later')}</button></div></section>`;
+  }
+  // Cuenta el juego activo cada 15 s; en Inicio, sin paneles abiertos, propone valorar cuando toca.
+  function rateTick() {
+    if (doc.hidden || state.screen !== 'game' || !hasCareer()) return;
+    CAA.PlayStore.countPlay(15000);
+    if (!state.rate && !state.busy && !state.confirm && !state.jmPanel && !coachStep() && state.tab === 'career' && CAA.PlayStore.rateDue(root)) { CAA.PlayStore.ratePrompted(); state.rate = true; render(); }
+  }
   // ===== Recordatorios locales (solo app Android, desactivados por defecto) =====
   function armReminders() {
     if (!state.settings.reminders || !hasCareer() || !CAA.Reminders.available(root)) return;
@@ -1599,6 +1615,7 @@
     <label>${t('settings.reminders')}<select data-setting="reminders" ${remOk ? '' : 'disabled aria-describedby="rem-note"'}>${opt('true', String(remOk && s.reminders), t('settings.on'))}${opt('false', String(remOk && s.reminders), t('settings.off'))}</select></label>
     <p class="muted small" id="rem-note">${t(remOk ? 'settings.remindersNote' : 'settings.remindersAndroid')}</p>
     ${hasCareer() ? `<div class="jm-setting"><b>${t('jm.setting')}</b><p class="muted small">${t('jm.settingNote')}</p><button class="small-btn" data-action="world-op" data-op="jm-toggle" aria-pressed="${state.career.summary.jm && state.career.summary.jm.on ? 'true' : 'false'}">${t(state.career.summary.jm && state.career.summary.jm.on ? 'settings.on' : 'settings.off')}</button></div>` : ''}
+    ${CAA.PlayStore.privacyRequired(root) ? `<button class="small-btn" data-action="ads-privacy">${t('ads.privacy')}</button>` : ''}
     <p class="muted">${t('settings.audioNote')}</p><button data-action="audio-test">${t('settings.audioTest')}</button>
     </div></section>`;
   }
@@ -1634,7 +1651,7 @@
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
       ${state.saveError && state.career.state ? `<div class="row"><button data-action="save-export-current">${t('save.exportCurrent')}</button></div>` : ''}${confirm}
       <main id="panel" role="tabpanel" aria-labelledby="tab-${sel}" tabindex="-1">${SECONDARY_TABS.includes(tab) ? `<button class="back" data-tab="${tab === 'arcade' ? 'life' : 'more'}">‹ ${t(tab === 'arcade' ? 'nav.life' : 'nav.more')}</button>` : ''}${body}</main>
-      ${renderCoach()}${renderJm()}<footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
+      ${renderCoach()}${renderJm()}${renderRate()}<footer class="dock">${renderActionBar()}<nav role="tablist" aria-label="${t('a11y.sections')}">${PRIMARY_TABS.map(x => `<button id="tab-${x}" role="tab" aria-controls="panel" aria-selected="${sel === x}" tabindex="${sel === x ? 0 : -1}" data-tab="${x}"><span aria-hidden="true">${icons[x]}</span>${t('nav.' + x)}</button>`).join('')}</nav></footer>`;
     }
     const appEl = doc.getElementById('app');
     const mainEl = doc.getElementById('panel');
@@ -1643,7 +1660,7 @@
       if (entered) { void mainEl.offsetWidth; mainEl.classList.add('view-in', 'nav-' + (state.navDir || 'fwd')); }
     }
     appEl.setAttribute('aria-busy', state.busy ? 'true' : 'false');
-    for (const child of appEl.children) child.inert = (!!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status') || (!state.confirm && !!coachStep() && child.id !== 'coach' && child.id !== 'global-status') || (!state.confirm && !!state.jmPanel && child.id !== 'jm' && child.id !== 'global-status');
+    for (const child of appEl.children) child.inert = (!!state.confirm && !child.classList.contains('confirm') && child.id !== 'global-status') || (!state.confirm && !!coachStep() && child.id !== 'coach' && child.id !== 'global-status') || (!state.confirm && !!state.jmPanel && child.id !== 'jm' && child.id !== 'global-status') || (!state.confirm && !state.jmPanel && !!state.rate && child.id !== 'rate' && child.id !== 'global-status');
     doc.querySelectorAll('[data-action]').forEach(b => { b.disabled = state.busy || b.disabled || !!state.confirm; });
     if (state.confirm) doc.querySelectorAll('.confirm button').forEach(b => { b.disabled = false; });
     doc.querySelectorAll('details').forEach((d, i) => { if (openDetails[i] !== undefined) d.open = openDetails[i]; });
@@ -1652,6 +1669,7 @@
     if (state.confirm) restore = doc.getElementById('confirm-cancel');
     else if (coachStep()) restore = doc.getElementById('coach-next');
     else if (state.jmPanel && !doc.getElementById('jm').contains(doc.activeElement)) restore = doc.getElementById('jm-title');
+    else if (state.rate && doc.getElementById('rate') && !doc.getElementById('rate').contains(doc.activeElement)) restore = doc.getElementById('rate-yes');
     else if (focusAction === 'confirm-cancel' || focusAction === 'confirm-yes') restore = doc.getElementById('tab-' + state.tab) || doc.getElementById('panel');
     if (restore && !restore.disabled) restore.focus({ preventScroll: true });
     placeCoach();
@@ -1912,7 +1930,7 @@
       else if (name === 'boot-new') { state.navDir = 'fwd'; state.screen = 'modes'; }
       else if (name === 'boot-continue') { state.screen = 'game'; state.tab = 'career'; }
       else if (name === 'boot-open') { state.screen = 'game'; state.tab = el.dataset.target || 'more'; }
-      else if (name === 'boot-menu' || name === 'boot-back') { state.navDir = 'back'; state.screen = 'menu'; state.match.playing = false; }
+      else if (name === 'boot-menu' || name === 'boot-back') { const fromGame = state.screen === 'game'; state.navDir = 'back'; state.screen = 'menu'; state.match.playing = false; if (fromGame) CAA.PlayStore.showAd(root, 'menu'); }
       else if (name === 'mode-gender') {
         const c = state.career; c.gender = el.dataset.gender === 'f' ? 'f' : 'm';
         if (CAA.Season.LEAGUES[c.leagueId].gender !== c.gender) c.leagueId = c.gender === 'f' ? 'es-iberica-women' : 'fr-hexagone-men';
@@ -1962,6 +1980,9 @@
         }
         else if (['archetype', 'handedness', 'talent', 'clubId', 'challenge'].includes(field)) state.career[field] = value;
         if (audio) audio.play('click');
+      } else if (name === 'store-update' || name === 'rate-yes') { CAA.PlayStore.openStore(root); if (name === 'rate-yes') { CAA.PlayStore.rateDone(); state.rate = false; }
+      } else if (name === 'rate-later') { state.rate = false;
+      } else if (name === 'ads-privacy') { CAA.PlayStore.showPrivacy(root);
       } else if (name === 'pgs-show') { CAA.PlayGames.show(root); if (hasCareer() && state.career.summary.life) CAA.PlayGames.unlock(root, state.career.summary.life.achievements);
       } else if (/^jm-/.test(name)) { await jmAction(name, el);
       } else if (name === 'coach-next') { coachAdvance(1);
@@ -2053,6 +2074,7 @@
         if (audio) audio.play('success'); haptic('success');
         state.career.state = CAA.Career.resume(created); state.career.summary = CAA.Career.summary(state.career.state); state.practice = null; await persistCareer();
         state.screen = 'game'; state.tab = 'career'; state.wizard = { step: 1 }; notify(t(state.career.mode === 'coach' ? 'wiz.welcomeCoach' : 'wiz.welcome'));
+        CAA.PlayStore.showAd(root, 'career_start');
       } else if (name === 'career-play' || name === 'career-train' || name === 'career-rest') {
         if (!state.career.state) throw new Error(t('career.empty'));
         const action = name === 'career-train' ? { type: 'train', focus: 'tiroTriple' } : name === 'career-rest' ? { type: 'rest' } : { type: 'play' };
@@ -2100,7 +2122,7 @@
         const res = await worker.send('career.live', payloadLive);
         await acceptCareer(res);
         if (name === 'live-end') pbCatchUp(state.career.state.live);
-        if (name === 'live-start') { if (!pb.speed) pb.speed = 1; state.liveFocus = true; }
+        if (name === 'live-start') { if (!pb.speed) pb.speed = 1; state.liveFocus = true; CAA.PlayStore.showAd(root, 'match_start'); }
         const caught = pbCaught(state.career.state.live);
         if (audio && name !== 'live-next') audio.play(caught && res.live.finished ? (res.live.outcome && res.live.outcome.won ? 'success' : 'fail') : 'whistle');
         // Bocina final; si ganas, confeti (el resultado de la semana ya celebra o tiembla por su cuenta).
@@ -2178,11 +2200,12 @@
         const pos = doc.getElementById('heir-pos'), num = doc.getElementById('heir-number');
         const config = { op: 'retire', choice: name === 'retire-coach' ? 'coach' : name === 'retire-heir' ? 'heir' : 'end', childIndex: el.dataset.child != null ? Number(el.dataset.child) : undefined, pos: pos ? pos.value : 'SG', keepNumber: num ? num.checked : true };
         const res = await worker.send('career.family', { state: state.career.state, config }); await acceptCareer(res);
-        if (audio) audio.play('buzzer');
+        if (audio) audio.play('buzzer'); CAA.PlayStore.showAd(root, 'retire');
       } else if (name === 'career-skip') {
         const res = await worker.send('career.advance', { state: state.career.state, action: { type: 'skipPlayoffs' } }); await acceptCareer(res);
       } else if (name === 'summary-dismiss') {
         const res = await worker.send('career.dismissSummary', { state: state.career.state }); await acceptCareer(res);
+        CAA.PlayStore.showAd(root, 'season_end');
       } else if (name === 'career-sign') {
         const index = Number(el.dataset.index) || 0;
         const res = await worker.send('career.sign', { state: state.career.state, index });
@@ -2331,6 +2354,8 @@
     doc.addEventListener('visibilitychange', () => { if (doc.hidden) suspend(); else { CAA.Reminders.cancel(root); CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); } });
     root.addEventListener('caa:notify-permission', e => { if (e.detail !== 'granted' && state.settings.reminders) { state.settings.reminders = false; saveSettings(); notify(t('settings.remindersDenied'), true); render(); } });
     root.addEventListener('resize', () => placeCoach());
+    root.addEventListener('caa:update', () => render());
+    root.setInterval(rateTick, 15000);
     root.addEventListener('pagehide', suspend);
     root.addEventListener('caa:native-pause', suspend);
     root.addEventListener('caa:native-resume', () => { CAA.Reminders.cancel(root); CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); });
@@ -2338,6 +2363,7 @@
     root.CAA_APP = { state, storage, worker, world, persistCareer, rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
       if (coachStep()) { coachFinish(); render(); return true; }
       if (state.jmPanel) { state.jmPanel = null; render(); return true; }
+      if (state.rate) { state.rate = false; render(); return true; }
       if (state.screen === 'create') { if (state.wizard.step > 1) state.wizard.step--; else state.screen = state.career.eraYear ? 'eras' : 'modes'; render(); return true; }
       if (state.screen === 'eras') { state.screen = 'modes'; render(); return true; }
       if (state.screen === 'modes') { state.screen = 'menu'; render(); return true; }

@@ -1938,5 +1938,13 @@
   "ach.jmPlays": "Dessine {n} actions de maître en match",
   "ach.jmMade": "Marque {n} paniers avec l’action de maître",
   "ach.jmThrees": "Marque {n} trois-points avec l’action de maître",
-  "pgs.show": "Succès Google Play"
+  "pgs.show": "Succès Google Play",
+  "upd.title": "Nouvelle version disponible",
+  "upd.body": "Mets à jour depuis Google Play. Tes parties sont conservées.",
+  "upd.go": "Mettre à jour",
+  "rate.title": "Le jeu te plaît ?",
+  "rate.body": "S’il te plaît, une note sur Google Play nous aide beaucoup à continuer de l’améliorer.",
+  "rate.yes": "Noter sur Google Play",
+  "rate.later": "Pas maintenant",
+  "ads.privacy": "Confidentialité des publicités"
 }

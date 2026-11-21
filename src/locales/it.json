@@ -1938,5 +1938,13 @@
   "ach.jmPlays": "Disegna {n} giocate da maestro in partita",
   "ach.jmMade": "Segna {n} canestri con la giocata da maestro",
   "ach.jmThrees": "Segna {n} triple con la giocata da maestro",
-  "pgs.show": "Obiettivi Google Play"
+  "pgs.show": "Obiettivi Google Play",
+  "upd.title": "Nuova versione disponibile",
+  "upd.body": "Aggiorna da Google Play. I tuoi salvataggi restano.",
+  "upd.go": "Aggiorna",
+  "rate.title": "Ti sta piacendo il gioco?",
+  "rate.body": "Se ti piace, una valutazione su Google Play ci aiuta tantissimo a continuare a migliorarlo.",
+  "rate.yes": "Valuta su Google Play",
+  "rate.later": "Non ora",
+  "ads.privacy": "Privacy degli annunci"
 }

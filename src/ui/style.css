@@ -700,3 +700,4 @@ button:active:not(:disabled),.option:active,.cta:active{transform:scale(.96);fil
 .viva-moments{margin:6px 0 10px;padding-left:1.2em;display:grid;gap:6px}.viva-moments b{color:var(--gold)}
 .viva-arch{padding:6px 0;border-top:1px solid var(--line)}.viva-arch summary{cursor:pointer;font-weight:650}
 td.tro{white-space:nowrap}.tro-i{display:inline-block;margin-right:2px;font-size:1.05rem}
+.update-bar{display:flex;align-items:center;gap:10px;border:1px solid var(--accent)}.update-bar span:nth-child(2){flex:1;display:grid}

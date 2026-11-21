@@ -278,6 +278,11 @@
       "worker": false
     },
     {
+      "id": "playstore",
+      "path": "src/platform/playstore.js",
+      "worker": false
+    },
+    {
       "id": "jugada-ui",
       "path": "src/ui/jugada-ui.js",
       "worker": false

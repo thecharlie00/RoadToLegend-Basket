@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Google Play Juegos: pon aquí el ID del proyecto de Play Juegos y rellena res/raw/pgs_achievements.json
+     (clave del logro del juego → ID de Play). Vacío = Play Juegos desactivado. -->
+<resources><string name="game_services_project_id" translatable="false"></string></resources>
