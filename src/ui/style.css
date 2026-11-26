@@ -728,3 +728,12 @@ td.tro{white-space:nowrap}.tro-i{display:inline-block;margin-right:2px;font-size
 .race details{border-top:1px solid var(--line);padding:4px 0}.race summary{display:flex;gap:8px;align-items:center}.race-list{margin:4px 0;padding-left:0;list-style:none}.race-list li{padding:3px 6px;border-radius:6px}.race-list li.me{background:color-mix(in srgb,var(--accent) 18%,transparent)}.race-list li.gap{margin-top:6px;border-top:1px dashed var(--line)}
 .attr-help dl{display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:4px 12px;margin:8px 0;font-size:.85rem}.attr-help dt{font-weight:700}.attr-help dd{margin:0;color:var(--muted)}
 tr.loss td:first-child{opacity:.85}
+/* Jugada Maestra: desafío diario, pistas, deshacer, saltar y balones */
+.jm-level.skipped{opacity:.8;border-style:dashed}
+.jm-tok.hint circle{stroke:var(--gold);stroke-width:1.2;animation:jmHint 1s ease-in-out infinite alternate}
+@keyframes jmHint{from{stroke-opacity:.35}to{stroke-opacity:1}}
+@media (prefers-reduced-motion:reduce){.jm-tok.hint circle{animation:none}}
+.jm-hint{background:color-mix(in srgb,var(--gold) 16%,transparent);border-radius:8px;padding:6px 10px;margin:6px 0}
+.jm-help{align-items:center;flex-wrap:wrap}.jm-diff{margin:4px 0}.jm-diff b{color:var(--gold);letter-spacing:2px}
+.jm-ball-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.jm-ballpick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px}.jm-ballpick i{width:26px;height:26px;border-radius:50%;box-shadow:inset -4px -4px 0 rgba(0,0,0,.25);border:1px solid rgba(0,0,0,.35)}.jm-ballpick.on{outline:3px solid var(--accent)}.jm-ballpick small{font-size:.75rem}

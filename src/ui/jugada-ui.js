@@ -35,7 +35,8 @@
     const trail = last && last.path ? `<path class="jm-trail ${last.ok ? 'ok' : 'bad'}" d="${poly(last.path)}"/>` : last && last.k === 'shot' ? `<path class="jm-trail ${last.ok ? 'ok' : 'bad'}" d="${poly([last.from, last.to])}"/>` : '';
     const mates = st.mates.map(m => {
       const [x, y] = sc(m.p), me = st.players && st.players[m.i] && st.players[m.i].me;
-      return `<g class="jm-tok mate${me ? ' me' : ''}" data-token="${m.i}" transform="translate(${x} ${y})"><circle r="3.6"/><text y="1.2">${esc(label(st, m.i))}</text></g>`;
+      const hint = opts.hint && opts.hint.k === 'pass' && opts.hint.to === m.i;
+      return `<g class="jm-tok mate${me ? ' me' : ''}${hint ? ' hint' : ''}" data-token="${m.i}" transform="translate(${x} ${y})"><circle r="3.6"/><text y="1.2">${esc(label(st, m.i))}</text></g>`;
     }).join('');
     const [bx, by] = sc(st.ball), meBall = st.players && st.players[st.handler] && st.players[st.handler].me;
     const handler = `<g class="jm-tok handler${meBall ? ' me' : ''}" data-token="${st.handler}" transform="translate(${bx} ${by})"><circle r="3.9"/><text y="1.2">${esc(label(st, st.handler))}</text><circle class="jm-ball" cx="3" cy="-3" r="1.7"/></g>`;
@@ -43,7 +44,7 @@
     return `<svg class="jm-court" viewBox="-5 -5 ${VW + 10} ${VH + 10}" role="img" aria-labelledby="jm-court-title" preserveAspectRatio="xMidYMid meet">
       <title id="jm-court-title">${esc(t('jm.courtLabel', { mates: st.mates.length, rivals: st.rivals.length }))}</title>
       ${court()}${trail}<g class="jm-defs">${rivals}</g><g class="jm-team">${mates}${handler}</g>
-      <path id="jm-trace" class="jm-trace" d=""/><circle id="jm-fly" class="jm-ball" r="1.7" cx="-20" cy="-20"/></svg>`;
+      <path id="jm-trace" class="jm-trace" d=""/><circle id="jm-fly" class="jm-ball" r="1.7" cx="-20" cy="-20" style="fill:${ball().color}"/></svg>`;
   }
   // Recoge un trazo que empieza en quien lleva el balón; un toque sobre un compañero, el aro o la pista
   // también vale (pase, tiro o penetración en línea recta).
@@ -121,10 +122,39 @@
     try { root.localStorage.setItem(KEY, JSON.stringify(all)); } catch (_) {}
     return all;
   }
-  // Una jugada se desbloquea al ganar la anterior (la primera de cada capítulo, al ganar la última del anterior).
+  // Progreso extra en el dispositivo: fallos por jugada (para la pista y el salto), jugadas saltadas,
+  // desafío diario con racha y balón elegido. Nada de vidas, energía ni esperas.
+  const PKEY = 'caa.jm.progress';
+  let pmem = null;
+  function progress() {
+    let v = null; try { v = JSON.parse(root.localStorage.getItem(PKEY) || 'null'); } catch (_) { v = pmem; }
+    v = v && typeof v === 'object' ? v : {};
+    return Object.assign({ fails: {}, skipped: {}, daily: {}, streak: 0, best: 0, last: null, ball: 'classic' }, v);
+  }
+  function saveProgress(p) { pmem = p; try { root.localStorage.setItem(PKEY, JSON.stringify(p)); } catch (_) {} return p; }
+  function addFail(id) { const p = progress(); p.fails[id] = (p.fails[id] || 0) + 1; return saveProgress(p).fails[id]; }
+  function fails(id) { return progress().fails[id] || 0; }
+  function skip(id) { const p = progress(); p.skipped[id] = true; return saveProgress(p); }
+  // Una jugada se desbloquea al ganar (o saltar) la anterior.
   function unlocked(id, all) {
     const list = J().levels(), i = list.findIndex(l => l.id === id);
-    return i <= 0 || !!(all || medals())[list[i - 1].id];
+    return i <= 0 || !!(all || medals())[list[i - 1].id] || !!progress().skipped[list[i - 1].id];
   }
-  CAA.JugadaUI = { svg, bind, fly, medals, saveMedal, unlocked, sc };
+  function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function prevDay(key) { const [y, m, d] = key.split('-').map(Number); return dayKey(new Date(y, m - 1, d - 1)); }
+  // Resultado del desafío del día: la racha sube con días seguidos ganados.
+  function saveDaily(key, medal) {
+    const p = progress(), had = p.daily[key] || 0;
+    if (medal > had) p.daily[key] = medal;
+    if (medal > 0 && !had) { p.streak = p.last === prevDay(key) ? p.streak + 1 : 1; p.last = key; p.best = Math.max(p.best, p.streak); }
+    const keys = Object.keys(p.daily).sort(); while (keys.length > 60) delete p.daily[keys.shift()];
+    return saveProgress(p);
+  }
+  function streakNow(p, today) { p = p || progress(); today = today || dayKey(); return p.last === today || p.last === prevDay(today) ? p.streak : 0; }
+  // Balones que se ganan con estrellas (solo estética, en 2D y 3D).
+  const BALLS = [['classic', 0, '#ff7a1f'], ['retro', 15, '#a8592a'], ['street', 30, '#2f7fd6'], ['night', 45, '#6a4bd6'], ['fire', 60, '#e2382b'], ['gold', 75, '#f2c230'], ['legend', 90, '#f3efe4']].map(([id, stars, color]) => ({ id, stars, color }));
+  function totalStars(all) { all = all || medals(); return Object.values(all).reduce((a, v) => a + (v || 0), 0); }
+  function ball() { const p = progress(), b = BALLS.find(x => x.id === p.ball) || BALLS[0]; return totalStars() >= b.stars ? b : BALLS[0]; }
+  function setBall(id) { const b = BALLS.find(x => x.id === id); if (!b || totalStars() < b.stars) return false; const p = progress(); p.ball = id; saveProgress(p); return true; }
+  CAA.JugadaUI = { svg, bind, fly, medals, saveMedal, unlocked, sc, progress, addFail, fails, skip, dayKey, saveDaily, streakNow, BALLS, ball, setBall, totalStars };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -352,7 +352,7 @@
     root.addEventListener('caa:native-pause', suspend);
     root.addEventListener('caa:native-resume', () => { CAA.Reminders.cancel(root); CAA.A11Y.apply(state.settings, doc); if (audio) audio.resume(); render(); });
     const motion = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)'); if (motion && motion.addEventListener) motion.addEventListener('change', () => { CAA.A11Y.apply(state.settings, doc); if (CAA.A11Y.reduced(state.settings)) state.match.playing = false; syncAnimation(); });
-    root.CAA_APP = { state, storage, worker, world, persistCareer, jm3dClient: p => ui.jm3dClient(p), rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
+    root.CAA_APP = { state, storage, worker, world, persistCareer, jm3dClient: p => ui.jm3dClient(p), jmDo: a => ui.jmDo(a), rendererStats: () => voxelRenderer ? voxelRenderer.stats() : null, avatarStats: () => avatarRenderer ? avatarRenderer.stats() : null, audioStats: () => audio ? audio.stats() : null, handleBack: () => { if (state.busy) return true; if (state.confirm) { state.confirm = null; render(); return true; }
       if (coachStep()) { coachFinish(); render(); return true; }
       if (state.jmPanel) { state.jmPanel = null; render(); return true; }
       if (state.rate) { state.rate = false; render(); return true; }

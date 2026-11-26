@@ -106,7 +106,7 @@
       return { players, refs: [], ball: { x: V.ball.x, y: V.ball.y, z: V.ball.z }, spin: V.ball.spin, net: [V.net, 0] };
     }
     function paint() {
-      const g = CAA.Voxel.geometry({ ruleSetId: 'FIBA-2026' }, 0, 1, { frame: frame(), kits: o.kits, women: !!o.women, quality: 'low', t: V.t, hype: 0.7 });
+      const g = CAA.Voxel.geometry({ ruleSetId: 'FIBA-2026' }, 0, 1, { frame: frame(), kits: o.kits, ball: o.ball, women: !!o.women, quality: 'low', t: V.t, hype: 0.7 });
       g.aspect = (gl.clientWidth || 1) / (gl.clientHeight || 1);
       g.light = Object.assign(CAA.Voxel.studioLight(V.cam.eye, V.cam.target), { ambient: 0.52, aoMin: 0.8 }); g.gain = 1.12;
       g.fog = { near: 24, far: 80, color: [0.07, 0.08, 0.15], eye: V.cam.eye };

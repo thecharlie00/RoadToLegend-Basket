@@ -700,6 +700,54 @@ try {
     await page.locator('.shotmap').first().evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForTimeout(200);
     await page.locator('.shotmap').first().screenshot({ path: 'data/qa/stats-shotmap.png' }).catch(() => {});
   });
+  await scenario('Jugada Maestra extras: daily challenge with streak, undo, hint after fails, skip and star balls', { viewport: { width: 360, height: 800 } }, async page => {
+    await click(page, 'boot-lang"][data-locale="es');
+    await page.locator('[data-action="boot-open"][data-target="jugada"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.locator('.jm-daily').count(), 1, 'daily card');
+    assert.equal(await page.locator('.jm-ballpick').count(), 7, 'ball picker');
+    assert.equal(await page.locator('.jm-ballpick:disabled').count(), 6, 'only the classic ball without stars');
+    // Desafío del día jugado con botones (2D), siguiendo la solución.
+    await click(page, 'jm-daily');
+    await page.evaluate(() => { CAA_APP.state.jmPanel.view = '2d'; });
+    await click(page, 'jm-go');
+    const sol = await page.evaluate(() => { const s = CAA_APP.state.jmPanel.st; return CAA.Jugada.solveState(s, s.max).actions; });
+    // Un paso, deshacer y otra vez: el deshacer es uno por intento.
+    await page.evaluate(a => CAA_APP.jmDo(a), sol[0]);
+    await page.waitForFunction(() => !CAA_APP.state.jmPanel.anim);
+    if (await page.locator('[data-action="jm-undo"]').count()) {
+      await click(page, 'jm-undo');
+      assert.equal(await page.evaluate(() => CAA_APP.state.jmPanel.actions.length), 0);
+      assert.equal(await page.locator('[data-action="jm-undo"]').count(), 0, 'one undo per attempt');
+    }
+    for (const a of sol) {
+      if (await page.evaluate(() => CAA_APP.state.jmPanel.st.done)) break;
+      await page.evaluate(x => CAA_APP.state.jmPanel && CAA_APP.jmDo(x), a);
+      await page.waitForFunction(() => !CAA_APP.state.jmPanel.anim);
+    }
+    assert.ok(await page.evaluate(() => CAA_APP.state.jmPanel.st.won), 'daily won');
+    const prog = await page.evaluate(() => CAA.JugadaUI.progress());
+    assert.equal(prog.streak, 1); assert.ok(Object.values(prog.daily)[0] >= 1);
+    await click(page, 'jm-close');
+    assert.match(await page.locator('.jm-daily').textContent(), /Racha: 1/);
+    // Dos fallos en la jugada 1 → aparece la pista; con tres, se puede saltar.
+    await page.evaluate(() => { const p = CAA.JugadaUI.progress(); p.fails['jm-01'] = 3; localStorage.setItem('caa.jm.progress', JSON.stringify(p)); });
+    await page.locator('[data-action="jm-level"][data-id="jm-01"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.ok(await page.locator('.jm-diff').count(), 'difficulty shown');
+    assert.equal(await page.locator('[data-action="jm-skip"]').count(), 1);
+    await page.evaluate(() => { CAA_APP.state.jmPanel.view = '2d'; });
+    await click(page, 'jm-go');
+    await click(page, 'jm-hint');
+    assert.ok(await page.locator('.jm-hint').count(), 'hint text');
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ name: 'jm-extras', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await click(page, 'jm-close');
+    await page.locator('[data-action="jm-level"][data-id="jm-01"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    await click(page, 'jm-skip');
+    assert.equal(await page.evaluate(() => CAA_APP.state.jmPanel.id), 'jm-02', 'skip opens the next play');
+    await click(page, 'jm-close');
+    assert.equal(await page.locator('.jm-level:disabled').count(), 28, 'skipped play unlocks the next one');
+  });
   await scenario('Parrot: records the player, trims silence and repeats it distorted', { permissions: ['microphone'], viewport: { width: 360, height: 800 } }, async page => {
     await parrotCareer(page);
     const bond0 = await page.evaluate(() => CAA_APP.state.career.summary.pet.bond);

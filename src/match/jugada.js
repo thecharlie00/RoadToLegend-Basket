@@ -272,13 +272,50 @@
   function par(id) { if (PAR[id] == null) { const r = solve(id); PAR[id] = r ? r.par : (level(id) || {}).max || 3; } return PAR[id]; }
   function result(s) {
     if (!s) return null;
-    const p = s.match ? 2 : par(s.id);
+    const p = s.par != null ? s.par : s.match ? 2 : par(s.id);
     const stars = [!!s.won, !!s.won && s.turn <= p, bonusMet(s)];
     return { done: !!s.done, won: !!s.won, actions: s.turn, par: p, points: s.points, stars, medal: stars.filter(Boolean).length, bonus: s.bonus };
   }
+  // ---------- Lo que piden los jugadores de estos juegos ----------
+  // Pista: la primera acción de una solución desde el punto en que estás (la misma búsqueda del par).
+  function hint(st) {
+    if (!st || st.done) return null;
+    const accept = st.bonus ? (c => bonusMet(c)) : null;
+    const r = (accept && solveState(st, st.max - st.turn, accept)) || solveState(st, st.max - st.turn);
+    if (!r) return null;
+    const a = r.actions[0];
+    return { k: a.k, to: a.to != null ? a.to : null, left: r.actions.length, action: a };
+  }
+  // Dificultad 1-3: acciones mínimas para ganar (par) y margen que deja el máximo de acciones.
+  function difficulty(id) {
+    const l = level(id); if (!l) return 1;
+    const p = par(id), slack = l.max - p;
+    return Math.max(1, Math.min(3, (p >= 3 ? 2 : 1) + (slack <= 1 ? 1 : 0) - (slack >= 3 ? 1 : 0)));
+  }
+  // Desafío diario: una posesión nueva cada día, sellada con la fecha (sin conexión y igual para todos).
+  // Se busca una disposición con solución y con la tercera estrella posible; el par queda dentro.
+  const DAILY = {};
+  function daily(dateKey) {
+    if (DAILY[dateKey]) return copy(DAILY[dateKey]);
+    const h = hashSeed('daily:' + dateKey);
+    const bonus = BONUS[h % BONUS.length], needThree = h % 5 === 4;
+    let out = null;
+    for (let k = 0; k < 40 && !out; k++) {
+      const seed = hashSeed('daily:' + dateKey + ':' + k);
+      const m = moment(seed, { max: 4, needThree });
+      const st = fromLayout({ ball: m.ball, mates: m.mates.map(x => x.p), rivals: m.rivals, max: 4, needThree, bonus: needThree && bonus === 'dunk' ? 'allTouch' : bonus, seedOffset: seed }, 'daily-' + dateKey);
+      const r = solveState(st);
+      if (!r || r.par < 2) continue;
+      if (!solveState(st, st.max, c => bonusMet(c))) continue;
+      st.par = r.par; st.daily = dateKey; out = st;
+    }
+    if (!out) { out = fresh(LEVELS[h % LEVELS.length].id); out.id = 'daily-' + dateKey; out.daily = dateKey; out.par = par(LEVELS[h % LEVELS.length].id); }
+    DAILY[dateKey] = copy(out);
+    return out;
+  }
   function levels() { return LEVELS.map(l => ({ id: l.id, n: l.n, chapter: l.chapter, chapterKey: l.chapterKey, max: l.max, needThree: l.needThree, bonus: l.bonus })); }
 
-  CAA.Jugada = { HOOP, ARC, CORNER, LEN, WIDTH, DRIVE_MAX, HOOP_PICK, MATE_PICK, CHAPTERS: CHAPTERS.slice(), levels, level, fresh, fromLayout, solveState, moment, resolve, replay, result, par, solve,
+  CAA.Jugada = { HOOP, ARC, CORNER, LEN, WIDTH, DRIVE_MAX, HOOP_PICK, MATE_PICK, CHAPTERS: CHAPTERS.slice(), levels, level, fresh, fromLayout, solveState, hint, difficulty, daily, moment, resolve, replay, result, par, solve,
     isThree, zoneOf, tokenAt, hashSeed, dist, cleanPath, clipPath, bonusMet, BONUS: BONUS.slice(), PERFECT };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Jugada;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

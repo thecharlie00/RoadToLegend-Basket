@@ -22,7 +22,7 @@
     }
     function objectives(l, res) {
       const got = res ? res.stars : [false, false, false];
-      const list = [t('jm.obj.score'), t('jm.obj.par', { n: CAA.Jugada.par(l.id) }), t('jm.obj.' + l.bonus)];
+      const list = [t('jm.obj.score'), t('jm.obj.par', { n: l.par != null ? l.par : CAA.Jugada.par(l.id) }), t('jm.obj.' + l.bonus)];
       return `<ol class="jm-objs">${list.map((x, i) => `<li class="${got[i] ? 'got' : ''}"><span class="jm-star" aria-hidden="true">${got[i] ? '★' : '☆'}</span>${esc(x)}${got[i] ? `<span class="sr-only"> · ${t('jm.done')}</span>` : ''}</li>`).join('')}</ol>`;
     }
     // ===== Historia (campaña) =====
@@ -34,10 +34,26 @@
         return `<section class="card jm-chapter"><div class="guide-head"><h3><span class="eyebrow">${t('jm.chapterN', { n: ci + 1 })} · ${t('jm.stage.' + (ci + 1))}</span> ${t('jm.chapter.' + key)}</h3><span class="tag">${got}/18 ★</span></div>
           <p class="muted small">${t('jm.story.' + (ci + 1))}</p>
           <div class="jm-levels">${list.map(l => { const open = CAA.JugadaUI.unlocked(l.id, all), m = all[l.id] || 0;
-            return `<button class="jm-level${m ? ' won' : ''}${m === 3 ? ' full' : ''}" data-action="jm-level" data-id="${l.id}" ${open ? '' : 'disabled'} aria-label="${esc(t('jm.levelLabel', { n: l.n, stars: m }) + (open ? '' : ' · ' + t('jm.locked')))}"><b>${l.n}</b><span aria-hidden="true">${open ? JM_MEDAL(m) : '🔒'}</span></button>`; }).join('')}</div></section>`;
+            const sk = !m && CAA.JugadaUI.progress().skipped[l.id];
+            return `<button class="jm-level${m ? ' won' : ''}${m === 3 ? ' full' : ''}${sk ? ' skipped' : ''}" data-action="jm-level" data-id="${l.id}" ${open ? '' : 'disabled'} aria-label="${esc(t('jm.levelLabel', { n: l.n, stars: m }) + (open ? '' : ' · ' + t('jm.locked')))}"><b>${l.n}</b><span aria-hidden="true">${open ? (sk ? '⤼' : JM_MEDAL(m)) : '🔒'}</span></button>`; }).join('')}</div></section>`;
       }).join('');
       return `<section class="card jm-hero"><span class="eyebrow">${t('jm.kicker')}</span><h2>${t('more.jugada')}</h2><p>${t('jm.intro')}</p>
-        <p class="jm-total"><b>${stars}</b> / ${levels.length * 3} ★</p><p class="muted small">${t('jm.howTo')}</p></section>${chapters}`;
+        <p class="jm-total"><b>${stars}</b> / ${levels.length * 3} ★</p><p class="muted small">${t('jm.howTo')}</p><p class="muted small">${t('jm.fair')}</p></section>${dailyCard()}${chapters}${ballCard(stars)}`;
+    }
+    // Desafío del día: una posesión nueva cada día, igual para todos y sin conexión; racha de días seguidos.
+    function dailyCard() {
+      const U = CAA.JugadaUI, key = U.dayKey(), p = U.progress(), m = p.daily[key] || 0, streak = U.streakNow(p, key);
+      return `<section class="card jm-daily"><div class="guide-head"><h3>📅 ${t('jm.daily.title')}</h3><span class="tag ${streak ? 'led' : ''}">🔥 ${t('jm.daily.streak', { n: streak })}</span></div>
+        <p class="muted small">${t('jm.daily.desc')}</p>
+        <p>${m ? `<b aria-label="${esc(t('jm.medalLabel', { n: m }))}">${JM_MEDAL(m)}</b> · ${t('jm.daily.done')}` : t('jm.daily.todo')}</p>
+        <button class="${m ? '' : 'cta'}" data-action="jm-daily">${t(m ? 'jm.daily.again' : 'jm.daily.play')} ▶</button>
+        <p class="muted small">${t('jm.daily.best', { n: p.best })}</p></section>`;
+    }
+    // Balones que se ganan con estrellas: solo estética, nada que comprar.
+    function ballCard(stars) {
+      const U = CAA.JugadaUI, cur = U.ball().id;
+      return `<section class="card jm-balls"><h3>${t('jm.balls.title')}</h3><p class="muted small">${t('jm.balls.desc')}</p><div class="jm-ball-list">${U.BALLS.map(b => { const open = stars >= b.stars;
+        return `<button class="jm-ballpick${b.id === cur ? ' on' : ''}" data-action="jm-ball" data-id="${b.id}" ${open ? '' : 'disabled'} aria-pressed="${b.id === cur}" aria-label="${esc(t('jm.ball.' + b.id) + (open ? '' : ' · ' + t('jm.balls.need', { n: b.stars })))}"><i style="background:${b.color}" aria-hidden="true"></i><small>${open ? t('jm.ball.' + b.id) : '🔒 ' + b.stars + '★'}</small></button>`; }).join('')}</div></section>`;
     }
     function jmPendingCard(live) {
       const m = live.moment;
@@ -61,9 +77,9 @@
     }
     let stamp = 0;
     function jmOpen(kind, lv) {
-      const st = kind === 'level' ? CAA.Jugada.fresh(lv) : JSON.parse(JSON.stringify(lv.moment.board));
-      state.jmPanel = { kind, id: kind === 'level' ? lv : 'match', st, start: JSON.parse(JSON.stringify(st)), actions: [], msg: '', anim: false, intro: true, stamp: ++stamp,
-        view: CAA.Jugada3D && CAA.Jugada3D.supported() ? prefView() : '2d', needThree: kind === 'level' ? CAA.Jugada.level(lv).needThree : !!lv.moment.needThree };
+      const st = kind === 'level' ? CAA.Jugada.fresh(lv) : kind === 'daily' ? CAA.Jugada.daily(lv) : JSON.parse(JSON.stringify(lv.moment.board));
+      state.jmPanel = { kind, id: kind === 'level' || kind === 'daily' ? lv : 'match', st, undo: false, hint: null, start: JSON.parse(JSON.stringify(st)), actions: [], msg: '', anim: false, intro: true, stamp: ++stamp,
+        view: CAA.Jugada3D && CAA.Jugada3D.supported() ? prefView() : '2d', needThree: kind === 'level' ? CAA.Jugada.level(lv).needThree : kind === 'daily' ? st.needThree : !!lv.moment.needThree };
       if (ui.audio) ui.audio.play('whistle');
     }
     const jmRound = a => Object.assign({}, a, a.path ? { path: a.path.slice(-40).map(p => [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]) } : {});
@@ -76,7 +92,9 @@
       const entry = P.st.log.slice(prev.log.length).find(e => e.k !== 'cut') || P.st.log[P.st.log.length - 1];
       const cutNow = P.st.log.slice(prev.log.length).some(e => e.k === 'cut') && !P.st.done;
       P.msg = t(cutNow ? 'jm.msg.cut' : 'jm.msg.' + (entry ? entry.msg : r.msg), { pts: P.st.points });
-      if (P.st.done && P.kind === 'level' && P.st.won) CAA.JugadaUI.saveMedal(P.id, CAA.Jugada.result(P.st).medal);
+      P.hint = null;
+      if (P.st.done && P.kind === 'level') { if (P.st.won) CAA.JugadaUI.saveMedal(P.id, CAA.Jugada.result(P.st).medal); else CAA.JugadaUI.addFail(P.id); }
+      if (P.st.done && P.kind === 'daily') { CAA.JugadaUI.saveDaily(P.id, P.st.won ? CAA.Jugada.result(P.st).medal : 0); if (!P.st.won) CAA.JugadaUI.addFail(P.st.id); }
       P.anim = true; P.juice = entry;
       const done = () => { if (state.jmPanel === P) { P.anim = false; render(); } };
       if (P.view === '3d' && J3.view) { J3.view.play(prev, P.st, done); return; }
@@ -93,39 +111,53 @@
     }
     function renderJm() {
       const P = state.jmPanel; if (!P) return '';
-      const st = P.st, lvl = P.kind === 'level' ? CAA.Jugada.level(P.id) : null, res = CAA.Jugada.result(st);
-      const title = lvl ? `${t('jm.stage.' + lvl.chapter)} · ${t('jm.playN', { n: lvl.n })}` : t('jm.momentTitle');
+      const st = P.st, daily = P.kind === 'daily', lvl = P.kind === 'level' ? CAA.Jugada.level(P.id) : daily ? { id: st.id, bonus: st.bonus, par: st.par, daily: true } : null, res = CAA.Jugada.result(st);
+      const title = daily ? t('jm.daily.title') + ' · ' + P.id : lvl ? `${t('jm.stage.' + lvl.chapter)} · ${t('jm.playN', { n: lvl.n })}` : t('jm.momentTitle');
+      const solo = P.kind === 'level' || daily, failN = solo ? CAA.JugadaUI.fails(daily ? st.id : P.id) : 0;
       const lvm = P.kind !== 'level' && state.career.state && state.career.state.live ? state.career.state.live.match : null;
       const scoreLine = lvm ? (() => { const me = state.career.state.live.userTeam, prof = CAA.Rules.getProfile(lvm.ruleSetId); return `<p class="jm-score"><b>${lvm.score[me]}–${lvm.score[1 - me]}</b> <span>${esc(lvm.teams[1 - me].name)} · ${esc(CAA.Rules.periodLabel(prof, lvm.period))} ${ui.clockText(lvm.gameClock)}</span></p>`; })() : '';
-      const goal = lvl ? situation(lvl) : t(P.needThree ? 'jm.matchGoalThree' : 'jm.matchGoal');
+      const goal = daily ? t(st.needThree ? 'jm.sit.three' : 'jm.sit.tie', { s: 10 }) : lvl ? situation(lvl) : t(P.needThree ? 'jm.matchGoalThree' : 'jm.matchGoal');
+      const diff = lvl && !daily ? CAA.Jugada.difficulty(lvl.id) : null;
+      const diffLine = diff ? `<p class="jm-diff small" aria-label="${esc(t('jm.diff', { n: diff }))}">${t('jm.diffLabel')} <b aria-hidden="true">${'●'.repeat(diff)}${'○'.repeat(3 - diff)}</b></p>` : '';
       const meLine = st.players && st.players.some(p => p.me) ? `<p class="muted small">${t('jm.youAre', { name: st.players.find(p => p.me).name })}</p>` : '';
       const head = `<div class="jm-head"><span class="jm-kick">★ ${t('jm.kicker')}</span><h2 id="jm-title" tabindex="-1">${esc(title)}</h2>${scoreLine}<p id="jm-goal" class="jm-goal">${esc(goal)}</p>${meLine}</div>`;
+      const levels = CAA.Jugada.levels(), idx = lvl && !daily ? levels.findIndex(l => l.id === lvl.id) : -1, next = idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
       // Tarjeta previa: historia del capítulo, situación y las tres estrellas.
       if (P.intro) {
         const story = lvl && (lvl.n - 1) % 6 === 0 ? `<p class="jm-story">${t('jm.story.' + lvl.chapter)}</p>` : '';
-        return `<div id="jm" class="jm-ov"><section class="jm-box jm-intro" role="dialog" aria-modal="true" aria-labelledby="jm-title" aria-describedby="jm-goal">${head}${story}
+        const canSkip = P.kind === 'level' && failN >= 3 && !CAA.JugadaUI.medals()[P.id] && next;
+        return `<div id="jm" class="jm-ov"><section class="jm-box jm-intro" role="dialog" aria-modal="true" aria-labelledby="jm-title" aria-describedby="jm-goal">${head}${story}${diffLine}
           ${lvl ? objectives(lvl, null) : `<p>${t('jm.howTo')}</p>`}
           <button class="cta" id="jm-go" data-action="jm-go">${t('jm.playBtn')} ▶</button>
-          ${P.kind === 'level' ? `<button class="link" data-action="jm-close">${t('jm.close')}</button>` : `<button class="link" data-action="jm-auto">${t('jm.letTeam')}</button>`}</section></div>`;
+          ${canSkip ? `<button data-action="jm-skip">⤼ ${t('jm.skip')}</button><p class="muted small">${t('jm.skipNote')}</p>` : ''}
+          ${solo ? `<button class="link" data-action="jm-close">${t('jm.close')}</button>` : `<button class="link" data-action="jm-auto">${t('jm.letTeam')}</button>`}</section></div>`;
       }
       const nameOf = i => st.players && st.players[i] ? st.players[i].name : t('jm.mate', { n: i + 1 });
       const tools = !st.done ? `<div class="jm-tools"><p class="muted small">${t('jm.howTo')}</p>
         <div class="jm-pass-list" role="group" aria-label="${t('jm.passTo')}">${st.mates.map(m => `<button class="small-btn" data-action="jm-act" data-k="pass" data-to="${m.i}">${t('jm.passBtn', { name: nameOf(m.i) })}</button>`).join('')}</div>
         <div class="row"><button data-action="jm-act" data-k="drive">${t('jm.driveBtn')}</button><button class="primary" data-action="jm-act" data-k="shot">${t('jm.shotBtn')}</button></div>
-        ${P.kind !== 'level' && !P.actions.length ? `<button class="link" data-action="jm-auto">${t('jm.letTeam')}</button>` : ''}</div>` : '';
+        ${solo ? `<div class="row jm-help">${P.actions.length && !P.undo ? `<button class="small-btn" data-action="jm-undo">↶ ${t('jm.undo')}</button>` : ''}${failN >= 2 ? `<button class="small-btn" data-action="jm-hint">💡 ${t('jm.hint.btn')}</button>` : `<span class="muted small">${t('jm.hint.after', { n: 2 - failN })}</span>`}</div>` : ''}
+        ${P.hint ? `<p class="jm-hint" role="status">💡 ${esc(hintText(P.hint, nameOf))}</p>` : ''}
+        ${!solo && !P.actions.length ? `<button class="link" data-action="jm-auto">${t('jm.letTeam')}</button>` : ''}</div>` : '';
       const stars = lvl ? (st.done ? `<div class="jm-result ${st.won ? 'ok' : 'bad'}"><p class="jm-medal" aria-label="${esc(t('jm.medalLabel', { n: res.medal }))}">${[0, 1, 2].map(i => `<span class="jm-bigstar${res.stars[i] ? ' on' : ''}" style="--i:${i}" aria-hidden="true">★</span>`).join('')}</p>${objectives(lvl, res)}</div>` : `<div class="jm-objchips">${objectives(lvl, null)}</div>`) : '';
-      const levels = CAA.Jugada.levels(), idx = lvl ? levels.findIndex(l => l.id === lvl.id) : -1, next = idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
       const replay = st.done && P.view === '3d' && J3.view ? `<button data-action="jm-replay">⟲ ${t('jm.replay')}</button>` : '';
-      const after = st.done ? (P.kind === 'level'
-        ? `<div class="row">${st.won && next ? `<button class="cta" data-action="jm-level" data-id="${next.id}">${t('jm.next')} ▶</button>` : ''}<button class="${st.won ? '' : 'primary'}" data-action="jm-level" data-id="${P.id}">${t('jm.retry')}</button>${replay}<button class="link" data-action="jm-close">${t('jm.close')}</button></div>`
+      const rewind = solo && !st.won && P.actions.length && !P.undo ? `<button data-action="jm-undo">↶ ${t('jm.undoLast')}</button>` : '';
+      const skipBtn = P.kind === 'level' && !st.won && failN >= 3 && next && !CAA.JugadaUI.medals()[P.id] ? `<button data-action="jm-skip">⤼ ${t('jm.skip')}</button>` : '';
+      const after = st.done ? (solo
+        ? `<div class="row">${st.won && next ? `<button class="cta" data-action="jm-level" data-id="${next.id}">${t('jm.next')} ▶</button>` : ''}${rewind}<button class="${st.won ? '' : 'primary'}" data-action="${daily ? 'jm-daily' : 'jm-level'}" data-id="${P.id}">${t('jm.retry')}</button>${skipBtn}${replay}<button class="link" data-action="jm-close">${t('jm.close')}</button></div>
+          ${daily && st.won ? `<p class="ok small">🔥 ${t('jm.daily.streak', { n: CAA.JugadaUI.streakNow() })}</p>` : ''}`
         : `<div class="row"><button class="cta" data-action="jm-finish">${t(P.kind === 'live' ? 'jm.backLive' : 'jm.backSim')} ▶</button>${replay}</div>`) : '';
       const can3d = CAA.Jugada3D && CAA.Jugada3D.supported();
       const board = P.view === '3d' ? `<div id="jm-board" class="jm-wrap jm3d-slot${st.done ? ' done' : ''}"><span class="jm-turn">${t('jm.actions', { n: st.turn, max: st.max })}</span></div>`
-        : `<div id="jm-board" class="jm-wrap${st.done ? ' done' : ''}">${CAA.JugadaUI.svg(st, { t })}<span class="jm-turn">${t('jm.actions', { n: st.turn, max: st.max })}</span></div>`;
+        : `<div id="jm-board" class="jm-wrap${st.done ? ' done' : ''}">${CAA.JugadaUI.svg(st, { t, hint: P.hint })}<span class="jm-turn">${t('jm.actions', { n: st.turn, max: st.max })}</span></div>`;
       return `<div id="jm" class="jm-ov"><section class="jm-box" role="dialog" aria-modal="true" aria-labelledby="jm-title" aria-describedby="jm-goal">${head}${!st.done ? stars : ''}
         ${board}${can3d ? `<button class="link jm-viewbtn" data-action="jm-view">${t(P.view === '3d' ? 'jm.view2d' : 'jm.view3d')}</button>` : ''}
         <p class="jm-status ${st.done ? (st.won || st.points ? 'ok' : 'bad') : ''}" id="jm-status" role="status" aria-live="polite">${esc(P.msg || t('jm.start'))}</p>
-        ${st.done ? stars : ''}${tools}${after}${P.kind === 'level' && !st.done ? `<button class="link" data-action="jm-close">${t('jm.close')}</button>` : ''}</section></div>`;
+        ${st.done ? stars : ''}${tools}${after}${solo && !st.done ? `<button class="link" data-action="jm-close">${t('jm.close')}</button>` : ''}</section></div>`;
+    }
+    function hintText(h, nameOf) {
+      const first = h.k === 'pass' ? t('jm.hint.pass', { name: nameOf(h.to) }) : h.k === 'drive' ? t('jm.hint.drive') : t('jm.hint.shot');
+      return first + ' ' + t('jm.hint.left', { n: h.left });
     }
     // ===== Capa 3D persistente: vive fuera de #app para que los repintados no la destruyan =====
     const J3 = { view: null, layer: null, stamp: 0, shoutT: null };
@@ -152,7 +184,7 @@
       j3Destroy();
       const layer = doc.createElement('div'); layer.id = 'jm3d-layer'; layer.className = 'jm3d-layer';
       doc.body.appendChild(layer); J3.layer = layer; j3Place();
-      const view = CAA.Jugada3D.mount(layer, { st: P.start, kits: kits(), women: ui.careerWomen ? ui.careerWomen() : false, onAction: a => jmDo(a), shout: j3Shout });
+      const view = CAA.Jugada3D.mount(layer, { st: P.start, ball: CAA.JugadaUI.ball().color, kits: kits(), women: ui.careerWomen ? ui.careerWomen() : false, onAction: a => jmDo(a), shout: j3Shout });
       if (!view) { j3Destroy(); P.view = '2d'; render(); return; }
       // Si la jugada ya iba avanzada (p. ej. al volver de la vista 2D), la escena salta a su estado actual.
       if (P.st.log.length) view.play(P.start, P.st, () => {});
@@ -191,6 +223,23 @@
     async function jmAction(name, el) {
       const P = state.jmPanel;
       if (name === 'jm-level') { if (CAA.JugadaUI.unlocked(el.dataset.id)) jmOpen('level', el.dataset.id); return; }
+      if (name === 'jm-daily') { jmOpen('daily', CAA.JugadaUI.dayKey()); return; }
+      if (name === 'jm-ball') { CAA.JugadaUI.setBall(el.dataset.id); if (ui.audio) ui.audio.play('click'); return; }
+      if (name === 'jm-skip') {
+        if (!P || P.kind !== 'level') return;
+        CAA.JugadaUI.skip(P.id);
+        const list = CAA.Jugada.levels(), i = list.findIndex(l => l.id === P.id);
+        if (list[i + 1]) jmOpen('level', list[i + 1].id); else state.jmPanel = null;
+        return;
+      }
+      if (name === 'jm-hint') { if (P && !P.st.done && !P.anim) { P.hint = CAA.Jugada.hint(P.st); if (!P.hint) P.msg = t('jm.hint.none'); } return; }
+      if (name === 'jm-undo') {
+        if (!P || P.anim || P.undo || !P.actions.length || (P.kind !== 'level' && P.kind !== 'daily')) return;
+        P.actions.pop(); P.undo = true; P.hint = null;
+        P.st = CAA.Jugada.replay(JSON.parse(JSON.stringify(P.start)), P.actions);
+        P.msg = t('jm.msg.undo'); P.stamp = ++stamp;
+        return;
+      }
       if (name === 'jm-close') { state.jmPanel = null; return; }
       if (name === 'jm-go') { if (P) P.intro = false; return; }
       if (name === 'jm-view') { if (P) { P.view = P.view === '3d' ? '2d' : '3d'; try { root.localStorage.setItem(VIEW_KEY, P.view); } catch (_) {} } return; }
