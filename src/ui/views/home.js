@@ -187,7 +187,7 @@
       const s = c.summary;
       if (!s.next && s.playoffs && !s.playoffs.done && !['playing', 'waiting'].includes(s.playoffs.status)) return `<div class="actionbar"><button class="cta" data-action="career-skip">${t('po.skip')} ▶</button></div>`;
       if (!s.next) return `<div class="actionbar"><button class="cta" data-action="career-play">${t('home.advance')} ▶</button></div>`;
-      return `<div class="actionbar"><button class="cta" data-action="live-start">${t('home.playLive', { team: s.next.opponent.name })} <span aria-hidden="true">▶</span></button><button class="sim-btn" data-action="career-play" aria-label="${t('home.simulateLabel')}">${t('home.simulate')}</button></div>`;
+      return `<div class="actionbar"><button class="cta" data-action="live-start">${t('home.playLive', { team: s.next.opponent.name })} <span aria-hidden="true">▶</span></button><button class="sim-btn" data-action="career-play" aria-label="${t('home.simulateLabel')}">${t('home.simulate')}</button><button class="sim-btn ff" data-action="sim-decision" aria-label="${t('simd.label')}" title="${t('simd.label')}">⏩</button></div>`;
     }
     return { newsText, chips, seasonsTxt, renderRetirement, liveWorldCards, renderHome, renderActionBar, renderSeasonSummary, socialCard, rivalCard, deadlineClock };
   };

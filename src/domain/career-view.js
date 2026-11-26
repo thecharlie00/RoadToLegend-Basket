@@ -5,7 +5,7 @@
   const CAA = root.CAA = root.CAA || {};
   CAA.CareerParts = CAA.CareerParts || {};
   CAA.CareerParts["view"] = function (K) {
-    const { Content, EraW, Eras, Family, Finance, Gear, Live, MODES, Market, National, Pet, Playoffs, ROUTES, Season, Viva, World, clubOf, currentGame, currentLive, jmPlan, jmState, rivalOf } = K;
+    const { Content, EraW, Eras, Family, Finance, Gear, Live, MODES, Market, National, Pet, Playoffs, ROUTES, Season, StatsBook, Viva, World, clubOf, currentGame, currentLive, jmPlan, jmState, rivalOf } = K;
     const clamp100 = v => Math.max(0, Math.min(100, Math.round(v)));
     function meters(state, club) {
       const life = state.life || { counters: {} };
@@ -47,6 +47,12 @@
         viva: (() => {
           const c = clubOf(state), starters = state.mode === 'coach' ? Season.clubToMatchTeam(c).players.filter(p => p.starter).map(p => p.id) : [];
           return { focus: Viva.focus(state, { event: !!Content.pendingView(state), live: !!currentLive(state), next: fx.next, playoffs: !!(fx.next && fx.next.playoff), starters }), chronicle: Viva.latest(state), archive: state.life && state.life.chronicles ? state.life.chronicles.slice(-12).reverse() : [] };
+        })(),
+        book: StatsBook.view(state),
+        awardRace: (() => {
+          const s = state.season; if (s.playoffs || s.round < 3) return null;
+          const pid = state.player ? state.player.id : null;
+          return Playoffs.awardRace(s, s.round, x => pid ? x.p.id === pid : x.club.id === state.clubId);
         })(),
         jm: (() => { const jm = jmState(state), g = currentGame(state); return { on: jm.on, plays: jm.plays, made: jm.made, due: !!(g && !currentLive(state) && jmPlan(state, g)) }; })(),
         era: state.era ? { start: state.era.start, decade: Eras.decadeOf(state.year), legends: state.era.legends, look: Eras.look(state.year), ball: Eras.ballColor(state.year), traits: Eras.traits(state.year, league) } : null,

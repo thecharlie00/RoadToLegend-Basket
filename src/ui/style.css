@@ -719,3 +719,12 @@ td.tro{white-space:nowrap}.tro-i{display:inline-block;margin-right:2px;font-size
 .jm-level.full{background:linear-gradient(160deg,rgba(255,209,102,.22),var(--raise))}.jm-viewbtn{align-self:flex-end;margin-top:-4px}
 @media (prefers-reduced-motion:reduce){.jm3d-shout.on{animation:none;opacity:1;transform:translate(-50%,-50%)}.jm-bigstar{animation:none;transform:none;opacity:1}}
 .jm3d-layer canvas{max-width:none!important;background:transparent!important}.jm3d-layer canvas.jm3d-gl{background:#0b1220!important}
+
+/* Libro de estadísticas, carrera por los premios y simular hasta la próxima decisión */
+.sim-btn.ff{min-width:52px;font-size:1.1rem}
+.shotmap{margin:8px 0;display:grid;gap:8px}.shotmap svg{width:100%;max-width:360px;height:auto;display:block;margin:0 auto}
+.zone-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px 12px}.zone-list li{display:flex;gap:6px;align-items:baseline;font-size:.85rem}.zone-list li span{flex:1}.zone-list small{color:var(--muted)}
+.progress-svg{width:100%;height:auto;display:block}.legend{display:flex;gap:12px;flex-wrap:wrap}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.race details{border-top:1px solid var(--line);padding:4px 0}.race summary{display:flex;gap:8px;align-items:center}.race-list{margin:4px 0;padding-left:0;list-style:none}.race-list li{padding:3px 6px;border-radius:6px}.race-list li.me{background:color-mix(in srgb,var(--accent) 18%,transparent)}.race-list li.gap{margin-top:6px;border-top:1px dashed var(--line)}
+.attr-help dl{display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:4px 12px;margin:8px 0;font-size:.85rem}.attr-help dt{font-weight:700}.attr-help dd{margin:0;color:var(--muted)}
+tr.loss td:first-child{opacity:.85}

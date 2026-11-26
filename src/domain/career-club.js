@@ -50,6 +50,33 @@
       }
       return state;
     }
+    // Simular hasta la próxima decisión: avanza semanas seguidas y se para en cuanto hay algo
+    // que decidir o que ver (evento, Jugada Maestra, lesión, oferta, playoffs o fin de temporada).
+    // Nunca decide por ti: los eventos se quedan pendientes para que los elijas.
+    function simToDecision(state, maxWeeks = 12) {
+      const life = Content.ensureLife(state);
+      const mark = () => ({ market: (state.market || []).length, inj: !!(state.player && state.player.injury && state.player.injury.weeksRemaining > 0), po: !!state.season.playoffs, year: state.year });
+      let weeks = 0, reason = 'limit';
+      while (weeks < maxWeeks) {
+        if (state.careerOver || (state.retirement && state.retirement.pending)) { reason = 'end'; break; }
+        if (life.pendingEvent || state.live) { reason = 'event'; break; }
+        if (state.lastSeasonSummary) { reason = 'season'; break; }
+        const g = currentGame(state);
+        if (g && jmState(state).on && K.jmPlan(state, g)) { reason = 'jm'; break; }
+        const before = mark();
+        const st = state.season.playoffs ? Playoffs.status(state.season.playoffs, state.clubId) : null;
+        advanceWeek(state, { type: state.season.playoffs && !state.season.playoffs.done && !['playing', 'waiting'].includes(st) ? 'skipPlayoffs' : 'play' });
+        weeks++;
+        const after = mark();
+        if (state.lastSeasonSummary || after.year !== before.year) { reason = 'season'; break; }
+        if (life.pendingEvent) { reason = 'event'; break; }
+        if (after.inj && !before.inj) { reason = 'injury'; break; }
+        if (after.market > before.market) { reason = 'offer'; break; }
+        if (after.po && !before.po) { reason = 'playoffs'; break; }
+      }
+      state.lastSim = { weeks, reason };
+      return state.lastSim;
+    }
     function clubOp(state, config = {}) {
       Finance.op(state, config);
       record(state, { type: 'club', op: config.op, key: config.key || null });
@@ -117,6 +144,6 @@
       return { name: opp.name, wins: opp.wins, losses: opp.losses, top: opp.roster.slice().sort((a, b) => b.ovr - a.ovr).slice(0, 3).map(p => ({ name: p.name, pos: p.pos, ovr: p.ovr, archetype: p.archetype })),
         pace: t.pace >= 0.65 ? 'fast' : t.pace <= 0.35 ? 'slow' : 'normal', shooting: t.threeRate >= 0.5 ? 'outside' : t.insideRate >= 0.5 ? 'inside' : 'balanced', avgOvr: Math.round(opp.roster.slice(0, 8).reduce((a, p) => a + p.ovr, 0) / Math.min(8, opp.roster.length)) };
     }
-    return { refillRosters, applyEdits, editOp, simSeason, clubOp, worldOp, marketOp, TACTICS, coachSet, coachWeek, scouting };
+    return { refillRosters, applyEdits, editOp, simSeason, simToDecision, clubOp, worldOp, marketOp, TACTICS, coachSet, coachWeek, scouting };
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

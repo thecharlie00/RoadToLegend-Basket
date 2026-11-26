@@ -26,6 +26,13 @@
       const res = await ui.worker.send('career.simSeason', { state: state.career.state });
       await acceptCareer(res); state.tab = 'career'; notify(t('more.simDone'));
     };
+    exact["sim-decision"] = async (name, el) => {
+      if (!state.career.state) throw new Error(t('career.empty'));
+      const res = await ui.worker.send('career.simToDecision', { state: state.career.state });
+      await acceptCareer(res);
+      const sim = res.sim || { weeks: 0, reason: 'limit' };
+      notify(t('simd.done', { n: sim.weeks }) + ' · ' + t('simd.reason.' + sim.reason));
+    };
     exact["draw-results"] = async (name, el) => { state.drawStep = 'results'; };
     exact["world-op"] = async (name, el) => {
       const res = await ui.worker.send('career.world', { state: state.career.state, config: { op: el.dataset.op, id: el.dataset.id, tactic: el.dataset.tactic } });
@@ -86,6 +93,15 @@
       const index = Number(el.dataset.index) || 0;
       const res = await ui.worker.send('career.sign', { state: state.career.state, index });
       await acceptCareer(res);
+    };
+    exact["trade-request"] = async (name, el) => {
+      if (!state.career.state) throw new Error(t('career.empty'));
+      const sel = doc.getElementById('trade-club'); if (!sel || !sel.value) return;
+      const [leagueId, clubId] = sel.value.split('|');
+      const res = await ui.worker.send('career.trade', { state: state.career.state, config: { leagueId, clubId } });
+      await acceptCareer(res);
+      notify(t(res.trade && res.trade.accepted ? 'trade.yes' : 'trade.no', { club: res.trade ? res.trade.club : '' }), !(res.trade && res.trade.accepted));
+      if (ui.audio) ui.audio.play(res.trade && res.trade.accepted ? 'success' : 'click');
     };
     exact["career-crossing"] = async (name, el) => {
       if (!state.career.state) throw new Error(t('career.empty'));

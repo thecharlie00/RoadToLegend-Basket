@@ -141,25 +141,47 @@
   }
   // ===== Premios de la temporada regular (+ MVP de la final) =====
   function rating(p) { const g = Math.max(1, p.stats.gp); return p.stats.pts / g + 1.2 * p.stats.reb / g + 1.5 * p.stats.ast / g + 2 * (p.stats.stl + p.stats.blk) / g; }
-  function awards(season, rounds) {
+  // Fórmulas de cada premio: las mismas para la carrera en curso y para el premio final (así no hay sorpresas).
+  const AWARD_RULES = {
+    mvp: { score: x => rating(x.p) * (0.75 + x.pct * 0.5) },
+    dpoy: { score: x => (x.p.stats.stl + x.p.stats.blk) / Math.max(1, x.p.stats.gp) * 3 + x.p.stats.reb / Math.max(1, x.p.stats.gp) * 0.4 + ((x.p.attrs.defExterior + x.p.attrs.defInterior) / 2) * 0.05 },
+    roy: { score: x => rating(x.p), filter: x => x.p.age <= 21 || (x.p.career && x.p.career.seasons === 0 && x.p.age <= 23) },
+    sixth: { score: x => x.p.stats.pts / Math.max(1, x.p.stats.gp), filter: x => x.bench },
+    mip: { score: x => (x.p.ovr - (x.p.ovrStart == null ? x.p.ovr : x.p.ovrStart)) * 3 + rating(x.p) * 0.1, filter: x => x.p.ovrStart != null }
+  };
+  function awardPool(season, rounds) {
     const pool = [];
     for (const c of season.clubs) {
       const gp = c.wins + c.losses, pct = gp ? c.wins / gp : 0.5;
       c.roster.forEach((p, i) => { if (p.stats && p.stats.gp >= Math.max(5, rounds * 0.5)) pool.push({ p, club: c, pct, bench: i >= 5 }); });
     }
+    return pool;
+  }
+  function ranked(pool, key) {
+    const r = AWARD_RULES[key];
+    return pool.filter(r.filter || (() => true)).map(x => Object.assign({ s: r.score(x) }, x)).sort((a, b) => b.s - a.s || a.p.id.localeCompare(b.p.id));
+  }
+  function awards(season, rounds) {
+    const pool = awardPool(season, rounds);
     if (!pool.length) return [];
-    const best = (score, filter) => { const list = pool.filter(filter || (() => true)).map(x => Object.assign({ s: score(x) }, x)).sort((a, b) => b.s - a.s || a.p.id.localeCompare(b.p.id)); return list[0] || null; };
     const pick = (award, x) => x ? { award, playerId: x.p.id, player: x.p.name, clubId: x.club.id, club: x.club.name } : null;
-    const out = [
-      pick('mvp', best(x => rating(x.p) * (0.75 + x.pct * 0.5))),
-      pick('dpoy', best(x => (x.p.stats.stl + x.p.stats.blk) / Math.max(1, x.p.stats.gp) * 3 + x.p.stats.reb / Math.max(1, x.p.stats.gp) * 0.4 + ((x.p.attrs.defExterior + x.p.attrs.defInterior) / 2 - 50) * 0.08)),
-      pick('roy', best(x => rating(x.p), x => x.p.age <= 21 || (x.p.career && x.p.career.seasons === 0 && x.p.age <= 23))),
-      pick('sixth', best(x => x.p.stats.pts / Math.max(1, x.p.stats.gp), x => x.bench)),
-      pick('mip', best(x => (x.p.ovr - (x.p.ovrStart == null ? x.p.ovr : x.p.ovrStart)) * 3 + rating(x.p) * 0.1, x => x.p.ovrStart != null))
-    ].filter(Boolean);
+    const out = Object.keys(AWARD_RULES).map(k => pick(k, ranked(pool, k)[0])).filter(Boolean);
     const team = pool.map(x => Object.assign({ s: rating(x.p) * (0.85 + x.pct * 0.3) }, x)).sort((a, b) => b.s - a.s || a.p.id.localeCompare(b.p.id)).slice(0, 5);
     for (const x of team) out.push(pick('allLeague', x));
     return out;
+  }
+  // Carrera por los premios a mitad de temporada: el top 5 de cada premio con la misma fórmula y dónde
+  // va tu jugador/a (o los de tu club). Con menos partidos jugados, el mínimo de partidos se ajusta.
+  function awardRace(season, playedRounds, mine) {
+    const pool = awardPool(season, playedRounds);
+    const isMine = typeof mine === 'function' ? mine : x => x.p.id === mine;
+    return Object.keys(AWARD_RULES).map(key => {
+      const list = ranked(pool, key);
+      const row = (x, i) => ({ rank: i + 1, id: x.p.id, name: x.p.name, club: x.club.name, clubId: x.club.id, score: Math.round(x.s * 10) / 10, gp: x.p.stats.gp, ppg: Math.round(x.p.stats.pts / Math.max(1, x.p.stats.gp) * 10) / 10, mine: !!isMine(x) });
+      const top = list.slice(0, 5).map(row);
+      const meIdx = list.findIndex(x => isMine(x));
+      return { award: key, top, me: meIdx >= 5 ? row(list[meIdx], meIdx) : null, eligible: list.length };
+    }).filter(r => r.eligible);
   }
   function finalsMvp(season) {
     const b = season.playoffs; if (!b || !b.champion) return null;
@@ -169,6 +191,6 @@
   }
   function hash(b) { return Hash.hex32(Hash.hashObject(b)); }
 
-  CAA.Playoffs = { create, pending, playStep, playAll, resultOf, seriesOf, status, awards, finalsMvp, conferenceOf, current, hash };
+  CAA.Playoffs = { create, pending, playStep, playAll, resultOf, seriesOf, status, awards, awardRace, AWARD_RULES, finalsMvp, conferenceOf, current, hash };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Playoffs;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

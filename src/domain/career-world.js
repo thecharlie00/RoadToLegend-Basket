@@ -162,6 +162,45 @@
       record(state, { type: 'crossing', target, buyout: o.crossing.buyout });
       return Object.assign({ contract: o.contract }, o.crossing);
     }
+    // Pedir el traspaso a un club concreto (de tu liga o de otra). Una petición por temporada.
+    // El interés del club es determinista (semilla, año y club): tu media frente al nivel de la liga,
+    // tu fama y tu confianza con el entrenador. Si dicen que sí, llega su oferta al mercado; si no,
+    // tu entrenador se entera y baja su confianza. Sin azar de pago ni nada que comprar.
+    function tradeChance(state, leagueId) {
+      const p = state.player, L = Season.LEAGUES[leagueId];
+      const fame = (state.life && state.life.fame) || 0;
+      return Math.max(0.05, Math.min(0.9, 0.4 + (p.ovr - (L.strength || 60)) * 0.05 + Math.min(0.15, fame / 600) - (p.contract && p.contract.years > 2 ? 0.08 : 0)));
+    }
+    function requestTrade(state, config = {}) {
+      const p = state.player;
+      if (!p) throw new Error('player career required');
+      const life = Content.ensureLife(state);
+      if (life.tradeReq && life.tradeReq.year === state.year) throw new Error('trade already requested this season');
+      const leagueId = config.leagueId || state.season.leagueId, L = Season.LEAGUES[leagueId], cur = Season.LEAGUES[state.season.leagueId];
+      if (!L) throw new Error('unknown league');
+      if (L.gender !== cur.gender) throw new Error('league of another category');
+      if (state.era && !Eras.available(L, state.year)) throw new Error('league not founded yet');
+      const club = Season.clubCatalog(leagueId).find(c => c.id === config.clubId);
+      if (!club) throw new Error('unknown club');
+      if (club.id === state.clubId) throw new Error('already in that club');
+      const chance = tradeChance(state, leagueId);
+      const roll = RNG.create(state.seed + ':trade:' + state.year + ':' + club.id).float();
+      const accepted = roll < chance;
+      life.tradeReq = { year: state.year, leagueId, clubId: club.id, club: club.name, accepted, chance: Math.round(chance * 100) };
+      if (accepted) {
+        const rng = RNG.create(state.seed + ':trade-offer:' + state.year + ':' + club.id);
+        const o = foreignOffer(state, leagueId, rng);
+        o.crossing.clubId = club.id; o.crossing.clubName = club.name; o.clubId = club.id; o.requested = true;
+        state.market.push(o);
+        state.inbox.push({ type: 'tradeYes', week: state.week, detail: { club: club.name, leagueId } });
+      } else {
+        p.coachTrust = Math.max(0, (p.coachTrust == null ? 55 : p.coachTrust) - 6);
+        Content.applyEffects(state, { morale: -3 });
+        state.inbox.push({ type: 'tradeNo', week: state.week, detail: { club: club.name, leagueId } });
+      }
+      record(state, { type: 'tradeRequest', leagueId, clubId: club.id, accepted });
+      return life.tradeReq;
+    }
     function signOffer(state, index) {
       const offer = state.market[index || 0];
       if (!offer || !state.player) throw new Error('no offer');
@@ -180,6 +219,6 @@
       record(state, { type: 'sign', salary: offer.contract.salary });
       return state;
     }
-    return { familySetup, familyCounters, leaguesNow, eraApply, eraLegends, heirLeague, moveTo, foreignOffer, worldOffers, afterRetirement, exploreCrossing, signOffer };
+    return { familySetup, familyCounters, leaguesNow, eraApply, eraLegends, heirLeague, moveTo, foreignOffer, worldOffers, afterRetirement, exploreCrossing, signOffer, requestTrade, tradeChance };
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

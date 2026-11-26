@@ -17,6 +17,7 @@
   const Arcade = CAA.Arcade || (typeof require === 'function' ? require('../match/arcade.js') : null);
   const Pet = CAA.Pet || (typeof require === 'function' ? require('./pet.js') : null);
   const Playoffs = CAA.Playoffs || (typeof require === 'function' ? require('./playoffs.js') : null);
+  const StatsBook = CAA.StatsBook || (typeof require === 'function' ? require('./statsbook.js') : null);
   const Family = CAA.Family || (typeof require === 'function' ? require('./family.js') : null);
   const Gear = CAA.Gear || (typeof require === 'function' ? require('./gear.js') : null);
   const Eras = CAA.Eras || (typeof require === 'function' ? require('./eras.js') : null);
@@ -264,6 +265,7 @@
     if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) { lc.totalWins = (lc.totalWins || 0) + 1; if (state.season.playoffs) lc.playoffWins = (lc.playoffWins || 0) + 1; } }
     if (state.coach && mine) lc.coachGames = (lc.coachGames || 0) + 1;
     chronicle(state, played, mine);
+    if (mine) StatsBook.track(state, mine);
     Viva.afterWeek(state);
     if (state.coach) coachWeek(state, rng);
     Content.weeklyIncome(state);
@@ -384,6 +386,7 @@
     const myRank = table.find(r => r.id === state.clubId).rank;
     state.history.push({ year: state.year, leagueId: season.leagueId, champion: season.champion, championName: season.clubsById[season.champion].name, runnerUp: b ? b.runnerUp : null, cup: season.cup ? season.cup.championName : null, cupChampion: season.cup ? season.cup.champion : null, myAwards: awardsList.filter(a => a.playerId ? state.player && a.playerId === state.player.id : false).map(a => a.award),
       table: table.slice(0, 4), clubRank: myRank, result: myResult, awards: awardsList.map(a => ({ award: a.award, player: a.player || null, club: a.club })), promoted: b ? b.promoted.slice() : [] });
+    StatsBook.seasonClose(state, { rank: myRank, record: (() => { const c = season.clubsById[state.clubId]; return c ? { wins: c.wins, losses: c.losses } : null; })() });
     // Modo Épocas: duelos con las leyendas, competiciones de época y página del Anuario.
     if (state.era && EraW) { EraW.duels(state); EraW.continental(state, table); EraW.annual(state, season.clubsById[season.champion].name); }
     const lc = Content.ensureLife(state).counters;
@@ -513,6 +516,7 @@
   // Cada parte recibe este contexto; lo que exporta se añade aquí y se usa por su nombre.
   if (typeof require === 'function' && typeof module !== 'undefined') ['./career-life.js', './career-world.js', './career-club.js', './career-view.js'].forEach(p => require(p));
   const K = {
+    get StatsBook() { return StatsBook; },
     get Arcade() { return Arcade; },
     get Content() { return Content; },
     get Contracts() { return Contracts; },
@@ -545,7 +549,7 @@
     get rivalOf() { return rivalOf; }
   };
   for (const name of ["life","world","club","view"]) Object.assign(K, CAA.CareerParts[name](K));
-  const { chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, petOp, gearOp, arcadeChallenges, CONTEST_TYPES, arcadeStart, arcadeFinish, arcadeCancel, practice, nextGuide, familySetup, eraApply, eraLegends, heirLeague, moveTo, worldOffers, afterRetirement, exploreCrossing, signOffer, refillRosters, applyEdits, editOp, simSeason, clubOp, worldOp, marketOp, TACTICS, coachSet, coachWeek, summary, validate } = K;
-  CAA.Career = { worldOp, MODES, ROUTES, CHALLENGES, arcadeChallenges, CONTEST_TYPES, gearOp, clubOp, marketOp, editOp, simSeason, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
+  const { chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, petOp, gearOp, arcadeChallenges, CONTEST_TYPES, arcadeStart, arcadeFinish, arcadeCancel, practice, nextGuide, familySetup, eraApply, eraLegends, heirLeague, moveTo, worldOffers, afterRetirement, exploreCrossing, signOffer, requestTrade, tradeChance, refillRosters, applyEdits, editOp, simSeason, simToDecision, clubOp, worldOp, marketOp, TACTICS, coachSet, coachWeek, summary, validate } = K;
+  CAA.Career = { worldOp, MODES, ROUTES, CHALLENGES, arcadeChallenges, CONTEST_TYPES, gearOp, clubOp, marketOp, editOp, simSeason, simToDecision, requestTrade, tradeChance, moveTo, heirLeague, createCareer, advanceWeek, liveStart, liveAdvance, currentGame, dismissSummary, coachSet, TACTICS, familySetup, afterRetirement, arcadeStart, arcadeFinish, arcadeCancel, petOp, chooseEvent, buyItem, equipItem, beginPractice, resolvePractice, cancelPractice, practice, nextGuide, exploreCrossing, signOffer, summary, validate, serialize, resume };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Career;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -680,6 +680,26 @@ try {
     await page.locator('#live-panel').screenshot({ path: 'data/qa/world-tactical.png' });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
   });
+  await scenario('Stats book, award race, simulate to the next decision and trade request', { viewport: { width: 360, height: 800 } }, async page => {
+    await newCareer(page, { seed: 'book-browser' });
+    const resolve = async () => { while (await page.locator('[data-action="life-event"]').count()) { await page.locator('[data-action="life-event"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy); } };
+    for (let i = 0; i < 6; i++) { await resolve(); const w0 = await page.evaluate(() => CAA_APP.state.career.state.week); await click(page, 'sim-decision'); await page.waitForFunction(() => !CAA_APP.state.busy); if (await page.evaluate(w => CAA_APP.state.career.state.week > w && CAA_APP.state.career.state.season.round >= 4, w0)) break; }
+    assert.ok(await page.evaluate(() => CAA_APP.state.career.state.season.round >= 3), 'sim to decision advances the season');
+    await tab(page, 'league');
+    assert.ok(await page.locator('.race details').count() >= 4, 'award race card');
+    await page.locator('#trade-club').selectOption({ index: 0 }); await click(page, 'trade-request');
+    assert.ok(await page.evaluate(() => !!CAA_APP.state.career.state.life.tradeReq), 'trade request stored');
+    assert.equal(await page.locator('#trade-club').count(), 0, 'one request per season');
+    await tab(page, 'life');
+    assert.ok(await page.locator('.shotmap svg').count() >= 1, 'shot chart');
+    assert.ok(await page.locator('.attr-help dt').count() === 25, 'attribute help');
+    const rows = await page.locator('.table-scroll[aria-label] tbody tr').count(); assert.ok(rows >= 3, 'game log rows');
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no horizontal scroll at 360 px');
+    const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ name: 'stats-book', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await page.locator('.shotmap').first().evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForTimeout(200);
+    await page.locator('.shotmap').first().screenshot({ path: 'data/qa/stats-shotmap.png' }).catch(() => {});
+  });
   await scenario('Parrot: records the player, trims silence and repeats it distorted', { permissions: ['microphone'], viewport: { width: 360, height: 800 } }, async page => {
     await parrotCareer(page);
     const bond0 = await page.evaluate(() => CAA_APP.state.career.summary.pet.bond);

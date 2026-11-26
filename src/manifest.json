@@ -123,6 +123,11 @@
       "worker": true
     },
     {
+      "id": "statsbook",
+      "path": "src/domain/statsbook.js",
+      "worker": true
+    },
+    {
       "id": "content",
       "path": "src/domain/content.js",
       "worker": true

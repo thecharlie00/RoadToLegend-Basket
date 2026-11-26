@@ -28,6 +28,7 @@
       return `<section class="card"><span class="eyebrow">${t('league.kicker', { season: seasonLabel(s.year) })}</span><h2>${esc(s.leagueName)}</h2>
         <div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('league.table')}"><table><caption class="muted">${t('league.table')}</caption><thead><tr><th class="num">#</th><th>${t('league.team')}</th><th class="num">${t('league.gp')}</th><th class="num">${t('league.w')}</th><th class="num">${t('league.l')}</th><th class="num">${t('league.diff')}</th></tr></thead><tbody>${rows}</tbody></table></div></section>
         ${s.recent.length ? `<section class="card"><h3>${t('league.results')}</h3><ul class="news">${s.recent.map(r => `<li><span class="${r.won ? 'ok' : 'bad'}">${t(r.won ? 'home.w' : 'home.l')}</span> ${t('league.roundShort', { n: r.round })} · ${r.us}–${r.them} ${t(r.home ? 'home.vsHome' : 'home.vsAway', { team: r.opponent })}</li>`).join('')}</ul></section>` : ''}
+        ${raceCard(s)}
         ${ui.eraCard(s)}
         ${ui.rivalCard(s)}
         ${cupCard(s)}
@@ -37,7 +38,27 @@
         ${s.player ? `<section class="card"><h3>${t('league.otherWorld')}</h3><p class="muted small">${t('league.otherWorldDesc')}</p>
           ${s.pendingMove ? `<p class="ok small">${t('league.pendingMove', { club: esc(clubLabel(s.pendingMove)), league: esc(leagueName(s.pendingMove.leagueId)) })}</p>` : ''}
           ${ui.leaguePicker('crossing', s.league.gender, state.career.crossingLeague, [s.leagueId], s.era ? s.year : null, state.career.crossingCountry)}
-          <button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>` : ''}`;
+          <button class="small-btn" data-action="career-crossing">${t('career.crossing')}</button></section>` : ''}
+        ${tradeCard(s)}`;
+    }
+    // Carrera por los premios: el ranking en directo con la misma fórmula que decide el premio.
+    function raceCard(s) {
+      const r = s.awardRace; if (!r || !r.length) return '';
+      const li = (x, gap) => `<li class="${x.mine ? 'me' : ''}${gap ? ' gap' : ''}"><b>${x.rank}.</b> ${esc(x.name)} <span class="muted small">${esc(x.club)} · ${t('race.ppg', { n: x.ppg })}</span></li>`;
+      return `<section class="card race"><div class="guide-head"><h3>${t('race.title')}</h3><span class="tag">${t('race.round', { n: s.round })}</span></div>
+        ${r.map(a => `<details ${a.award === 'mvp' ? 'open' : ''}><summary><b>${t('award.' + a.award)}</b>${a.top.some(x => x.mine) || a.me ? ` <span class="tag led">${t('race.you', { n: (a.top.find(x => x.mine) || a.me).rank })}</span>` : ''}</summary><ol class="race-list">${a.top.map(x => li(x)).join('')}${a.me ? li(a.me, true) : ''}</ol><p class="muted small">${t('race.how.' + a.award)}</p></details>`).join('')}
+        <p class="muted small">${t('race.note')}</p></section>`;
+    }
+    // Pedir el traspaso: eliges club (de tu liga o de la liga elegida abajo) y ves el interés estimado.
+    function tradeCard(s) {
+      if (!s.player) return '';
+      const st = state.career.state, req = s.life && s.life.tradeReq, used = req && req.year === s.year;
+      const leagues = [s.leagueId].concat(state.career.crossingLeague && state.career.crossingLeague !== s.leagueId && CAA.Season.LEAGUES[state.career.crossingLeague] ? [state.career.crossingLeague] : []);
+      const level = id => { const c = CAA.Career.tradeChance(st, id); return c >= 0.6 ? 'high' : c >= 0.3 ? 'mid' : 'low'; };
+      const groups = leagues.map(id => `<optgroup label="${esc(leagueName(id))} · ${t('trade.interest.' + level(id))}">${CAA.Season.clubCatalog(id).filter(c => c.id !== s.club.id).map(c => `<option value="${esc(id + '|' + c.id)}">${esc(c.name)}</option>`).join('')}</optgroup>`).join('');
+      return `<section class="card"><h3>${t('trade.title')}</h3><p class="muted small">${t('trade.desc')}</p>
+        ${used ? `<p class="${req.accepted ? 'ok' : 'bad'} small">${t(req.accepted ? 'trade.yes' : 'trade.no', { club: esc(req.club) })}</p>` : `<label class="field"><span>${t('trade.pick')}</span><select id="trade-club">${groups}</select></label><button class="small-btn" data-action="trade-request">${t('trade.ask')}</button>`}
+        <p class="muted small">${t('trade.rule')}</p></section>`;
     }
     function clubLabel(m) { const c = CAA.Season.clubCatalog(m.leagueId).find(x => x.id === m.clubId); return c ? c.name : m.clubId; }
     function renderWorldNews(s) {

@@ -127,6 +127,12 @@
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state) };
           break;
         }
+        case 'career.simToDecision': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const sim = CAA.Career.simToDecision(state);
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), sim };
+          break;
+        }
         case 'career.club': {
           const state = CAA.Career.resume(msg.payload.state);
           const club = CAA.Career.clubOp(state, msg.payload.config || {});
@@ -226,6 +232,12 @@
           const state = CAA.Career.resume(msg.payload.state);
           const crossing = CAA.Career.exploreCrossing(state, msg.payload.targetLeagueId);
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), crossing };
+          break;
+        }
+        case 'career.trade': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const trade = CAA.Career.requestTrade(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), trade };
           break;
         }
         case 'season.play': {

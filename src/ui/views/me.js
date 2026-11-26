@@ -99,6 +99,50 @@
         <h2 class="pc-name">${esc(p.name)}</h2><div class="pc-grid">${G.map(([k, keys]) => `<span><b>${avg(keys)}</b> ${t('card.' + k)}</span>`).join('')}</div></div>
         <p class="pc-foot">${flag(p.nationality)} ${t('pos.' + p.pos)} · ${t('career.archetype.' + p.archetype)} · ${p.height} cm · ${t('me.pot')} ${potLow}–${potHigh}</p></section>`;
     }
+    // Libro de estadísticas: partido a partido, mapa de tiro y progresión (lo que más piden los jugadores).
+    const pct = v => v == null ? '—' : v.toFixed(1).replace(/\.0$/, '') + '%';
+    function shotChart(zones, title) {
+      const Z = { restricted: [150, 50, 'circle'], paint: [150, 100, 'rect'], midShort: [95, 70, 'circle'], midLong: [205, 118, 'circle'], corner3: [22, 40, 'rect'], above3: [150, 172, 'circle'] };
+      const att = zones.reduce((a, z) => a + z.att, 0);
+      const heat = z => z.att ? (z.pct >= 50 ? 'var(--good)' : z.pct >= 35 ? 'var(--gold)' : 'var(--bad)') : 'var(--line)';
+      const cells = zones.map(z => { const [x, y] = Z[z.zone]; return `<g><circle cx="${x}" cy="${y}" r="${z.att ? 17 : 13}" fill="${heat(z)}" opacity="${z.att ? 0.85 : 0.35}"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${z.att ? Math.round(z.pct) + '%' : '—'}</text></g>`; }).join('');
+      const corner2 = zones.find(z => z.zone === 'corner3'), c2 = corner2 && corner2.att ? `<circle cx="278" cy="40" r="17" fill="${heat(corner2)}" opacity="0.85"/>` : '';
+      return `<figure class="shotmap"><svg viewBox="0 0 300 210" role="img" aria-label="${esc(title)}"><rect x="1" y="1" width="298" height="208" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <path d="M14 1 V70 A140 140 0 0 0 286 70 V1" fill="none" stroke="var(--line)" stroke-width="2"/><rect x="100" y="1" width="100" height="120" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="150" cy="22" r="8" fill="none" stroke="var(--accent)" stroke-width="2.5"/>${c2}${cells}</svg>
+        <figcaption><ul class="zone-list">${zones.map(z => `<li><span>${t('zone.' + z.zone)}</span><b>${z.made}/${z.att}</b><small>${pct(z.pct)}</small></li>`).join('')}</ul>${att ? '' : `<p class="muted small">${t('book.noShots')}</p>`}</figcaption></figure>`;
+    }
+    function lineChart(rows, keys) {
+      if (rows.length < 2) return `<p class="muted small">${t('book.progressSoon')}</p>`;
+      const W = 300, H = 150, P = 26, n = rows.length;
+      const x = i => P + (W - P * 2) * (n === 1 ? 0.5 : i / (n - 1));
+      const series = keys.map(([k, color, max]) => {
+        const y = v => H - P - (H - P * 2) * Math.max(0, Math.min(1, v / max));
+        const pts = rows.map((r, i) => `${x(i).toFixed(1)},${y(r[k] || 0).toFixed(1)}`).join(' ');
+        return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>${rows.map((r, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(r[k] || 0).toFixed(1)}" r="3.5" fill="${color}"><title>${seasonLabel(r.y)} · ${t('book.k.' + k)}: ${r[k]}</title></circle>`).join('')}`;
+      }).join('');
+      const labels = rows.map((r, i) => (n <= 8 || i % Math.ceil(n / 8) === 0 || i === n - 1) ? `<text x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="9" fill="var(--muted)">${String(r.y).slice(-2)}</text>` : '').join('');
+      return `<svg class="progress-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('book.progress')}"><line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="var(--line)"/>${series}${labels}</svg>
+        <p class="legend small">${keys.map(([k, color]) => `<span><i style="background:${color}"></i>${t('book.k.' + k)}</span>`).join('')}</p>`;
+    }
+    function bookCards(s) {
+      const b = s.book; if (!b) return '';
+      const row = g => `<tr class="${g.won ? '' : 'loss'}"><td>${g.po ? '🏆 ' : ''}${t(g.home ? 'home.vsHome' : 'home.vsAway', { team: esc(g.opp) })}</td><td class="num ${g.won ? 'ok' : 'bad'}">${t(g.won ? 'home.w' : 'home.l')} ${g.score[0]}–${g.score[1]}</td>${s.player ? (g.dnp ? `<td class="num muted" colspan="5">${t('book.dnp')}</td>` : `<td class="num">${g.min}</td><td class="num"><b>${g.pts}</b></td><td class="num">${g.reb}</td><td class="num">${g.ast}</td><td class="num">${g.fgm}/${g.fga}</td>`) : `<td>${g.top ? esc(g.top) + ' · ' + g.topPts : ''}</td>`}</tr>`;
+      const head = s.player ? `<th class="num">${t('stat.min')}</th><th class="num">${t('stat.pts')}</th><th class="num">${t('stat.reb')}</th><th class="num">${t('stat.ast')}</th><th class="num">${t('book.fg')}</th>` : `<th>${t('book.topScorer')}</th>`;
+      const log = b.log.slice().reverse(), first = log.slice(0, 8), rest = log.slice(8);
+      const table = list => `<div class="table-scroll compact" tabindex="0" role="region" aria-label="${t('book.log')}"><table><thead><tr><th>${t('book.rival')}</th><th class="num">${t('book.result')}</th>${head}</tr></thead><tbody>${list.map(row).join('')}</tbody></table></div>`;
+      const best = s.player ? log.filter(g => !g.dnp).sort((a, c) => c.pts - a.pts)[0] : null;
+      const logCard = `<section class="card"><div class="guide-head"><h3>${t('book.log')}</h3><span class="tag">${t('book.games', { n: log.length })}</span></div>
+        ${log.length ? table(first) + (rest.length ? `<details><summary>${t('book.more', { n: rest.length })}</summary>${table(rest)}</details>` : '') : `<p class="muted small">${t('book.empty')}</p>`}
+        ${best ? `<p class="small">${t('book.best', { pts: best.pts, team: esc(best.opp) })}</p>` : ''}</section>`;
+      if (!s.player) return logCard;
+      const shots = `<section class="card"><h3>${t('book.shots')}</h3><p class="muted small">${t('book.shotsDesc')}</p>${shotChart(b.zones, t('book.shots'))}
+        <details><summary>${t('book.shotsCareer')}</summary>${shotChart(b.careerZones, t('book.shotsCareer'))}</details></section>`;
+      const prog = `<section class="card"><h3>${t('book.progress')}</h3>${lineChart(b.seasons, [['ovr', 'var(--accent)', 99], ['ppg', 'var(--gold)', 40], ['rpg', 'var(--sky)', 20]])}</section>`;
+      return logCard + shots + prog;
+    }
+    function attrHelp() {
+      return `<details class="attr-help"><summary>${t('attrh.title')}</summary><p class="muted small">${t('attrh.intro')}</p><dl>${ATTR_GROUPS.map(([, keys]) => keys.map(k => `<dt>${t('attr.' + k)}</dt><dd>${t('attrh.' + k)}</dd>`).join('')).join('')}</dl></details>`;
+    }
     function renderMe() {
       if (!hasCareer()) return ui.renderHome();
       const s = state.career.summary, life = s.life || { achievements: [], owned: [], equipment: {}, counters: {}, press: [] };
@@ -111,7 +155,7 @@
         : `<p class="muted">${t('cromo.coachRole')} · ${esc(s.club.name)}</p><div class="kv"><span>${t('meter.morale')}</span><b>${s.coach.morale}</b><span>${t('meter.board')}</span><b>${s.coach.trust}</b></div>`}</div></section>`;
       const brand = life.sponsor ? t('sponsor.' + life.sponsor) : t('me.noSponsor');
       const offcourt = `<section class="card"><h3>${t('me.offcourt')}</h3><div class="kv"><span>${t('me.agent')}</span><b>${t(life.agent ? 'agent.' + life.agent : 'me.noAgent')}</b><span>${t('me.sponsor')}</span><b>${esc(brand)}</b><span>${t('meter.fame')}</span><b>${life.fame || 0}</b><span>${t('life.cash')}</span><b>${(life.cash || 0).toLocaleString(CAA.I18N.getLocale())}</b><span>${t('life.style')}</span><b>${life.style}</b></div></section>`;
-      const attrs = p ? `<section class="card"><h3>${t('me.attributes')}</h3><div class="attr-groups">${ATTR_GROUPS.map(([g, keys]) => `<div><h4 class="eyebrow">${t('attrg.' + g)}</h4>${keys.map(k => bar(t('attr.' + k), p.attrs[k])).join('')}</div>`).join('')}</div></section>` : '';
+      const attrs = p ? `<section class="card"><h3>${t('me.attributes')}</h3><div class="attr-groups">${ATTR_GROUPS.map(([g, keys]) => `<div><h4 class="eyebrow">${t('attrg.' + g)}</h4>${keys.map(k => bar(t('attr.' + k), p.attrs[k])).join('')}</div>`).join('')}</div>${attrHelp()}</section>` : '';
       const st = p ? p.stats : null;
       const stats = p ? `<section class="card"><h3>${t('me.season')}</h3><div class="statline">${[['gp', st.gp], ['min', (st.min / Math.max(1, st.gp)).toFixed(1)], ['pts', (st.pts / Math.max(1, st.gp)).toFixed(1)], ['reb', (st.reb / Math.max(1, st.gp)).toFixed(1)], ['ast', (st.ast / Math.max(1, st.gp)).toFixed(1)], ['stl', (st.stl / Math.max(1, st.gp)).toFixed(1)], ['blk', (st.blk / Math.max(1, st.gp)).toFixed(1)]].map(([k, v]) => `<div><b>${v}</b><small>${t('stat.' + k)}</small></div>`).join('')}</div>
         <p class="muted small">${p.contract ? t('me.contract', { salary: p.contract.salary.toLocaleString(CAA.I18N.getLocale()), years: p.contract.years }) : t('me.noContract')}</p></section>` : '';
@@ -140,8 +184,9 @@
       // Simplificado: arriba lo esencial; el resto, plegado con un título claro.
       const fold = (key, html) => html ? `<details class="card more-week"><summary>${t(key)}</summary>${html}</details>` : '';
       const pet = s.pet ? petCard : fold('pet.title', petCard);
-      if (s.squad) return hero + coachCards + famCard + pet + fold('arcade.title', minis) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
-      return hero + famCard + pet + fold('arcade.title', minis) + fold('me.attributes', attrs) + fold('me.season', stats) + fold('me.practice', practice) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
+      const book = bookCards(s);
+      if (s.squad) return hero + coachCards + fold('book.log', book) + famCard + pet + fold('arcade.title', minis) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
+      return hero + famCard + pet + fold('arcade.title', minis) + fold('me.attributes', attrs) + fold('me.season', stats) + fold('book.title', book) + fold('me.practice', practice) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
     }
     function renderSquad(s) {
       const sq = s.squad;
