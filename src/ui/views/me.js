@@ -339,16 +339,31 @@
       const card = i => `<div class="gear-item${i.equipped ? ' on' : ''}${i.locked ? ' locked' : ''}"><span class="swatch" style="background:${esc(i.color)}" aria-hidden="true"></span>
         <div class="gi-body"><b>${esc(loc(i.name))}</b>${i.owned ? ` <span class="tier" style="--tier:${tier(i.tier).c}">${t('tier.' + tier(i.tier).id)}</span>` : ''}${i.offer ? ` <span class="tag offer">-30 %</span>` : ''}
         <small>${t('slot.' + i.slot)}${i.set ? ' · ' + t('set.' + i.set) : ''}</small><small class="ok">${esc(statText(i.stats))}${i.extra ? (Object.keys(i.stats).length ? ' · ' : '') + esc(statText(Object.fromEntries(Object.entries(i.extra).map(([k, v]) => ['x' + k, v])))) : ''}</small>
+        ${i.affix ? `<small class="gear-affix">✦ ${t('gear.affix')}: +${i.affix.v} ${t('attr.' + i.affix.k)}</small>` : ''}
+        ${i.owned && i.main ? `<small class="muted">${t('gear.wear', { lvl: i.wearLevel, max: g.wearSteps.length, n: i.wear, next: g.wearSteps[i.wearLevel] || g.wearSteps[g.wearSteps.length - 1], attr: t('attr.' + i.main) })}</small>` : ''}
+        ${i.delta && Object.keys(i.delta).length ? `<small class="gear-delta">${t('gear.vsEquipped')}: ${Object.entries(i.delta).map(([k, v]) => `<span class="${v > 0 ? 'ok' : 'bad'}">${v > 0 ? '+' : ''}${v} ${t('attr.' + k)}</span>`).join(' ')}</small>` : ''}
         ${i.locked ? `<small class="muted">🔒 ${esc(reqText(i.req))}</small>` : ''}</div>
         <div class="gi-act">${!i.owned ? `<button class="small-btn primary" data-action="gear-op" data-op="buy" data-item="${i.id}" ${i.locked || g.cash < i.price ? 'disabled' : ''}>${money(i.price)}</button>`
           : `${i.equipped ? `<button class="small-btn" data-action="gear-op" data-op="unequip" data-item="${i.id}">${t('shop.unequip')}</button>` : `<button class="small-btn" data-action="gear-op" data-op="equip" data-item="${i.id}">${t('life.equip')}</button>`}
-             ${i.upgradeCost ? `<button class="small-btn" data-action="gear-op" data-op="upgrade" data-item="${i.id}" ${g.cash < i.upgradeCost ? 'disabled' : ''} aria-label="${t('shop.upgradeTo', { tier: t('tier.' + tier(i.tier + 1).id) })}">⬆ ${money(i.upgradeCost)}</button>` : ''}`}</div></div>`;
+             ${i.upgradeCost ? `<button class="small-btn" data-action="gear-op" data-op="upgrade" data-item="${i.id}" ${g.cash < i.upgradeCost ? 'disabled' : ''} aria-label="${t('shop.upgradeTo', { tier: t('tier.' + tier(i.tier + 1).id) })}">⬆ ${money(i.upgradeCost)}</button>` : ''}
+             ${i.matCost ? `<button class="small-btn" data-action="gear-op" data-op="upgradeMat" data-item="${i.id}" ${g.mat < i.matCost ? 'disabled' : ''} aria-label="${t('gear.upgradeMat', { tier: t('tier.' + tier(i.tier + 1).id), n: i.matCost })}">⬆ 🧵${i.matCost}</button>` : ''}
+             ${i.canReforge ? `<button class="small-btn" data-action="gear-op" data-op="reforge" data-item="${i.id}" ${g.mat < g.reforgeMat ? 'disabled' : ''} aria-label="${t('gear.reforgeLabel', { n: g.reforgeMat })}">✦ 🧵${g.reforgeMat}</button>` : ''}`}</div></div>`;
+      const boxCards = g.boxes.map(b => `<section class="card gear-box"><div class="guide-head"><h3>🎁 ${t('gear.box')}</h3><span class="tag led">${t('gear.reason.' + b.reason)}</span></div><p class="muted small">${t('gear.boxPick')}</p>
+        <div class="gear-choices">${b.options.map((o, ix) => `<div class="gear-choice" style="--tier:${tier(o.tier).c}"><span class="swatch" style="background:${esc(o.color)}" aria-hidden="true"></span>
+          <b>${esc(loc(o.name))}</b><span class="tier" style="--tier:${tier(o.tier).c}">${t('tier.' + tier(o.tier).id)}</span><small>${t('slot.' + o.slot)}${o.set ? ' · ' + t('set.' + o.set) : ''}</small>
+          <small class="ok">${esc(statText(o.stats))}${o.affix ? ` · ✦ +${o.affixVal} ${t('attr.' + o.affix)}` : ''}</small><small class="muted">${t('gear.outcome.' + o.outcome, { n: o.mat })}</small>
+          <button class="small-btn primary" data-action="gear-op" data-op="claim" data-box="${b.id}" data-index="${ix}">${t('gear.pick')}</button></div>`).join('')}</div></section>`).join('');
+      const reforge = g.reforge ? (() => { const it = g.items.find(x => x.id === g.reforge.item); return `<section class="card gear-box" role="region" aria-label="${t('gear.reforgeTitle')}"><h3>✦ ${t('gear.reforgeTitle')}: ${esc(loc(it.name))}</h3><p class="muted small">${t('gear.reforgeDesc')}</p><div class="row">${g.reforge.options.map(k => `<button class="small-btn primary" data-action="gear-op" data-op="reforgePick" data-item="${it.id}" data-affix="${k}">+${it.affix ? it.affix.v : ''} ${t('attr.' + k)}</button>`).join('')}</div></section>`; })() : '';
+      const loadouts = `<section class="card"><h3>${t('gear.loadouts')}</h3><p class="muted small">${t('gear.loadoutsDesc')}</p><div class="gear-loadouts">${g.loadouts.map((n, ix) => `<div><b>${t('gear.loadout', { n: ix + 1 })}</b><small class="muted">${n == null ? t('gear.loadoutEmpty') : t('gear.loadoutPieces', { n })}</small>
+        <div class="row"><button class="small-btn" data-action="gear-op" data-op="saveLoadout" data-index="${ix}">${t('gear.save')}</button><button class="small-btn primary" data-action="gear-op" data-op="useLoadout" data-index="${ix}" ${n == null ? 'disabled' : ''}>${t('gear.use')}</button></div></div>`).join('')}</div></section>`;
       const featured = g.items.filter(i => i.featured || i.offer);
       const bySlot = g.slots.map(sl => { const its = g.items.filter(i => i.slot === sl); return its.length ? `<h4 class="eyebrow">${t('slot.' + sl)}</h4><div class="gear-list">${its.map(card).join('')}</div>` : ''; }).join('');
       const eff = g.effective;
       return `<section class="card shop-head"><span class="eyebrow">${t('shop.kicker')}</span><h2>${t('more.shop')}</h2><p class="muted small">${t('shop.desc', { att: g.cap.att, total: g.cap.total })}</p>
-        <div class="statline"><span>${t('life.cash')}</span><b>${money(g.cash)}</b></div>
+        <div class="statline"><span>${t('life.cash')}</span><b>${money(g.cash)}</b><span>${t('gear.mat')}</span><b>🧵 ${g.mat}</b></div>
+        <p class="muted small">${t(g.team ? 'gear.howCoach' : 'gear.how', { box: 6, n: g.since })}</p>
         <p class="small">${eff.total ? t('shop.effective', { stats: statText(eff.attrs) }) : t('shop.none')}${eff.sets.length ? ' · ' + t('shop.sets', { sets: eff.sets.map(x => t('set.' + x)).join(', ') }) : ''}</p></section>
+        ${boxCards}${reforge}${loadouts}
         <section class="card"><h3>${t('shop.week')}</h3><div class="gear-list">${featured.map(card).join('')}</div></section>
         <section class="card"><h3>${t('shop.catalog')}</h3>${bySlot}</section>${styleShopHtml()}`;
     }

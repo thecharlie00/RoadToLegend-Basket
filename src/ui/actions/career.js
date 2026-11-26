@@ -49,11 +49,11 @@
       await acceptCareer(res); if (ui.audio) ui.audio.play('success');
     };
     const h7 = async (name, el) => {
-      const config = name === 'gear-op' ? { op: el.dataset.op, itemId: el.dataset.item } : { op: 'look', [el.dataset.field]: el.dataset.value };
+      const d = el.dataset, config = name === 'gear-op' ? { op: d.op, itemId: d.item, boxId: d.box, index: d.index, affix: d.affix } : { op: 'look', [d.field]: d.value };
       const res = await ui.worker.send('career.gear', { state: state.career.state, config });
       await acceptCareer(res);
       if (ui.audio) ui.audio.play(name === 'gear-op' && el.dataset.op !== 'unequip' ? 'success' : 'click');
-      if (name === 'gear-op') notify(t('shop.done.' + el.dataset.op));
+      if (name === 'gear-op') notify(el.dataset.op === 'claim' && res.gear ? t('gear.claimed.' + res.gear.result, { n: res.gear.mat }) : t('shop.done.' + el.dataset.op));
     };
     for (const k of ["gear-op","look-set"]) exact[k] = h7;
     exact["coach-starter"] = async (name, el) => {

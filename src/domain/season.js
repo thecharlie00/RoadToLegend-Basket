@@ -126,6 +126,13 @@
     return rounds.map((pairs, i) => ({ round: i + 1, games: pairs.map((p, j) => ({ id: leagueId + '-r' + (i + 1) + '-g' + (j + 1), home: p[0], away: p[1], played: false, score: null })) }));
   }
 
+  // Bonus de equipo del entrenador: talentos (coachAttrs) + equipamiento (gearTeam).
+  function teamBonus(club) {
+    if (!club.coachAttrs && !club.gearTeam) return null;
+    const out = Object.assign({}, club.coachAttrs || {});
+    for (const [k, v] of Object.entries(club.gearTeam || {})) out[k] = (out[k] || 0) + v;
+    return out;
+  }
   function clubToMatchTeam(club, starterIds) {
     let roster = club.roster.filter(p => !p.injury);
     if (roster.length < 5) {
@@ -138,7 +145,7 @@
     if (!starterIds) { const trusted = roster.find(p => (p.coachTrust || 0) >= 75 && !starters.includes(p.id)); if (trusted) starters[4] = trusted.id; }
     return {
       id: club.id, name: club.name,
-      players: roster.map(p => Player.toMatchPlayer(p, starters.includes(p.id), club.coachAttrs || null)),
+      players: roster.map(p => Player.toMatchPlayer(p, starters.includes(p.id), teamBonus(club))),
       tactic: Object.assign({}, club.tactic || Match.DEFAULT_TACTIC)
     };
   }

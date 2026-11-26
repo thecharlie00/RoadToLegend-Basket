@@ -266,7 +266,7 @@
     if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) { lc.totalWins = (lc.totalWins || 0) + 1; if (state.season.playoffs) lc.playoffWins = (lc.playoffWins || 0) + 1; } }
     if (state.coach && mine) lc.coachGames = (lc.coachGames || 0) + 1;
     chronicle(state, played, mine);
-    if (mine) Rpg.gameXp(state, StatsBook.track(state, mine));
+    if (mine) { const entry = StatsBook.track(state, mine); Rpg.gameXp(state, entry); Gear.afterGame(state, entry); }
     Rpg.refresh(state);
     Viva.afterWeek(state);
     if (state.coach) { coachWeek(state, rng); Rpg.coachWeek(state, rng, Player); }

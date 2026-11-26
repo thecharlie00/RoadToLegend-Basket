@@ -746,3 +746,9 @@ tr.loss td:first-child{opacity:.85}
 .rpg-perk.has{background:color-mix(in srgb,var(--accent) 12%,transparent)}.rpg-perk.full{border-color:var(--good)}
 .rpg-pips{color:var(--gold);letter-spacing:1px;font-size:.8rem}
 .rpg-perk button{min-width:52px;flex:none}
+/* Equipamiento RPG: cajas, rasgos, rodaje, comparación y equipaciones */
+.gear-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.gear-choice{display:flex;flex-direction:column;gap:3px;padding:10px;border:2px solid var(--tier,var(--line));border-radius:12px;background:color-mix(in srgb,var(--tier,var(--line)) 10%,transparent)}
+.gear-choice .swatch{width:22px;height:22px}.gear-choice .tier{align-self:flex-start}.gear-choice button{margin-top:auto}
+.gear-affix{color:var(--gold)}.gear-delta span{margin-right:6px}
+.gear-loadouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.gear-loadouts>div{display:flex;flex-direction:column;gap:4px;padding:8px;border:1px solid var(--line);border-radius:10px}
