@@ -162,6 +162,44 @@
     for (const k of Object.keys(sum).sort()) { const v = Math.min(cap.att, sum[k]); const take = Math.max(0, Math.min(v, cap.total - total)); if (take) { attrs[k] = take; total += take; } }
     return { attrs, extra, sets: active, total, raw: sum };
   }
+  // Vista previa: lo que sumaría otra combinación de piezas (probar sin equipar, «equipar lo mejor»).
+  function effectiveWith(state, equipped) {
+    const g = ensure(state), keep = g.equipped;
+    g.equipped = cleanEq(g, equipped);
+    try { return effective(state); } finally { g.equipped = keep; }
+  }
+  function cleanEq(g, eq) {
+    const out = {};
+    for (const [sl, id] of Object.entries(eq || {})) if (id && BY_ID[id] && BY_ID[id].slot === sl && g.owned[id] != null) out[sl] = id;
+    return out;
+  }
+  // Grupos para «equipar lo mejor» (equilibrado o centrado en un grupo).
+  const FOCUS = {
+    shooting: ['tiroCerca', 'tiroMedia', 'tiroTriple', 'tiroLibre'],
+    attack: ['bandeja', 'mate', 'poste', 'manejo', 'pase', 'vision'],
+    defense: ['defExterior', 'defInterior', 'robo', 'tapon', 'rebOf', 'rebDef'],
+    athletic: ['velocidad', 'aceleracion', 'salto', 'fuerza', 'resistencia', 'durabilidad'],
+    mind: ['lectura', 'clutch', 'liderazgo']
+  };
+  // Lo mejor de lo que tienes: por ranura, varias pasadas mejorando el total con topes y conjuntos.
+  function best(state, focus) {
+    const g = ensure(state), w = who(state), keys = focus && FOCUS[focus] ? FOCUS[focus] : null;
+    const score = eq => { const e = effectiveWith(state, eq); let v = 0; for (const [k, x] of Object.entries(e.attrs)) v += keys ? (keys.includes(k) ? x * 3 : x * 0.2) : x; for (const x of Object.values(e.extra)) v += 0.4 * x; return v; };
+    let eq = cleanEq(g, g.equipped), cur = score(eq);
+    for (let pass = 0; pass < 3; pass++) {
+      let changed = false;
+      for (const sl of SLOTS[w]) {
+        const opts = [null].concat(Object.keys(g.owned).filter(id => BY_ID[id] && BY_ID[id].slot === sl));
+        for (const id of opts) {
+          if ((eq[sl] || null) === id) continue;
+          const cand = Object.assign({}, eq); if (id) cand[sl] = id; else delete cand[sl];
+          const v = score(cand); if (v > cur + 1e-9) { eq = cand; cur = v; changed = true; }
+        }
+      }
+      if (!changed) break;
+    }
+    return eq;
+  }
   // Estadísticas de una pieza: base por tier + rodaje (estadística principal) + rasgo.
   function wearLevel(g, id) { const n = g.wear[id] || 0; return WEAR.filter(x => n >= x).length; }
   function pieceStats(g, it, tier) {
@@ -252,6 +290,8 @@
       return { look: L };
     }
     if (cfg.op === 'claim') { const r = claim(state, g, cfg.boxId, Number(cfg.index)); refresh(state); return r; }
+    if (cfg.op === 'apply') { g.equipped = cleanEq(g, cfg.equipped); refresh(state); return { equipped: Object.assign({}, g.equipped) }; }
+    if (cfg.op === 'clearLoadout') { const i = Number(cfg.index); if (!(i >= 0 && i < 3)) throw new Error('bad loadout'); g.loadouts[i] = null; return { loadout: i }; }
     if (cfg.op === 'saveLoadout' || cfg.op === 'useLoadout') {
       const i = Number(cfg.index); if (!(i >= 0 && i < 3)) throw new Error('bad loadout');
       if (cfg.op === 'saveLoadout') g.loadouts[i] = Object.assign({}, g.equipped);
@@ -330,15 +370,16 @@
   // Descripción visual para el avatar vóxel (colores de lo equipado y aspecto).
   function avatarLook(state) {
     const g = ensure(state), L = state.life.look, colorOf = slot => { const id = g.equipped[slot]; return id && BY_ID[id] ? BY_ID[id].color : null; };
-    return { skin: LOOK.skin[L.skin] || LOOK.skin[1], hair: L.hair, hairColor: LOOK.hairColor[L.hairColor] || LOOK.hairColor[0], beard: L.beard,
+    return { skin: LOOK.skin[L.skin] || LOOK.skin[1], hair: L.hair, hairColor: LOOK.hairColor[L.hairColor] || LOOK.hairColor[0], beard: L.beard, celebration: LOOK.celebration.includes(L.celebration) ? L.celebration : 'point',
       shoes: colorOf('shoes'), sleeve: colorOf('sleeve'), band: colorOf('band'), knee: colorOf('knee'), socks: colorOf('socks'), wrist: colorOf('wrist'), goggles: colorOf('goggles'), chain: colorOf('chain'),
-      suit: colorOf('suit'), tie: colorOf('tie') };
+      hoodie: colorOf('hoodie'), phones: colorOf('phones'), watch: colorOf('watch'), towel: colorOf('towel'),
+      suit: colorOf('suit'), cshoes: colorOf('cshoes'), tie: colorOf('tie'), glasses: colorOf('glasses'), clipboard: colorOf('clipboard'), cwatch: colorOf('cwatch'), coat: colorOf('coat'), scarf: colorOf('scarf') };
   }
   function validate(life) {
     if (!life || life.gear == null) return true;
     const g = life.gear;
     return !!g && typeof g.owned === 'object' && typeof g.equipped === 'object' && Object.entries(g.owned).every(([id, t]) => BY_ID[id] && Number.isInteger(t) && t >= 0 && t < TIERS.length);
   }
-  CAA.Gear = { TIERS, SLOTS, ITEMS, SETS, LOOK, CAP, CAP_TEAM, WEAR, AFFIX_FROM, AFFIX_VAL, ensure, afterGame, makeBox, pieceStats, stock, effective, refresh, op, weekTick, view, avatarLook, validate };
+  CAA.Gear = { TIERS, SLOTS, ITEMS, SETS, LOOK, CAP, CAP_TEAM, WEAR, AFFIX_FROM, AFFIX_VAL, FOCUS, ensure, afterGame, makeBox, pieceStats, effectiveWith, best, BY_ID, stock, effective, refresh, op, weekTick, view, avatarLook, validate };
   if (typeof module !== 'undefined' && module.exports) module.exports = CAA.Gear;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

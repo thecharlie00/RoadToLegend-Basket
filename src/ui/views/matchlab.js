@@ -20,7 +20,7 @@
             ui.voxelCanvas = canvas;
             ui.voxelRenderer = CAA.Voxel.createRenderer(canvas, { onContextLost: () => { m.view = '2d'; m.playing = false; notify(t('match.contextLost'), true); setTimeout(() => { render(); syncAnimation(); }, 0); } });
           }
-          const scene = CAA.Voxel.geometry(m.result.state, m.frame, m.progress, { women: m.source === 'career' && ui.careerWomen(), quality: m.quality, colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: CAA.A11Y.reduced(state.settings) });
+          const scene = CAA.Voxel.geometry(m.result.state, m.frame, m.progress, { women: m.source === 'career' && ui.careerWomen(), me: m.source === 'career' && ui.meOnCourt ? ui.meOnCourt() : null, quality: m.quality, colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: CAA.A11Y.reduced(state.settings) });
           ui.voxelRenderer.draw(scene, m.camera);
         } catch (_) { m.view = '2d'; m.playing = false; notify(t('match.noWebgl'), true); setTimeout(() => { render(); syncAnimation(); }, 0); }
         return;

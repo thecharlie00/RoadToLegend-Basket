@@ -190,8 +190,12 @@
     if (lk) {
       colors.skinA = hex(lk.skin) || colors.skinA; colors.hair = hex(lk.hairColor) || colors.hair;
       colors.skinShade = colors.skinA.map(v => v * 0.82);
-      for (const k of ['band', 'sleeve', 'knee', 'socks', 'wrist', 'goggles', 'chain']) if (hex(lk[k])) colors['g_' + k] = hex(lk[k]);
+      for (const k of ['band', 'sleeve', 'knee', 'socks', 'wrist', 'goggles', 'chain', 'hoodie', 'phones', 'watch', 'towel', 'tie', 'glasses', 'clipboard', 'cwatch', 'coat', 'scarf']) if (hex(lk[k])) colors['g_' + k] = hex(lk[k]);
       if (hex(lk.shoes)) colors.shoes = hex(lk.shoes);
+      // Entrenador: el traje es la «camiseta» y los zapatos, las «zapatillas».
+      if (profile.mode === 'coach') { if (hex(lk.suit)) colors.jersey = hex(lk.suit); if (hex(lk.cshoes)) colors.shoes = hex(lk.cshoes); }
+      // Sudadera de calentamiento: por encima de la camiseta.
+      if (colors.g_hoodie && profile.mode !== 'coach') colors.jersey = colors.g_hoodie;
       colors.eye = hex('#16191b');
     }
     colors.jerseyShade = (colors.jersey || colors.home).map(v => v * 0.78);
@@ -278,17 +282,28 @@
       if (colors.g_knee) { part(-0.17, 0.58, 0.02, 0.25, 0.13, 0.28, 'g_knee'); part(0.17, 0.58, 0.02, 0.25, 0.13, 0.28, 'g_knee'); }
       if (colors.g_socks) { part(-0.17, 0.31, 0, 0.25, 0.15, 0.29, 'g_socks'); part(0.17, 0.31, 0, 0.25, 0.15, 0.29, 'g_socks'); }
       if (colors.g_goggles) part(0, 1.82, 0.22, 0.36, 0.08, 0.03, 'g_goggles');
+      if (colors.g_glasses) part(0, 1.82, 0.22, 0.34, 0.06, 0.03, 'g_glasses');
       if (colors.g_chain) part(0, 1.5, 0.21, 0.14, 0.14, 0.02, 'g_chain');
+      if (colors.g_hoodie && profile.mode !== 'coach') part(0, 1.62, -0.24, 0.5, 0.22, 0.1, 'g_hoodie');
+      if (colors.g_phones) { part(-0.25, 1.8, 0, 0.08, 0.18, 0.18, 'g_phones'); part(0.25, 1.8, 0, 0.08, 0.18, 0.18, 'g_phones'); part(0, 2.06, 0, 0.5, 0.05, 0.08, 'g_phones'); }
+      if (colors.g_watch || colors.g_cwatch) part(profile.handedness === 'left' ? 0.5 : -0.5, 0.86, 0.04, 0.2, 0.07, 0.22, colors.g_watch ? 'g_watch' : 'g_cwatch');
+      if (colors.g_towel) part(-0.38, 1.56, 0, 0.26, 0.06, 0.4, 'g_towel');
+      if (colors.g_tie) part(0, 1.32, 0.225, 0.1, 0.36, 0.03, 'g_tie');
+      if (colors.g_scarf) part(0, 1.56, 0, 0.36, 0.1, 0.3, 'g_scarf');
+      if (colors.g_coat) { part(0, 1.1, 0, 0.78, 0.5, 0.48, 'g_coat'); part(0, 0.78, 0, 0.74, 0.18, 0.46, 'g_coat'); }
+      if (colors.g_clipboard) part(profile.handedness === 'left' ? -0.58 : 0.58, 0.92, 0.22, 0.04, 0.34, 0.26, 'g_clipboard');
     }
     const hand = profile.handedness === 'left' ? -0.58 : 0.58;
-    if (!(options.celebrate && lk)) {
+    if (!(options.celebrate && lk) && !colors.g_clipboard) {
       const by = idle && options.dribble !== false ? (0.16 + Math.abs(Math.cos(T * 3.3)) * 0.58) * h : 0.74 * h, rot = idle ? 0.4 + T * 2 : 0.4;
       add(hand, by, 0.3, 0.26, 0.26, 0.26, 'ball', rot);
       add(hand, by, 0.3, 0.265, 0.05, 0.265, 'ballSeam', rot);
       add(hand, by, 0.3, 0.05, 0.265, 0.265, 'ballSeam', rot);
     }
-    if (profile.mode === 'coach') { colors.jersey = hex('#344d58') || colors.post; part(0, 1.32, 0.22, 0.18, 0.4, 0.04, 'line'); }
-    return { version: VERSION, kind: 'avatar', cubes, colors, quality: 'low', aspect: 0.8, maxCubes: 64, frame: { eye: [2.5, 2.0, 3.4], target: [0, 1.72, 0], halfH: 2.2 }, sky: [[0.03, 0.04, 0.095], [0.07, 0.085, 0.2], [0.15, 0.1, 0.14]] };
+    if (profile.mode === 'coach') { if (!(lk && hex(lk.suit))) colors.jersey = hex('#344d58') || colors.post; if (!colors.g_tie) part(0, 1.32, 0.22, 0.18, 0.4, 0.04, 'line'); }
+    // Celebración: un salto (sube y cae) mientras dura el gesto, para que se note aunque el gesto sea pequeño.
+    if (options.celebrate && lk) { const hop = Math.sin(clamp(k, 0, 1) * Math.PI) * 0.28; if (hop > 0) for (const c of cubes) if (c.color !== 'shadow') c.y += hop; }
+    return { version: VERSION, kind: 'avatar', cubes, colors, quality: 'low', aspect: 0.8, maxCubes: 96, frame: { eye: [2.5, 2.0, 3.4], target: [0, 1.72, 0], halfH: 2.2 }, sky: [[0.03, 0.04, 0.095], [0.07, 0.085, 0.2], [0.15, 0.1, 0.14]] };
   }
   function palette(options = {}) {
     const cb = options.colorMode === 'blue-orange', hc = !!options.highContrast;
@@ -385,7 +400,10 @@
     const detailed = quality === 'balanced';
     const ref = !!p.ref;
     const jersey = ref ? 'refShirt' : p.team ? 'away' : 'home', shorts = ref ? 'refPants' : p.team ? 'awayShorts' : 'homeShorts', sock = ref ? 'refPants' : p.team ? 'awaySock' : 'homeSock';
-    const skin = ['skinA', 'skinB', 'skinC'][((p.number || 0) * 7 + (p.team || 0) * 3) % 3];
+    let skin = ['skinA', 'skinB', 'skinC'][((p.number || 0) * 7 + (p.team || 0) * 3) % 3];
+    // Tu jugador lleva en la pista tu aspecto y tu equipamiento (como en el juego de fútbol).
+    const me = !!p.me && !ref;
+    if (me && p.meSkin) skin = 'me_skin';
     // Jugadoras: algo más bajas y estilizadas (hombros, torso y caderas más estrechos), con peinado propio.
     const fw = p.women && !ref ? 0.88 : 1;
     const c = Math.cos(p.yaw), s = Math.sin(p.yaw), h = ((p.big ? 1.1 : 1) + ((p.number || 0) % 3) * 0.03) * (p.women && !ref ? 0.94 : 1);
@@ -397,8 +415,9 @@
     for (const s2 of [-1, 1]) {
       const swing = Math.sin(ph) * s2 * 0.34 * run, lift = Math.max(0, Math.sin(ph) * s2) * 0.14 * run, lx = s2 * (0.16 + st * 0.12);
       part(lx, 0.06 + lift, 0.06 + swing, 0.26, 0.1, 0.44, 'shoeSole');
-      part(lx, 0.15 + lift, 0.06 + swing, 0.25, 0.13, 0.42, 'shoes');
-      part(lx, 0.28 + lift, 0.01 + swing * 0.85, 0.23, 0.16, 0.26, sock);
+      part(lx, 0.15 + lift, 0.06 + swing, 0.25, 0.13, 0.42, me && p.meGear.shoes ? 'me_shoes' : 'shoes');
+      part(lx, 0.28 + lift, 0.01 + swing * 0.85, 0.23, 0.16, 0.26, me && p.meGear.socks ? 'me_socks' : sock);
+      if (me && p.meGear.knee) part(lx, 0.58 + lift * 0.5, swing * 0.5 + 0.02, 0.24, 0.12, 0.27, 'me_knee');
       part(lx, 0.44 + lift * 0.7, swing * 0.7, 0.21, 0.18, 0.25, skin);
       part(lx * 0.95, 0.62 + lift * 0.4, swing * 0.45, 0.22, 0.18, 0.25, ref ? shorts : skin);
       part(lx * 0.9, 0.78, swing * 0.2, 0.24, 0.16, 0.26, ref ? shorts : skin);
@@ -415,7 +434,9 @@
     part(0, 1.57, lean, 0.19, 0.1, 0.19, skin);
     part(0, 1.78, lean, 0.42, 0.4, 0.4, skin);
     part(0, 1.65, lean + 0.03, 0.34, 0.08, 0.34, skin);
-    part(0, 1.94, lean - 0.02, 0.44, 0.12, 0.42, 'hair');
+    part(0, 1.94, lean - 0.02, 0.44, 0.12, 0.42, me && p.meHair ? 'me_hair' : 'hair');
+    if (me && p.meGear.band) part(0, 1.9, lean - 0.02, 0.45, 0.06, 0.43, 'me_band');
+    if (me && p.meGear.goggles) part(0, 1.82, lean + 0.21, 0.36, 0.07, 0.03, 'me_goggles');
     part(-0.09, 1.82, lean + 0.205, 0.06, 0.06, 0.03, 'hair'); part(0.09, 1.82, lean + 0.205, 0.06, 0.06, 0.03, 'hair');
     // Brazos: arriba (tiro), abiertos (defensa), bote (mano fuerte delante-abajo) o balanceo al correr.
     for (const s2 of [-1, 1]) {
@@ -424,8 +445,9 @@
       if (up > 0.05) { ay = 1.16 + up * 0.62; az = up * 0.12; ax = s2 * (0.43 - up * 0.08); }
       else if (st) { ax = s2 * 0.62; ay = 1.22; az = 0.14; }
       else if (p.dribble && s2 === 1) { ax = 0.4; ay = 1.0; az = 0.26; }
-      part(ax, ay, az, 0.19, 0.4, 0.22, ref ? jersey : skin);
+      part(ax, ay, az, 0.19, 0.4, 0.22, ref ? jersey : me && p.meGear.sleeve && s2 === (p.meLeft ? -1 : 1) ? 'me_sleeve' : skin);
       part(ax, ay + (up > 0.05 ? 0.36 : -0.3), az + 0.02, 0.17, 0.16, 0.2, skin);
+      if (me && p.meGear.wrist) part(ax, ay + (up > 0.05 ? 0.24 : -0.2), az + 0.02, 0.19, 0.06, 0.22, 'me_wrist');
     }
     if (p.women && !ref) {
       // Tres peinados según la jugadora: coleta alta que se balancea al correr, moño o trenzas; cinta en el pelo.
@@ -445,7 +467,15 @@
     if (/^#[0-9a-f]{6}$/i.test(options.ball || '')) colors.ball = [parseInt(options.ball.slice(1, 3), 16) / 255, parseInt(options.ball.slice(3, 5), 16) / 255, parseInt(options.ball.slice(5, 7), 16) / 255];
     const cubes = court.cubes.slice();
     const add = (x, y, z, sx, sy, sz, color, yaw = 0) => { if (cubes.length < MAX_CUBES) cubes.push({ x, y, z, sx, sy, sz, color, yaw }); };
-    for (const p of f.players) figureAt(add, Object.assign({ women: !!options.women }, p), quality);
+    // Tu jugador: su aspecto y lo que lleva puesto (zapatillas, calcetines, rodilleras, cinta, gafas, manga, muñequeras).
+    const me = options.me && options.me.id ? options.me : null, meLook = me ? me.look || {} : null, meGear = {};
+    if (me) {
+      const toRgb = v => /^#[0-9a-f]{6}$/i.test(v || '') ? [parseInt(v.slice(1, 3), 16) / 255, parseInt(v.slice(3, 5), 16) / 255, parseInt(v.slice(5, 7), 16) / 255] : null;
+      for (const k of ['shoes', 'socks', 'knee', 'band', 'goggles', 'sleeve', 'wrist']) { const c = toRgb(meLook[k]); if (c) { colors['me_' + k] = c; meGear[k] = true; } }
+      if (toRgb(meLook.skin)) colors.me_skin = toRgb(meLook.skin);
+      if (toRgb(meLook.hairColor)) colors.me_hair = toRgb(meLook.hairColor);
+    }
+    for (const p of f.players) figureAt(add, Object.assign({ women: !!options.women }, p, me && p.id === me.id ? { me: true, meGear, meSkin: !!colors.me_skin, meHair: !!colors.me_hair, meLeft: me.left } : null), quality);
     for (const r of f.refs || []) figureAt(add, r, quality);
     if (options.arena !== false) {
       const L = court.dimensions.length, W = court.dimensions.width;

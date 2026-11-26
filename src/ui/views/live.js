@@ -93,7 +93,7 @@
         const kitOf = name => { const c = CAA.Crest ? CAA.Crest.colors({ name }) : ['#36b98a', '#ffffff']; const h = x => [parseInt(x.slice(1, 3), 16) / 255, parseInt(x.slice(3, 5), 16) / 255, parseInt(x.slice(5, 7), 16) / 255]; return { jersey: h(c[0]), shorts: h(c[0]).map(v => v * 0.7), alt: h(c[1]) }; };
         const k0 = kitOf(m.teams[0].name), k1 = kitOf(m.teams[1].name), dist = Math.hypot(...k0.jersey.map((v, q) => v - k1.jersey[q]));
         if (dist < 0.35) { k1.jersey = [0.94, 0.93, 0.9]; k1.shorts = [0.86, 0.85, 0.82]; }
-        const g = CAA.Voxel.geometry(m, 0, 1, { frame: fr, kits: [k0, k1], ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: ui.careerWomen(), quality: 'balanced', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : ui.liveSim.cam.shake > 0.05 ? 0.95 : 0.35 });
+        const g = CAA.Voxel.geometry(m, 0, 1, { frame: fr, kits: [k0, k1], ball: state.career.summary && state.career.summary.era ? state.career.summary.era.ball : null, women: ui.careerWomen(), me: ui.meOnCourt ? ui.meOnCourt() : null, quality: 'balanced', colorMode: state.settings.colorMode, highContrast: state.settings.highContrast, reducedMotion: reduced, t: ts / 1000, hype: clutch ? 1 : ui.liveSim.cam.shake > 0.05 ? 0.95 : 0.35 });
         const cam = CAA.LiveSim.camera(ui.liveSim, canvas.clientWidth / Math.max(1, canvas.clientHeight || canvas.clientWidth * 9 / 16));
         g.light = Object.assign(CAA.Voxel.studioLight(cam.eye, cam.target), { ambient: 0.5, aoMin: 0.8 }); g.gain = 1.1; g.fog = { near: 30, far: 95, color: [0.08, 0.09, 0.16], eye: cam.eye };
         ui.liveRenderer.draw(g, cam);

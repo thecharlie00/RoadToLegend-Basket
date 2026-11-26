@@ -423,6 +423,16 @@
       "worker": false
     },
     {
+      "id": "gear-icons",
+      "path": "src/ui/gear-icons.js",
+      "worker": false
+    },
+    {
+      "id": "view-gear",
+      "path": "src/ui/views/gear.js",
+      "worker": false
+    },
+    {
       "id": "view-jugada",
       "path": "src/ui/views/jugada.js",
       "worker": false

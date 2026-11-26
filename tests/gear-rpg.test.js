@@ -72,3 +72,26 @@ test('el avatar recibe el aspecto y los colores de lo equipado', () => {
   const look = Career.summary(st).look;
   assert.ok(look && look.skin && look.shoes, 'shoes color reaches the avatar');
 });
+
+test('tu jugador lleva en la pista tu aspecto y tu equipamiento; el resto no', () => {
+  const Voxel = require('../src/render/voxel.js');
+  const look = { skin: '#8d5524', hairColor: '#e8c07a', shoes: '#1f7cff', band: '#e3262f', socks: '#f1f1ee', wrist: '#ff7a1f', sleeve: '#3be3ff' };
+  const frame = { players: [{ id: 'me', team: 0, number: 7, x: 0, y: 0, z: 0, yaw: 0 }, { id: 'other', team: 0, number: 8, x: 3, y: 0, z: 0, yaw: 0 }], ball: { x: 0, y: 1, z: 0 }, progress: 1, event: { type: 'start' } };
+  const g = Voxel.geometry({ ruleSetId: 'FIBA-2026' }, 0, 1, { frame, me: { id: 'me', look }, arena: false });
+  for (const k of ['me_shoes', 'me_band', 'me_socks', 'me_wrist', 'me_sleeve', 'me_skin', 'me_hair']) assert.ok(g.colors[k], k);
+  const used = new Set(g.cubes.map(c => c.color));
+  for (const k of ['me_shoes', 'me_band', 'me_wrist', 'me_sleeve', 'me_skin']) assert.ok(used.has(k), 'drawn ' + k);
+  const plain = Voxel.geometry({ ruleSetId: 'FIBA-2026' }, 0, 1, { frame, arena: false });
+  assert.ok(!plain.cubes.some(c => String(c.color).startsWith('me_')), 'without me nothing changes');
+  assert.equal(g.cubes.filter(c => c.color === 'me_band').length, 1, 'only one player wears it');
+});
+
+test('el avatar del vestidor dibuja también sudadera, cascos, reloj y la ropa del entrenador', () => {
+  const Voxel = require('../src/render/voxel.js');
+  const p = Voxel.avatarGeometry({ look: { skin: '#e0ac69', hoodie: '#26304a', phones: '#16191b', watch: '#16191b', towel: '#ffffff' } }, {});
+  for (const k of ['g_hoodie', 'g_phones', 'g_watch', 'g_towel']) assert.ok(p.cubes.some(c => c.color === k), k);
+  const c = Voxel.avatarGeometry({ mode: 'coach', look: { skin: '#e0ac69', suit: '#111318', tie: '#e3262f', cshoes: '#3b2416', clipboard: '#16191b' } }, {});
+  assert.ok(c.cubes.some(x => x.color === 'g_tie') && c.cubes.some(x => x.color === 'g_clipboard'));
+  assert.deepEqual(c.colors.jersey.map(v => Math.round(v * 255)), [17, 19, 24], 'the suit is the coach jersey');
+  assert.ok(!c.cubes.some(x => x.color === 'ball'), 'clipboard instead of a ball');
+});

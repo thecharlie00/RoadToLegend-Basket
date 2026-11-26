@@ -82,7 +82,7 @@
   // ===== Armazón tipo "Camino a la Leyenda": arranque, menú, modos, creación por pasos, cromo y barra inferior =====
   const PRIMARY_TABS = ['career', 'life', 'league', 'more'];
   // Orden de navegación para que el panel entre desde el lado correcto al cambiar de pestaña.
-  const TAB_ORDER = ['career', 'life', 'talents', 'league', 'movements', 'more', 'editor', 'market', 'club', 'shop', 'look', 'national', 'moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab', 'arcade'];
+  const TAB_ORDER = ['career', 'life', 'talents', 'gear', 'league', 'movements', 'more', 'editor', 'market', 'club', 'shop', 'look', 'national', 'moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab', 'arcade'];
   function tabDir(from, to) {
     const a = TAB_ORDER.indexOf(from), b = TAB_ORDER.indexOf(to);
     if (a < 0 || b < 0 || a === b) return 'fwd';
@@ -156,8 +156,8 @@
       doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${confirm}${renderBoot()}${status}`;
     } else {
       const tab = state.tab;
-      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'talents' ? ui.renderTalents() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'jugada' ? renderJugadaCampaign() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'moments' ? renderMoments() : tab === 'editor' ? renderEditor() : tab === 'club' ? renderClub() : tab === 'market' ? renderMarket() : tab === 'national' ? renderNational() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
-      const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' || tab === 'talents' ? 'life' : 'more';
+      const body = tab === 'career' ? renderHome() : tab === 'life' ? renderMe() : tab === 'talents' ? ui.renderTalents() : tab === 'gear' ? ui.renderGear() : tab === 'league' ? renderLeague() : tab === 'more' ? renderMore() : tab === 'jugada' ? renderJugadaCampaign() : tab === 'world' ? renderWorld() : tab === 'match' ? renderMatch() : tab === 'save' ? renderSave() : tab === 'lab' ? renderLab() : tab === 'arcade' ? renderArcade() : tab === 'guide' ? renderGuide() : tab === 'history' ? renderHistory() : tab === 'moments' ? renderMoments() : tab === 'editor' ? renderEditor() : tab === 'club' ? renderClub() : tab === 'market' ? renderMarket() : tab === 'national' ? renderNational() : tab === 'shop' ? renderShop() : tab === 'look' ? renderLook() : renderSettings();
+      const sel = PRIMARY_TABS.includes(tab) ? tab : tab === 'arcade' || tab === 'talents' || tab === 'gear' ? 'life' : 'more';
       const icons = { career: CAA.Icons.svg('career'), life: CAA.Icons.svg('life'), league: CAA.Icons.svg('league'), more: CAA.Icons.svg('more') };
       doc.getElementById('app').innerHTML = `${rail}<a class="skip-link" href="#panel">${t('a11y.skip')}</a>${renderCromo()}
       ${storage && !storage.persistent ? `<p class="bad">${t('save.memoryWarning')}</p>` : ''}${status}
@@ -431,7 +431,7 @@
     get saveOptions() { return saveOptions; },
     get saveSettings() { return saveSettings; }
   };
-  for (const name of ["live","boot","home","me","league","era","more","viva","talents","jugada","assist","arcade","matchlab","juice"]) Object.assign(ui, CAA.UIViews[name](ui));
+  for (const name of ["live","boot","home","me","league","era","more","viva","talents","gear","jugada","assist","arcade","matchlab","juice"]) Object.assign(ui, CAA.UIViews[name](ui));
   const { drawLive3d, pbStart, pbStop, renderBoot, renderHome, renderActionBar, deadlineClock, drawPet, drawScene, drawAvatar, renderCromo, renderMe, paintParrot, renderShop, renderLook, renderLeague, renderWorld, renderNational, eraYearNow, eraIndexUpdate, renderSave, renderLab, matchKeys, renderMatch, renderGuide, renderHistory, renderClub, renderMarket, renderEditor, renderMoments, renderMore, renderSettings, renderJugadaCampaign, renderJm, jmAfterRender, jmActButton, renderRate, rateTick, armReminders, coachStep, maybeStartCoach, coachFinish, renderCoach, placeCoach, renderArcade, arcadeRelease, arcadeSync, heroRelease, heroDraw, drawMatchFrame, syncAnimation, juiceDiff, tabEnter, runJuice } = ui;
   // Acciones por módulos (src/ui/actions/*.js): nombres exactos primero, después los patrones en su orden.
   const ACTIONS = { exact: {}, patterns: [] };

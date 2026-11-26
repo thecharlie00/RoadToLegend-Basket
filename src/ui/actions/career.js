@@ -56,6 +56,32 @@
       if (name === 'gear-op') notify(el.dataset.op === 'claim' && res.gear ? t('gear.claimed.' + res.gear.result, { n: res.gear.mat }) : t('shop.done.' + el.dataset.op));
     };
     for (const k of ["gear-op","look-set"]) exact[k] = h7;
+    // Vestidor: ranura elegida, probar, quitar todo, equipar lo mejor y mejorar con vista previa.
+    const gr = () => state.gr || (state.gr = { slot: null, tryOn: null, upc: null, best: false });
+    const gearSend = async config => { const res = await ui.worker.send('career.gear', { state: state.career.state, config }); await acceptCareer(res); return res; };
+    const eqNow = () => Object.assign({}, CAA.Gear.ensure(state.career.state).equipped);
+    exact["gr-slot"] = async (name, el) => { const u = gr(); u.slot = u.slot === el.dataset.slot ? null : el.dataset.slot; u.upc = null; state.busy = false; };
+    exact["gr-try"] = async (name, el) => { const it = CAA.Gear.BY_ID[el.dataset.item]; if (!it) return; const eq = eqNow(); eq[it.slot] = it.id; gr().tryOn = { eq }; state.busy = false; };
+    exact["gr-try-no"] = async () => { gr().tryOn = null; state.busy = false; };
+    exact["gr-try-ok"] = async () => { const u = gr(); if (!u.tryOn) return; const eq = u.tryOn.eq; u.tryOn = null; u.best = false; await gearSend({ op: 'apply', equipped: eq }); if (ui.audio) ui.audio.play('success'); notify(t('shop.done.equip')); };
+    exact["gr-off"] = async () => { gr().tryOn = null; await gearSend({ op: 'apply', equipped: {} }); if (ui.audio) ui.audio.play('click'); notify(t('gr.offDone')); };
+    exact["gr-best"] = async () => { const u = gr(); u.best = !u.best; state.busy = false; };
+    exact["gr-best-go"] = async (name, el) => {
+      const u = gr(), focus = el.dataset.focus || null, cur = eqNow(), eq = CAA.Gear.best(state.career.state, focus);
+      const same = Object.keys(Object.assign({}, cur, eq)).every(k => (cur[k] || null) === (eq[k] || null));
+      if (same) { notify(t('gr.alreadyBest')); state.busy = false; return; }
+      u.tryOn = { eq, label: t('gr.bestFor', { x: focus ? t('gr.focus.' + focus) : t('gr.balanced') }) }; state.busy = false;
+    };
+    exact["gr-up"] = async (name, el) => { const u = gr(); u.upc = u.upc === el.dataset.item ? null : el.dataset.item; state.busy = false; };
+    exact["gr-up-no"] = async () => { gr().upc = null; state.busy = false; };
+    exact["gr-up-ok"] = async (name, el) => {
+      const id = el.dataset.item, res = await gearSend({ op: el.dataset.pay === 'mat' ? 'upgradeMat' : 'upgrade', itemId: id });
+      gr().upc = null;
+      const tier = CAA.Gear.ensure(state.career.state).owned[id];
+      if (ui.upAnim) root.setTimeout(() => ui.upAnim(id, tier), 30);
+      if (ui.audio) ui.audio.play('levelup');
+      return res;
+    };
     exact["coach-starter"] = async (name, el) => {
       const sm = state.career.summary; const cur = state.coachPick && state.coachPick.career === sm.careerId ? state.coachPick.ids.slice() : sm.squad.starters.slice();
       const id = el.dataset.id; const i = cur.indexOf(id);

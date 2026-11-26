@@ -14,7 +14,7 @@
       const items = CAA.Content.packs().shop.items;
       const color = slot => { const item = items.find(i => i.id === (life.equipment || {})[slot]); return item ? item.color : null; };
       const p = s.player;
-      return { mode: s.mode, name: p ? p.name : s.coach.name, height: p ? p.height : 190, archetype: p ? p.archetype : null, handedness: p ? p.handedness : 'right', women: !!(s.league && s.league.gender === 'f'), look: s.look || null, equipment: { jersey: color('jersey'), shoes: color('shoes'), accessory: color('accessory') } };
+      return { mode: s.mode, name: p ? p.name : s.coach.name, height: p ? p.height : 190, archetype: p ? p.archetype : null, handedness: p ? p.handedness : 'right', women: !!(s.league && s.league.gender === 'f'), look: ui.tryLook ? ui.tryLook(s.look || null) : (s.look || null), equipment: { jersey: color('jersey'), shoes: color('shoes'), accessory: color('accessory') } };
     }
     function face(p) { return CAA.Faces ? CAA.Faces.svg(p, 26) : ''; }
     function avatarHtml() {
@@ -69,10 +69,12 @@
         g.cubes = g.cubes.filter(c => c.color !== 'shadow');
         g.cubes.unshift({ x: 0, y: -0.06, z: 0, sx: 1.5, sy: 0.12, sz: 1.5, color: 'ped_a', yaw: 0.785 }, { x: 0, y: 0.015, z: 0, sx: 1.25, sy: 0.04, sz: 1.25, color: 'ped_b', yaw: 0.785 });
         const tt = root.performance.now() / 1000, a = reduced ? 0.5 : 0.5 + Math.sin(tt * 0.5) * 0.32;
-        const cam = { eye: [Math.sin(a) * 6.4, 2.6, Math.cos(a) * 6.4], target: [0, 1.5, 0], fov: 36, near: 0.1, far: 40 };
+        // En el vestidor, la cámara se acerca a la ranura elegida.
+        const fc = ui.camFocus ? ui.camFocus() : null, rr = fc ? fc.r : 6.4, ty = fc ? fc.y : 1.5;
+        const cam = { eye: [Math.sin(a) * rr, ty + (fc ? 0.5 : 1.1), Math.cos(a) * rr], target: [0, ty, 0], fov: 36, near: 0.1, far: 40 };
         g.light = CAA.Voxel.studioLight(cam.eye, cam.target); g.clear = [0.28, 0.3, 0.44]; g.gain = 1.08; g.sky = [[0.5, 0.53, 0.68], [0.33, 0.36, 0.52], [0.2, 0.2, 0.3]]; g.glow = 0.55;
         ui.avatarRenderer.draw(g, cam);
-        if (!reduced && !doc.hidden && state.tab === 'life' && !state.celebrate) { if (ui.avatarTimer) root.clearTimeout(ui.avatarTimer); ui.avatarTimer = root.setTimeout(drawAvatar, 40); }
+        if (!reduced && !doc.hidden && (state.tab === 'life' || state.tab === 'gear') && !state.celebrate) { if (ui.avatarTimer) root.clearTimeout(ui.avatarTimer); ui.avatarTimer = root.setTimeout(drawAvatar, 40); }
         if (state.celebrate) root.setTimeout(drawAvatar, 60);
       } catch (_) { fallback(); }
     }
@@ -184,7 +186,7 @@
       // Simplificado: arriba lo esencial; el resto, plegado con un título claro.
       const fold = (key, html) => html ? `<details class="card more-week"><summary>${t(key)}</summary>${html}</details>` : '';
       const pet = s.pet ? petCard : fold('pet.title', petCard);
-      const book = bookCards(s), talents = ui.talentsCard ? ui.talentsCard(s) : '';
+      const book = bookCards(s), talents = (ui.gearCard ? ui.gearCard(s) : '') + (ui.talentsCard ? ui.talentsCard(s) : '');
       if (s.squad) return hero + talents + coachCards + fold('book.log', book) + famCard + pet + fold('arcade.title', minis) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
       return hero + talents + famCard + pet + fold('arcade.title', minis) + fold('me.attributes', attrs) + fold('me.season', stats) + fold('book.title', book) + fold('me.practice', practice) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
     }
@@ -348,14 +350,6 @@
              ${i.upgradeCost ? `<button class="small-btn" data-action="gear-op" data-op="upgrade" data-item="${i.id}" ${g.cash < i.upgradeCost ? 'disabled' : ''} aria-label="${t('shop.upgradeTo', { tier: t('tier.' + tier(i.tier + 1).id) })}">⬆ ${money(i.upgradeCost)}</button>` : ''}
              ${i.matCost ? `<button class="small-btn" data-action="gear-op" data-op="upgradeMat" data-item="${i.id}" ${g.mat < i.matCost ? 'disabled' : ''} aria-label="${t('gear.upgradeMat', { tier: t('tier.' + tier(i.tier + 1).id), n: i.matCost })}">⬆ 🧵${i.matCost}</button>` : ''}
              ${i.canReforge ? `<button class="small-btn" data-action="gear-op" data-op="reforge" data-item="${i.id}" ${g.mat < g.reforgeMat ? 'disabled' : ''} aria-label="${t('gear.reforgeLabel', { n: g.reforgeMat })}">✦ 🧵${g.reforgeMat}</button>` : ''}`}</div></div>`;
-      const boxCards = g.boxes.map(b => `<section class="card gear-box"><div class="guide-head"><h3>🎁 ${t('gear.box')}</h3><span class="tag led">${t('gear.reason.' + b.reason)}</span></div><p class="muted small">${t('gear.boxPick')}</p>
-        <div class="gear-choices">${b.options.map((o, ix) => `<div class="gear-choice" style="--tier:${tier(o.tier).c}"><span class="swatch" style="background:${esc(o.color)}" aria-hidden="true"></span>
-          <b>${esc(loc(o.name))}</b><span class="tier" style="--tier:${tier(o.tier).c}">${t('tier.' + tier(o.tier).id)}</span><small>${t('slot.' + o.slot)}${o.set ? ' · ' + t('set.' + o.set) : ''}</small>
-          <small class="ok">${esc(statText(o.stats))}${o.affix ? ` · ✦ +${o.affixVal} ${t('attr.' + o.affix)}` : ''}</small><small class="muted">${t('gear.outcome.' + o.outcome, { n: o.mat })}</small>
-          <button class="small-btn primary" data-action="gear-op" data-op="claim" data-box="${b.id}" data-index="${ix}">${t('gear.pick')}</button></div>`).join('')}</div></section>`).join('');
-      const reforge = g.reforge ? (() => { const it = g.items.find(x => x.id === g.reforge.item); return `<section class="card gear-box" role="region" aria-label="${t('gear.reforgeTitle')}"><h3>✦ ${t('gear.reforgeTitle')}: ${esc(loc(it.name))}</h3><p class="muted small">${t('gear.reforgeDesc')}</p><div class="row">${g.reforge.options.map(k => `<button class="small-btn primary" data-action="gear-op" data-op="reforgePick" data-item="${it.id}" data-affix="${k}">+${it.affix ? it.affix.v : ''} ${t('attr.' + k)}</button>`).join('')}</div></section>`; })() : '';
-      const loadouts = `<section class="card"><h3>${t('gear.loadouts')}</h3><p class="muted small">${t('gear.loadoutsDesc')}</p><div class="gear-loadouts">${g.loadouts.map((n, ix) => `<div><b>${t('gear.loadout', { n: ix + 1 })}</b><small class="muted">${n == null ? t('gear.loadoutEmpty') : t('gear.loadoutPieces', { n })}</small>
-        <div class="row"><button class="small-btn" data-action="gear-op" data-op="saveLoadout" data-index="${ix}">${t('gear.save')}</button><button class="small-btn primary" data-action="gear-op" data-op="useLoadout" data-index="${ix}" ${n == null ? 'disabled' : ''}>${t('gear.use')}</button></div></div>`).join('')}</div></section>`;
       const featured = g.items.filter(i => i.featured || i.offer);
       const bySlot = g.slots.map(sl => { const its = g.items.filter(i => i.slot === sl); return its.length ? `<h4 class="eyebrow">${t('slot.' + sl)}</h4><div class="gear-list">${its.map(card).join('')}</div>` : ''; }).join('');
       const eff = g.effective;
@@ -363,9 +357,20 @@
         <div class="statline"><span>${t('life.cash')}</span><b>${money(g.cash)}</b><span>${t('gear.mat')}</span><b>🧵 ${g.mat}</b></div>
         <p class="muted small">${t(g.team ? 'gear.howCoach' : 'gear.how', { box: 6, n: g.since })}</p>
         <p class="small">${eff.total ? t('shop.effective', { stats: statText(eff.attrs) }) : t('shop.none')}${eff.sets.length ? ' · ' + t('shop.sets', { sets: eff.sets.map(x => t('set.' + x)).join(', ') }) : ''}</p></section>
-        ${boxCards}${reforge}${loadouts}
+        <section class="card"><div class="row"><button class="cta" data-tab="gear">👟 ${t('gr.open')}</button>${g.boxes.length ? `<span class="tag led">🎁 ${t('gr.boxesWaiting', { n: g.boxes.length })}</span>` : ''}</div></section>
         <section class="card"><h3>${t('shop.week')}</h3><div class="gear-list">${featured.map(card).join('')}</div></section>
         <section class="card"><h3>${t('shop.catalog')}</h3>${bySlot}</section>${styleShopHtml()}`;
+    }
+    // Cajas del patrocinador y reforja (en el vestidor).
+    function gearBoxes(g) {
+      const tier = k => CAA.Gear.TIERS[k];
+      const boxCards = g.boxes.map(b => `<section class="card gear-box"><div class="guide-head"><h3>🎁 ${t('gear.box')}</h3><span class="tag led">${t('gear.reason.' + b.reason)}</span></div><p class="muted small">${t('gear.boxPick')}</p>
+        <div class="gear-choices">${b.options.map((o, ix) => `<div class="gear-choice" style="--tier:${tier(o.tier).c}">${CAA.GearIcons ? CAA.GearIcons.svg(o.slot, o.color, tier(o.tier).c, 48) : ''}
+          <b>${esc(loc(o.name))}</b><span class="tier" style="--tier:${tier(o.tier).c}">${t('tier.' + tier(o.tier).id)}</span><small>${t('slot.' + o.slot)}${o.set ? ' · ' + t('set.' + o.set) : ''}</small>
+          <small class="ok">${esc(statText(o.stats))}${o.affix ? ` · ✦ +${o.affixVal} ${t('attr.' + o.affix)}` : ''}</small><small class="muted">${t('gear.outcome.' + o.outcome, { n: o.mat })}</small>
+          <button class="small-btn primary" data-action="gear-op" data-op="claim" data-box="${b.id}" data-index="${ix}">${t('gear.pick')}</button></div>`).join('')}</div></section>`).join('');
+      const reforge = g.reforge ? (() => { const it = g.items.find(x => x.id === g.reforge.item); return `<section class="card gear-box" role="region" aria-label="${t('gear.reforgeTitle')}"><h3>✦ ${t('gear.reforgeTitle')}: ${esc(loc(it.name))}</h3><p class="muted small">${t('gear.reforgeDesc')}</p><div class="row">${g.reforge.options.map(k => `<button class="small-btn primary" data-action="gear-op" data-op="reforgePick" data-item="${it.id}" data-affix="${k}">+${it.affix ? it.affix.v : ''} ${t('attr.' + k)}</button>`).join('')}</div></section>`; })() : '';
+      return boxCards + reforge;
     }
     // ===== Aspecto (look56) =====
     function renderLook() {
@@ -381,6 +386,6 @@
         <h3 class="eyebrow">${t('look.celebration')}</h3>${sw('celebration', LK.celebration, L.celebration)}
         <p class="muted small">${t('look.note')}</p><button class="small-btn" data-tab="shop">🛍 ${t('more.shop')}</button></section>`;
     }
-    return { avatarProfile, face, avatarHtml, drawPet, drawScene, drawAvatar, renderCromo, playerCard, renderMe, renderSquad, parrotStatus, paintParrot, parrotPanel, renderPet, statText, reqText, styleShopHtml, renderShop, renderLook };
+    return { gearBoxes, avatarProfile, face, avatarHtml, drawPet, drawScene, drawAvatar, renderCromo, playerCard, renderMe, renderSquad, parrotStatus, paintParrot, parrotPanel, renderPet, statText, reqText, styleShopHtml, renderShop, renderLook };
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
