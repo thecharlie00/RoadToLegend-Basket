@@ -775,13 +775,15 @@ try {
   await scenario('Gear RPG: sponsor box pick 1 of 3, traits, break-in, loadouts and the avatar wears it', { viewport: { width: 360, height: 800 } }, async page => {
     await newCareer(page, { seed: 'gear-browser' });
     await page.evaluate(() => { const C = CAA_APP.state.career, st = CAA.Career.resume(C.state); CAA.Gear.ensure(st); st.life.gear.dry = 4; CAA.Gear.makeBox(st, 'big'); C.state = CAA.Career.serialize(st); C.summary = CAA.Career.summary(st); });
-    await tab(page, 'shop');
+    await tab(page, 'gear');
     assert.equal(await page.locator('.gear-box').count(), 1, 'box card');
     assert.equal(await page.locator('.gear-choice').count(), 3, 'three choices');
     await page.locator('[data-action="gear-op"][data-op="claim"]').first().click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     assert.equal(await page.locator('.gear-box').count(), 0, 'box opened');
+    await tab(page, 'shop');
     assert.ok(await page.locator('.gear-affix').count() >= 1, 'silver+ piece shows its trait');
     assert.ok(await page.locator('.gear-item small.muted', { hasText: /Rodaje|Break-in/ }).count() >= 1, 'break-in progress');
+    await tab(page, 'gear');
     await page.locator('[data-action="gear-op"][data-op="saveLoadout"][data-index="0"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
     assert.equal(await page.locator('[data-action="gear-op"][data-op="useLoadout"][data-index="0"]:disabled').count(), 0, 'loadout saved');
     assert.ok(await page.evaluate(() => !!CAA_APP.state.career.summary.look && !!CAA_APP.state.career.summary.look.shoes), 'avatar receives the gear colors');
@@ -789,7 +791,7 @@ try {
     const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     report.accessibility.push({ name: 'gear-rpg', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
     await page.evaluate(() => { const C = CAA_APP.state.career, st = CAA.Career.resume(C.state); CAA.Gear.makeBox(st, 'double'); C.state = CAA.Career.serialize(st); C.summary = CAA.Career.summary(st); });
-    await tab(page, 'life'); await tab(page, 'shop');
+    await tab(page, 'life'); await tab(page, 'gear');
     await page.locator('.gear-box').first().screenshot({ path: 'data/qa/gear-box.png' }).catch(() => {});
     await tab(page, 'look'); await page.waitForTimeout(600);
     await page.locator('.avatar-wrap').first().screenshot({ path: 'data/qa/avatar-gear.png' }).catch(() => {});

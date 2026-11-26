@@ -2284,5 +2284,7 @@
   "attr.trust": "Vertrauen",
   "attr.morale": "Moral",
   "attr.locker": "Kabine",
-  "attr.scout": "Scouting"
+  "attr.scout": "Scouting",
+  "more.gear": "Umkleide",
+  "more.gearSub": "Ausrüsten, anprobieren und Teile verbessern"
 }

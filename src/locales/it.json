@@ -2284,5 +2284,7 @@
   "attr.trust": "Fiducia",
   "attr.morale": "Morale",
   "attr.locker": "Spogliatoio",
-  "attr.scout": "Osservazione"
+  "attr.scout": "Osservazione",
+  "more.gear": "Spogliatoio",
+  "more.gearSub": "Equipaggiati, prova e migliora i tuoi pezzi"
 }

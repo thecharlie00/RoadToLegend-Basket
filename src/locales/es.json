@@ -2284,5 +2284,7 @@
   "attr.trust": "Confianza",
   "attr.morale": "Moral",
   "attr.locker": "Vestuario",
-  "attr.scout": "Ojeo"
+  "attr.scout": "Ojeo",
+  "more.gear": "Vestidor",
+  "more.gearSub": "Equípate, prueba y mejora tus piezas"
 }

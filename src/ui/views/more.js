@@ -161,10 +161,10 @@
     }
     function renderMore() {
       const s = hasCareer() ? state.career.summary : null;
-      const ico = { jugada: 'ball', editor: 'edit', market: 'handshake', club: 'arena', shop: 'bag', look: 'palette', national: 'trophy', moments: 'film', history: 'hall', guide: 'book', world: 'globe', match: 'ball', save: 'save', settings: 'gear', lab: 'flask' };
+      const ico = { jugada: 'ball', editor: 'edit', market: 'handshake', club: 'arena', shop: 'bag', gear: 'star', look: 'palette', national: 'trophy', moments: 'film', history: 'hall', guide: 'book', world: 'globe', match: 'ball', save: 'save', settings: 'gear', lab: 'flask' };
       const tile = (tab) => `<button class="tile" data-tab="${tab}" id="more-${tab}" aria-label="${esc(t('more.' + tab) + ': ' + t('more.' + tab + 'Sub'))}"><span class="ico" aria-hidden="true">${CAA.Icons.svg(ico[tab] || 'ball')}</span><b>${t('more.' + tab)}</b></button>`;
       const group = (title, tabs) => `<section class="more-group"><h3 class="eyebrow">${title}</h3><div class="tiles">${tabs.filter(Boolean).map(tile).join('')}</div></section>`;
-      const club = [s ? 'editor' : '', s && s.transfers ? 'market' : '', s && s.clubFin ? 'club' : '', s ? 'shop' : '', s ? 'look' : '', s && s.national ? 'national' : ''];
+      const club = [s ? 'editor' : '', s && s.transfers ? 'market' : '', s && s.clubFin ? 'club' : '', s ? 'gear' : '', s ? 'shop' : '', s ? 'look' : '', s && s.national ? 'national' : ''];
       const systemTabs = ['jugada', 'moments', 'history', 'guide', 'world', 'match', 'save', 'settings', 'lab'];
       const quick = s && s.club ? `<section class="card more-hero"><div class="mh-id">${crest(s.club, 34)}<div><b>${esc(s.player ? s.player.name : s.coach.name)}</b><small class="muted">${esc(s.club.name)} · ${esc(s.leagueName)}</small></div></div>
         <div class="more-stats"><div><b>${s.week}</b><small>${t('career.week')}</small></div><div><b>${s.club.wins}-${s.club.losses}</b><small>${t('league.w')}-${t('league.l')}</small></div><div><b>${(s.life && s.life.achievements ? s.life.achievements.length : 0)}</b><small>${t('me.trophies')}</small></div><div><b>${s.table && s.table.length ? s.table.find(r => r.id === s.club.id) ? s.table.find(r => r.id === s.club.id).rank + 'º' : '—' : '—'}</b><small>${t('league.table')}</small></div></div>

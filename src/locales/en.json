@@ -2284,5 +2284,7 @@
   "attr.trust": "Trust",
   "attr.morale": "Morale",
   "attr.locker": "Locker room",
-  "attr.scout": "Scouting"
+  "attr.scout": "Scouting",
+  "more.gear": "Locker room",
+  "more.gearSub": "Gear up, try on and upgrade your pieces"
 }
