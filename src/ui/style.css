@@ -737,3 +737,12 @@ tr.loss td:first-child{opacity:.85}
 .jm-help{align-items:center;flex-wrap:wrap}.jm-diff{margin:4px 0}.jm-diff b{color:var(--gold);letter-spacing:2px}
 .jm-ball-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
 .jm-ballpick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px}.jm-ballpick i{width:26px;height:26px;border-radius:50%;box-shadow:inset -4px -4px 0 rgba(0,0,0,.25);border:1px solid rgba(0,0,0,.35)}.jm-ballpick.on{outline:3px solid var(--accent)}.jm-ballpick small{font-size:.75rem}
+/* Talentos (RPG) */
+.rpg-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:6px 0}.rpg-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold))}
+.rpg-perks{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}
+.rpg-perk{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.rpg-perk>div{display:flex;flex-direction:column;gap:2px;min-width:0}.rpg-perk .rpg-fx{color:var(--ink)}
+.rpg-perk.tier-2{margin-left:10px}.rpg-perk.tier-3{margin-left:20px;border-color:var(--gold)}
+.rpg-perk.has{background:color-mix(in srgb,var(--accent) 12%,transparent)}.rpg-perk.full{border-color:var(--good)}
+.rpg-pips{color:var(--gold);letter-spacing:1px;font-size:.8rem}
+.rpg-perk button{min-width:52px;flex:none}

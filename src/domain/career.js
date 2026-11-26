@@ -17,6 +17,7 @@
   const Arcade = CAA.Arcade || (typeof require === 'function' ? require('../match/arcade.js') : null);
   const Pet = CAA.Pet || (typeof require === 'function' ? require('./pet.js') : null);
   const Playoffs = CAA.Playoffs || (typeof require === 'function' ? require('./playoffs.js') : null);
+  const Rpg = CAA.Rpg || (typeof require === 'function' ? require('./rpg.js') : null);
   const StatsBook = CAA.StatsBook || (typeof require === 'function' ? require('./statsbook.js') : null);
   const Family = CAA.Family || (typeof require === 'function' ? require('./family.js') : null);
   const Gear = CAA.Gear || (typeof require === 'function' ? require('./gear.js') : null);
@@ -169,7 +170,7 @@
     if (state.player) {
       const p = state.player;
       const devScale = 34 / Math.max(1, state.season.schedule.length);
-      if (act.type === 'train') { Player.develop(p, { focus: act.focus || 'tiroTriple', scale: devScale * 1.6 }, rng); p.load = Math.min(100, p.load + 12); Content.ensureLife(state).counters.train++; }
+      if (act.type === 'train') { Player.develop(p, { focus: act.focus || 'tiroTriple', scale: devScale * 1.6 }, rng); p.load = Math.min(100, p.load + 12); Content.ensureLife(state).counters.train++; Rpg.gain(state, 8, 'train'); }
       else if (act.type === 'family') { Player.recover(p); p.load = Math.max(0, p.load - 15); p.morale = Math.min(100, p.morale + 3); }
       else if (act.type === 'rest') { Player.recover(p); p.load = Math.max(0, p.load - 25); p.fatigue = Math.max(0, p.fatigue - 0.3); p.morale = Math.min(100, p.morale + 2); }
       else { Player.develop(p, { focus: null, scale: devScale }, rng); }
@@ -265,9 +266,10 @@
     if (mine) { const myIdx = mine.teams.findIndex(t => t.id === state.clubId); if (mine.winner === myIdx) { lc.totalWins = (lc.totalWins || 0) + 1; if (state.season.playoffs) lc.playoffWins = (lc.playoffWins || 0) + 1; } }
     if (state.coach && mine) lc.coachGames = (lc.coachGames || 0) + 1;
     chronicle(state, played, mine);
-    if (mine) StatsBook.track(state, mine);
+    if (mine) Rpg.gameXp(state, StatsBook.track(state, mine));
+    Rpg.refresh(state);
     Viva.afterWeek(state);
-    if (state.coach) coachWeek(state, rng);
+    if (state.coach) { coachWeek(state, rng); Rpg.coachWeek(state, rng, Player); }
     Content.weeklyIncome(state);
     const petWeek = Pet.weekTick(state, Content.ensureLife(state));
     if (petWeek && petWeek.mood) Content.applyEffects(state, { morale: petWeek.mood });
@@ -394,6 +396,7 @@
     if (state.player) for (const a of awardsList) if (a.playerId === state.player.id) { state.player.career.awards.push({ year: state.year, award: a.award }); myAwards.push(a.award); }
     if (state.coach && awardsList.some(a => a.award === 'coy' && a.clubId === state.clubId)) myAwards.push('coy');
     lc.awards = (lc.awards || 0) + myAwards.length;
+    Rpg.gain(state, myAwards.length * 60 + (season.champion === state.clubId ? 120 : 0) + (myResult && myResult !== 'missed' ? 30 : 0), 'season');
     lc.mvps = (lc.mvps || 0) + myAwards.filter(a => a === 'mvp').length;
     lc.allLeague = (lc.allLeague || 0) + myAwards.filter(a => a === 'allLeague').length;
     if (myResult && myResult !== 'missed') lc.playoffApps = (lc.playoffApps || 0) + 1;
@@ -516,6 +519,7 @@
   // Cada parte recibe este contexto; lo que exporta se añade aquí y se usa por su nombre.
   if (typeof require === 'function' && typeof module !== 'undefined') ['./career-life.js', './career-world.js', './career-club.js', './career-view.js'].forEach(p => require(p));
   const K = {
+    get Rpg() { return Rpg; },
     get StatsBook() { return StatsBook; },
     get Arcade() { return Arcade; },
     get Content() { return Content; },

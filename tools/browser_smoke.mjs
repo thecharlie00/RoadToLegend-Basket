@@ -748,6 +748,30 @@ try {
     await click(page, 'jm-close');
     assert.equal(await page.locator('.jm-level:disabled').count(), 28, 'skipped play unlocks the next one');
   });
+  await scenario('Talents (RPG): player and coach trees change match attributes, free respec once per season', { viewport: { width: 360, height: 800 } }, async page => {
+    await newCareer(page, { seed: 'rpg-browser' });
+    await tab(page, 'life');
+    assert.equal(await page.locator('.rpg-card').count(), 1, 'talents card in ME');
+    await page.locator('.rpg-card [data-tab="talents"]').click(); await openFolds(page);
+    assert.equal(await page.locator('.rpg-tree').count(), 6, 'six player trees');
+    await page.locator('[data-action="talent-buy"][data-id="deep"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.rpg.attrs.tiroTriple), 1);
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.state.player.rpgAttrs.tiroTriple), 1, 'player carries the match bonus');
+    assert.ok(await page.locator('[data-action="talent-buy"][data-id="stroke"]:disabled').count(), 'tier 2 locked');
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    report.accessibility.push({ name: 'talents-player', violations: r.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })) });
+    await page.locator('.rpg-tree').first().screenshot({ path: 'data/qa/talents-tree.png' }).catch(() => {});
+    await click(page, 'talent-respec');
+    assert.equal(await page.evaluate(() => CAA_APP.state.career.summary.rpg.points), 1);
+    assert.ok(await page.locator('[data-action="talent-respec"]:disabled').count(), 'one respec per season');
+    await newCareer(page, { mode: 'coach', seed: 'rpg-coach-browser' });
+    await tab(page, 'life');
+    await page.locator('.rpg-card [data-tab="talents"]').click(); await openFolds(page);
+    assert.equal(await page.locator('.rpg-tree').count(), 4, 'four coach trees');
+    await page.locator('[data-action="talent-buy"][data-id="walls"]').click(); await page.waitForFunction(() => !CAA_APP.state.busy);
+    assert.deepEqual(await page.evaluate(() => { const s = CAA_APP.state.career.state; return s.season.clubsById[s.clubId].coachAttrs; }), { defInterior: 1 });
+  });
   await scenario('Parrot: records the player, trims silence and repeats it distorted', { permissions: ['microphone'], viewport: { width: 360, height: 800 } }, async page => {
     await parrotCareer(page);
     const bond0 = await page.evaluate(() => CAA_APP.state.career.summary.pet.bond);

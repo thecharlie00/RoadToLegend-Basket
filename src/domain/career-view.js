@@ -5,7 +5,7 @@
   const CAA = root.CAA = root.CAA || {};
   CAA.CareerParts = CAA.CareerParts || {};
   CAA.CareerParts["view"] = function (K) {
-    const { Content, EraW, Eras, Family, Finance, Gear, Live, MODES, Market, National, Pet, Playoffs, ROUTES, Season, StatsBook, Viva, World, clubOf, currentGame, currentLive, jmPlan, jmState, rivalOf } = K;
+    const { Content, EraW, Eras, Family, Finance, Gear, Live, MODES, Market, National, Pet, Playoffs, ROUTES, Season, Rpg, StatsBook, Viva, World, clubOf, currentGame, currentLive, jmPlan, jmState, rivalOf } = K;
     const clamp100 = v => Math.max(0, Math.min(100, Math.round(v)));
     function meters(state, club) {
       const life = state.life || { counters: {} };
@@ -49,6 +49,7 @@
           return { focus: Viva.focus(state, { event: !!Content.pendingView(state), live: !!currentLive(state), next: fx.next, playoffs: !!(fx.next && fx.next.playoff), starters }), chronicle: Viva.latest(state), archive: state.life && state.life.chronicles ? state.life.chronicles.slice(-12).reverse() : [] };
         })(),
         book: StatsBook.view(state),
+        rpg: (() => { const v = Rpg.view(state); if (state.player) { const a = Object.assign({}, state.player.attrs); for (const [k, x] of Object.entries(v.attrs)) a[k] = Math.min(99, a[k] + x); v.ovrWith = K.Player.ovr(a, state.player.pos); v.ovrBase = state.player.ovr; } return v; })(),
         awardRace: (() => {
           const s = state.season; if (s.playoffs || s.round < 3) return null;
           const pid = state.player ? state.player.id : null;

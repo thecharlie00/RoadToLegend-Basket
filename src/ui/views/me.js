@@ -184,9 +184,9 @@
       // Simplificado: arriba lo esencial; el resto, plegado con un título claro.
       const fold = (key, html) => html ? `<details class="card more-week"><summary>${t(key)}</summary>${html}</details>` : '';
       const pet = s.pet ? petCard : fold('pet.title', petCard);
-      const book = bookCards(s);
-      if (s.squad) return hero + coachCards + fold('book.log', book) + famCard + pet + fold('arcade.title', minis) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
-      return hero + famCard + pet + fold('arcade.title', minis) + fold('me.attributes', attrs) + fold('me.season', stats) + fold('book.title', book) + fold('me.practice', practice) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
+      const book = bookCards(s), talents = ui.talentsCard ? ui.talentsCard(s) : '';
+      if (s.squad) return hero + talents + coachCards + fold('book.log', book) + famCard + pet + fold('arcade.title', minis) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
+      return hero + talents + famCard + pet + fold('arcade.title', minis) + fold('me.attributes', attrs) + fold('me.season', stats) + fold('book.title', book) + fold('me.practice', practice) + fold('me.offcourt', offcourt) + fold('more.shop', shop) + fold('me.trophies', trophies) + fold('life.press', press);
     }
     function renderSquad(s) {
       const sq = s.squad;

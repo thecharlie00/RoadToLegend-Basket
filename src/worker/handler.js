@@ -234,6 +234,12 @@
           result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), crossing };
           break;
         }
+        case 'career.talent': {
+          const state = CAA.Career.resume(msg.payload.state);
+          const talent = CAA.Rpg.op(state, msg.payload.config || {});
+          result = { state: CAA.Career.serialize(state), summary: CAA.Career.summary(state), talent };
+          break;
+        }
         case 'career.trade': {
           const state = CAA.Career.resume(msg.payload.state);
           const trade = CAA.Career.requestTrade(state, msg.payload.config || {});

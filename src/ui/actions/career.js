@@ -94,6 +94,16 @@
       const res = await ui.worker.send('career.sign', { state: state.career.state, index });
       await acceptCareer(res);
     };
+    const talent = async config => {
+      if (!state.career.state) throw new Error(t('career.empty'));
+      const before = state.career.summary && state.career.summary.rpg;
+      const res = await ui.worker.send('career.talent', { state: state.career.state, config });
+      await acceptCareer(res); if (ui.audio) ui.audio.play(config.op === 'buy' ? 'levelup' : 'click');
+      notify(config.op === 'buy' ? t('rpg.bought', { name: t('rpg.perk.' + config.id) }) : t('rpg.respecDone', { n: res.talent }));
+      return before;
+    };
+    exact["talent-buy"] = async (name, el) => { await talent({ op: 'buy', id: el.dataset.id }); };
+    exact["talent-respec"] = async (name, el) => { await talent({ op: 'respec' }); };
     exact["trade-request"] = async (name, el) => {
       if (!state.career.state) throw new Error(t('career.empty'));
       const sel = doc.getElementById('trade-club'); if (!sel || !sel.value) return;

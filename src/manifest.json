@@ -128,6 +128,11 @@
       "worker": true
     },
     {
+      "id": "rpg",
+      "path": "src/domain/rpg.js",
+      "worker": true
+    },
+    {
       "id": "content",
       "path": "src/domain/content.js",
       "worker": true
@@ -410,6 +415,11 @@
     {
       "id": "view-viva",
       "path": "src/ui/views/viva.js",
+      "worker": false
+    },
+    {
+      "id": "view-talents",
+      "path": "src/ui/views/talents.js",
       "worker": false
     },
     {

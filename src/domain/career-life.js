@@ -42,6 +42,7 @@
       const cfg = Object.assign({}, pending, { releaseTick: config.releaseTick, auto: !!config.auto });
       const result = cfg.auto ? Minigames.auto(cfg) : (pending.type === 'buzzer' ? Minigames.buzzer(cfg) : Minigames.freeThrow(cfg));
       life.xp += result.made ? 3 : 1;
+      if (K.Rpg) K.Rpg.gain(state, result.made ? 4 : 1, 'practice');
       if (state.player) { state.player.form = Math.max(-10, Math.min(10, (state.player.form || 0) + (result.made ? 1 : 0))); state.player.load = Math.min(100, state.player.load + 2); }
       life.pendingPractice = null;
       record(state, { type: 'practice', minigame: pending.type, made: result.made, hash: result.hash });

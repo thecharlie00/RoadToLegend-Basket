@@ -138,7 +138,7 @@
     if (!starterIds) { const trusted = roster.find(p => (p.coachTrust || 0) >= 75 && !starters.includes(p.id)); if (trusted) starters[4] = trusted.id; }
     return {
       id: club.id, name: club.name,
-      players: roster.map(p => Player.toMatchPlayer(p, starters.includes(p.id))),
+      players: roster.map(p => Player.toMatchPlayer(p, starters.includes(p.id), club.coachAttrs || null)),
       tactic: Object.assign({}, club.tactic || Match.DEFAULT_TACTIC)
     };
   }
